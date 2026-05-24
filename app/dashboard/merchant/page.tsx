@@ -86,7 +86,7 @@ export default function MerchantDashboardPage() {
       ) : isError ? (
         <div className="alert alert-error text-sm rounded-2xl">{t.merchantDashboard.statsError}</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StatCard
             label={t.merchantDashboard.clicks}
             value={data!.totalClicks.toLocaleString()}
@@ -110,7 +110,7 @@ export default function MerchantDashboardPage() {
           />
           <StatCard
             label={t.merchantDashboard.commissionPaid}
-            value={`${data!.totalCommissionPaid.toFixed(2)} ₾`}
+            value={`${data!.totalOwed.toFixed(2)} ₾`}
             color="text-fuchsia-400 bg-fuchsia-400/10"
             icon={
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
@@ -118,17 +118,6 @@ export default function MerchantDashboardPage() {
                 <path d="M2 8.5h14" stroke="currentColor" strokeWidth="1.5"/>
                 <circle cx="13" cy="12" r="1" fill="currentColor"/>
                 <path d="M5 3h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            }
-          />
-          <StatCard
-            label={t.merchantDashboard.balance}
-            value={`${data!.currentBalance.toFixed(2)} ₾`}
-            color="text-amber-400 bg-amber-400/10"
-            icon={
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-                <circle cx="9" cy="9" r="7" stroke="currentColor" strokeWidth="1.5"/>
-                <path d="M9 5v4l2.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             }
           />
@@ -178,7 +167,7 @@ export default function MerchantDashboardPage() {
                     <td className="px-6 py-4 text-right text-white/60 text-sm tabular-nums">{c.clicks.toLocaleString()}</td>
                     <td className="px-6 py-4 text-right text-white/60 text-sm tabular-nums">{c.conversions.toLocaleString()}</td>
                     <td className="px-6 py-4 text-right tabular-nums">
-                      <span className="text-fuchsia-400 font-semibold text-sm">{c.commissionEarned.toFixed(2)} ₾</span>
+                      <span className="text-fuchsia-400 font-semibold text-sm">{c.totalOwed.toFixed(2)} ₾</span>
                     </td>
                   </tr>
                 ))}

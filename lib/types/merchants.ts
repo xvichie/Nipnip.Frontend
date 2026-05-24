@@ -41,7 +41,7 @@ export interface TopCreatorEntry {
   creatorSlug: string
   clicks: number
   conversions: number
-  commissionEarned: number
+  totalOwed: number
 }
 
 export interface MerchantSnippetResponse {
@@ -53,8 +53,7 @@ export interface MerchantSnippetResponse {
 export interface MerchantDashboardResponse {
   totalClicks: number
   totalConversions: number
-  totalCommissionPaid: number
-  currentBalance: number
+  totalOwed: number
   topCreators: TopCreatorEntry[]
   from: string | null
   to: string | null
