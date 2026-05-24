@@ -4,11 +4,12 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { ka } from '@/strings/ka'
 import { en } from '@/strings/en'
 import { ru } from '@/strings/ru'
+import type { Strings } from '@/strings/ka'
 
 export type Language = 'ka' | 'en' | 'ru'
-export type Strings = typeof ka
+export type { Strings }
 
-const STRINGS = { ka, en, ru } as const
+const STRINGS: Record<Language, Strings> = { ka, en, ru }
 
 interface LanguageContextValue {
   lang: Language
