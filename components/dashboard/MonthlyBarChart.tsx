@@ -8,7 +8,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
-  type TooltipProps,
 } from 'recharts'
 
 interface ChartEntry {
@@ -28,9 +27,15 @@ interface Props {
   currency?: string
 }
 
-function CustomTooltip({ active, payload, currency = '₾' }: TooltipProps<number, string> & { currency?: string }) {
+interface TooltipInnerProps {
+  active?: boolean
+  payload?: Array<{ payload: ChartEntry }>
+  currency?: string
+}
+
+function CustomTooltip({ active, payload, currency = '₾' }: TooltipInnerProps) {
   if (!active || !payload?.length) return null
-  const d = payload[0].payload as ChartEntry
+  const d = payload[0].payload
   return (
     <div className="bg-[#12121c] border border-white/10 rounded-xl px-3 py-2 shadow-xl text-xs">
       <p className="text-white/50 mb-0.5">{d.label}</p>
@@ -68,14 +73,20 @@ export function MonthlyBarChart({
         />
         <YAxis hide domain={[0, 'auto']} />
         <Tooltip
-          content={<CustomTooltip currency={currency} />}
+          content={(props) => {
+            const p = props as unknown as TooltipInnerProps
+            return <CustomTooltip active={p.active} payload={p.payload} currency={currency} />
+          }}
           cursor={{ fill: 'rgba(255,255,255,0.03)', radius: 6 } as object}
         />
         <Bar
           dataKey="value"
           radius={[5, 5, 2, 2]}
           isAnimationActive={false}
-          onClick={(entry: ChartEntry) => onSelect(entry.year, entry.month)}
+          onClick={(entry) => {
+            const d = entry as unknown as ChartEntry
+            onSelect(d.year, d.month)
+          }}
           style={{ cursor: 'pointer' }}
         >
           {data.map(entry => {
