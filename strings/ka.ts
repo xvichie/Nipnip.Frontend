@@ -16,6 +16,7 @@ export const ka = {
     copyright: 'შექმნილია კრეატორებისთვის',
     about: 'შესახებ',
     howItWorks: 'როგორ მუშაობს',
+    faq: 'FAQ',
     contact: 'კონტაქტი',
     signUp: 'რეგისტრაცია',
     merchants: 'მერჩანტები',

@@ -18,6 +18,7 @@ export const en: Strings = {
     copyright: 'Built for creators',
     about: 'About',
     howItWorks: 'How it works',
+    faq: 'FAQ',
     contact: 'Contact',
     signUp: 'Sign up',
     merchants: 'Merchants',

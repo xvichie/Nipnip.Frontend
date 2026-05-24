@@ -18,6 +18,7 @@ export const ru: Strings = {
     copyright: 'Создано для авторов',
     about: 'О нас',
     howItWorks: 'Как это работает',
+    faq: 'FAQ',
     contact: 'Контакт',
     signUp: 'Регистрация',
     merchants: 'Магазины',
