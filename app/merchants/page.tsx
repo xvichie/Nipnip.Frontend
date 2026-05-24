@@ -128,6 +128,7 @@ export default function MerchantsPage() {
   const [copied, setCopied] = useState(false)
   const profileModalRef = useRef<HTMLDialogElement>(null)
   const linkModalRef = useRef<HTMLDialogElement>(null)
+  const signInModalRef = useRef<HTMLDialogElement>(null)
   const router = useRouter()
   const { t } = useLanguage()
 
@@ -151,7 +152,11 @@ export default function MerchantsPage() {
 
   function openLink(m: MerchantResponse, e?: React.MouseEvent) {
     e?.stopPropagation()
-    if (!isSignedIn) { router.push('/sign-up'); return }
+    if (!isSignedIn) {
+      profileModalRef.current?.close()
+      signInModalRef.current?.showModal()
+      return
+    }
     if (!creator) { router.push('/onboarding'); return }
     setSelected(m)
     setCopied(false)
@@ -370,6 +375,39 @@ export default function MerchantsPage() {
         <form method="dialog" className="modal-backdrop">
           <button>close</button>
         </form>
+      </dialog>
+
+      {/* Sign-in required modal */}
+      <dialog ref={signInModalRef} className="modal">
+        <div className="modal-box bg-[#0f0f18] border border-white/8 rounded-2xl max-w-xs p-0 overflow-hidden">
+          <div className="flex flex-col items-center gap-4 px-6 pt-10 pb-8 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-violet-500/15 border border-violet-500/20 flex items-center justify-center">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
+                <rect x="4" y="10" width="14" height="10" rx="2.5" stroke="#a78bfa" strokeWidth="1.6"/>
+                <path d="M7 10V7a4 4 0 0 1 8 0v3" stroke="#a78bfa" strokeWidth="1.6" strokeLinecap="round"/>
+                <circle cx="11" cy="15" r="1.5" fill="#a78bfa"/>
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-black text-white text-lg leading-tight">{t.signInRequired.title}</h3>
+              <p className="text-white/45 text-sm mt-1.5 leading-relaxed">{t.signInRequired.body}</p>
+            </div>
+            <div className="flex flex-col gap-2 w-full mt-1">
+              <button
+                onClick={() => { signInModalRef.current?.close(); router.push('/sign-in') }}
+                className="btn w-full bg-violet-600 hover:bg-violet-500 border-violet-600 hover:border-violet-500 text-white rounded-xl normal-case font-semibold"
+              >
+                {t.signInRequired.cta}
+              </button>
+              <form method="dialog">
+                <button className="btn w-full bg-white/4 border-white/8 text-white/60 hover:text-white rounded-xl normal-case">
+                  {t.common.close}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop"><button>close</button></form>
       </dialog>
 
       {/* Link modal */}

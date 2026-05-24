@@ -278,6 +278,11 @@ export const en: Strings = {
     modalHint: 'Share this link with your followers. Every sale through this link counts as your commission.',
     getLink: 'Get link →',
   },
+  signInRequired: {
+    title: 'Sign in required',
+    body: 'You need to sign in before you can get your tracking link.',
+    cta: 'Sign in',
+  },
   detail: {
     title: 'Conversion details',
     notFound: 'Conversion not found.',
