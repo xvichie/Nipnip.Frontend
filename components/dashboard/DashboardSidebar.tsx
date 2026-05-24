@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { UserButton } from '@clerk/nextjs'
 import { useLanguage } from '@/lib/i18n'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { NipNipLogo } from '@/components/NipNipLogo'
 
 const GRID_ICON = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -97,8 +98,8 @@ export function DashboardSidebar() {
 
       {/* Logo */}
       <div className="h-16 flex items-center px-5 border-b border-white/6 shrink-0">
-        <Link href="/" className="text-lg font-black text-transparent bg-clip-text bg-linear-to-r from-violet-400 to-fuchsia-400 select-none hover:opacity-80 transition-opacity">
-          NipNip
+        <Link href="/" className="hover:opacity-80 transition-opacity select-none" aria-label="NipNip">
+          <NipNipLogo className="h-7" />
         </Link>
       </div>
 

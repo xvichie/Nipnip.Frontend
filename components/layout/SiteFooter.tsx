@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useLanguage } from '@/lib/i18n'
+import { NipNipLogo } from '@/components/NipNipLogo'
 
 export function SiteFooter() {
   const { t } = useLanguage()
@@ -33,11 +34,8 @@ export function SiteFooter() {
 
           {/* Brand */}
           <div className="col-span-2 lg:col-span-1">
-            <Link
-              href="/"
-              className="text-lg font-black text-transparent bg-clip-text bg-linear-to-r from-violet-400 to-fuchsia-400 select-none hover:opacity-80 transition-opacity"
-            >
-              NipNip
+            <Link href="/" className="hover:opacity-80 transition-opacity select-none inline-block" aria-label="NipNip">
+              <NipNipLogo className="h-6" />
             </Link>
             <p className="text-white/30 text-sm mt-3 leading-relaxed max-w-50">
               {t.footer.tagline}
