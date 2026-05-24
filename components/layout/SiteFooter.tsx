@@ -1,0 +1,122 @@
+'use client'
+
+import Link from 'next/link'
+import { useLanguage } from '@/lib/i18n'
+
+export function SiteFooter() {
+  const { t } = useLanguage()
+
+  const PLATFORM_LINKS = [
+    { href: '/about', label: t.footer.about },
+    { href: '/how-it-works', label: t.footer.howItWorks },
+    { href: '/faq', label: t.footer.faq },
+    { href: '/contact', label: t.footer.contact },
+  ]
+
+  const CREATOR_LINKS = [
+    { href: '/sign-up', label: t.footer.signUp },
+    { href: '/merchants', label: t.footer.merchants },
+    { href: '/dashboard/creator', label: t.footer.creatorDashboard },
+  ]
+
+  const MERCHANT_LINKS = [
+    { href: '/how-it-works#merchants', label: t.footer.joinAsMerchant },
+    { href: '/dashboard/merchant', label: t.footer.merchantDashboard },
+    { href: '/contact', label: t.footer.contact },
+  ]
+
+  return (
+    <footer className="border-t border-white/5 bg-[#08080d] pt-16 pb-8 px-6">
+      <div className="max-w-6xl mx-auto">
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-10 mb-14">
+
+          {/* Brand */}
+          <div className="col-span-2 lg:col-span-1">
+            <Link
+              href="/"
+              className="text-lg font-black text-transparent bg-clip-text bg-linear-to-r from-violet-400 to-fuchsia-400 select-none hover:opacity-80 transition-opacity"
+            >
+              NipNip
+            </Link>
+            <p className="text-white/30 text-sm mt-3 leading-relaxed max-w-50">
+              {t.footer.tagline}
+            </p>
+          </div>
+
+          {/* Platform */}
+          <div>
+            <p className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-4">{t.footer.platform}</p>
+            <ul className="flex flex-col gap-2.5">
+              {PLATFORM_LINKS.map(({ href, label }) => (
+                <li key={href}>
+                  <Link href={href} className="text-white/40 hover:text-white text-sm transition-colors">
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Creators */}
+          <div>
+            <p className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-4">{t.footer.forCreators}</p>
+            <ul className="flex flex-col gap-2.5">
+              {CREATOR_LINKS.map(({ href, label }) => (
+                <li key={href}>
+                  <Link href={href} className="text-white/40 hover:text-white text-sm transition-colors">
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Merchants */}
+          <div>
+            <p className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-4">{t.footer.forMerchants}</p>
+            <ul className="flex flex-col gap-2.5">
+              {MERCHANT_LINKS.map(({ href, label }) => (
+                <li key={href}>
+                  <Link href={href} className="text-white/40 hover:text-white text-sm transition-colors">
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+        </div>
+
+        <div className="border-t border-white/5 pt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-white/20 text-sm">
+            © {new Date().getFullYear()} NipNip · {t.footer.copyright}
+          </p>
+          <div className="flex items-center gap-6">
+            <a
+              href="mailto:andriakhvichia2005@gmail.com"
+              className="text-white/25 hover:text-white/60 text-sm transition-colors"
+            >
+              andriakhvichia2005@gmail.com
+            </a>
+            <a
+              href="https://tally.ge"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 opacity-30 hover:opacity-70 transition-opacity"
+            >
+              <span className="text-white/60 text-sm">{t.footer.poweredBy}</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://www.tally.ge/images/logos/tally-logo-white.png"
+                alt="Tally"
+                className="h-5 w-auto"
+              />
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </footer>
+  )
+}
