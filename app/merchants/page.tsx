@@ -140,7 +140,7 @@ export default function MerchantsPage() {
   const totalPages = data ? Math.ceil(data.totalCount / 12) : 1
 
   const trackingUrl = selected && creator
-    ? `${API_URL}/r/${creator.slug}/${selected.slug}`
+    ? `${window.location.origin}/${creator.slug}/${selected.slug}`
     : ''
 
   function openProfile(m: MerchantResponse) {

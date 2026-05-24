@@ -30,14 +30,14 @@ export default function MyLinksPage() {
 
   async function copyLink() {
     if (!selected || !creator) return
-    const url = `${API_URL}/r/${creator.slug}/${selected.slug}`
+    const url = `${window.location.origin}/${creator.slug}/${selected.slug}`
     await navigator.clipboard.writeText(url)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
   const trackingUrl = selected && creator
-    ? `${API_URL}/r/${creator.slug}/${selected.slug}`
+    ? `${window.location.origin}/${creator.slug}/${selected.slug}`
     : ''
 
   return (

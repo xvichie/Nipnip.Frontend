@@ -80,7 +80,7 @@ export function FeaturedMerchantsCarousel() {
   const items = merchants ?? []
 
   const trackingUrl = selected && creator
-    ? `${API_URL}/r/${creator.slug}/${selected.slug}`
+    ? `${window.location.origin}/${creator.slug}/${selected.slug}`
     : ''
 
   useEffect(() => {
