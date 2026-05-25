@@ -8,7 +8,7 @@ import { apiFetch } from '@/lib/api'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
 
-type Platform = 'woo' | 'custom'
+type Platform = 'woo' | 'custom' | 'shopify'
 type TestStatus = 'idle' | 'testing' | 'connected' | 'failed'
 type ExTab = 'php' | 'js'
 
@@ -39,6 +39,38 @@ if ($ref !== '') {
     curl_exec($ch);
     curl_close($ch);
 }`
+}
+
+function buildShopifyCookieScript() {
+  return `<script>
+(function() {
+  var ref = new URLSearchParams(window.location.search).get('ref');
+  if (!ref) return;
+  document.cookie = '_nn_ref=' + encodeURIComponent(ref) + '; path=/; max-age=2592000; SameSite=Lax';
+})();
+</script>`
+}
+
+function buildShopifyCheckoutScript(key: string, api: string) {
+  return `{% if first_time_accessed %}
+<script>
+(function() {
+  var m = document.cookie.match('(^|;)\\\\s*_nn_ref=([^;]+)');
+  if (!m) return;
+  fetch('${api}/api/conversions/track', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Merchant-Key': '${key}' },
+    body: JSON.stringify({
+      ref: decodeURIComponent(m[2]),
+      orderId: '{{ order_number }}',
+      amount: {{ total_price | divided_by: 100.0 }},
+      currency: '{{ currency }}'
+    }),
+    keepalive: true
+  });
+})();
+</script>
+{% endif %}`
 }
 
 function buildJsExample(key: string, api: string) {
@@ -178,6 +210,8 @@ export default function IntegrationPage() {
   const [copied2, setCopied2] = useState(false)
   const [copiedKey, setCopiedKey] = useState(false)
   const [copiedEx, setCopiedEx] = useState(false)
+  const [copiedS1, setCopiedS1] = useState(false)
+  const [copiedS2, setCopiedS2] = useState(false)
   const [testStatus, setTestStatus] = useState<TestStatus>('idle')
   const [connectedName, setConnectedName] = useState('')
 
@@ -231,6 +265,8 @@ export default function IntegrationPage() {
 
   const phpCode = data ? buildPhpExample(data.apiKey, API_URL) : ''
   const jsCode  = data ? buildJsExample(data.apiKey, API_URL) : ''
+  const shopifyCookieCode   = buildShopifyCookieScript()
+  const shopifyCheckoutCode = data ? buildShopifyCheckoutScript(data.apiKey, API_URL) : ''
 
   const wooSteps = [
     { label: t.integration.wooStep1, desc: t.integration.wooStep1Desc, isDone: false },
@@ -287,6 +323,22 @@ export default function IntegrationPage() {
               <path d="M4.5 4L1.5 7.5 4.5 11M10.5 4L13.5 7.5 10.5 11M8.5 3l-2 9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             {t.integration.platformCustom}
+          </button>
+          <button
+            onClick={() => switchPlatform('shopify')}
+            className={[
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all',
+              platform === 'shopify'
+                ? 'bg-[#0f0f18] text-white shadow-sm border border-white/8'
+                : 'text-white/40 hover:text-white/70',
+            ].join(' ')}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="M15.5 5.5c-.5-2-2-3.5-3.5-3.5s-3 1.5-3.5 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+              <path d="M4 7l1.5 13h13L20 7l-2.5.5c-.5-2-2-3.5-3.5-3.5S11 5.5 10.5 7.5L8 7Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+              <path d="M12 12v5M9.5 14.5l2.5-2.5 2.5 2.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            {t.integration.platformShopify}
           </button>
         </div>
       </div>
@@ -434,6 +486,75 @@ export default function IntegrationPage() {
               copiedLabel={t.integration.copied}
             />
           </div>
+        </div>
+      )}
+
+      {/* ── Shopify ── */}
+      {platform === 'shopify' && (
+        <div className="flex flex-col gap-6">
+
+          {/* API key */}
+          <div className="rounded-2xl border border-white/8 bg-[#0f0f18] px-5 py-4 flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className="text-fuchsia-400">
+                <circle cx="7" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.4"/>
+                <path d="M2 12c0-2.8 2.2-4 5-4s5 1.2 5 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+              </svg>
+              <span className="text-sm font-bold text-white">{t.integration.wooApiKeyTitle}</span>
+            </div>
+            <div className="flex items-stretch gap-2">
+              <div className="flex-1 rounded-xl bg-black/30 border border-white/8 px-3 py-2.5 min-w-0">
+                <p className="text-xs font-mono text-fuchsia-300 break-all leading-relaxed">{data?.apiKey}</p>
+              </div>
+              <CopyBtn
+                size="sm"
+                copied={copiedKey}
+                onCopy={() => doCopy(data?.apiKey ?? '', setCopiedKey)}
+                copyLabel={t.integration.copySnippet}
+                copiedLabel={t.integration.copied}
+              />
+            </div>
+            <p className="text-xs text-white/35">{t.integration.wooApiKeyDesc}</p>
+          </div>
+
+          <SnippetCard
+            label={t.integration.shopifyStep1Label}
+            accent="violet"
+            code={shopifyCookieCode}
+            desc={t.integration.shopifyStep1Desc}
+            copied={copiedS1}
+            onCopy={() => doCopy(shopifyCookieCode, setCopiedS1)}
+            copyLabel={t.integration.copySnippet}
+            copiedLabel={t.integration.copied}
+          />
+
+          <SnippetCard
+            label={t.integration.shopifyStep2Label}
+            accent="fuchsia"
+            code={shopifyCheckoutCode}
+            desc={t.integration.shopifyStep2Desc}
+            copied={copiedS2}
+            onCopy={() => doCopy(shopifyCheckoutCode, setCopiedS2)}
+            copyLabel={t.integration.copySnippet}
+            copiedLabel={t.integration.copied}
+          />
+
+          {/* Liquid variables note */}
+          <div className="flex items-start gap-3 px-4 py-3.5 rounded-xl bg-emerald-500/5 border border-emerald-500/15">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className="text-emerald-400 shrink-0 mt-0.5">
+              <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.4"/>
+              <path d="M7 6v4M7 4.5v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            <div className="flex flex-col gap-2">
+              <p className="text-xs text-emerald-300/80 leading-relaxed">{t.integration.shopifyLiquidNote}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {['{{ order_number }}', '{{ total_price | divided_by: 100.0 }}', '{{ currency }}'].map(v => (
+                  <code key={v} className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">{v}</code>
+                ))}
+              </div>
+            </div>
+          </div>
+
         </div>
       )}
 

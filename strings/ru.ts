@@ -342,5 +342,11 @@ export const ru: Strings = {
     loadError: 'Не удалось загрузить сниппеты.',
     noWebsiteNote: 'Нет сайта? Можно добавлять продажи вручную из Dashboard',
     noWebsiteLink: 'Добавить продажу вручную →',
+    platformShopify: 'Shopify',
+    shopifyStep1Label: 'Сниппет 1 — Cookie (theme.liquid)',
+    shopifyStep1Desc: 'Online Store → Themes → Edit Code → theme.liquid → вставь перед </head>.',
+    shopifyStep2Label: 'Сниппет 2 — Checkout Script',
+    shopifyStep2Desc: 'Settings → Checkout → Additional Scripts → вставь скрипт.',
+    shopifyLiquidNote: '{{ order_number }}, {{ total_price | divided_by: 100.0 }} и {{ currency }} — переменные Shopify Liquid, они автоматически заполняются данными заказа. Вставляй точно как написано.',
   },
 }

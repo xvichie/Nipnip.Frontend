@@ -342,5 +342,11 @@ export const en: Strings = {
     loadError: 'Failed to load snippets.',
     noWebsiteNote: 'No website? You can report sales manually from the Dashboard',
     noWebsiteLink: 'Report sale manually →',
+    platformShopify: 'Shopify',
+    shopifyStep1Label: 'Snippet 1 — Cookie capture (theme.liquid)',
+    shopifyStep1Desc: 'Online Store → Themes → Edit Code → theme.liquid → paste before </head>.',
+    shopifyStep2Label: 'Snippet 2 — Checkout script',
+    shopifyStep2Desc: 'Settings → Checkout → Additional Scripts → paste this script.',
+    shopifyLiquidNote: '{{ order_number }}, {{ total_price | divided_by: 100.0 }} and {{ currency }} are Shopify Liquid variables — they are automatically replaced with real order values at checkout. Paste them exactly as shown.',
   },
 }

@@ -340,6 +340,12 @@ export const ka = {
     loadError: 'სნიპეტები ვერ ჩაიტვირთა.',
     noWebsiteNote: 'თუ არ გაქვს ვებ-საიტი, შეგიძლია გაყიდვები ხელით შეიტანო Dashboard-დან',
     noWebsiteLink: 'გაყიდვის ხელით შეტანა →',
+    platformShopify: 'Shopify',
+    shopifyStep1Label: 'სნიპეტი 1 — Cookie (theme.liquid)',
+    shopifyStep1Desc: 'Online Store → Themes → Edit Code → theme.liquid → ჩასვი </head> ტეგის წინ.',
+    shopifyStep2Label: 'სნიპეტი 2 — Checkout Script',
+    shopifyStep2Desc: 'Settings → Checkout → Additional Scripts → ჩასვი.',
+    shopifyLiquidNote: '{{ order_number }}, {{ total_price | divided_by: 100.0 }} და {{ currency }} Shopify Liquid-ის ცვლადებია — ისინი ავტომატურად ივსება შეკვეთის მონაცემებით. ჩასვი ზუსტად ისე, როგორც მოცემულია.',
   },
 } as const
 
