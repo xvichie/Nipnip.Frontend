@@ -62,7 +62,7 @@ export default function AdminConversionsPage() {
 
   const totalPages = data ? Math.ceil(data.totalCount / 50) : 1
 
-  const HEADERS = ['Date', 'Merchant', 'Creator', 'Order', 'From Merchant', 'From Creator', 'NipNip Earned', 'Source', 'Status']
+  const HEADERS = ['Date', 'Merchant', 'Creator', 'Order', 'Merch. Pays', 'Creator Gets', 'NipNip ← Merch', 'NipNip ← Creator', 'NipNip Total', 'Source', 'Status']
 
   return (
     <div className="flex flex-col gap-6 max-w-[1400px]">
@@ -171,12 +171,22 @@ export default function AdminConversionsPage() {
                         {c.orderAmount.toFixed(2)} {c.currency}
                       </td>
                       <td className="px-4 py-3.5 text-right tabular-nums whitespace-nowrap">
+                        <span className="text-fuchsia-300 text-sm">
+                          {(c.commissionAmount + c.merchantFeeAmount).toFixed(2)} {c.currency}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-right tabular-nums whitespace-nowrap">
+                        <span className="text-violet-300 text-sm">
+                          {c.creatorEarnings.toFixed(2)} {c.currency}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-right tabular-nums whitespace-nowrap">
                         <span className="text-amber-400 text-sm">
                           +{c.merchantFeeAmount.toFixed(2)} {c.currency}
                         </span>
                       </td>
                       <td className="px-4 py-3.5 text-right tabular-nums whitespace-nowrap">
-                        <span className="text-violet-400 text-sm">
+                        <span className="text-amber-300 text-sm">
                           +{c.creatorFeeAmount.toFixed(2)} {c.currency}
                         </span>
                       </td>

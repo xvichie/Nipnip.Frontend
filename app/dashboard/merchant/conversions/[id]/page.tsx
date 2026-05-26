@@ -68,7 +68,7 @@ export default function ConversionDetailPage({ params }: { params: Promise<{ id:
               <div>
                 <p className="text-white/40 text-xs uppercase tracking-widest mb-1">{t.detail.commission}</p>
                 <p className="text-3xl font-black text-fuchsia-400 tabular-nums">
-                  {data.commissionAmount.toFixed(2)} {data.currency}
+                  {(data.commissionAmount + data.merchantFeeAmount).toFixed(2)} {data.currency}
                 </p>
               </div>
               <div className="text-right">

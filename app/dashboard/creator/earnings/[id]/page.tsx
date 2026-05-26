@@ -68,7 +68,7 @@ export default function EarningDetailPage({ params }: { params: Promise<{ id: st
               <div>
                 <p className="text-white/40 text-xs uppercase tracking-widest mb-1">{t.detail.yourCommission}</p>
                 <p className="text-3xl font-black text-violet-400 tabular-nums">
-                  +{data.commissionAmount.toFixed(2)} {data.currency}
+                  +{data.creatorEarnings.toFixed(2)} {data.currency}
                 </p>
               </div>
               <div className="text-right">
