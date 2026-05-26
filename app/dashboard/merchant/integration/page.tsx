@@ -45,32 +45,36 @@ function buildShopifyCookieScript() {
   return `<script>
 (function() {
   var ref = new URLSearchParams(window.location.search).get('ref');
-  if (!ref) return;
-  document.cookie = '_nn_ref=' + encodeURIComponent(ref) + '; path=/; max-age=2592000; SameSite=Lax';
+  if (ref) localStorage.setItem('_nn_ref', ref);
 })();
 </script>`
 }
 
 function buildShopifyCheckoutScript(key: string, api: string) {
-  return `{% if first_time_accessed %}
-<script>
-(function() {
-  var m = document.cookie.match('(^|;)\\\\s*_nn_ref=([^;]+)');
-  if (!m) return;
+  return `analytics.subscribe("checkout_completed", (event) => {
+  let ref = null;
+  try {
+    ref = localStorage.getItem('_nn_ref');
+  } catch(e) {}
+
+  if (!ref) return;
+
+  const checkout = event.data.checkout;
+
   fetch('${api}/api/conversions/track', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Merchant-Key': '${key}' },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Merchant-Key': '${key}'
+    },
     body: JSON.stringify({
-      ref: decodeURIComponent(m[2]),
-      orderId: '{{ order_number }}',
-      amount: {{ total_price | divided_by: 100.0 }},
-      currency: '{{ currency }}'
-    }),
-    keepalive: true
+      ref: ref,
+      orderId: String(checkout.order.id),
+      amount: parseFloat(checkout.totalPrice.amount),
+      currency: checkout.totalPrice.currencyCode
+    })
   });
-})();
-</script>
-{% endif %}`
+});`
 }
 
 function buildJsExample(key: string, api: string) {
@@ -548,7 +552,7 @@ export default function IntegrationPage() {
             <div className="flex flex-col gap-2">
               <p className="text-xs text-emerald-300/80 leading-relaxed">{t.integration.shopifyLiquidNote}</p>
               <div className="flex flex-wrap gap-1.5">
-                {['{{ order_number }}', '{{ total_price | divided_by: 100.0 }}', '{{ currency }}'].map(v => (
+                {['checkout.order.id', 'checkout.totalPrice.amount', 'checkout.totalPrice.currencyCode'].map(v => (
                   <code key={v} className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">{v}</code>
                 ))}
               </div>

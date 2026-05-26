@@ -341,11 +341,11 @@ export const ka = {
     noWebsiteNote: 'თუ არ გაქვს ვებ-საიტი, შეგიძლია გაყიდვები ხელით შეიტანო Dashboard-დან',
     noWebsiteLink: 'გაყიდვის ხელით შეტანა →',
     platformShopify: 'Shopify',
-    shopifyStep1Label: 'სნიპეტი 1 — Cookie (theme.liquid)',
-    shopifyStep1Desc: 'Online Store → Themes → Edit Code → theme.liquid → ჩასვი </head> ტეგის წინ.',
-    shopifyStep2Label: 'სნიპეტი 2 — Checkout Script',
-    shopifyStep2Desc: 'Settings → Checkout → Additional Scripts → ჩასვი.',
-    shopifyLiquidNote: '{{ order_number }}, {{ total_price | divided_by: 100.0 }} და {{ currency }} Shopify Liquid-ის ცვლადებია — ისინი ავტომატურად ივსება შეკვეთის მონაცემებით. ჩასვი ზუსტად ისე, როგორც მოცემულია.',
+    shopifyStep1Label: 'ნაბიჯი 1 — theme.liquid (</head> ტეგის წინ)',
+    shopifyStep1Desc: 'Online Store (მარცხენა პანელი) → 3 წერტილი აქტიურ თემაზე → Edit code → Layout → theme.liquid → ჩასვი </head> ტეგის წინ.',
+    shopifyStep2Label: 'ნაბიჯი 2 — Custom Pixel (Customer Events)',
+    shopifyStep2Desc: 'Settings → Customer events → Custom pixels → Add custom pixel → სახელი: Nipnip Webhook → ჩასვი კოდი → Add pixel.',
+    shopifyLiquidNote: 'checkout.order.id, checkout.totalPrice.amount და checkout.totalPrice.currencyCode Shopify Customer Events API-ს ველებია — ისინი ავტომატურად ივსება შეკვეთის რეალური მონაცემებით.',
   },
 } as const
 
