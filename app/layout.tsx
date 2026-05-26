@@ -24,8 +24,33 @@ const bpgFont = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "NipNip",
-  description: "Creator affiliate platform",
+  metadataBase: new URL('https://www.nipnip.ge'),
+  title: {
+    default: 'NipNip — ინფლუენსერ მარკეტინგის პლატფორმა',
+    template: '%s | NipNip',
+  },
+  description: 'ინფლუენსერები გაყიდიან შენს პროდუქტებს — იხდი მხოლოდ შედეგზე',
+  openGraph: {
+    type: 'website',
+    siteName: 'NipNip',
+    title: 'NipNip — ინფლუენსერ მარკეტინგის პლატფორმა',
+    description: 'ინფლუენსერები გაყიდიან შენს პროდუქტებს — იხდი მხოლოდ შედეგზე',
+    url: 'https://www.nipnip.ge',
+    images: [
+      {
+        url: '/meta-graph.png',
+        width: 1200,
+        height: 630,
+        alt: 'NipNip',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'NipNip — ინფლუენსერ მარკეტინგის პლატფორმა',
+    description: 'ინფლუენსერები გაყიდიან შენს პროდუქტებს — იხდი მხოლოდ შედეგზე',
+    images: ['/meta-graph.png'],
+  },
 };
 
 export default function RootLayout({
