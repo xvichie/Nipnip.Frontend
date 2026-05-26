@@ -62,7 +62,7 @@ export default function AdminConversionsPage() {
 
   const totalPages = data ? Math.ceil(data.totalCount / 50) : 1
 
-  const HEADERS = ['Date', 'Merchant', 'Creator', 'Order', 'Commission', 'Creator Fee', 'Merch. Fee', 'Creator Gets', 'Source', 'Status']
+  const HEADERS = ['Date', 'Merchant', 'Creator', 'Order', 'From Merchant', 'From Creator', 'NipNip Earned', 'Source', 'Status']
 
   return (
     <div className="flex flex-col gap-6 max-w-[1400px]">
@@ -171,23 +171,18 @@ export default function AdminConversionsPage() {
                         {c.orderAmount.toFixed(2)} {c.currency}
                       </td>
                       <td className="px-4 py-3.5 text-right tabular-nums whitespace-nowrap">
-                        <span className="text-white/70 text-sm">
-                          {c.commissionAmount.toFixed(2)} {c.currency}
+                        <span className="text-amber-400 text-sm">
+                          +{c.merchantFeeAmount.toFixed(2)} {c.currency}
                         </span>
                       </td>
                       <td className="px-4 py-3.5 text-right tabular-nums whitespace-nowrap">
-                        <span className="text-red-400/80 text-sm">
-                          -{c.creatorFeeAmount.toFixed(2)} {c.currency}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 text-right tabular-nums whitespace-nowrap">
-                        <span className="text-red-400/80 text-sm">
-                          -{c.merchantFeeAmount.toFixed(2)} {c.currency}
+                        <span className="text-violet-400 text-sm">
+                          +{c.creatorFeeAmount.toFixed(2)} {c.currency}
                         </span>
                       </td>
                       <td className="px-4 py-3.5 text-right tabular-nums whitespace-nowrap">
                         <span className="text-emerald-400 font-semibold text-sm">
-                          {c.creatorEarnings.toFixed(2)} {c.currency}
+                          +{(c.merchantFeeAmount + c.creatorFeeAmount).toFixed(2)} {c.currency}
                         </span>
                       </td>
                       <td className="px-4 py-3.5 text-right">
