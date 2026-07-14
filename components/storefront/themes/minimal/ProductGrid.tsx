@@ -42,7 +42,7 @@ export function ProductGrid({
             <ul className="flex flex-col">
               <li>
                 <Link
-                  href={`/store/${slug}/products`}
+                  href={`/products`}
                   className={[
                     'flex items-center py-1.5 text-sm transition-colors border-b border-[#f0f0f0]',
                     !activeCategorySlug ? 'text-[#111] font-semibold' : 'text-[#666] hover:text-[#111]',
@@ -54,7 +54,7 @@ export function ProductGrid({
               {displayCategories.map(category => (
                 <li key={category.id}>
                   <Link
-                    href={`/store/${slug}/products/category/${category.slug}`}
+                    href={`/products/category/${category.slug}`}
                     className={[
                       'flex items-center py-1.5 text-sm transition-colors border-b border-[#f0f0f0]',
                       activeCategorySlug === category.slug ? 'text-[#111] font-semibold' : 'text-[#666] hover:text-[#111]',

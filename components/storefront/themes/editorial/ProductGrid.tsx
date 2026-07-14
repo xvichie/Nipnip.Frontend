@@ -38,7 +38,7 @@ export function ProductGrid({
         {displayCategories.length > 0 && (
           <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 py-6 border-y border-black/10 mb-8">
             <Link
-              href={`/store/${slug}/products`}
+              href={`/products`}
               className={`text-xs uppercase tracking-widest transition-colors ${!activeCategorySlug ? 'text-[#111111] underline underline-offset-4' : 'text-[#767676] hover:text-[#111111] hover:underline underline-offset-4'}`}
             >
               ყველა
@@ -46,7 +46,7 @@ export function ProductGrid({
             {displayCategories.map(category => (
               <Link
                 key={category.id}
-                href={`/store/${slug}/products/category/${category.slug}`}
+                href={`/products/category/${category.slug}`}
                 className={`text-xs uppercase tracking-widest transition-colors ${activeCategorySlug === category.slug ? 'text-[#111111] underline underline-offset-4' : 'text-[#767676] hover:text-[#111111] hover:underline underline-offset-4'}`}
               >
                 {category.name}

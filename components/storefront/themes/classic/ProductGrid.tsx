@@ -42,7 +42,7 @@ export function ProductGrid({
               <div className="rounded-md bg-white shadow-sm p-4 flex flex-col gap-1">
                 <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">კატეგორიები</p>
                 <Link
-                  href={`/store/${slug}/products`}
+                  href={`/products`}
                   className={[
                     'rounded px-3 py-1.5 text-sm transition-colors',
                     !activeCategorySlug ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-600 hover:bg-gray-50',
@@ -53,7 +53,7 @@ export function ProductGrid({
                 {displayCategories.map(category => (
                   <Link
                     key={category.id}
-                    href={`/store/${slug}/products/category/${category.slug}`}
+                    href={`/products/category/${category.slug}`}
                     className={[
                       'rounded px-3 py-1.5 text-sm transition-colors',
                       activeCategorySlug === category.slug ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-600 hover:bg-gray-50',

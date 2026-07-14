@@ -58,7 +58,7 @@ export function Header({
 
       {/* nameplate row */}
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-center text-center">
-        <Link href={`/store/${slug}`} className="flex items-center gap-3">
+        <Link href={`/`} className="flex items-center gap-3">
           {tokens.logoUrl ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -75,7 +75,7 @@ export function Header({
         <div className="absolute right-4 flex items-center gap-2 sm:gap-3">
           {!isCheckout && (
             <Link
-              href={`/store/${slug}/cart`}
+              href={`/cart`}
               className="relative flex items-center gap-2 px-3 py-2 text-xs uppercase tracking-widest font-medium text-[#111111] hover:opacity-60 transition-opacity"
             >
               <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden>
@@ -114,7 +114,7 @@ export function Header({
       {hasNav && (
         <nav className="hidden md:flex items-center justify-center gap-4 border-t border-black/10 h-11">
           <Link
-            href={`/store/${slug}/products`}
+            href={`/products`}
             className="text-xs uppercase tracking-widest text-[#111111] hover:underline underline-offset-4 whitespace-nowrap"
           >
             ყველა პროდუქტი
@@ -141,7 +141,7 @@ export function Header({
                       {navCategories.map(category => (
                         <Link
                           key={category.id}
-                          href={`/store/${slug}/products/category/${category.slug}`}
+                          href={`/products/category/${category.slug}`}
                           onClick={() => setCategoriesOpen(false)}
                           className="px-4 py-1.5 text-xs uppercase tracking-widest text-[#111111] hover:underline underline-offset-4 whitespace-nowrap"
                         >
@@ -156,7 +156,7 @@ export function Header({
                   <span key={category.id} className="flex items-center gap-4">
                     {i > 0 && <Divider />}
                     <Link
-                      href={`/store/${slug}/products/category/${category.slug}`}
+                      href={`/products/category/${category.slug}`}
                       className="text-xs uppercase tracking-widest text-[#111111] hover:underline underline-offset-4 whitespace-nowrap"
                     >
                       {category.name}
@@ -171,7 +171,7 @@ export function Header({
             <span key={page.id} className="flex items-center gap-4">
               <Divider />
               <Link
-                href={`/store/${slug}/pages/${page.slug}`}
+                href={`/pages/${page.slug}`}
                 className="text-xs uppercase tracking-widest text-[#111111] hover:underline underline-offset-4 whitespace-nowrap"
               >
                 {page.title}
@@ -183,7 +183,7 @@ export function Header({
             <span className="flex items-center gap-4">
               <Divider />
               <Link
-                href={`/store/${slug}/contact`}
+                href={`/contact`}
                 className="text-xs uppercase tracking-widest text-[#111111] hover:underline underline-offset-4 whitespace-nowrap"
               >
                 {tokens.contactLabel}
@@ -208,7 +208,7 @@ export function Header({
               </svg>
             </button>
             <Link
-              href={`/store/${slug}/products`}
+              href={`/products`}
               onClick={() => setMobileOpen(false)}
               className="text-xs uppercase tracking-widest font-medium text-[#111111] py-2.5 border-b border-black/10"
             >
@@ -217,7 +217,7 @@ export function Header({
             {navCategories.map(category => (
               <Link
                 key={category.id}
-                href={`/store/${slug}/products/category/${category.slug}`}
+                href={`/products/category/${category.slug}`}
                 onClick={() => setMobileOpen(false)}
                 className="text-xs uppercase tracking-widest text-[#767676] py-2.5 border-b border-black/10"
               >
@@ -227,7 +227,7 @@ export function Header({
             {navPages.map(page => (
               <Link
                 key={page.id}
-                href={`/store/${slug}/pages/${page.slug}`}
+                href={`/pages/${page.slug}`}
                 onClick={() => setMobileOpen(false)}
                 className="text-xs uppercase tracking-widest text-[#767676] py-2.5 border-b border-black/10"
               >
@@ -236,7 +236,7 @@ export function Header({
             ))}
             {tokens.showContactInNav && (
               <Link
-                href={`/store/${slug}/contact`}
+                href={`/contact`}
                 onClick={() => setMobileOpen(false)}
                 className="text-xs uppercase tracking-widest text-[#767676] py-2.5 border-b border-black/10"
               >

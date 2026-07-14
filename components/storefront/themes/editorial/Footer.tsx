@@ -47,20 +47,20 @@ export function Footer({
         )}
 
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs uppercase tracking-widest text-[#767676]">
-          <Link href={`/store/${slug}/products`} className="hover:text-[#111111] transition-colors">
+          <Link href={`/products`} className="hover:text-[#111111] transition-colors">
             ყველა პროდუქტი
           </Link>
           {pages.map(page => (
             <span key={page.id} className="flex items-center gap-4">
               <Divider />
-              <Link href={`/store/${slug}/pages/${page.slug}`} className="hover:text-[#111111] transition-colors">
+              <Link href={`/pages/${page.slug}`} className="hover:text-[#111111] transition-colors">
                 {page.title}
               </Link>
             </span>
           ))}
           <span className="flex items-center gap-4">
             <Divider />
-            <Link href={`/store/${slug}/contact`} className="hover:text-[#111111] transition-colors">
+            <Link href={`/contact`} className="hover:text-[#111111] transition-colors">
               {tokens.contactLabel}
             </Link>
           </span>

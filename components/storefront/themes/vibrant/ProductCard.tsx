@@ -15,7 +15,7 @@ export function ProductCard({
   tokens: Required<ThemeConfig>
 }) {
   return (
-    <Link href={`/store/${slug}/products/${product.slug}`} className="group block">
+    <Link href={`/products/${product.slug}`} className="group block">
       <div
         className="rounded-2xl bg-white overflow-hidden transition-shadow duration-300"
         style={{ boxShadow: '0 2px 10px -4px rgba(0,0,0,0.08)' }}

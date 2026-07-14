@@ -48,7 +48,7 @@ export function Home({
         <p className="text-[#666] text-sm mb-6">{tokens.heroSubheadline}</p>
       )}
       <Link
-        href={`/store/${slug}/products`}
+        href={`/products`}
         className="inline-flex items-center gap-2 text-white text-xs font-bold px-7 py-3.5 transition-opacity hover:opacity-90 uppercase tracking-widest"
         style={{ backgroundColor: tokens.accentColor }}
       >
@@ -95,7 +95,7 @@ export function Home({
               {landingCategories.map(category => (
                 <Link
                   key={category.id}
-                  href={`/store/${slug}/products/category/${category.slug}`}
+                  href={`/products/category/${category.slug}`}
                   className="flex flex-col items-center justify-center gap-2 border border-[#e5e5e5] rounded-lg px-4 py-5 text-center hover:border-[#111] transition-colors"
                 >
                   <CategoryIcon iconUrl={category.iconUrl} iconKey={category.iconKey} iconEmoji={category.iconEmoji} className="w-6 h-6 text-[#111]" />
@@ -112,7 +112,7 @@ export function Home({
           <div className="flex items-end justify-between mb-8">
             <h2 className="font-black text-2xl text-[#111] tracking-tight">ყველა პროდუქტი</h2>
             <Link
-              href={`/store/${slug}/products`}
+              href={`/products`}
               className="text-xs font-medium text-[#555] hover:text-[#111] transition-colors underline underline-offset-4"
             >
               ყველას ნახვა →

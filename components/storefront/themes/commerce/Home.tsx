@@ -61,7 +61,7 @@ export function Home({
         <p className="text-slate-500 text-base mb-8">{tokens.heroSubheadline}</p>
       )}
       <Link
-        href={`/store/${slug}/products`}
+        href={`/products`}
         className="inline-flex items-center gap-2 rounded-md text-white text-sm font-semibold px-7 py-3 shadow-sm hover:shadow-md transition-shadow"
         style={{ backgroundColor: tokens.accentColor }}
       >
@@ -103,7 +103,7 @@ export function Home({
               {landingCategories.map(category => (
                 <Link
                   key={category.id}
-                  href={`/store/${slug}/products/category/${category.slug}`}
+                  href={`/products/category/${category.slug}`}
                   className="flex flex-col items-center justify-center gap-2 rounded-md border border-slate-200 bg-white hover:border-slate-900 transition-colors px-4 py-6 text-center uppercase text-xs font-semibold tracking-wide text-slate-700"
                 >
                   <CategoryIcon iconUrl={category.iconUrl} iconKey={category.iconKey} iconEmoji={category.iconEmoji} className="w-5 h-5" style={{ color: tokens.accentColor }} />
@@ -122,7 +122,7 @@ export function Home({
               <span className="inline-block w-1.5 h-1.5 shrink-0" style={{ backgroundColor: tokens.accentColor }} aria-hidden />
               ყველა პროდუქტი
             </h2>
-            <Link href={`/store/${slug}/products`} className="text-sm font-semibold hover:underline" style={{ color: tokens.accentColor }}>
+            <Link href={`/products`} className="text-sm font-semibold hover:underline" style={{ color: tokens.accentColor }}>
               ყველას ნახვა →
             </Link>
           </div>

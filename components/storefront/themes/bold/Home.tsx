@@ -50,7 +50,7 @@ export function Home({
         <p className="text-white/80 text-base mb-10">{tokens.heroSubheadline}</p>
       )}
       <Link
-        href={`/store/${slug}/products`}
+        href={`/products`}
         className="inline-flex items-center gap-2 rounded-full text-white text-sm font-bold px-9 py-4 transition-transform hover:scale-105"
         style={{ background: gradient, boxShadow: glowShadow(tokens.accentColor, '88') }}
       >
@@ -100,7 +100,7 @@ export function Home({
               {landingCategories.map(category => (
                 <Link
                   key={category.id}
-                  href={`/store/${slug}/products/category/${category.slug}`}
+                  href={`/products/category/${category.slug}`}
                   className="flex flex-col items-center justify-center gap-2.5 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-6 text-center hover:border-white/25 transition-colors"
                 >
                   {(category.iconUrl || category.iconKey || category.iconEmoji) && (
@@ -121,7 +121,7 @@ export function Home({
           <div className="flex items-end justify-between mb-8">
             <h2 className="font-black text-3xl text-white tracking-tight">ყველა პროდუქტი</h2>
             <Link
-              href={`/store/${slug}/products`}
+              href={`/products`}
               className="text-sm font-semibold transition-opacity hover:opacity-80"
               style={{ color: tokens.accentColor }}
             >

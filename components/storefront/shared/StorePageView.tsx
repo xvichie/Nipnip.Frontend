@@ -20,7 +20,7 @@ export function StorePageView({
         <p className={`text-sm leading-relaxed whitespace-pre-wrap ${surface.text}`}>{page.content}</p>
 
         <div className="mt-10">
-          <Link href={`/store/${slug}`} className={`text-sm underline underline-offset-2 ${surface.muted} hover:opacity-80`}>
+          <Link href={`/`} className={`text-sm underline underline-offset-2 ${surface.muted} hover:opacity-80`}>
             ← მაღაზიაში დაბრუნება
           </Link>
         </div>

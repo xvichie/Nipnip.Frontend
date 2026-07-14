@@ -33,7 +33,7 @@ export function Cart({
         <h1 className={`font-black text-2xl mb-3 ${surface.text}`}>თქვენი კალათა ცარიელია</h1>
         <p className={`text-sm mb-8 ${surface.muted}`}>დაათვალიერეთ კოლექცია და აირჩიეთ სასურველი პროდუქტი.</p>
         <Link
-          href={`/store/${slug}`}
+          href={`/`}
           className={`text-white text-sm font-semibold px-8 py-3.5 ${radius}`}
           style={{ backgroundColor: tokens.accentColor }}
         >
@@ -120,7 +120,7 @@ export function Cart({
             })}
 
             <div className="pt-6">
-              <Link href={`/store/${slug}`} className={`text-sm underline underline-offset-2 ${surface.muted} hover:opacity-80`}>
+              <Link href={`/`} className={`text-sm underline underline-offset-2 ${surface.muted} hover:opacity-80`}>
                 ← შოპინგის გაგრძელება
               </Link>
             </div>
@@ -149,7 +149,7 @@ export function Cart({
                 </>
               ) : (
                 <Link
-                  href={`/store/${slug}/checkout`}
+                  href={`/checkout`}
                   className={`block w-full text-center py-4 text-white text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-90 ${radius}`}
                   style={{ backgroundColor: tokens.accentColor }}
                 >

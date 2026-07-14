@@ -57,7 +57,7 @@ export function Home({
         <p className="text-[#767676] text-base mb-9">{tokens.heroSubheadline}</p>
       )}
       <Link
-        href={`/store/${slug}/products`}
+        href={`/products`}
         className="inline-flex items-center justify-center gap-2 border-2 border-black text-[#111111] text-xs uppercase tracking-widest font-medium px-8 py-3.5 hover:bg-black hover:text-white transition-colors"
       >
         ყველა პროდუქტის ნახვა
@@ -100,7 +100,7 @@ export function Home({
               {landingCategories.map(category => (
                 <Link
                   key={category.id}
-                  href={`/store/${slug}/products/category/${category.slug}`}
+                  href={`/products/category/${category.slug}`}
                   className="flex flex-col items-center justify-center gap-2 text-center group"
                 >
                   <CategoryIcon iconUrl={category.iconUrl} iconKey={category.iconKey} iconEmoji={category.iconEmoji} className="w-5 h-5 text-[#111111]" />
@@ -118,7 +118,7 @@ export function Home({
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 border-t border-black/10">
           <div className="flex items-end justify-between mb-10">
             <h2 className="font-serif italic text-3xl text-[#111111]">ყველა პროდუქტი</h2>
-            <Link href={`/store/${slug}/products`} className="text-xs uppercase tracking-widest text-[#111111] hover:underline underline-offset-4">
+            <Link href={`/products`} className="text-xs uppercase tracking-widest text-[#111111] hover:underline underline-offset-4">
               ყველას ნახვა →
             </Link>
           </div>

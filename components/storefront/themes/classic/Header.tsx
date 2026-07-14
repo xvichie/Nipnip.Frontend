@@ -46,7 +46,7 @@ export function Header({
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-6">
-        <Link href={`/store/${slug}`} className="flex items-center gap-3 shrink-0">
+        <Link href={`/`} className="flex items-center gap-3 shrink-0">
           {tokens.logoUrl ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -62,7 +62,7 @@ export function Header({
 
         {hasNav && (
           <nav className="hidden md:flex items-center gap-5">
-            <Link href={`/store/${slug}/products`} className="text-sm text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap">
+            <Link href={`/products`} className="text-sm text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap">
               ყველა პროდუქტი
             </Link>
 
@@ -88,7 +88,7 @@ export function Header({
                       {navCategories.map(category => (
                         <Link
                           key={category.id}
-                          href={`/store/${slug}/products/category/${category.slug}`}
+                          href={`/products/category/${category.slug}`}
                           onClick={() => setCategoriesOpen(false)}
                           className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors whitespace-nowrap"
                         >
@@ -102,7 +102,7 @@ export function Header({
                 navCategories.map(category => (
                   <Link
                     key={category.id}
-                    href={`/store/${slug}/products/category/${category.slug}`}
+                    href={`/products/category/${category.slug}`}
                     className="text-sm text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap"
                   >
                     {category.name}
@@ -114,7 +114,7 @@ export function Header({
             {navPages.map(page => (
               <Link
                 key={page.id}
-                href={`/store/${slug}/pages/${page.slug}`}
+                href={`/pages/${page.slug}`}
                 className="text-sm text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap"
               >
                 {page.title}
@@ -123,7 +123,7 @@ export function Header({
 
             {tokens.showContactInNav && (
               <Link
-                href={`/store/${slug}/contact`}
+                href={`/contact`}
                 className="text-sm text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap"
               >
                 {tokens.contactLabel}
@@ -135,7 +135,7 @@ export function Header({
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {!isCheckout && (
             <Link
-              href={`/store/${slug}/cart`}
+              href={`/cart`}
               className="relative flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
             >
               <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden>
@@ -185,7 +185,7 @@ export function Header({
               </svg>
             </button>
             <Link
-              href={`/store/${slug}/products`}
+              href={`/products`}
               onClick={() => setMobileOpen(false)}
               className="text-sm font-medium text-gray-900 py-2.5 border-b border-gray-100"
             >
@@ -194,7 +194,7 @@ export function Header({
             {navCategories.map(category => (
               <Link
                 key={category.id}
-                href={`/store/${slug}/products/category/${category.slug}`}
+                href={`/products/category/${category.slug}`}
                 onClick={() => setMobileOpen(false)}
                 className="text-sm text-gray-600 py-2.5 border-b border-gray-100"
               >
@@ -204,7 +204,7 @@ export function Header({
             {navPages.map(page => (
               <Link
                 key={page.id}
-                href={`/store/${slug}/pages/${page.slug}`}
+                href={`/pages/${page.slug}`}
                 onClick={() => setMobileOpen(false)}
                 className="text-sm text-gray-600 py-2.5 border-b border-gray-100"
               >
@@ -213,7 +213,7 @@ export function Header({
             ))}
             {tokens.showContactInNav && (
               <Link
-                href={`/store/${slug}/contact`}
+                href={`/contact`}
                 onClick={() => setMobileOpen(false)}
                 className="text-sm text-gray-600 py-2.5 border-b border-gray-100"
               >

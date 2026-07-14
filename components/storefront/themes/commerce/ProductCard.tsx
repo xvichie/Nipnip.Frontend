@@ -13,7 +13,7 @@ export function ProductCard({
   tokens: Required<ThemeConfig>
 }) {
   return (
-    <Link href={`/store/${slug}/products/${product.slug}`} className="group block">
+    <Link href={`/products/${product.slug}`} className="group block">
       <div className="rounded-md border border-slate-200 bg-white overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
         <div className="relative aspect-square bg-slate-100 overflow-hidden">
           {product.salePrice !== null && (

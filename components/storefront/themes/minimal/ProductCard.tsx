@@ -11,7 +11,7 @@ export function ProductCard({
   categoryName?: string
 }) {
   return (
-    <Link href={`/store/${slug}/products/${product.slug}`} className="group block">
+    <Link href={`/products/${product.slug}`} className="group block">
       <div className="bg-white border border-[#e5e5e5] hover:shadow-md transition-shadow duration-200">
         <div className="relative aspect-square bg-[#f7f7f7] overflow-hidden">
           {product.thumbnailUrl ? (

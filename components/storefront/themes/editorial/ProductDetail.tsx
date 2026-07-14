@@ -183,7 +183,7 @@ export function ProductDetail({
         </div>
 
         <div className="mt-14 text-center">
-          <Link href={`/store/${slug}/products`} className="text-xs uppercase tracking-widest text-[#767676] hover:text-[#111111] transition-colors">
+          <Link href={`/products`} className="text-xs uppercase tracking-widest text-[#767676] hover:text-[#111111] transition-colors">
             ← ყველა პროდუქტს დაბრუნება
           </Link>
         </div>

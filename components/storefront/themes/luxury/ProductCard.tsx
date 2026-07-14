@@ -13,7 +13,7 @@ export function ProductCard({
   tokens: Required<ThemeConfig>
 }) {
   return (
-    <Link href={`/store/${slug}/products/${product.slug}`} className="group block">
+    <Link href={`/products/${product.slug}`} className="group block">
       <div className="bg-white border border-[#1c1a17]/10 group-hover:border-[#1c1a17]/25 transition-colors overflow-hidden">
         <div className="relative aspect-[4/5] bg-[#f4efe7] overflow-hidden">
           {product.thumbnailUrl ? (

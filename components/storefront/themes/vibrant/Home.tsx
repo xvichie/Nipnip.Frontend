@@ -62,7 +62,7 @@ export function Home({
         <p className="text-[#6b6058] text-base mb-8">{tokens.heroSubheadline}</p>
       )}
       <Link
-        href={`/store/${slug}/products`}
+        href={`/products`}
         className="inline-flex items-center gap-2 rounded-full text-white text-sm font-bold px-8 py-4 transition-transform hover:scale-105"
         style={{ backgroundColor: tokens.accentColor, boxShadow: `0 16px 40px -12px ${tokens.accentColor}88` }}
       >
@@ -110,7 +110,7 @@ export function Home({
                 return (
                   <Link
                     key={category.id}
-                    href={`/store/${slug}/products/category/${category.slug}`}
+                    href={`/products/category/${category.slug}`}
                     className="flex flex-col items-center justify-center gap-2.5 rounded-[1.5rem] px-4 py-6 text-center transition-transform hover:scale-105"
                     style={{ backgroundColor: `${color}12` }}
                   >
@@ -133,7 +133,7 @@ export function Home({
           <div className="flex items-end justify-between mb-8">
             <h2 className="font-black text-3xl text-[#1a1a1a] tracking-tight">ყველა პროდუქტი</h2>
             <Link
-              href={`/store/${slug}/products`}
+              href={`/products`}
               className="text-sm font-bold transition-opacity hover:opacity-70"
               style={{ color: tokens.accentColor }}
             >

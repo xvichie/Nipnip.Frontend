@@ -19,7 +19,7 @@ export function ProductCard({
   featured?: boolean
 }) {
   return (
-    <Link href={`/store/${slug}/products/${product.slug}`} className={`group block ${className}`}>
+    <Link href={`/products/${product.slug}`} className={`group block ${className}`}>
       <div className="relative aspect-[4/5] bg-[#f2f2f2] overflow-hidden">
         {product.thumbnailUrl ? (
           <>

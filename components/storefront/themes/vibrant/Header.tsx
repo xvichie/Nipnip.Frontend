@@ -46,7 +46,7 @@ export function Header({
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-6">
-        <Link href={`/store/${slug}`} className="flex items-center gap-2.5 shrink-0">
+        <Link href={`/`} className="flex items-center gap-2.5 shrink-0">
           {tokens.logoUrl ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -63,7 +63,7 @@ export function Header({
         {hasNav && (
           <nav className="hidden md:flex items-center gap-1.5">
             <Link
-              href={`/store/${slug}/products`}
+              href={`/products`}
               className="rounded-full px-4 py-2 text-sm font-semibold text-[#1a1a1a]/70 hover:text-[#1a1a1a] hover:bg-[#fff2ec] transition-colors whitespace-nowrap"
             >
               ყველა პროდუქტი
@@ -87,7 +87,7 @@ export function Header({
                       {navCategories.map(category => (
                         <Link
                           key={category.id}
-                          href={`/store/${slug}/products/category/${category.slug}`}
+                          href={`/products/category/${category.slug}`}
                           onClick={() => setCategoriesOpen(false)}
                           className="rounded-xl px-3.5 py-2 text-sm font-medium text-[#1a1a1a]/70 hover:text-[#1a1a1a] hover:bg-[#fff2ec] transition-colors whitespace-nowrap"
                         >
@@ -101,7 +101,7 @@ export function Header({
                 navCategories.map(category => (
                   <Link
                     key={category.id}
-                    href={`/store/${slug}/products/category/${category.slug}`}
+                    href={`/products/category/${category.slug}`}
                     className="rounded-full px-4 py-2 text-sm font-semibold text-[#1a1a1a]/70 hover:text-[#1a1a1a] hover:bg-[#fff2ec] transition-colors whitespace-nowrap"
                   >
                     {category.name}
@@ -113,7 +113,7 @@ export function Header({
             {navPages.map(page => (
               <Link
                 key={page.id}
-                href={`/store/${slug}/pages/${page.slug}`}
+                href={`/pages/${page.slug}`}
                 className="rounded-full px-4 py-2 text-sm font-semibold text-[#1a1a1a]/70 hover:text-[#1a1a1a] hover:bg-[#fff2ec] transition-colors whitespace-nowrap"
               >
                 {page.title}
@@ -122,7 +122,7 @@ export function Header({
 
             {tokens.showContactInNav && (
               <Link
-                href={`/store/${slug}/contact`}
+                href={`/contact`}
                 className="rounded-full px-4 py-2 text-sm font-semibold text-[#1a1a1a]/70 hover:text-[#1a1a1a] hover:bg-[#fff2ec] transition-colors whitespace-nowrap"
               >
                 {tokens.contactLabel}
@@ -134,7 +134,7 @@ export function Header({
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {!isCheckout && (
             <Link
-              href={`/store/${slug}/cart`}
+              href={`/cart`}
               className="relative flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold text-white transition-transform hover:scale-105"
               style={{ backgroundColor: tokens.accentColor }}
             >
@@ -182,7 +182,7 @@ export function Header({
               </svg>
             </button>
             <Link
-              href={`/store/${slug}/products`}
+              href={`/products`}
               onClick={() => setMobileOpen(false)}
               className="rounded-xl px-3 py-2.5 text-sm font-bold text-[#1a1a1a] hover:bg-[#fff2ec]"
             >
@@ -191,7 +191,7 @@ export function Header({
             {navCategories.map(category => (
               <Link
                 key={category.id}
-                href={`/store/${slug}/products/category/${category.slug}`}
+                href={`/products/category/${category.slug}`}
                 onClick={() => setMobileOpen(false)}
                 className="rounded-xl px-3 py-2.5 text-sm font-medium text-[#1a1a1a]/70 hover:bg-[#fff2ec]"
               >
@@ -201,7 +201,7 @@ export function Header({
             {navPages.map(page => (
               <Link
                 key={page.id}
-                href={`/store/${slug}/pages/${page.slug}`}
+                href={`/pages/${page.slug}`}
                 onClick={() => setMobileOpen(false)}
                 className="rounded-xl px-3 py-2.5 text-sm font-medium text-[#1a1a1a]/70 hover:bg-[#fff2ec]"
               >
@@ -210,7 +210,7 @@ export function Header({
             ))}
             {tokens.showContactInNav && (
               <Link
-                href={`/store/${slug}/contact`}
+                href={`/contact`}
                 onClick={() => setMobileOpen(false)}
                 className="rounded-xl px-3 py-2.5 text-sm font-medium text-[#1a1a1a]/70 hover:bg-[#fff2ec]"
               >

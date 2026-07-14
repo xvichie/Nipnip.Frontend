@@ -40,7 +40,7 @@ export function Footer({
         {pages.length > 0 && (
           <div className="flex flex-wrap items-center gap-x-8 gap-y-2 text-xs uppercase tracking-widest text-[#9c8f7e]">
             {pages.map(page => (
-              <Link key={page.id} href={`/store/${slug}/pages/${page.slug}`} className="hover:text-[#1c1a17] transition-colors">
+              <Link key={page.id} href={`/pages/${page.slug}`} className="hover:text-[#1c1a17] transition-colors">
                 {page.title}
               </Link>
             ))}
@@ -51,7 +51,7 @@ export function Footer({
           <p className="text-[#9c8f7e] text-xs tracking-wide">© {new Date().getFullYear()} {storeName}</p>
           <div className="flex items-center gap-5">
             {showSocials && <SocialLinks tokens={tokens} />}
-            <Link href={`/store/${slug}/contact`} className="text-[#9c8f7e] text-xs uppercase tracking-widest hover:text-[#1c1a17] transition-colors underline underline-offset-4">
+            <Link href={`/contact`} className="text-[#9c8f7e] text-xs uppercase tracking-widest hover:text-[#1c1a17] transition-colors underline underline-offset-4">
               {tokens.contactLabel}
             </Link>
             <p className="text-[#9c8f7e] text-xs tracking-wide">შექმნილია NipNip-ის მიერ</p>

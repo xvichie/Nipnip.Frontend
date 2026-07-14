@@ -134,7 +134,7 @@ export function Checkout({
             </div>
           )}
           <Link
-            href={`/store/${slug}`}
+            href={`/`}
             className={`text-white text-sm font-semibold px-8 py-3.5 ${radius}`}
             style={{ backgroundColor: tokens.accentColor }}
           >
@@ -150,7 +150,7 @@ export function Checkout({
       <div className={`${surface.page} min-h-screen`}>
         <div className="max-w-lg mx-auto px-4 sm:px-6 py-24 text-center">
           <h1 className={`font-black text-2xl mb-4 ${surface.text}`}>გადასახდელი ნივთები არ არის</h1>
-          <Link href={`/store/${slug}`} className={`text-sm underline underline-offset-2 ${surface.text}`}>
+          <Link href={`/`} className={`text-sm underline underline-offset-2 ${surface.text}`}>
             პროდუქტების ნახვა →
           </Link>
         </div>
@@ -162,7 +162,7 @@ export function Checkout({
     <div className={`${surface.page} min-h-screen`}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 pb-24">
         <Link
-          href={`/store/${slug}/cart`}
+          href={`/cart`}
           className={`flex items-center gap-1.5 text-sm transition-colors mb-6 ${surface.muted} hover:opacity-80`}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>

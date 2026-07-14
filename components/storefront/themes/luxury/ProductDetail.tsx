@@ -174,7 +174,7 @@ export function ProductDetail({
         </div>
 
         <div className="mt-12">
-          <Link href={`/store/${slug}/products`} className="text-xs uppercase tracking-widest text-[#9c8f7e] hover:text-[#1c1a17] transition-colors">
+          <Link href={`/products`} className="text-xs uppercase tracking-widest text-[#9c8f7e] hover:text-[#1c1a17] transition-colors">
             ← ყველა პროდუქტს დაბრუნება
           </Link>
         </div>

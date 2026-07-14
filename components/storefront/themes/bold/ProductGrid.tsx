@@ -41,7 +41,7 @@ export function ProductGrid({
             <aside className="w-full md:w-52 shrink-0 flex flex-col gap-2">
               <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-2">კატეგორიები</p>
               <Link
-                href={`/store/${slug}/products`}
+                href={`/products`}
                 className={[
                   'rounded-full px-4 py-2 text-sm font-medium transition-colors text-left',
                   !activeCategorySlug ? 'text-white' : 'text-white/50 hover:text-white',
@@ -53,7 +53,7 @@ export function ProductGrid({
               {displayCategories.map(category => (
                 <Link
                   key={category.id}
-                  href={`/store/${slug}/products/category/${category.slug}`}
+                  href={`/products/category/${category.slug}`}
                   className={[
                     'rounded-full px-4 py-2 text-sm font-medium transition-colors',
                     activeCategorySlug === category.slug ? 'text-white' : 'text-white/50 hover:text-white',
