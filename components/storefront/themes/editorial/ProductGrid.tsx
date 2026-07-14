@@ -1,31 +1,70 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ProductCard } from './ProductCard'
-import { filterAndSortProducts, SORT_OPTIONS, type ProductSortOption } from '@/lib/store/product-search'
+import { PriceRangeFilter } from '@/components/storefront/shared/PriceRangeFilter'
+import { Pagination } from '@/components/storefront/shared/Pagination'
+import { useProductPriceRange, useProducts } from '@/lib/queries/storefront'
+import { padPriceBounds, SORT_OPTIONS, sortOptionToQuery, type ProductSortOption } from '@/lib/store/product-search'
 import { withSaleCategory } from '@/lib/store/sale-category'
-import type { CategoryResponse, ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
+import type { CategoryResponse, ThemeConfig } from '@/lib/types/storefront'
+
+const PAGE_SIZE = 20
 
 export function ProductGrid({
   slug,
   categories,
-  products,
   activeCategorySlug,
   tokens,
 }: {
   slug: string
   categories: CategoryResponse[]
-  products: ProductSummaryResponse[]
   activeCategorySlug?: string
   tokens: Required<ThemeConfig>
 }) {
   const categoryNames = new Map(categories.map(c => [c.id, c.name]))
   const displayCategories = withSaleCategory(categories, tokens.showSaleCategory)
   const activeCategoryName = activeCategorySlug ? displayCategories.find(c => c.slug === activeCategorySlug)?.name : undefined
+
   const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [sortBy, setSortBy] = useState<ProductSortOption>('featured')
-  const visibleProducts = filterAndSortProducts(products, search, sortBy)
+  const [priceRange, setPriceRange] = useState<[number, number] | null>(null)
+  const [page, setPage] = useState(1)
+
+  const { data: rawBounds } = useProductPriceRange(slug, activeCategorySlug)
+  const bounds = rawBounds ? padPriceBounds(rawBounds.min, rawBounds.max) : null
+  const effectiveRange = priceRange ?? bounds
+
+  useEffect(() => {
+    const t = setTimeout(() => { setDebouncedSearch(search); setPage(1) }, 300)
+    return () => clearTimeout(t)
+  }, [search])
+
+  const { data, isLoading } = useProducts(slug, {
+    categorySlug: activeCategorySlug,
+    page,
+    pageSize: PAGE_SIZE,
+    search: debouncedSearch || undefined,
+    minPrice: effectiveRange?.[0],
+    maxPrice: effectiveRange?.[1],
+    ...sortOptionToQuery(sortBy),
+  })
+
+  const products = data?.items ?? []
+  const totalPages = data?.totalPages ?? 1
+  const totalCount = data?.totalCount ?? 0
+
+  function handleSortChange(next: ProductSortOption) {
+    setSortBy(next)
+    setPage(1)
+  }
+
+  function handlePriceChange(range: [number, number]) {
+    setPriceRange(range)
+    setPage(1)
+  }
 
   return (
     <div className="bg-white min-h-screen">
@@ -55,9 +94,24 @@ export function ProductGrid({
           </div>
         )}
 
+        {bounds && (
+          <div className="max-w-xs mx-auto mb-10">
+            <PriceRangeFilter
+              min={bounds[0]}
+              max={bounds[1]}
+              value={effectiveRange ?? bounds}
+              onChange={handlePriceChange}
+              accentColor={tokens.accentColor}
+              trackColorClassName="bg-black/10"
+              labelClassName="text-[#767676]"
+              valueClassName="text-[#111111]"
+            />
+          </div>
+        )}
+
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
           <p className="text-sm text-[#767676]">
-            <span className="text-[#111111] font-medium">{visibleProducts.length}</span> პროდუქტი
+            <span className="text-[#111111] font-medium">{totalCount}</span> პროდუქტი
           </p>
           <div className="flex items-center gap-6">
             <input
@@ -69,7 +123,7 @@ export function ProductGrid({
             />
             <select
               value={sortBy}
-              onChange={e => setSortBy(e.target.value as ProductSortOption)}
+              onChange={e => handleSortChange(e.target.value as ProductSortOption)}
               className="bg-transparent underline underline-offset-4 text-sm px-0 py-2 text-[#111111] focus:outline-none"
             >
               {SORT_OPTIONS.map(opt => (
@@ -79,22 +133,37 @@ export function ProductGrid({
           </div>
         </div>
 
-        {visibleProducts.length === 0 ? (
+        {isLoading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-8">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="skeleton aspect-[4/5]" />
+            ))}
+          </div>
+        ) : products.length === 0 ? (
           <div className="py-32 flex flex-col items-center gap-4 text-center">
             <p className="text-[#767676] text-sm">პროდუქტი ვერ მოიძებნა.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-8">
-            {visibleProducts.map(product => (
-              <ProductCard
-                key={product.id}
-                slug={slug}
-                product={product}
-                categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
-                tokens={tokens}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-8">
+              {products.map(product => (
+                <ProductCard
+                  key={product.id}
+                  slug={slug}
+                  product={product}
+                  categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
+                  tokens={tokens}
+                />
+              ))}
+            </div>
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onChange={setPage}
+              buttonClassName="btn btn-sm bg-transparent border border-black/10 text-[#767676] hover:text-[#111111] disabled:opacity-30"
+              textClassName="text-[#767676]"
+            />
+          </>
         )}
       </div>
     </div>

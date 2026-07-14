@@ -1,19 +1,21 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import Link from 'next/link'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { VariantSelector } from '../../VariantSelector'
 import { ImageLightbox } from '../../ImageLightbox'
-import type { ProductDetailResponse, ThemeConfig } from '@/lib/types/storefront'
+import { Breadcrumbs } from '@/components/storefront/shared/Breadcrumbs'
+import type { CategoryResponse, ProductDetailResponse, ThemeConfig } from '@/lib/types/storefront'
 
 export function ProductDetail({
   slug,
   product,
+  category,
   tokens,
 }: {
   slug: string
   product: ProductDetailResponse
+  category?: CategoryResponse
   tokens: Required<ThemeConfig>
 }) {
   const { addItem } = useStorefrontCart()
@@ -62,6 +64,15 @@ export function ProductDetail({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 pb-16">
+      <Breadcrumbs
+        items={[
+          { label: 'მთავარი', href: '/' },
+          category ? { label: category.name, href: `/products/category/${category.slug}` } : { label: 'ყველა პროდუქტი', href: '/products' },
+          { label: product.name },
+        ]}
+        textClassName="text-[#111]"
+        mutedClassName="text-[#999] hover:text-[#111]"
+      />
       <div className="grid lg:grid-cols-2 gap-10 xl:gap-16">
 
         <div className="flex gap-3">
@@ -174,15 +185,6 @@ export function ProductDetail({
             </div>
           )}
         </div>
-      </div>
-
-      <div className="mt-10">
-        <Link
-          href={`/products`}
-          className="text-sm text-[#999] hover:text-[#111] transition-colors underline underline-offset-2"
-        >
-          ← ყველა პროდუქტს დაბრუნება
-        </Link>
       </div>
 
       {lightboxOpen && (

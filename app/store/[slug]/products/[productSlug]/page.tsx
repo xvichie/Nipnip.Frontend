@@ -12,7 +12,7 @@ import { ProductDetail as LuxuryProductDetail } from '@/components/storefront/th
 import { ProductDetail as VibrantProductDetail } from '@/components/storefront/themes/vibrant/ProductDetail'
 import { ProductDetail as CommerceProductDetail } from '@/components/storefront/themes/commerce/ProductDetail'
 import { ProductDetail as EditorialProductDetail } from '@/components/storefront/themes/editorial/ProductDetail'
-import type { ProductDetailResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
+import type { CategoryResponse, ProductDetailResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
 const DETAIL_COMPONENTS = { minimal: MinimalProductDetail, bold: BoldProductDetail, classic: ClassicProductDetail, luxury: LuxuryProductDetail, vibrant: VibrantProductDetail, commerce: CommerceProductDetail, editorial: EditorialProductDetail }
 
@@ -75,15 +75,22 @@ export default async function ProductDetailPage({
   const tokens = parseThemeConfig(store.themeConfig)
   const DetailComponent = DETAIL_COMPONENTS[themeId]
 
+  const categories = await apiFetch<CategoryResponse[]>(`/api/stores/${slug}/categories`, null)
+  const category = categories.find(c => c.id === product.categoryId)
+
+  const categoryCrumb = category
+    ? { name: category.name, url: getStoreUrl(slug, `/products/category/${category.slug}`) }
+    : { name: 'ყველა პროდუქტი', url: getStoreUrl(slug, '/products') }
+
   return (
     <>
       <JsonLd data={buildProductJsonLd(slug, store.name, product)} />
       <JsonLd data={buildBreadcrumbJsonLd([
         { name: store.name, url: getStoreUrl(slug) },
-        { name: 'ყველა პროდუქტი', url: getStoreUrl(slug, '/products') },
+        categoryCrumb,
         { name: product.name, url: getStoreUrl(slug, `/products/${productSlug}`) },
       ])} />
-      <DetailComponent slug={slug} product={product} tokens={tokens} />
+      <DetailComponent slug={slug} product={product} category={category} tokens={tokens} />
     </>
   )
 }

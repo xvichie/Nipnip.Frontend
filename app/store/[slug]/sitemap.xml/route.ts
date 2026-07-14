@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { apiFetch } from '@/lib/api'
 import { getStoreUrl } from '@/lib/store/seo'
+import type { PaginatedResult } from '@/lib/types/shared'
 import type { CategoryResponse, ProductSummaryResponse, StorePageResponse, StoreResponse } from '@/lib/types/storefront'
 
 function urlEntry(loc: string, priority: string): string {
@@ -21,11 +22,12 @@ export async function GET(
   }
   if (!store.isActive) return new NextResponse('Not found', { status: 404 })
 
-  const [categories, products, pages] = await Promise.all([
+  const [categories, productsPage, pages] = await Promise.all([
     apiFetch<CategoryResponse[]>(`/api/stores/${slug}/categories`, null),
-    apiFetch<ProductSummaryResponse[]>(`/api/stores/${slug}/products`, null),
+    apiFetch<PaginatedResult<ProductSummaryResponse>>(`/api/stores/${slug}/products?pageSize=1000`, null),
     apiFetch<StorePageResponse[]>(`/api/stores/${slug}/pages`, null),
   ])
+  const products = productsPage.items
 
   const entries = [
     urlEntry(getStoreUrl(slug), '1.0'),

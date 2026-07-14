@@ -10,6 +10,7 @@ import { Home as LuxuryHome } from '@/components/storefront/themes/luxury/Home'
 import { Home as VibrantHome } from '@/components/storefront/themes/vibrant/Home'
 import { Home as CommerceHome } from '@/components/storefront/themes/commerce/Home'
 import { Home as EditorialHome } from '@/components/storefront/themes/editorial/Home'
+import type { PaginatedResult } from '@/lib/types/shared'
 import type { CategoryResponse, ProductSummaryResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
 const HOME_COMPONENTS = { minimal: MinimalHome, bold: BoldHome, classic: ClassicHome, luxury: LuxuryHome, vibrant: VibrantHome, commerce: CommerceHome, editorial: EditorialHome }
@@ -22,11 +23,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function StoreHomePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
 
-  const [store, categories, products] = await Promise.all([
+  const [store, categories, productsPage] = await Promise.all([
     apiFetch<StoreResponse>(`/api/stores/${slug}`, null),
     apiFetch<CategoryResponse[]>(`/api/stores/${slug}/categories`, null),
-    apiFetch<ProductSummaryResponse[]>(`/api/stores/${slug}/products`, null),
+    apiFetch<PaginatedResult<ProductSummaryResponse>>(`/api/stores/${slug}/products?pageSize=8`, null),
   ])
+  const products = productsPage.items
 
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
   const tokens = parseThemeConfig(store.themeConfig)

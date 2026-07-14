@@ -2,6 +2,7 @@
 
 import { createContext, useContext } from 'react'
 import { useAddCartItem, useCart, useRemoveCartItem, useUpdateCartItem } from '@/lib/queries/storefront'
+import { useStorefrontToast } from '@/lib/store/storefront-toast-context'
 import type { CartResponse } from '@/lib/types/storefront'
 
 type StorefrontCartContextValue = {
@@ -29,6 +30,7 @@ export function StorefrontCartProvider({
   const addMutation = useAddCartItem(slug)
   const updateMutation = useUpdateCartItem(slug)
   const removeMutation = useRemoveCartItem(slug)
+  const { showToast } = useStorefrontToast()
 
   const count = cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0
 
@@ -39,7 +41,11 @@ export function StorefrontCartProvider({
         isLoading: preview ? false : isLoading,
         count,
         preview,
-        addItem: async (variantId, quantity) => { if (!preview) await addMutation.mutateAsync({ variantId, quantity }) },
+        addItem: async (variantId, quantity) => {
+          if (preview) return
+          await addMutation.mutateAsync({ variantId, quantity })
+          showToast('პროდუქტი დაემატა კალათაში')
+        },
         updateItem: (itemId, quantity) => { if (!preview) updateMutation.mutate({ itemId, body: { quantity } }) },
         removeItem: itemId => { if (!preview) removeMutation.mutate(itemId) },
       }}

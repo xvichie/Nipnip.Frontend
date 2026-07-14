@@ -11,7 +11,7 @@ import { ProductGrid as LuxuryProductGrid } from '@/components/storefront/themes
 import { ProductGrid as VibrantProductGrid } from '@/components/storefront/themes/vibrant/ProductGrid'
 import { ProductGrid as CommerceProductGrid } from '@/components/storefront/themes/commerce/ProductGrid'
 import { ProductGrid as EditorialProductGrid } from '@/components/storefront/themes/editorial/ProductGrid'
-import type { CategoryResponse, ProductSummaryResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
+import type { CategoryResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
 const GRID_COMPONENTS = { minimal: MinimalProductGrid, bold: BoldProductGrid, classic: ClassicProductGrid, luxury: LuxuryProductGrid, vibrant: VibrantProductGrid, commerce: CommerceProductGrid, editorial: EditorialProductGrid }
 
@@ -42,10 +42,9 @@ export default async function ProductsByCategoryPage({
 }) {
   const { slug, categorySlug } = await params
 
-  const [store, categories, products] = await Promise.all([
+  const [store, categories] = await Promise.all([
     apiFetch<StoreResponse>(`/api/stores/${slug}`, null),
     apiFetch<CategoryResponse[]>(`/api/stores/${slug}/categories`, null),
-    apiFetch<ProductSummaryResponse[]>(`/api/stores/${slug}/products?categorySlug=${categorySlug}`, null),
   ])
 
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
@@ -63,7 +62,6 @@ export default async function ProductsByCategoryPage({
       <GridComponent
         slug={slug}
         categories={categories}
-        products={products}
         activeCategorySlug={categorySlug}
         tokens={tokens}
       />

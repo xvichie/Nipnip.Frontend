@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiFetch } from '@/lib/api'
 import { getCartSessionId, setCartSessionId } from '@/lib/store/cart-session'
+import type { PaginatedResult } from '@/lib/types/shared'
 import type {
   AddCartItemRequest,
   CartResponse,
@@ -12,6 +13,7 @@ import type {
   CreateContactMessageRequest,
   OrderResponse,
   ProductDetailResponse,
+  ProductPriceRangeResponse,
   ProductSummaryResponse,
   StoreResponse,
   UpdateCartItemRequest,
@@ -33,13 +35,44 @@ export function useCategories(slug: string) {
   })
 }
 
-export function useProducts(slug: string, categoryId?: string) {
+export interface ProductListParams {
+  categorySlug?: string
+  page?: number
+  pageSize?: number
+  search?: string
+  minPrice?: number
+  maxPrice?: number
+  sortBy?: string
+  sortDir?: string
+}
+
+export function useProducts(slug: string, params: ProductListParams = {}) {
+  const { categorySlug, page = 1, pageSize = 20, search, minPrice, maxPrice, sortBy, sortDir } = params
+
   return useQuery({
-    queryKey: ['storefront', slug, 'products', categoryId],
+    queryKey: ['storefront', slug, 'products', categorySlug, page, pageSize, search, minPrice, maxPrice, sortBy, sortDir],
     queryFn: () => {
-      const qs = categoryId ? `?categoryId=${categoryId}` : ''
-      return apiFetch<ProductSummaryResponse[]>(`/api/stores/${slug}/products${qs}`, null)
+      const qs = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
+      if (categorySlug) qs.set('categorySlug', categorySlug)
+      if (search) qs.set('search', search)
+      if (minPrice != null) qs.set('minPrice', String(minPrice))
+      if (maxPrice != null) qs.set('maxPrice', String(maxPrice))
+      if (sortBy) qs.set('sortBy', sortBy)
+      if (sortDir) qs.set('sortDir', sortDir)
+      return apiFetch<PaginatedResult<ProductSummaryResponse>>(`/api/stores/${slug}/products?${qs}`, null)
     },
+    placeholderData: prev => prev,
+  })
+}
+
+export function useProductPriceRange(slug: string, categorySlug?: string) {
+  return useQuery({
+    queryKey: ['storefront', slug, 'products', 'price-range', categorySlug],
+    queryFn: () => {
+      const qs = categorySlug ? `?categorySlug=${categorySlug}` : ''
+      return apiFetch<ProductPriceRangeResponse>(`/api/stores/${slug}/products/price-range${qs}`, null)
+    },
+    staleTime: 60 * 1000,
   })
 }
 

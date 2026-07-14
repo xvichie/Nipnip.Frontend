@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { QuickAddButton } from '@/components/storefront/shared/QuickAddButton'
 import type { ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
 
 export function ProductCard({
@@ -39,6 +40,11 @@ export function ProductCard({
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">სურათი არ არის</div>
           )}
+          <QuickAddButton
+            slug={slug}
+            productSlug={product.slug}
+            className="absolute inset-x-0 bottom-0 z-10 w-full py-2.5 flex items-center justify-center gap-1.5 bg-gray-900 text-white text-xs font-medium opacity-0 translate-y-full group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 hover:bg-gray-800 disabled:opacity-60"
+          />
         </div>
         <div className="p-3.5">
           {categoryName && <p className="text-gray-400 text-[11px] mb-1">{categoryName}</p>}

@@ -60,7 +60,10 @@ export function Cart({
               const overStock = item.quantity > item.stock
               return (
                 <div key={item.id} className="flex gap-4 py-6">
-                  <div className={`w-20 h-20 shrink-0 overflow-hidden ${radius} ${surface.card} border ${surface.border}`}>
+                  <Link
+                    href={`/products/${item.productSlug}`}
+                    className={`w-20 h-20 shrink-0 overflow-hidden ${radius} ${surface.card} border ${surface.border}`}
+                  >
                     {item.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={item.imageUrl} alt={item.productName} className="w-full h-full object-cover" />
@@ -69,10 +72,15 @@ export function Cart({
                         სურათი არ არის
                       </div>
                     )}
-                  </div>
+                  </Link>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-1">
-                      <p className={`font-semibold text-sm leading-snug ${surface.text}`}>{item.productName}</p>
+                      <Link
+                        href={`/products/${item.productSlug}`}
+                        className={`font-semibold text-sm leading-snug hover:underline underline-offset-2 ${surface.text}`}
+                      >
+                        {item.productName}
+                      </Link>
                       <button
                         onClick={() => removeItem(item.id)}
                         className={`${surface.muted} hover:text-red-400 transition-colors shrink-0 ml-2`}

@@ -205,6 +205,11 @@ export interface ProductSummaryResponse {
   secondImageUrl?: string | null
 }
 
+export interface ProductPriceRangeResponse {
+  min: number
+  max: number
+}
+
 export interface ProductImageResponse {
   id: string
   url: string
@@ -302,6 +307,7 @@ export interface CartItemResponse {
   id: string
   variantId: string
   productName: string
+  productSlug: string
   sku: string
   price: number
   quantity: number

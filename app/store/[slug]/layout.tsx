@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { apiFetch, ApiError } from '@/lib/api'
 import { StorefrontCartProvider } from '@/lib/store/storefront-cart-context'
+import { StorefrontToastProvider } from '@/lib/store/storefront-toast-context'
 import { parseThemeConfig } from '@/lib/store/theme-config'
 import { isThemeId, SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { buildStoreJsonLd, getStoreDescription, getStoreOgImage, getStoreOrigin, getStoreTitle } from '@/lib/store/seo'
@@ -98,13 +99,15 @@ export default async function StoreLayout({
   return (
     <div className={`min-h-screen flex flex-col ${SURFACE_CLASSES[themeId].page} ${SURFACE_CLASSES[themeId].text}`}>
       <JsonLd data={buildStoreJsonLd(slug, store, tokens)} />
-      <StorefrontCartProvider slug={slug}>
-        {showTopBar && <SocialBar themeId={themeId} tokens={tokens} edge="top" />}
-        <Header slug={slug} storeName={store.name} categories={categories} pages={pages} tokens={tokens} />
-        <main className="flex-1">{children}</main>
-        <Footer slug={slug} storeName={store.name} tokens={tokens} pages={pages} />
-        {showBottomBar && <SocialBar themeId={themeId} tokens={tokens} edge="bottom" />}
-      </StorefrontCartProvider>
+      <StorefrontToastProvider>
+        <StorefrontCartProvider slug={slug}>
+          {showTopBar && <SocialBar themeId={themeId} tokens={tokens} edge="top" />}
+          <Header slug={slug} storeName={store.name} categories={categories} pages={pages} tokens={tokens} />
+          <main className="flex-1">{children}</main>
+          <Footer slug={slug} storeName={store.name} tokens={tokens} pages={pages} />
+          {showBottomBar && <SocialBar themeId={themeId} tokens={tokens} edge="bottom" />}
+        </StorefrontCartProvider>
+      </StorefrontToastProvider>
     </div>
   )
 }
