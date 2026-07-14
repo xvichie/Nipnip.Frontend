@@ -6,11 +6,13 @@ import { apiFetch } from '@/lib/api'
 import type {
   AdminConversionEntry,
   AdminCreateMerchantRequest,
+  AdminCreateStoreRequest,
   AdminPayoutSummaryResponse,
   AdminStatsResponse,
   CreatorResponse,
   MerchantResponse,
   PaginatedResult,
+  StoreResponse,
   UpdateMerchantRequest,
 } from '@/lib/types'
 
@@ -114,6 +116,35 @@ export function useAdminToggleMerchantHighlight() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'merchants'] })
       queryClient.invalidateQueries({ queryKey: ['merchants', 'highlighted'] })
+    },
+  })
+}
+
+export function useAdminMerchantStore(id: string) {
+  const { getToken } = useAuth()
+  return useQuery({
+    queryKey: ['admin', 'merchant', id, 'store'],
+    queryFn: async () => {
+      const token = await getToken()
+      return apiFetch<StoreResponse | null>(`/api/admin/merchants/${id}/store`, token)
+    },
+    enabled: !!id,
+  })
+}
+
+export function useAdminCreateStore(id: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (body: AdminCreateStoreRequest) => {
+      const token = await getToken()
+      return apiFetch<StoreResponse>(`/api/admin/merchants/${id}/store`, token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: store => {
+      queryClient.setQueryData(['admin', 'merchant', id, 'store'], store)
     },
   })
 }

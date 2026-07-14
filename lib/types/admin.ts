@@ -18,6 +18,13 @@ export interface AdminCreateMerchantRequest {
   logoUrl?: string | null
 }
 
+export interface AdminCreateStoreRequest {
+  slug: string
+  name: string
+  themeId?: string | null
+  themeConfig?: string | null
+}
+
 export interface CreatorPayoutEntry {
   creatorId: string
   creatorName: string

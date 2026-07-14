@@ -108,7 +108,7 @@ export default function ReportSalePage() {
               <select
                 value={currency}
                 onChange={e => setCurrency(e.target.value)}
-                className="select bg-white/4 border-white/10 text-white/70 focus:border-fuchsia-500/60 w-24 shrink-0"
+                className="select bg-neutral-900 border-white/10 text-white/70 focus:border-fuchsia-500/60 w-24 shrink-0"
               >
                 {CURRENCIES.map(c => (
                   <option key={c} value={c}>{c}</option>

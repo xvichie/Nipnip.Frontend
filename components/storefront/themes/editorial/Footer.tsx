@@ -1,0 +1,80 @@
+import Link from 'next/link'
+import { SocialLinks } from '@/components/storefront/shared/SocialLinks'
+import { ContactForm } from '@/components/storefront/shared/ContactForm'
+import type { StorePageResponse, ThemeConfig } from '@/lib/types/storefront'
+
+function Divider() {
+  return <span className="w-px h-3 bg-black/15" aria-hidden />
+}
+
+export function Footer({
+  slug,
+  storeName,
+  tokens,
+  pages,
+}: {
+  slug: string
+  storeName: string
+  tokens: Required<ThemeConfig>
+  pages: StorePageResponse[]
+}) {
+  const hasContactInfo = tokens.contactEmail || tokens.contactPhone || tokens.contactAddress
+  const showSocials = tokens.socialsPosition === 'footer' || tokens.socialsPosition === 'both'
+
+  const contactFormSection = tokens.footerContactForm !== 'off' && (
+    <div className="border-t border-b border-black/10">
+      <div className="max-w-md mx-auto px-4 sm:px-6 py-10">
+        <ContactForm slug={slug} tokens={tokens} variant="light" radiusClass="" heading={tokens.contactLabel} />
+      </div>
+    </div>
+  )
+
+  return (
+    <footer className="bg-white border-t border-black/10 mt-auto">
+      {tokens.footerContactForm === 'above' && contactFormSection}
+
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-14 flex flex-col items-center gap-6 text-center">
+        <span className="font-serif text-xl font-bold tracking-tight text-[#111111]">{storeName}</span>
+
+        {hasContactInfo && (
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs uppercase tracking-widest text-[#767676]">
+            {tokens.contactEmail && <a href={`mailto:${tokens.contactEmail}`} className="hover:text-[#111111] transition-colors">{tokens.contactEmail}</a>}
+            {tokens.contactEmail && (tokens.contactPhone || tokens.contactAddress) && <Divider />}
+            {tokens.contactPhone && <a href={`tel:${tokens.contactPhone}`} className="hover:text-[#111111] transition-colors">{tokens.contactPhone}</a>}
+            {tokens.contactPhone && tokens.contactAddress && <Divider />}
+            {tokens.contactAddress && <span>{tokens.contactAddress}</span>}
+          </div>
+        )}
+
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs uppercase tracking-widest text-[#767676]">
+          <Link href={`/store/${slug}/products`} className="hover:text-[#111111] transition-colors">
+            ყველა პროდუქტი
+          </Link>
+          {pages.map(page => (
+            <span key={page.id} className="flex items-center gap-4">
+              <Divider />
+              <Link href={`/store/${slug}/pages/${page.slug}`} className="hover:text-[#111111] transition-colors">
+                {page.title}
+              </Link>
+            </span>
+          ))}
+          <span className="flex items-center gap-4">
+            <Divider />
+            <Link href={`/store/${slug}/contact`} className="hover:text-[#111111] transition-colors">
+              {tokens.contactLabel}
+            </Link>
+          </span>
+        </div>
+
+        {showSocials && <SocialLinks tokens={tokens} />}
+
+        <div className="pt-6 border-t border-black/10 w-full flex flex-col items-center gap-1">
+          <p className="text-[#767676] text-[11px]">© {new Date().getFullYear()} {storeName}</p>
+          <p className="text-[#767676] text-[11px]">შექმნილია NipNip-ის მიერ</p>
+        </div>
+      </div>
+
+      {tokens.footerContactForm === 'below' && contactFormSection}
+    </footer>
+  )
+}

@@ -130,6 +130,12 @@ export default function AdminMerchantsPage() {
                         >
                           Edit
                         </Link>
+                        <Link
+                          href={`/admin/merchants/${m.id}/store`}
+                          className="btn btn-xs bg-white/4 border-white/8 text-white/60 hover:text-white"
+                        >
+                          Store
+                        </Link>
                         {m.isActive && (
                           <button
                             onClick={() => handleDeactivate(m.id, m.name)}

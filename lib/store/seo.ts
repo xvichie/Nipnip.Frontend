@@ -1,0 +1,109 @@
+import type { ProductDetailResponse, StoreResponse, ThemeConfig } from '@/lib/types/storefront'
+
+export const STOREFRONT_ROOT_DOMAIN = 'nipnip.ge'
+
+export function getStoreOrigin(slug: string): string {
+  return `https://${slug}.${STOREFRONT_ROOT_DOMAIN}`
+}
+
+export function getStoreUrl(slug: string, path = ''): string {
+  const origin = getStoreOrigin(slug)
+  if (!path || path === '/') return origin
+  return `${origin}${path.startsWith('/') ? path : `/${path}`}`
+}
+
+export function truncateDescription(text: string, maxLength = 160): string {
+  const clean = text.replace(/\s+/g, ' ').trim()
+  if (clean.length <= maxLength) return clean
+  return `${clean.slice(0, maxLength - 1).trimEnd()}…`
+}
+
+export function getStoreOgImage(tokens: Required<ThemeConfig>): string | undefined {
+  return tokens.heroImageUrl || tokens.logoUrl || undefined
+}
+
+export function getStoreTitle(store: StoreResponse, tokens: Required<ThemeConfig>): string {
+  return tokens.seoTagline ? `${store.name} — ${tokens.seoTagline}` : store.name
+}
+
+export function getStoreDescription(store: StoreResponse, tokens: Required<ThemeConfig>): string {
+  if (tokens.seoDescription) return truncateDescription(tokens.seoDescription)
+  const parts = [tokens.heroHeadline, tokens.heroSubheadline].filter(Boolean)
+  if (parts.length > 0) return truncateDescription(parts.join(' — '))
+  return truncateDescription(`შეიძინეთ პროდუქტები მაღაზია ${store.name}-ში ${STOREFRONT_ROOT_DOMAIN}-ზე.`)
+}
+
+export function buildStoreJsonLd(slug: string, store: StoreResponse, tokens: Required<ThemeConfig>) {
+  const url = getStoreOrigin(slug)
+  const sameAs = [tokens.socialInstagram, tokens.socialFacebook, tokens.socialTiktok, tokens.socialYoutube].filter(Boolean)
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Store',
+    '@id': `${url}#store`,
+    name: store.name,
+    url,
+    logo: tokens.logoUrl || undefined,
+    image: tokens.logoUrl || tokens.heroImageUrl || undefined,
+    telephone: tokens.contactPhone || undefined,
+    email: tokens.contactEmail || undefined,
+    address: tokens.contactAddress ? { '@type': 'PostalAddress', streetAddress: tokens.contactAddress } : undefined,
+    geo: tokens.contactLatitude !== null && tokens.contactLongitude !== null
+      ? { '@type': 'GeoCoordinates', latitude: tokens.contactLatitude, longitude: tokens.contactLongitude }
+      : undefined,
+    sameAs: sameAs.length > 0 ? sameAs : undefined,
+  }
+}
+
+export function buildProductJsonLd(slug: string, storeName: string, product: ProductDetailResponse) {
+  const url = getStoreUrl(slug, `/products/${product.slug}`)
+  const images = product.images.map(img => img.url)
+  const prices = product.variants.map(v => v.salePrice ?? v.price)
+  const minPrice = prices.length > 0 ? Math.min(...prices) : product.salePrice ?? product.basePrice
+  const maxPrice = prices.length > 0 ? Math.max(...prices) : product.salePrice ?? product.basePrice
+  const inStock = product.variants.some(v => v.stock > 0)
+  const availability = inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'
+
+  const offers = prices.length > 1 && minPrice !== maxPrice
+    ? {
+        '@type': 'AggregateOffer',
+        priceCurrency: 'GEL',
+        lowPrice: minPrice,
+        highPrice: maxPrice,
+        offerCount: product.variants.length,
+        availability,
+        url,
+      }
+    : {
+        '@type': 'Offer',
+        priceCurrency: 'GEL',
+        price: minPrice,
+        availability,
+        url,
+      }
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.description || undefined,
+    image: images.length > 0 ? images : undefined,
+    sku: product.variants[0]?.sku || product.id,
+    brand: { '@type': 'Brand', name: storeName },
+    offers,
+    url,
+  }
+}
+
+export function buildBreadcrumbJsonLd(items: { name: string; url: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  }
+}
