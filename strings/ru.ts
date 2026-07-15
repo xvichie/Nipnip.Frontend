@@ -362,5 +362,13 @@ export const ru: Strings = {
     shopifyStep2Label: 'Шаг 2 — Custom Pixel (Customer Events)',
     shopifyStep2Desc: 'Settings → Customer events → Custom pixels → Add custom pixel → назови Nipnip Webhook → вставь код → Add pixel.',
     shopifyLiquidNote: 'checkout.order.id, checkout.totalPrice.amount и checkout.totalPrice.currencyCode — поля Shopify Customer Events API, они автоматически заполняются данными заказа.',
+    platformStore: 'Магазин NipNip',
+    storeTabTitle: 'Твой магазин NipNip',
+    storeTabDesc: 'Устанавливать код не нужно — раз твой магазин уже на NipNip, трекинг встроен. Просто включи переключатель.',
+    storeToggleLabel: 'Партнёрский трекинг',
+    storeToggleOnDesc: 'Включено — ссылки авторов ведут прямо в твой магазин, и каждый завершённый заказ отслеживается и засчитывается автоматически.',
+    storeToggleOffDesc: 'Выключено — ссылки авторов не будут отслеживать продажи в твоём магазине NipNip.',
+    storeNoStoreNote: 'У тебя ещё нет магазина NipNip.',
+    storeNoStoreLink: 'Создать магазин →',
   },
 }

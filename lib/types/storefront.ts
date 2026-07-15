@@ -101,6 +101,7 @@ export interface StoreResponse {
   themeId: string
   themeConfig: string
   isActive: boolean
+  affiliateEnabled: boolean
   createdAt: string
 }
 
@@ -109,6 +110,7 @@ export interface UpdateStoreRequest {
   themeId?: string | null
   themeConfig?: string | null
   isActive?: boolean | null
+  affiliateEnabled?: boolean | null
 }
 
 export interface DomainDnsRecordResponse {
@@ -341,6 +343,7 @@ export interface CheckoutRequest {
   longitude?: number | null
   paymentMethod: PaymentMethod
   shippingZoneId?: string | null
+  ref?: string | null
 }
 
 export interface OrderResponse {

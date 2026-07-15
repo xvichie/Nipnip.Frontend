@@ -360,6 +360,14 @@ export const ka = {
     shopifyStep2Label: 'ნაბიჯი 2 — Custom Pixel (Customer Events)',
     shopifyStep2Desc: 'Settings → Customer events → Custom pixels → Add custom pixel → სახელი: Nipnip Webhook → ჩასვი კოდი → Add pixel.',
     shopifyLiquidNote: 'checkout.order.id, checkout.totalPrice.amount და checkout.totalPrice.currencyCode Shopify Customer Events API-ს ველებია — ისინი ავტომატურად ივსება შეკვეთის რეალური მონაცემებით.',
+    platformStore: 'NipNip მაღაზია',
+    storeTabTitle: 'შენი NipNip მაღაზია',
+    storeTabDesc: 'კოდის ჩასმა არ არის საჭირო — რადგან შენი მაღაზია უკვე NipNip-ზეა, ტრეკინგი ჩაშენებულია. უბრალოდ ჩართე.',
+    storeToggleLabel: 'აფილიატ ტრეკინგი',
+    storeToggleOnDesc: 'ჩართულია — კრეატორის ლინკები პირდაპირ შენს მაღაზიაზე გადამისამართებს და ყოველი დასრულებული შეკვეთა ავტომატურად ტრექდება.',
+    storeToggleOffDesc: 'გამორთულია — კრეატორის ლინკები არ ჩაწერენ გაყიდვებს შენს NipNip მაღაზიაზე.',
+    storeNoStoreNote: 'შენ ჯერ არ გაქვს შექმნილი NipNip მაღაზია.',
+    storeNoStoreLink: 'მაღაზიის შექმნა →',
   },
 } as const
 

@@ -49,7 +49,21 @@ export default clerkMiddleware(async (auth, req) => {
   if (slug) {
     const url = req.nextUrl.clone()
     url.pathname = `/store/${slug}${req.nextUrl.pathname === '/' ? '' : req.nextUrl.pathname}`
-    return NextResponse.rewrite(url)
+    const response = NextResponse.rewrite(url)
+
+    // A creator link redirects here with ?ref={creatorSlug}_{merchantSlug} attached — remember it
+    // for the rest of the shopping session so checkout can attribute the sale. Not HttpOnly: the
+    // checkout request is client-side JS reading this cookie, same as the external JS-snippet flow.
+    const ref = req.nextUrl.searchParams.get('ref')
+    if (ref) {
+      response.cookies.set(`nn_ref_${slug}`, ref, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 30,
+        sameSite: 'lax',
+      })
+    }
+
+    return response
   }
 
   if (isProtectedRoute(req)) await auth.protect()

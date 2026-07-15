@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useCheckout } from '@/lib/queries/storefront'
+import { getStoreRef } from '@/lib/store/referral'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { getThemeDefinition, RADIUS_CLASS, SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { LocationPicker } from './LocationPicker'
@@ -186,6 +187,7 @@ export function Checkout({
                 longitude: coords?.lng ?? null,
                 paymentMethod,
                 shippingZoneId: hasShippingZones ? shippingZoneId : null,
+                ref: getStoreRef(slug),
               })
             }}
           >

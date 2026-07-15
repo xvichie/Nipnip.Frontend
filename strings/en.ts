@@ -362,5 +362,13 @@ export const en: Strings = {
     shopifyStep2Label: 'Step 2 — Custom Pixel (Customer Events)',
     shopifyStep2Desc: 'Settings → Customer events → Custom pixels → Add custom pixel → name it Nipnip Webhook → paste the code → Add pixel.',
     shopifyLiquidNote: 'checkout.order.id, checkout.totalPrice.amount and checkout.totalPrice.currencyCode are Shopify Customer Events API fields — they are filled automatically with real order data.',
+    platformStore: 'NipNip Store',
+    storeTabTitle: 'Your NipNip Store',
+    storeTabDesc: 'No code to install — since NipNip already runs your storefront, tracking is built in. Just flip the switch.',
+    storeToggleLabel: 'Affiliate tracking',
+    storeToggleOnDesc: 'On — creator links redirect straight to your store, and every completed order is tracked and attributed automatically.',
+    storeToggleOffDesc: 'Off — creator links will not track sales made on your NipNip store.',
+    storeNoStoreNote: "You haven't created a NipNip store yet.",
+    storeNoStoreLink: 'Set up your store →',
   },
 }

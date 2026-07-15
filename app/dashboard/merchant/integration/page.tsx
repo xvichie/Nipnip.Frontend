@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useMerchantSnippet } from '@/lib/queries/merchants'
+import { useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { useLanguage } from '@/lib/i18n'
 import { apiFetch } from '@/lib/api'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
 
-type Platform = 'woo' | 'custom' | 'shopify'
+type Platform = 'woo' | 'custom' | 'shopify' | 'store'
 type TestStatus = 'idle' | 'testing' | 'connected' | 'failed'
 type ExTab = 'php' | 'js'
 
@@ -204,6 +205,66 @@ function CodeBlock({
   )
 }
 
+function StorePlatformTab() {
+  const { t } = useLanguage()
+  const { data: store, isLoading, isError } = useMyStore()
+  const updateStore = useUpdateMyStore()
+
+  if (isLoading) {
+    return <div className="h-40 skeleton rounded-2xl" />
+  }
+
+  if (isError || !store) {
+    return (
+      <div className="flex items-start gap-3 px-4 py-3.5 rounded-xl bg-white/3 border border-white/7">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className="text-white/30 shrink-0 mt-0.5">
+          <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.4"/>
+          <path d="M7 6v4M7 4.5v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+        <p className="text-xs text-white/40 leading-relaxed">
+          {t.integration.storeNoStoreNote}{' '}
+          <Link href="/dashboard/merchant/store" className="text-violet-400 hover:text-violet-300 font-semibold transition-colors">
+            {t.integration.storeNoStoreLink}
+          </Link>
+        </p>
+      </div>
+    )
+  }
+
+  const enabled = store.affiliateEnabled
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="rounded-2xl border border-white/8 bg-[#0f0f18] px-5 py-4 flex flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className="text-fuchsia-400">
+            <path d="M2 5.5 7 2l5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M3 5.2V11a.7.7 0 0 0 .7.7h6.6a.7.7 0 0 0 .7-.7V5.2" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+          </svg>
+          <span className="text-sm font-bold text-white">{t.integration.storeTabTitle}</span>
+        </div>
+        <p className="text-xs text-white/35 leading-relaxed">{t.integration.storeTabDesc}</p>
+      </div>
+
+      <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/8 bg-[#0f0f18] px-5 py-4">
+        <div className="flex flex-col gap-1 min-w-0">
+          <span className="text-sm font-bold text-white">{t.integration.storeToggleLabel}</span>
+          <p className="text-xs text-white/40 leading-relaxed">
+            {enabled ? t.integration.storeToggleOnDesc : t.integration.storeToggleOffDesc}
+          </p>
+        </div>
+        <input
+          type="checkbox"
+          className="toggle shrink-0 [--tglbg:theme(colors.white/10%)] border-white/15 checked:border-violet-500 checked:bg-violet-500 checked:[--tglbg:theme(colors.violet.900)]"
+          checked={enabled}
+          disabled={updateStore.isPending}
+          onChange={e => updateStore.mutate({ affiliateEnabled: e.target.checked })}
+        />
+      </div>
+    </div>
+  )
+}
+
 export default function IntegrationPage() {
   const { data, isLoading, isError } = useMerchantSnippet()
   const { t } = useLanguage()
@@ -343,6 +404,22 @@ export default function IntegrationPage() {
               <path d="M12 12v5M9.5 14.5l2.5-2.5 2.5 2.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             {t.integration.platformShopify}
+          </button>
+          <button
+            onClick={() => switchPlatform('store')}
+            className={[
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all',
+              platform === 'store'
+                ? 'bg-[#0f0f18] text-white shadow-sm border border-white/8'
+                : 'text-white/40 hover:text-white/70',
+            ].join(' ')}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="M3 9.5 12 3l9 6.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+              <path d="M9.5 20v-6h5v6" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+            </svg>
+            {t.integration.platformStore}
           </button>
         </div>
       </div>
@@ -561,6 +638,9 @@ export default function IntegrationPage() {
 
         </div>
       )}
+
+      {/* ── NipNip Store ── */}
+      {platform === 'store' && <StorePlatformTab />}
 
       {/* Test Connection */}
       <div className="rounded-2xl border border-white/8 bg-[#0f0f18] px-5 py-4 flex flex-col gap-4">
