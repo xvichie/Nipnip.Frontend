@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { uploadImage } from '@/lib/uploadImage'
 import { useCreateProductImage, useDeleteProductImage, useReorderProductImages } from '@/lib/queries/storefront-admin'
 import type { ProductImageResponse } from '@/lib/types/storefront'
+import { viewTransitionNameFor, withViewTransition } from '@/lib/viewTransition'
 
 export function ProductImagesManager({ productId, images }: { productId: string; images: ProductImageResponse[] }) {
   const { mutate: createImage, isPending: isCreating } = useCreateProductImage(productId)
@@ -13,19 +14,27 @@ export function ProductImagesManager({ productId, images }: { productId: string;
   const [error, setError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
+  // "Adjust state during render" pattern instead of an effect: `order` is a local
+  // drag/reorder buffer that should reset whenever the server's `images` prop changes.
   const [order, setOrder] = useState(images)
-  useEffect(() => setOrder(images), [images])
+  const [prevImages, setPrevImages] = useState(images)
+  if (images !== prevImages) {
+    setPrevImages(images)
+    setOrder(images)
+  }
 
   const dragIndex = useRef<number | null>(null)
 
   function handleDragOver(e: React.DragEvent, index: number) {
     e.preventDefault()
     if (dragIndex.current === null || dragIndex.current === index) return
-    setOrder(prev => {
-      const next = [...prev]
-      const [moved] = next.splice(dragIndex.current!, 1)
-      next.splice(index, 0, moved)
-      return next
+    withViewTransition(() => {
+      setOrder(prev => {
+        const next = [...prev]
+        const [moved] = next.splice(dragIndex.current!, 1)
+        next.splice(index, 0, moved)
+        return next
+      })
     })
     dragIndex.current = index
   }
@@ -37,7 +46,16 @@ export function ProductImagesManager({ productId, images }: { productId: string;
 
   function handleSetCover(id: string) {
     const next = [order.find(i => i.id === id)!, ...order.filter(i => i.id !== id)]
-    setOrder(next)
+    withViewTransition(() => setOrder(next))
+    reorderImages({ imageIds: next.map(i => i.id) })
+  }
+
+  function handleMove(index: number, direction: -1 | 1) {
+    const target = index + direction
+    if (target < 0 || target >= order.length) return
+    const next = [...order]
+    ;[next[index], next[target]] = [next[target], next[index]]
+    withViewTransition(() => setOrder(next))
     reorderImages({ imageIds: next.map(i => i.id) })
   }
 
@@ -69,6 +87,7 @@ export function ProductImagesManager({ productId, images }: { productId: string;
             onDragStart={() => { dragIndex.current = index }}
             onDragOver={e => handleDragOver(e, index)}
             onDrop={handleDrop}
+            style={{ viewTransitionName: viewTransitionNameFor(image.id) }}
             className="relative w-20 h-20 rounded-xl overflow-hidden border border-white/10 group cursor-grab active:cursor-grabbing"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -79,6 +98,26 @@ export function ProductImagesManager({ productId, images }: { productId: string;
               </span>
             )}
             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity">
+              <div className="flex gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleMove(index, -1)}
+                  disabled={index === 0}
+                  aria-label="Move left"
+                  className="text-white/70 hover:text-white disabled:opacity-20 text-xs px-1"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleMove(index, 1)}
+                  disabled={index === order.length - 1}
+                  aria-label="Move right"
+                  className="text-white/70 hover:text-white disabled:opacity-20 text-xs px-1"
+                >
+                  ›
+                </button>
+              </div>
               {index !== 0 && (
                 <button
                   type="button"

@@ -79,6 +79,8 @@ export const ka = {
     integration: 'ინტეგრაცია',
     affiliateGroup: 'აფილიატ მარკეტინგი',
     onlineStoreGroup: 'ონლაინ მაღაზია',
+    aiAgentsGroup: 'AI აგენტები',
+    messagingAgent: 'შეტყობინებების აგენტი',
     storeOverview: 'დეტალები',
     storeOrders: 'შეკვეთები',
     storeCategories: 'კატეგორიები',
@@ -90,6 +92,7 @@ export const ka = {
     storePayments: 'გადახდები',
     storeDelivery: 'მიწოდება',
     storeDomain: 'დომენი',
+    storeIntegrations: 'ინტეგრაციები',
   },
   creatorDashboard: {
     title: 'Dashboard',

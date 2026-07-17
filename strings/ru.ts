@@ -81,6 +81,8 @@ export const ru: Strings = {
     integration: 'Интеграция',
     affiliateGroup: 'Партнёрский маркетинг',
     onlineStoreGroup: 'Интернет-магазин',
+    aiAgentsGroup: 'AI-агенты',
+    messagingAgent: 'Агент сообщений',
     storeOverview: 'Детали',
     storeOrders: 'Заказы',
     storeCategories: 'Категории',
@@ -92,6 +94,7 @@ export const ru: Strings = {
     storePayments: 'Оплата',
     storeDelivery: 'Доставка',
     storeDomain: 'Домен',
+    storeIntegrations: 'Интеграции',
   },
   creatorDashboard: {
     title: 'Панель',

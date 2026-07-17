@@ -1,20 +1,84 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { useAuth } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
-import { useCreateProduct, useMyCategories } from '@/lib/queries/storefront-admin'
+import { useCreateProduct, useMyCategories, useMyProduct, useUpdateProduct } from '@/lib/queries/storefront-admin'
+import { apiFetch } from '@/lib/api'
+import type { ProductDetailResponse, ProductOptionResponse } from '@/lib/types/storefront'
+import { PRODUCT_IMPORT_STORAGE_KEY, type ProductImportData } from '@/lib/productImport'
+import { StagedImagesEditor } from '@/components/dashboard/store/StagedImagesEditor'
+import { StagedVideoEditor } from '@/components/dashboard/store/StagedVideoEditor'
+import { StagedOptionsEditor, type StagedOption } from '@/components/dashboard/store/StagedOptionsEditor'
+import { ProductImagesManager } from '@/components/dashboard/store/ProductImagesManager'
+import { ProductVideoManager } from '@/components/dashboard/store/ProductVideoManager'
+import { ProductOptionsManager } from '@/components/dashboard/store/ProductOptionsManager'
+import { ProductVariantsManager } from '@/components/dashboard/store/ProductVariantsManager'
+import { useFacebookPublish, useFacebookStatus } from '@/lib/queries/facebook'
+import { useInstagramPublish, useInstagramStatus } from '@/lib/queries/instagram'
+import { FloatingFormButton } from '@/components/dashboard/FloatingFormButton'
+import { BetaBadge } from '@/components/dashboard/store/BetaBadge'
+
+function newId(): string {
+  return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)
+}
 
 export default function NewProductPage() {
   const router = useRouter()
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
   const { data: categories } = useMyCategories()
-  const { mutate: createProduct, isPending, error } = useCreateProduct()
+  const { mutate: createProduct, isPending: isCreating, error: createError } = useCreateProduct()
 
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [basePrice, setBasePrice] = useState('')
+  const [productId, setProductId] = useState<string | null>(null)
+  const { data: product } = useMyProduct(productId ?? '')
+  const { mutate: updateProduct, isPending: isSaving, error: updateError } = useUpdateProduct(productId ?? '')
+
+  // Read once on mount via lazy initializers — hydrating several fields from a single
+  // parsed payload doesn't fit react-hooks/set-state-in-effect's "sync external system"
+  // model, so each field seeds itself directly instead of an effect calling setState N times.
+  const [importedData] = useState<ProductImportData | null>(() => {
+    if (typeof window === 'undefined') return null
+    const raw = sessionStorage.getItem(PRODUCT_IMPORT_STORAGE_KEY)
+    if (!raw) return null
+    sessionStorage.removeItem(PRODUCT_IMPORT_STORAGE_KEY)
+    try {
+      return JSON.parse(raw) as ProductImportData
+    } catch {
+      return null
+    }
+  })
+
+  const [name, setName] = useState(() => importedData?.name ?? '')
+  const [description, setDescription] = useState(() => importedData?.description ?? '')
+  const [basePrice, setBasePrice] = useState(() => (importedData?.price != null ? String(importedData.price) : ''))
   const [salePrice, setSalePrice] = useState('')
-  const [categoryId, setCategoryId] = useState('')
+  const [categoryId, setCategoryId] = useState(() => importedData?.categoryId ?? '')
+  const [isActive, setIsActive] = useState(true)
+  const [stagedImages, setStagedImages] = useState<string[]>(() => importedData?.imageUrls ?? [])
+  const [stagedVideoUrl, setStagedVideoUrl] = useState<string | null>(() => importedData?.videoUrl ?? null)
+  const [stagedOptions, setStagedOptions] = useState<StagedOption[]>(() =>
+    (importedData?.optionGroups ?? []).map(group => ({
+      id: newId(),
+      name: group.name,
+      values: group.values.map(value => ({ id: newId(), value })),
+    }))
+  )
+  const [wasImported] = useState(() => importedData !== null)
+  const [attaching, setAttaching] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [shareToFacebook, setShareToFacebook] = useState(false)
+  const [shareToInstagram, setShareToInstagram] = useState(false)
+
+  const { data: fbStatus } = useFacebookStatus()
+  const fbConnected = fbStatus?.connected ?? false
+  const { mutate: publishToFacebook } = useFacebookPublish()
+
+  const { data: igStatus } = useInstagramStatus()
+  const igConnected = igStatus?.connected ?? false
+  const { mutate: publishToInstagram } = useInstagramPublish()
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -24,20 +88,103 @@ export default function NewProductPage() {
     const parsedSalePrice = parseFloat(salePrice)
     if (salePrice.trim() && isNaN(parsedSalePrice)) return
 
+    // Product already exists — every later submit of this same form is a normal save.
+    if (productId) {
+      updateProduct(
+        {
+          name: name.trim() || null,
+          description: description.trim() || null,
+          basePrice: price,
+          salePrice: salePrice.trim() ? parsedSalePrice : null,
+          categoryId: categoryId || null,
+          isActive,
+        },
+        { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
+      )
+      return
+    }
+
     createProduct(
       {
         name: name.trim(),
         description: description.trim() || null,
+        videoUrl: stagedVideoUrl,
         basePrice: price,
         salePrice: salePrice.trim() ? parsedSalePrice : null,
         categoryId: categoryId || null,
       },
-      { onSuccess: product => router.replace(`/dashboard/merchant/store/products/${product.id}`) }
+      {
+        onSuccess: async created => {
+          let finalProduct: ProductDetailResponse = created
+
+          if (stagedImages.length > 0 || stagedOptions.length > 0) {
+            setAttaching(true)
+            const token = await getToken()
+
+            for (const url of stagedImages) {
+              try {
+                await apiFetch(`/api/products/${created.id}/images`, token, {
+                  method: 'POST',
+                  body: JSON.stringify({ url }),
+                })
+              } catch {
+                // product was created fine; a failed image can be re-added manually below
+              }
+            }
+
+            for (const option of stagedOptions) {
+              try {
+                const createdOption = await apiFetch<ProductOptionResponse>(`/api/products/${created.id}/options`, token, {
+                  method: 'POST',
+                  body: JSON.stringify({ name: option.name }),
+                })
+                await Promise.allSettled(
+                  option.values.map(v =>
+                    apiFetch(`/api/products/${created.id}/options/${createdOption.id}/values`, token, {
+                      method: 'POST',
+                      body: JSON.stringify({ value: v.value }),
+                    })
+                  )
+                )
+              } catch {
+                // product was created fine; this option can be re-added manually below
+              }
+            }
+
+            try {
+              finalProduct = await apiFetch<ProductDetailResponse>(`/api/stores/me/products/${created.id}`, token)
+            } catch {
+              // keep the pre-attach snapshot; the managers below will pick up the rest on their own refetch
+            }
+            setAttaching(false)
+          }
+
+          if (shareToFacebook && fbConnected) {
+            // Fire-and-forget — the product is already saved either way; if this fails,
+            // the merchant can still use "Export" on the product page.
+            publishToFacebook({ productId: created.id })
+          }
+          if (shareToInstagram && igConnected && stagedImages.length > 0) {
+            publishToInstagram({ productId: created.id })
+          }
+
+          // Seed the query cache before revealing the live managers below, so both this page
+          // and the canonical edit route (after the URL swap) render instantly from cache —
+          // no network round-trip, no loading flash.
+          queryClient.setQueryData(['storefront-admin', 'product', created.id], finalProduct)
+          setProductId(created.id)
+          router.replace(`/dashboard/merchant/store/products/${created.id}`, { scroll: false })
+        },
+      }
     )
   }
 
+  const isCreated = !!productId
+  const busy = isCreating || isSaving || attaching
+  const contentRef = useRef<HTMLDivElement>(null)
+
   return (
-    <div className="flex flex-col gap-6 max-w-lg">
+    <div ref={contentRef} className="flex flex-col gap-6 max-w-2xl pb-20">
 
       <div className="flex items-center gap-3">
         <Link href="/dashboard/merchant/store/products" className="text-white/30 hover:text-white/60 transition-colors">
@@ -45,11 +192,19 @@ export default function NewProductPage() {
             <path d="M10 13L5 8l5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </Link>
-        <h1 className="text-2xl font-black tracking-tight">New Product</h1>
+        <h1 className="text-2xl font-black tracking-tight">{product?.name || 'New Product'}</h1>
       </div>
 
+      {wasImported && (
+        <div className="rounded-2xl border border-fuchsia-500/20 bg-fuchsia-500/5 px-4 py-3">
+          <p className="text-fuchsia-300 text-xs leading-relaxed">
+            Imported — everything below is pre-filled and editable. Double-check it, then save.
+          </p>
+        </div>
+      )}
+
       <div className="rounded-2xl border border-white/7 bg-white/2 p-6">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form id="product-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="fieldset gap-2">
             <label htmlFor="p-name" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
               Name <span className="text-error">*</span>
@@ -130,21 +285,121 @@ export default function NewProductPage() {
             </div>
           )}
 
-          {error && (
+          {isCreated && (
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isActive}
+                onChange={e => setIsActive(e.target.checked)}
+                className={`toggle toggle-sm ${isActive ? 'toggle-success' : 'toggle-error'}`}
+              />
+              <span className="text-sm text-white/70">Visible in store</span>
+            </label>
+          )}
+
+          {(createError || updateError) && (
             <div className="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
-              Failed to create product.
+              {isCreated ? 'Failed to save changes.' : 'Failed to create product.'}
+            </div>
+          )}
+          {saved && (
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
+              Saved successfully
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={isPending || !name.trim() || !basePrice}
-            className="btn w-full mt-1 gap-2 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
-          >
-            {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Create Product'}
-          </button>
         </form>
       </div>
+
+      <FloatingFormButton anchorRef={contentRef} formId="product-form" disabled={busy || !name.trim() || !basePrice}>
+        {busy ? <span className="loading loading-spinner loading-sm" /> : isCreated ? 'Save Changes' : 'Create Product'}
+      </FloatingFormButton>
+
+      {isCreated && product ? (
+        <>
+          <ProductImagesManager productId={productId} images={product.images} />
+          <ProductVideoManager productId={productId} videoUrl={product.videoUrl} />
+          <ProductOptionsManager productId={productId} options={product.options} />
+          <ProductVariantsManager productId={productId} options={product.options} variants={product.variants} />
+        </>
+      ) : isCreated ? (
+        <div className="skeleton h-32 rounded-2xl" />
+      ) : (
+        <>
+          <StagedImagesEditor images={stagedImages} onChange={setStagedImages} />
+          <StagedVideoEditor videoUrl={stagedVideoUrl} onChange={setStagedVideoUrl} />
+          <StagedOptionsEditor options={stagedOptions} onChange={setStagedOptions} />
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-2">
+            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Variants</h2>
+            <p className="text-white/30 text-sm">
+              Every option combination above sells at the base price with unlimited stock by default. Save the
+              product to set specific price or stock overrides for individual combinations (e.g. size 43 = 5 units
+              at 165 GEL) — variants reference real option values, which only exist once this product is saved.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
+            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Automatic sharing</h2>
+
+            <div className="flex flex-col gap-2">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={shareToFacebook}
+                  onChange={e => setShareToFacebook(e.target.checked)}
+                  disabled={!fbConnected}
+                  className={`toggle toggle-sm ${shareToFacebook ? 'toggle-success' : 'toggle-error'} disabled:opacity-30`}
+                />
+                <span className="text-sm text-white/70">Share to Facebook</span>
+              </label>
+              <p className="text-white/30 text-xs leading-relaxed">
+                {fbConnected
+                  ? 'Automatically posts this product to your connected Facebook Page as soon as you create it below.'
+                  : (
+                    <>
+                      Connect your Facebook Page in{' '}
+                      <Link href="/dashboard/merchant/store/integrations" className="text-fuchsia-400 hover:text-fuchsia-300">
+                        Integrations
+                      </Link>{' '}
+                      to enable this.
+                    </>
+                  )}
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2 pt-3 border-t border-white/5">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={shareToInstagram}
+                  onChange={e => setShareToInstagram(e.target.checked)}
+                  disabled={!igConnected}
+                  className={`toggle toggle-sm ${shareToInstagram ? 'toggle-success' : 'toggle-error'} disabled:opacity-30`}
+                />
+                <span className="text-sm text-white/70 flex items-center gap-2">
+                  Share to Instagram
+                  <BetaBadge />
+                </span>
+              </label>
+              <p className="text-white/30 text-xs leading-relaxed">
+                {!igConnected ? (
+                  <>
+                    Connect Instagram in{' '}
+                    <Link href="/dashboard/merchant/store/integrations" className="text-fuchsia-400 hover:text-fuchsia-300">
+                      Integrations
+                    </Link>{' '}
+                    to enable this.
+                  </>
+                ) : stagedImages.length === 0 ? (
+                  'Add at least one photo above — Instagram posts require one.'
+                ) : (
+                  'Automatically posts this product to your connected Instagram account as soon as you create it below.'
+                )}
+              </p>
+            </div>
+          </div>
+        </>
+      )}
 
     </div>
   )

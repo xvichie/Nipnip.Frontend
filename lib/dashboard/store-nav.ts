@@ -21,4 +21,5 @@ export const STORE_NAV_ITEMS: StoreNavItem[] = [
   { href: '/dashboard/merchant/store/pages', exact: false, labelKey: 'storePages' },
   { href: '/dashboard/merchant/store/contact', exact: false, labelKey: 'storeContact' },
   { href: '/dashboard/merchant/store/messages', exact: false, labelKey: 'storeMessages' },
+  { href: '/dashboard/merchant/store/integrations', exact: false, labelKey: 'storeIntegrations' },
 ]

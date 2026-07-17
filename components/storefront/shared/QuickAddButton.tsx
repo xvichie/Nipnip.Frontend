@@ -31,16 +31,19 @@ export function QuickAddButton({
     setStatus('pending')
     try {
       const detail = await apiFetch<ProductDetailResponse>(`/api/stores/${slug}/products/${productSlug}`, null)
-      const variant = detail.variants.find(v => v.stock > 0)
+      const purchasableOptions = detail.options.filter(o => o.values.length > 0)
+      const soleVariant = detail.variants[0]
+      const soldOut = soleVariant && soleVariant.stock !== null && soleVariant.stock <= 0
 
-      if (variant) {
-        await addItem(variant.id, 1)
-        setStatus('added')
-        setTimeout(() => setStatus('idle'), 1500)
-      } else {
-        // Nothing in stock to add — send them to the product page instead.
+      if (purchasableOptions.length > 0 || soldOut) {
+        // Needs a size/variant pick, or the only override is sold out — let them choose on the product page.
         router.push(`/products/${productSlug}`)
         setStatus('idle')
+      } else {
+        // No options: sells at base price with unlimited stock unless overridden above.
+        await addItem(detail.id, [], 1)
+        setStatus('added')
+        setTimeout(() => setStatus('idle'), 1500)
       }
     } catch {
       router.push(`/products/${productSlug}`)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { parseThemeConfig } from '@/lib/store/theme-config'
 
@@ -14,14 +14,17 @@ export default function MerchantStorePaymentsPage() {
   const [bankTransferNotes, setBankTransferNotes] = useState('')
   const [saved, setSaved] = useState(false)
 
-  useEffect(() => {
-    if (!store) return
+  // "Adjust state during render" instead of an effect — hydrates once from the
+  // fetched store, which arrives async, so there's no lazy-initializer moment to hook into.
+  const [prevStore, setPrevStore] = useState(store)
+  if (store && store !== prevStore) {
+    setPrevStore(store)
     const parsed = parseThemeConfig(store.themeConfig)
     setCodEnabled(parsed.codEnabled)
     setCodNotes(parsed.codNotes)
     setBankTransferEnabled(parsed.bankTransferEnabled)
     setBankTransferNotes(parsed.bankTransferNotes)
-  }, [store])
+  }
 
   function handleSave() {
     if (!store) return
@@ -68,7 +71,7 @@ export default function MerchantStorePaymentsPage() {
             checked={codEnabled}
             disabled={codEnabled && !bankTransferEnabled}
             onChange={e => setCodEnabled(e.target.checked)}
-            className="toggle toggle-sm"
+            className={`toggle toggle-sm ${codEnabled ? 'toggle-success' : 'toggle-error'}`}
           />
         </div>
         {codEnabled && !bankTransferEnabled && (
@@ -97,7 +100,7 @@ export default function MerchantStorePaymentsPage() {
             checked={bankTransferEnabled}
             disabled={bankTransferEnabled && !codEnabled}
             onChange={e => setBankTransferEnabled(e.target.checked)}
-            className="toggle toggle-sm"
+            className={`toggle toggle-sm ${bankTransferEnabled ? 'toggle-success' : 'toggle-error'}`}
           />
         </div>
         {bankTransferEnabled && !codEnabled && (

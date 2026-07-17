@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { parseThemeConfig } from '@/lib/store/theme-config'
 import { SALE_CATEGORY } from '@/lib/store/sale-category'
@@ -13,12 +13,15 @@ function SaleCategoryToggle() {
   const [showSaleCategory, setShowSaleCategory] = useState(false)
   const [showSaleCategoryIcon, setShowSaleCategoryIcon] = useState(true)
 
-  useEffect(() => {
-    if (!store) return
+  // "Adjust state during render" instead of an effect — hydrates once from the
+  // fetched store, which arrives async, so there's no lazy-initializer moment to hook into.
+  const [prevStore, setPrevStore] = useState(store)
+  if (store && store !== prevStore) {
+    setPrevStore(store)
     const parsed = parseThemeConfig(store.themeConfig)
     setShowSaleCategory(parsed.showSaleCategory)
     setShowSaleCategoryIcon(parsed.showSaleCategoryIcon)
-  }, [store])
+  }
 
   function handleToggle(checked: boolean) {
     if (!store) return
@@ -50,7 +53,7 @@ function SaleCategoryToggle() {
           checked={showSaleCategory}
           onChange={e => handleToggle(e.target.checked)}
           disabled={isPending}
-          className="toggle toggle-sm shrink-0"
+          className={`toggle toggle-sm shrink-0 ${showSaleCategory ? 'toggle-success' : 'toggle-error'}`}
         />
       </div>
 
@@ -62,7 +65,7 @@ function SaleCategoryToggle() {
             checked={showSaleCategoryIcon}
             onChange={e => handleIconToggle(e.target.checked)}
             disabled={isPending}
-            className="toggle toggle-sm"
+            className={`toggle toggle-sm ${showSaleCategoryIcon ? 'toggle-success' : 'toggle-error'}`}
           />
         </label>
       )}

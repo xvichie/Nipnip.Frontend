@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { parseThemeConfig } from '@/lib/store/theme-config'
 import { getStoreDescription, getStoreTitle } from '@/lib/store/seo'
@@ -18,8 +18,11 @@ export default function MerchantStorePage() {
   const [seoDescription, setSeoDescription] = useState('')
   const [saved, setSaved] = useState(false)
 
-  useEffect(() => {
-    if (!store) return
+  // "Adjust state during render" instead of an effect — hydrates once from the
+  // fetched store, which arrives async, so there's no lazy-initializer moment to hook into.
+  const [prevStore, setPrevStore] = useState(store)
+  if (store && store !== prevStore) {
+    setPrevStore(store)
     setName(store.name)
     setIsActive(store.isActive)
     const parsed = parseThemeConfig(store.themeConfig)
@@ -28,7 +31,7 @@ export default function MerchantStorePage() {
     setContactAddress(parsed.contactAddress)
     setSeoTagline(parsed.seoTagline)
     setSeoDescription(parsed.seoDescription)
-  }, [store])
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -94,7 +97,7 @@ export default function MerchantStorePage() {
               type="checkbox"
               checked={isActive}
               onChange={e => setIsActive(e.target.checked)}
-              className="toggle toggle-sm"
+              className={`toggle toggle-sm ${isActive ? 'toggle-success' : 'toggle-error'}`}
             />
             <span className="text-sm text-white/70">მაღაზია აქტიურია</span>
           </label>

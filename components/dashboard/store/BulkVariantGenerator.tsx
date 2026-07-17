@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useCreateProductVariant } from '@/lib/queries/storefront-admin'
 import type { ProductOptionResponse, ProductOptionValueResponse } from '@/lib/types/storefront'
+import { sortOptionValueObjects } from '@/lib/sortOptionValues'
 
 function cartesianProduct<T>(arrays: T[][]): T[][] {
   return arrays.reduce<T[][]>(
@@ -45,12 +46,12 @@ export function BulkVariantGenerator({
 
   const readyOptionCount = configuredOptions.filter(o => (selected[o.id] ?? []).length > 0).length
   const combinationCount = configuredOptions.reduce((count, o) => count * (selected[o.id]?.length ?? 0), 1)
-  const canGenerate = readyOptionCount === configuredOptions.length && !!price && !!stock
+  const canGenerate = readyOptionCount === configuredOptions.length && !!price
 
   async function handleGenerate() {
     const p = parseFloat(price)
-    const s = parseInt(stock, 10)
-    if (isNaN(p) || isNaN(s) || !canGenerate) return
+    const s = stock.trim() === '' ? null : parseInt(stock, 10)
+    if (isNaN(p) || (s !== null && isNaN(s)) || !canGenerate) return
 
     const sp = parseFloat(salePrice)
     const effectiveSalePrice = salePrice.trim() && !isNaN(sp) ? sp : null
@@ -104,7 +105,7 @@ export function BulkVariantGenerator({
           <div key={option.id}>
             <p className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-1.5">{option.name}</p>
             <div className="flex flex-wrap gap-1.5">
-              {option.values.map(value => {
+              {sortOptionValueObjects(option.values).map(value => {
                 const isChecked = (selected[option.id] ?? []).includes(value.id)
                 return (
                   <button
@@ -155,7 +156,8 @@ export function BulkVariantGenerator({
           type="number"
           value={stock}
           onChange={e => setStock(e.target.value)}
-          placeholder="Stock"
+          placeholder="Stock (∞)"
+          title="Blank = unlimited stock"
           className="input input-xs w-20 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
         />
       </div>

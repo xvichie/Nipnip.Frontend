@@ -1,12 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { useMyCategories, useMyProduct, useUpdateProduct } from '@/lib/queries/storefront-admin'
 import { ProductImagesManager } from '@/components/dashboard/store/ProductImagesManager'
+import { ProductVideoManager } from '@/components/dashboard/store/ProductVideoManager'
 import { ProductOptionsManager } from '@/components/dashboard/store/ProductOptionsManager'
 import { ProductVariantsManager } from '@/components/dashboard/store/ProductVariantsManager'
+import { ExportProductButton } from '@/components/dashboard/store/ExportProductButton'
+import { FloatingFormButton } from '@/components/dashboard/FloatingFormButton'
 
 export default function EditProductPage() {
   const { productId } = useParams<{ productId: string }>()
@@ -21,16 +24,20 @@ export default function EditProductPage() {
   const [categoryId, setCategoryId] = useState('')
   const [isActive, setIsActive] = useState(true)
   const [saved, setSaved] = useState(false)
+  const contentRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    if (!product) return
+  // "Adjust state during render" instead of an effect: these fields hydrate once from
+  // the fetched product, which arrives async, so there's no lazy-initializer moment to hook into.
+  const [prevProduct, setPrevProduct] = useState(product)
+  if (product && product !== prevProduct) {
+    setPrevProduct(product)
     setName(product.name)
     setDescription(product.description ?? '')
     setBasePrice(String(product.basePrice))
     setSalePrice(product.salePrice !== null ? String(product.salePrice) : '')
     setCategoryId(product.categoryId ?? '')
     setIsActive(product.isActive)
-  }, [product])
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -67,7 +74,7 @@ export default function EditProductPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 max-w-2xl">
+    <div ref={contentRef} className="flex flex-col gap-6 max-w-2xl pb-20">
 
       <div className="flex items-center gap-3">
         <Link href="/dashboard/merchant/store/products" className="text-white/30 hover:text-white/60 transition-colors">
@@ -75,11 +82,12 @@ export default function EditProductPage() {
             <path d="M10 13L5 8l5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </Link>
-        <h1 className="text-2xl font-black tracking-tight">{product.name}</h1>
+        <h1 className="text-2xl font-black tracking-tight flex-1">{product.name}</h1>
+        <ExportProductButton productId={productId} />
       </div>
 
       <div className="rounded-2xl border border-white/7 bg-white/2 p-6">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form id="product-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="fieldset gap-2">
             <label htmlFor="e-p-name" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
               Name <span className="text-error">*</span>
@@ -165,7 +173,7 @@ export default function EditProductPage() {
               type="checkbox"
               checked={isActive}
               onChange={e => setIsActive(e.target.checked)}
-              className="toggle toggle-sm"
+              className={`toggle toggle-sm ${isActive ? 'toggle-success' : 'toggle-error'}`}
             />
             <span className="text-sm text-white/70">Visible in store</span>
           </label>
@@ -181,17 +189,15 @@ export default function EditProductPage() {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={isPending || !name.trim() || !basePrice}
-            className="btn w-full mt-1 gap-2 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
-          >
-            {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Save Changes'}
-          </button>
         </form>
       </div>
 
+      <FloatingFormButton anchorRef={contentRef} formId="product-form" disabled={isPending || !name.trim() || !basePrice}>
+        {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Save Changes'}
+      </FloatingFormButton>
+
       <ProductImagesManager productId={productId} images={product.images} />
+      <ProductVideoManager productId={productId} videoUrl={product.videoUrl} />
       <ProductOptionsManager productId={productId} options={product.options} />
       <ProductVariantsManager productId={productId} options={product.options} variants={product.variants} />
 

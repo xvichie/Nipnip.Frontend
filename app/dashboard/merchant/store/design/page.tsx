@@ -175,8 +175,11 @@ export default function StoreDesignPage() {
   const [bannerUploading, setBannerUploading] = useState(false)
   const [saved, setSaved] = useState(false)
 
-  useEffect(() => {
-    if (!store) return
+  // "Adjust state during render" instead of an effect — hydrates once from the
+  // fetched store, which arrives async, so there's no lazy-initializer moment to hook into.
+  const [prevStore, setPrevStore] = useState(store)
+  if (store && store !== prevStore) {
+    setPrevStore(store)
     const parsed = parseThemeConfig(store.themeConfig)
     setThemeId(isThemeId(store.themeId) ? store.themeId : 'minimal')
     setAccentColor(parsed.accentColor)
@@ -229,7 +232,7 @@ export default function StoreDesignPage() {
     setBankTransferNotes(parsed.bankTransferNotes)
     setShippingZones(parsed.shippingZones)
     setFreeShippingThreshold(parsed.freeShippingThreshold)
-  }, [store])
+  }
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -597,7 +600,7 @@ export default function StoreDesignPage() {
                   type="checkbox"
                   checked={showStoreName}
                   onChange={e => setShowStoreName(e.target.checked)}
-                  className="toggle toggle-sm"
+                  className={`toggle toggle-sm ${showStoreName ? 'toggle-success' : 'toggle-error'}`}
                 />
                 <span className="text-sm text-white/70">Show store name next to logo</span>
               </label>
@@ -1040,7 +1043,7 @@ export default function StoreDesignPage() {
                 type="checkbox"
                 checked={showContactInNav}
                 onChange={e => setShowContactInNav(e.target.checked)}
-                className="toggle toggle-sm"
+                className={`toggle toggle-sm ${showContactInNav ? 'toggle-success' : 'toggle-error'}`}
               />
             </label>
           </div>
@@ -1055,7 +1058,7 @@ export default function StoreDesignPage() {
                 type="checkbox"
                 checked={showLandingCategories}
                 onChange={e => setShowLandingCategories(e.target.checked)}
-                className="toggle toggle-sm shrink-0"
+                className={`toggle toggle-sm shrink-0 ${showLandingCategories ? 'toggle-success' : 'toggle-error'}`}
               />
             </label>
 

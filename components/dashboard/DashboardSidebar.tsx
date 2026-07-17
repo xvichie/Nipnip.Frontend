@@ -1,13 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useSyncExternalStore } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { UserButton } from '@clerk/nextjs'
 import { useLanguage } from '@/lib/i18n'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { NipNipLogo } from '@/components/NipNipLogo'
 import { STORE_NAV_ITEMS } from '@/lib/dashboard/store-nav'
+import { AI_AGENT_NAV_ITEMS } from '@/lib/dashboard/ai-agent-nav'
+import { SIDEBAR_COLLAPSED_EVENT, SIDEBAR_COLLAPSED_KEY } from '@/lib/dashboard/sidebar-state'
 
 const GRID_ICON = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -75,11 +78,6 @@ const PAYOUT_ICON = (
     <path d="M4 3h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
   </svg>
 )
-const CHEVRON_ICON = (
-  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
-    <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-)
 const BAG_ICON = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
     <path d="M4.5 5V3.5a3.5 3.5 0 1 1 7 0V5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -145,6 +143,52 @@ const DOMAIN_ICON = (
     <path d="M1.5 8h13M8 1.5c1.8 1.8 2.8 4.1 2.8 6.5S9.8 12.7 8 14.5C6.2 12.7 5.2 10.4 5.2 8S6.2 3.3 8 1.5Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
   </svg>
 )
+const PLUG_ICON = (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+    <path d="M5.5 1.5v3.7M10.5 1.5v3.7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+    <path d="M3.3 5.2h9.4v2.3a4.7 4.7 0 0 1-4.7 4.7 4.7 4.7 0 0 1-4.7-4.7V5.2Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+    <path d="M8 12.2v2.3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+  </svg>
+)
+const CHAT_AGENT_ICON = (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+    <path d="M1.5 3.5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v5.5a2 2 0 0 1-2 2H8l-3.5 3v-3H3.5a2 2 0 0 1-2-2V3.5Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+    <path d="M5.5 6.2c.5-1 1.3-1.5 2.5-1.5s2 .8 2 1.7c0 1.3-1.8 1.3-2 2.6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="8" cy="11" r="0.9" fill="currentColor"/>
+  </svg>
+)
+
+// Classic "panel" sidebar-toggle glyph (Notion/Linear/VS Code style) — the shaded
+// segment mirrors sides between states, so the icon itself communicates the action.
+const SIDEBAR_COLLAPSE_ICON = (
+  <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden>
+    <rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="currentColor" strokeWidth="1.4"/>
+    <path d="M6.25 3v10" stroke="currentColor" strokeWidth="1.4"/>
+    <path d="M2.5 3.6h3v8.8h-3a1 1 0 0 1-1-1V4.6a1 1 0 0 1 1-1Z" fill="currentColor" fillOpacity="0.35"/>
+    <path d="M9 6.25 7.25 8 9 9.75" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)
+const SIDEBAR_EXPAND_ICON = (
+  <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden>
+    <rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="currentColor" strokeWidth="1.4"/>
+    <path d="M9.75 3v10" stroke="currentColor" strokeWidth="1.4"/>
+    <path d="M10.5 3.6h3a1 1 0 0 1 1 1v6.8a1 1 0 0 1-1 1h-3V3.6Z" fill="currentColor" fillOpacity="0.35"/>
+    <path d="M6 6.25 7.75 8 6 9.75" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)
+
+// useSyncExternalStore instead of useState+useEffect — localStorage isn't available
+// during SSR, and this avoids both a hydration mismatch and an extra post-mount render.
+function subscribeToCollapsed(callback: () => void) {
+  window.addEventListener(SIDEBAR_COLLAPSED_EVENT, callback)
+  return () => window.removeEventListener(SIDEBAR_COLLAPSED_EVENT, callback)
+}
+function getCollapsedSnapshot() {
+  return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1'
+}
+function getCollapsedServerSnapshot() {
+  return false
+}
 
 const STORE_NAV_ICONS: Record<string, React.ReactNode> = {
   '/dashboard/merchant/store': STORE_ICON,
@@ -158,18 +202,168 @@ const STORE_NAV_ICONS: Record<string, React.ReactNode> = {
   '/dashboard/merchant/store/pages': DOC_ICON,
   '/dashboard/merchant/store/contact': CONTACT_ICON,
   '/dashboard/merchant/store/messages': MAIL_ICON,
+  '/dashboard/merchant/store/integrations': PLUG_ICON,
 }
 
 type NavLink = { href: string; label: string; exact: boolean; icon: React.ReactNode }
 type NavDivider = { divider: true }
-type NavGroup = { group: string; icon: React.ReactNode; items: NavLink[] }
-type NavItem = NavLink | NavDivider | NavGroup
+type NavItem = NavLink | NavDivider
+
+type MerchantSection = 'affiliate' | 'store' | 'ai-agents'
+
+// Portal-rendered instead of a plain absolutely-positioned popover — the sidebar's
+// drawer wrapper clips overflow-x unconditionally (see the dropdown-direction attempt
+// earlier), so anything meant to escape the ~68px collapsed rail has to render outside
+// that DOM subtree entirely to avoid getting clipped. The anchor rect is captured in
+// the hover handler (not read from a ref during render) to satisfy react-hooks/refs.
+function CollapsedTooltip({ label, rect }: { label: string; rect: DOMRect }) {
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
+    <div
+      role="tooltip"
+      className="fixed z-[200] px-2.5 py-1.5 rounded-lg bg-[#14141c] border border-white/10 text-white text-xs font-medium shadow-xl shadow-black/50 pointer-events-none whitespace-nowrap"
+      style={{ top: rect.top + rect.height / 2, left: rect.right + 8, transform: 'translateY(-50%)' }}
+    >
+      {label}
+    </div>,
+    document.body
+  )
+}
+
+function NavRow({ item, active, collapsed }: { item: NavLink; active: boolean; collapsed?: boolean }) {
+  const [tooltipRect, setTooltipRect] = useState<DOMRect | null>(null)
+
+  return (
+    <>
+      <Link
+        href={item.href}
+        onMouseEnter={e => { if (collapsed) setTooltipRect(e.currentTarget.getBoundingClientRect()) }}
+        onMouseLeave={() => setTooltipRect(null)}
+        className={[
+          'flex items-center rounded-xl text-sm font-medium transition-colors',
+          collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5',
+          active ? 'bg-violet-500/15 text-violet-300' : 'text-white/50 hover:text-white hover:bg-white/5',
+        ].join(' ')}
+      >
+        {item.icon}
+        {!collapsed && item.label}
+      </Link>
+      {collapsed && tooltipRect && <CollapsedTooltip label={item.label} rect={tooltipRect} />}
+    </>
+  )
+}
+
+type MerchantSectionMeta = Record<MerchantSection, { label: string; icon: React.ReactNode }>
+
+// Portal-based, same reasoning as CollapsedTooltip above — needs to work in both the
+// full-width expanded row and the icon-only collapsed rail, and the collapsed case has
+// to escape the ~68px rail without getting clipped by the sidebar's overflow-x:hidden.
+function SectionSelector({
+  activeSection,
+  sectionMeta,
+  collapsed,
+  onSelect,
+}: {
+  activeSection: MerchantSection
+  sectionMeta: MerchantSectionMeta
+  collapsed: boolean
+  onSelect: (next: MerchantSection) => void
+}) {
+  const [openRect, setOpenRect] = useState<DOMRect | null>(null)
+  const [tooltipRect, setTooltipRect] = useState<DOMRect | null>(null)
+
+  function handleTriggerClick(e: React.MouseEvent<HTMLElement>) {
+    setTooltipRect(null)
+    setOpenRect(openRect ? null : e.currentTarget.getBoundingClientRect())
+  }
+
+  function handleSelect(key: MerchantSection) {
+    setOpenRect(null)
+    onSelect(key)
+  }
+
+  const panelStyle = openRect
+    ? collapsed
+      ? { top: openRect.top, left: openRect.right + 8, width: 192 }
+      : { top: openRect.bottom + 6, left: openRect.left, width: openRect.width }
+    : null
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={handleTriggerClick}
+        onMouseEnter={e => { if (collapsed) setTooltipRect(e.currentTarget.getBoundingClientRect()) }}
+        onMouseLeave={() => setTooltipRect(null)}
+        title={collapsed ? sectionMeta[activeSection].label : undefined}
+        className={[
+          'flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-fuchsia-500/10 to-violet-500/10 border border-white/10 text-white/85 hover:border-fuchsia-500/30 hover:from-fuchsia-500/15 hover:to-violet-500/15 transition-all text-sm font-semibold cursor-pointer select-none',
+          collapsed ? 'w-full justify-center px-0 py-2.5' : 'w-full px-3 py-2.5',
+        ].join(' ')}
+      >
+        <span className="text-fuchsia-400 shrink-0">{sectionMeta[activeSection].icon}</span>
+        {!collapsed && (
+          <>
+            <span className="flex-1 text-left truncate">{sectionMeta[activeSection].label}</span>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden className="opacity-50 shrink-0">
+              <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </>
+        )}
+      </button>
+
+      {collapsed && tooltipRect && !openRect && <CollapsedTooltip label={sectionMeta[activeSection].label} rect={tooltipRect} />}
+
+      {openRect && panelStyle && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[200]" onClick={() => setOpenRect(null)}>
+          <ul
+            className="fixed p-1 rounded-xl border border-white/10 bg-[#0a0a10] bg-gradient-to-r from-fuchsia-500/10 to-violet-500/10 shadow-xl shadow-black/60 flex flex-col gap-0.5"
+            style={panelStyle}
+            onClick={e => e.stopPropagation()}
+          >
+            {(Object.keys(sectionMeta) as MerchantSection[]).map(key => (
+              <li key={key}>
+                <button
+                  type="button"
+                  onClick={() => handleSelect(key)}
+                  className={[
+                    'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors text-left',
+                    activeSection === key
+                      ? 'bg-violet-500/15 text-violet-300'
+                      : 'text-white/60 hover:text-white hover:bg-white/6',
+                  ].join(' ')}
+                >
+                  {sectionMeta[key].icon}
+                  <span className="font-medium">{sectionMeta[key].label}</span>
+                  {activeSection === key && (
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden className="ml-auto shrink-0">
+                      <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>,
+        document.body
+      )}
+    </>
+  )
+}
 
 export function DashboardSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
   const { t } = useLanguage()
   const isMerchant = pathname.startsWith('/dashboard/merchant')
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({})
+
+  const collapsed = useSyncExternalStore(subscribeToCollapsed, getCollapsedSnapshot, getCollapsedServerSnapshot)
+
+  function toggleCollapsed() {
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, collapsed ? '0' : '1')
+    window.dispatchEvent(new Event(SIDEBAR_COLLAPSED_EVENT))
+  }
 
   const CREATOR_NAV: NavItem[] = [
     { href: '/dashboard/creator', label: t.sidebar.dashboard, exact: true, icon: GRID_ICON },
@@ -181,133 +375,166 @@ export function DashboardSidebar() {
     { href: '/merchants', label: t.sidebar.browseMarketplace, exact: false, icon: BROWSE_ICON },
   ]
 
-  const MERCHANT_NAV: NavItem[] = [
-    { href: '/dashboard/merchant', label: t.sidebar.dashboard, exact: true, icon: GRID_ICON },
-    {
-      group: t.sidebar.affiliateGroup,
-      icon: CONVERSIONS_ICON,
-      items: [
-        { href: '/dashboard/merchant/conversions', label: t.sidebar.conversions, exact: false, icon: CONVERSIONS_ICON },
-        { href: '/dashboard/merchant/report-sale', label: t.sidebar.reportSale, exact: false, icon: PLUS_ICON },
-        { href: '/dashboard/merchant/integration', label: t.sidebar.integration, exact: false, icon: CODE_ICON },
-      ],
-    },
-    {
-      group: t.sidebar.onlineStoreGroup,
-      icon: STORE_ICON,
-      items: STORE_NAV_ITEMS.map(item => ({
-        href: item.href,
-        label: t.sidebar[item.labelKey],
-        exact: item.exact,
-        icon: STORE_NAV_ICONS[item.href] ?? STORE_ICON,
-      })),
-    },
-    { href: '/dashboard/merchant/settings', label: t.sidebar.settings, exact: false, icon: SETTINGS_ICON },
-    { divider: true as const },
-    { href: '/merchants', label: t.sidebar.marketplace, exact: false, icon: BROWSE_ICON },
-  ]
+  // Merchant sidebar is split into two switchable sections (affiliate marketing vs.
+  // online store) picked via the dropdown below the badge — მთავარი/Settings stay
+  // pinned outside the switch since they apply to the whole account either way.
+  const MERCHANT_SECTIONS: Record<MerchantSection, NavLink[]> = {
+    affiliate: [
+      { href: '/dashboard/merchant/conversions', label: t.sidebar.conversions, exact: false, icon: CONVERSIONS_ICON },
+      { href: '/dashboard/merchant/report-sale', label: t.sidebar.reportSale, exact: false, icon: PLUS_ICON },
+      { href: '/dashboard/merchant/integration', label: t.sidebar.integration, exact: false, icon: CODE_ICON },
+    ],
+    store: STORE_NAV_ITEMS.map(item => ({
+      href: item.href,
+      label: t.sidebar[item.labelKey],
+      exact: item.exact,
+      icon: STORE_NAV_ICONS[item.href] ?? STORE_ICON,
+    })),
+    'ai-agents': AI_AGENT_NAV_ITEMS.map(item => ({
+      href: item.href,
+      label: t.sidebar[item.labelKey],
+      exact: item.exact,
+      icon: CHAT_AGENT_ICON,
+    })),
+  }
 
-  const nav = isMerchant ? MERCHANT_NAV : CREATOR_NAV
+  const SECTION_META: Record<MerchantSection, { label: string; icon: React.ReactNode }> = {
+    affiliate: { label: t.sidebar.affiliateGroup, icon: CONVERSIONS_ICON },
+    store: { label: t.sidebar.onlineStoreGroup, icon: STORE_ICON },
+    'ai-agents': { label: t.sidebar.aiAgentsGroup, icon: CHAT_AGENT_ICON },
+  }
+
+  const activeSection: MerchantSection = pathname.startsWith('/dashboard/merchant/ai-agents')
+    ? 'ai-agents'
+    : pathname.startsWith('/dashboard/merchant/store')
+      ? 'store'
+      : 'affiliate'
+
+  function handleSectionChange(next: MerchantSection) {
+    router.push(
+      next === 'store'
+        ? '/dashboard/merchant/store'
+        : next === 'ai-agents'
+          ? AI_AGENT_NAV_ITEMS[0].href
+          : '/dashboard/merchant/conversions'
+    )
+  }
 
   return (
-    <aside className="w-60 min-h-full bg-[#08080d] border-r border-white/6 flex flex-col">
+    <aside className={[
+      'min-h-full bg-[#08080d] border-r border-white/6 flex flex-col transition-[width] duration-200',
+      collapsed ? 'w-[68px]' : 'w-60',
+    ].join(' ')}>
 
-      {/* Logo */}
-      <div className="h-16 flex items-center px-5 border-b border-white/6 shrink-0">
-        <Link href="/" className="hover:opacity-80 transition-opacity select-none" aria-label="NipNip">
-          <NipNipLogo className="h-7" />
-        </Link>
+      {/* Logo + collapse toggle */}
+      <div className={[
+        'h-16 flex items-center border-b border-white/6 shrink-0',
+        collapsed ? 'justify-center px-2' : 'justify-between px-5',
+      ].join(' ')}>
+        {!collapsed && (
+          <Link href="/" className="hover:opacity-80 transition-opacity select-none" aria-label="NipNip">
+            <NipNipLogo className="h-7" />
+          </Link>
+        )}
+        <button
+          type="button"
+          onClick={toggleCollapsed}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className="w-7 h-7 flex items-center justify-center rounded-lg text-white/40 hover:text-white hover:bg-white/8 transition-colors shrink-0"
+        >
+          {collapsed ? SIDEBAR_EXPAND_ICON : SIDEBAR_COLLAPSE_ICON}
+        </button>
       </div>
 
       {/* Role badge */}
-      <div className="px-4 pt-4 pb-1 shrink-0">
-        <span className={[
-          'inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg border',
-          isMerchant
-            ? 'bg-fuchsia-500/10 border-fuchsia-500/20 text-fuchsia-400'
-            : 'bg-violet-500/10 border-violet-500/20 text-violet-400',
-        ].join(' ')}>
-          <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
-          {isMerchant ? t.sidebar.merchantBadge : t.sidebar.creatorBadge}
-        </span>
-      </div>
+      {!collapsed && (
+        <div className="px-4 pt-4 pb-1 shrink-0">
+          <span className={[
+            'inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg border',
+            isMerchant
+              ? 'bg-fuchsia-500/10 border-fuchsia-500/20 text-fuchsia-400'
+              : 'bg-violet-500/10 border-violet-500/20 text-violet-400',
+          ].join(' ')}>
+            <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
+            {isMerchant ? t.sidebar.merchantBadge : t.sidebar.creatorBadge}
+          </span>
+        </div>
+      )}
 
-      {/* Nav */}
-      <nav className="flex-1 p-3 flex flex-col gap-0.5 overflow-y-auto">
-        {nav.map((item, i) => {
-          if ('divider' in item) {
-            return <div key={`divider-${i}`} className="my-2 border-t border-white/6" />
-          }
-          if ('group' in item) {
-            const groupActive = item.items.some(sub => sub.exact ? pathname === sub.href : pathname.startsWith(sub.href))
-            const isOpen = openGroups[item.group] ?? groupActive
+      {isMerchant ? (
+        <>
+          {/* Section selector */}
+          <div className={collapsed ? 'px-2 pt-3 pb-2 shrink-0' : 'px-3 pt-3 pb-2 shrink-0'}>
+            <SectionSelector
+              activeSection={activeSection}
+              sectionMeta={SECTION_META}
+              collapsed={collapsed}
+              onSelect={handleSectionChange}
+            />
+          </div>
+          <div className="mx-4 border-t border-white/6 shrink-0" />
+
+          <nav className={['flex-1 flex flex-col gap-0.5 overflow-y-auto', collapsed ? 'p-2' : 'p-3'].join(' ')}>
+            <NavRow
+              item={{ href: '/dashboard/merchant', label: t.sidebar.dashboard, exact: true, icon: GRID_ICON }}
+              active={pathname === '/dashboard/merchant'}
+              collapsed={collapsed}
+            />
+
+            <div className="my-2 border-t border-white/6" />
+
+            {MERCHANT_SECTIONS[activeSection].map(item => (
+              <NavRow
+                key={item.href}
+                item={item}
+                active={item.exact ? pathname === item.href : pathname.startsWith(item.href)}
+                collapsed={collapsed}
+              />
+            ))}
+
+            <div className="my-2 border-t border-white/6" />
+
+            <NavRow
+              item={{ href: '/dashboard/merchant/settings', label: t.sidebar.settings, exact: false, icon: SETTINGS_ICON }}
+              active={pathname.startsWith('/dashboard/merchant/settings')}
+              collapsed={collapsed}
+            />
+
+            <div className="my-2 border-t border-white/6" />
+
+            <NavRow
+              item={{ href: '/merchants', label: t.sidebar.marketplace, exact: false, icon: BROWSE_ICON }}
+              active={pathname.startsWith('/merchants')}
+              collapsed={collapsed}
+            />
+          </nav>
+        </>
+      ) : (
+        <nav className={['flex-1 flex flex-col gap-0.5 overflow-y-auto', collapsed ? 'p-2' : 'p-3'].join(' ')}>
+          {CREATOR_NAV.map((item, i) => {
+            if ('divider' in item) {
+              return <div key={`divider-${i}`} className="my-2 border-t border-white/6" />
+            }
             return (
-              <details
-                key={item.group}
-                open={isOpen}
-                onToggle={e => {
-                  const nowOpen = (e.target as HTMLDetailsElement).open
-                  setOpenGroups(prev => ({ ...prev, [item.group]: nowOpen }))
-                }}
-                className="group/nav"
-              >
-                <summary
-                  className={[
-                    'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden',
-                    groupActive ? 'text-violet-300' : 'text-white/50 hover:text-white hover:bg-white/5',
-                  ].join(' ')}
-                >
-                  {item.icon}
-                  <span className="flex-1">{item.group}</span>
-                  <span className="transition-transform group-open/nav:rotate-180">{CHEVRON_ICON}</span>
-                </summary>
-                <div className="flex flex-col gap-0.5 pl-4 mt-0.5">
-                  {item.items.map(sub => {
-                    const subActive = sub.exact ? pathname === sub.href : pathname.startsWith(sub.href)
-                    return (
-                      <Link
-                        key={sub.href}
-                        href={sub.href}
-                        className={[
-                          'flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-colors',
-                          subActive
-                            ? 'bg-violet-500/15 text-violet-300'
-                            : 'text-white/40 hover:text-white hover:bg-white/5',
-                        ].join(' ')}
-                      >
-                        {sub.icon}
-                        {sub.label}
-                      </Link>
-                    )
-                  })}
-                </div>
-              </details>
+              <NavRow
+                key={item.href}
+                item={item}
+                active={item.exact ? pathname === item.href : pathname.startsWith(item.href)}
+                collapsed={collapsed}
+              />
             )
-          }
-          const { href, label, icon, exact } = item
-          const active = exact ? pathname === href : pathname.startsWith(href)
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={[
-                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
-                active
-                  ? 'bg-violet-500/15 text-violet-300'
-                  : 'text-white/50 hover:text-white hover:bg-white/5',
-              ].join(' ')}
-            >
-              {icon}
-              {label}
-            </Link>
-          )
-        })}
-      </nav>
+          })}
+        </nav>
+      )}
 
       {/* User + Language */}
-      <div className="p-4 border-t border-white/6 shrink-0 flex items-center justify-between gap-2">
+      <div className={[
+        'p-4 border-t border-white/6 shrink-0 flex items-center gap-2',
+        collapsed ? 'justify-center' : 'justify-between',
+      ].join(' ')}>
         <UserButton appearance={{ elements: { avatarBox: 'w-8 h-8' } }} />
-        <LanguageSwitcher placement="top-end" />
+        {!collapsed && <LanguageSwitcher placement="top-end" />}
       </div>
 
     </aside>

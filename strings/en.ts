@@ -81,6 +81,8 @@ export const en: Strings = {
     integration: 'Integration',
     affiliateGroup: 'Affiliate Marketing',
     onlineStoreGroup: 'Online Store',
+    aiAgentsGroup: 'AI Agents',
+    messagingAgent: 'Messaging Agent',
     storeOverview: 'Details',
     storeOrders: 'Orders',
     storeCategories: 'Categories',
@@ -92,6 +94,7 @@ export const en: Strings = {
     storePayments: 'Payments',
     storeDelivery: 'Delivery',
     storeDomain: 'Domain',
+    storeIntegrations: 'Integrations',
   },
   creatorDashboard: {
     title: 'Dashboard',

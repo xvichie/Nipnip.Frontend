@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useDeleteProduct, useDuplicateProduct, useMyCategories, useMyProducts } from '@/lib/queries/storefront-admin'
+import { ImportProductModal } from '@/components/dashboard/store/ImportProductModal'
+import { BulkImportFromFacebookModal } from '@/components/dashboard/store/BulkImportFromFacebookModal'
 
 const SORT_OPTIONS = [
   { value: 'createdAt-desc', label: 'Newest first' },
@@ -15,6 +17,7 @@ const SORT_OPTIONS = [
 ] as const
 
 export default function MerchantProductsPage() {
+  const router = useRouter()
   const [page, setPage] = useState(1)
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
@@ -41,7 +44,6 @@ export default function MerchantProductsPage() {
   })
   const { mutate: deleteProduct, isPending: isDeleting } = useDeleteProduct()
   const { mutate: duplicateProduct, isPending: isDuplicating } = useDuplicateProduct()
-  const router = useRouter()
 
   const totalPages = data ? Math.max(1, Math.ceil(data.totalCount / 20)) : 1
 
@@ -64,15 +66,19 @@ export default function MerchantProductsPage() {
           <h1 className="text-2xl font-black tracking-tight">Products</h1>
           <p className="text-white/40 text-sm mt-1">{data ? `${data.totalCount} total` : ''}</p>
         </div>
-        <Link
-          href="/dashboard/merchant/store/products/new"
-          className="btn btn-sm gap-2 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white"
-        >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
-            <path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/>
-          </svg>
-          New Product
-        </Link>
+        <div className="flex items-center gap-2">
+          <ImportProductModal />
+          <BulkImportFromFacebookModal />
+          <Link
+            href="/dashboard/merchant/store/products/new"
+            className="btn btn-sm gap-2 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white"
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
+              <path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/>
+            </svg>
+            New Product
+          </Link>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-3">

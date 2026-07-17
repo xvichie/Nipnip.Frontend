@@ -10,7 +10,7 @@ type StorefrontCartContextValue = {
   isLoading: boolean
   count: number
   preview: boolean
-  addItem: (variantId: string, quantity: number) => Promise<void>
+  addItem: (productId: string, optionValueIds: string[], quantity: number) => Promise<void>
   updateItem: (itemId: string, quantity: number) => void
   removeItem: (itemId: string) => void
 }
@@ -41,9 +41,9 @@ export function StorefrontCartProvider({
         isLoading: preview ? false : isLoading,
         count,
         preview,
-        addItem: async (variantId, quantity) => {
+        addItem: async (productId, optionValueIds, quantity) => {
           if (preview) return
-          await addMutation.mutateAsync({ variantId, quantity })
+          await addMutation.mutateAsync({ productId, optionValueIds, quantity })
           showToast('პროდუქტი დაემატა კალათაში')
         },
         updateItem: (itemId, quantity) => { if (!preview) updateMutation.mutate({ itemId, body: { quantity } }) },

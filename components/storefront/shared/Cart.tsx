@@ -17,7 +17,7 @@ export function Cart({
   const { cart, isLoading, updateItem, removeItem } = useStorefrontCart()
   const surface = SURFACE_CLASSES[themeId]
   const radius = RADIUS_CLASS[getThemeDefinition(themeId).radius]
-  const hasStockIssue = cart?.items.some(item => item.quantity > item.stock) ?? false
+  const hasStockIssue = cart?.items.some(item => item.stock !== null && item.quantity > item.stock) ?? false
 
   if (isLoading) {
     return (
@@ -56,8 +56,8 @@ export function Cart({
         <div className="grid lg:grid-cols-3 gap-10">
           <div className={`lg:col-span-2 flex flex-col divide-y ${surface.border}`}>
             {cart.items.map(item => {
-              const outOfStock = item.stock <= 0
-              const overStock = item.quantity > item.stock
+              const outOfStock = item.stock !== null && item.stock <= 0
+              const overStock = item.stock !== null && item.quantity > item.stock
               return (
                 <div key={item.id} className="flex gap-4 py-6">
                   <Link
@@ -113,8 +113,8 @@ export function Cart({
                         </button>
                         <span className={`w-8 text-center text-sm font-medium tabular-nums ${surface.text}`}>{item.quantity}</span>
                         <button
-                          onClick={() => updateItem(item.id, Math.min(item.stock, item.quantity + 1))}
-                          disabled={item.quantity >= item.stock}
+                          onClick={() => updateItem(item.id, item.stock === null ? item.quantity + 1 : Math.min(item.stock, item.quantity + 1))}
+                          disabled={item.stock !== null && item.quantity >= item.stock}
                           className={`w-8 h-8 flex items-center justify-center ${surface.muted} hover:opacity-100 transition-colors text-lg disabled:opacity-30`}
                         >
                           +

@@ -61,7 +61,8 @@ export function buildProductJsonLd(slug: string, storeName: string, product: Pro
   const prices = product.variants.map(v => v.salePrice ?? v.price)
   const minPrice = prices.length > 0 ? Math.min(...prices) : product.salePrice ?? product.basePrice
   const maxPrice = prices.length > 0 ? Math.max(...prices) : product.salePrice ?? product.basePrice
-  const inStock = product.variants.some(v => v.stock > 0)
+  // No variants yet means it still sells at the base price with unlimited stock.
+  const inStock = product.variants.length === 0 || product.variants.some(v => v.stock === null || v.stock > 0)
   const availability = inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'
 
   const offers = prices.length > 1 && minPrice !== maxPrice

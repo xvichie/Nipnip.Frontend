@@ -250,7 +250,8 @@ export interface ProductVariantResponse {
   sku: string
   price: number
   salePrice: number | null
-  stock: number
+  /** null means unlimited stock */
+  stock: number | null
   optionValueIds: string[]
 }
 
@@ -258,7 +259,8 @@ export interface CreateProductVariantRequest {
   sku: string
   price: number
   salePrice?: number | null
-  stock: number
+  /** Omit or null for unlimited stock */
+  stock?: number | null
   optionValueIds: string[]
 }
 
@@ -266,7 +268,10 @@ export interface UpdateProductVariantRequest {
   sku?: string | null
   price?: number | null
   salePrice?: number | null
+  /** Only applied when set — pair with clearStock to explicitly reset to unlimited */
   stock?: number | null
+  /** Set true to explicitly clear stock back to unlimited (stock field is ignored when true) */
+  clearStock?: boolean
 }
 
 export interface ProductDetailResponse {
@@ -275,6 +280,7 @@ export interface ProductDetailResponse {
   categoryId: string | null
   name: string
   description: string | null
+  videoUrl: string | null
   basePrice: number
   salePrice: number | null
   isActive: boolean
@@ -286,6 +292,7 @@ export interface ProductDetailResponse {
 export interface CreateProductRequest {
   name: string
   description?: string | null
+  videoUrl?: string | null
   basePrice: number
   salePrice?: number | null
   categoryId?: string | null
@@ -294,6 +301,8 @@ export interface CreateProductRequest {
 export interface UpdateProductRequest {
   name?: string | null
   description?: string | null
+  /** Send "" to clear an existing video back to none; omit to leave untouched */
+  videoUrl?: string
   basePrice?: number | null
   salePrice?: number | null
   categoryId?: string | null
@@ -314,7 +323,8 @@ export interface CartItemResponse {
   price: number
   quantity: number
   imageUrl: string | null
-  stock: number
+  /** null means unlimited stock */
+  stock: number | null
   options: CartItemOptionResponse[]
 }
 
@@ -326,7 +336,9 @@ export interface CartResponse {
 }
 
 export interface AddCartItemRequest {
-  variantId: string
+  productId: string
+  /** One value per configured product option; empty for products with no options */
+  optionValueIds: string[]
   quantity: number
 }
 
@@ -422,4 +434,121 @@ export interface MonthlyOrderSummary {
   productsSold: number
   averageOrderValue: number
   averageItemPrice: number
+}
+
+export interface FacebookConnectUrlResponse {
+  url: string
+}
+
+export interface FacebookStatusResponse {
+  connected: boolean
+  pageName: string | null
+}
+
+export interface FacebookPendingPageResponse {
+  id: string
+  name: string
+}
+
+export interface SelectFacebookPageRequest {
+  pending: string
+  pageId: string
+}
+
+export interface FacebookPostSummaryResponse {
+  id: string
+  message: string | null
+  createdTime: string
+  thumbnailUrl: string | null
+  hasVideo: boolean
+}
+
+export interface FacebookPostDetailResponse {
+  message: string | null
+  imageUrls: string[]
+  videoUrl: string | null
+}
+
+export interface FacebookProductPreviewResponse {
+  message: string
+  imageUrl: string | null
+}
+
+export interface FacebookPublishResponse {
+  postUrl: string
+}
+
+export interface InstagramStatusResponse {
+  connected: boolean
+  username: string | null
+}
+
+export interface InstagramMediaSummaryResponse {
+  id: string
+  caption: string | null
+  thumbnailUrl: string | null
+  hasVideo: boolean
+}
+
+export interface InstagramMediaDetailResponse {
+  caption: string | null
+  imageUrls: string[]
+  videoUrl: string | null
+}
+
+export interface InstagramProductPreviewResponse {
+  message: string
+  imageUrl: string | null
+}
+
+export interface InstagramPublishResponse {
+  postUrl: string
+}
+
+export interface AiAgentSettingsResponse {
+  enabledFacebook: boolean
+  enabledInstagram: boolean
+  instructions: string | null
+}
+
+export interface UpdateAiAgentSettingsRequest {
+  enabledFacebook?: boolean
+  enabledInstagram?: boolean
+  instructions?: string
+}
+
+export interface KnowledgeBaseSectionResponse {
+  id: string
+  title: string
+  content: string
+  updatedAt: string
+}
+
+export interface CreateKnowledgeBaseSectionRequest {
+  title: string
+  content: string
+}
+
+export interface UpdateKnowledgeBaseSectionRequest {
+  title?: string
+  content?: string
+}
+
+export interface ConversationMessageResponse {
+  id: string
+  direction: 'Inbound' | 'Outbound'
+  content: string
+  createdAt: string
+}
+
+export interface ConversationSummaryResponse {
+  id: string
+  customerDisplayName: string | null
+  externalUserId: string
+  lastMessageAt: string
+  createdAt: string
+}
+
+export interface ConversationDetailResponse extends ConversationSummaryResponse {
+  messages: ConversationMessageResponse[]
 }

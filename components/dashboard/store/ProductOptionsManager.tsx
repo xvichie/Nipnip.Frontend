@@ -8,6 +8,7 @@ import {
   useDeleteProductOptionValue,
 } from '@/lib/queries/storefront-admin'
 import type { ProductOptionResponse } from '@/lib/types/storefront'
+import { sortOptionValueObjects } from '@/lib/sortOptionValues'
 
 function OptionRow({ productId, option }: { productId: string; option: ProductOptionResponse }) {
   const { mutate: createValue, isPending } = useCreateProductOptionValue(productId, option.id)
@@ -34,7 +35,7 @@ function OptionRow({ productId, option }: { productId: string; option: ProductOp
         </button>
       </div>
       <div className="flex flex-wrap gap-2">
-        {option.values.map(v => (
+        {sortOptionValueObjects(option.values).map(v => (
           <span
             key={v.id}
             className="inline-flex items-center gap-1.5 rounded-lg border border-white/8 bg-white/4 px-2 py-1 text-xs text-white/70"

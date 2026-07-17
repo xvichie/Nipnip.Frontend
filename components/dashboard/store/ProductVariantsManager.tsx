@@ -8,23 +8,25 @@ import {
 } from '@/lib/queries/storefront-admin'
 import { BulkVariantGenerator } from './BulkVariantGenerator'
 import type { ProductOptionResponse, ProductVariantResponse } from '@/lib/types/storefront'
+import { sortOptionValueObjects } from '@/lib/sortOptionValues'
 
 function VariantRow({ productId, variant }: { productId: string; variant: ProductVariantResponse }) {
   const { mutate: updateVariant } = useUpdateProductVariant(productId)
   const { mutate: deleteVariant } = useDeleteProductVariant(productId)
   const [price, setPrice] = useState(String(variant.price))
   const [salePrice, setSalePrice] = useState(variant.salePrice !== null ? String(variant.salePrice) : '')
-  const [stock, setStock] = useState(String(variant.stock))
+  const [stock, setStock] = useState(variant.stock !== null ? String(variant.stock) : '')
 
   function saveIfChanged() {
     const p = parseFloat(price)
     const sp = parseFloat(salePrice)
-    const s = parseInt(stock, 10)
-    const body: { price?: number; salePrice?: number | null; stock?: number } = {}
+    const s = stock.trim() === '' ? null : parseInt(stock, 10)
+    const body: { price?: number; salePrice?: number | null; stock?: number; clearStock?: boolean } = {}
     if (!isNaN(p) && p !== variant.price) body.price = p
     if (salePrice.trim() === '' && variant.salePrice !== null) body.salePrice = null
     else if (!isNaN(sp) && sp !== variant.salePrice) body.salePrice = sp
-    if (!isNaN(s) && s !== variant.stock) body.stock = s
+    if (s === null && variant.stock !== null) body.clearStock = true
+    else if (s !== null && !isNaN(s) && s !== variant.stock) body.stock = s
     if (Object.keys(body).length > 0) updateVariant({ variantId: variant.id, body })
   }
 
@@ -57,9 +59,11 @@ function VariantRow({ productId, variant }: { productId: string; variant: Produc
           value={stock}
           onChange={e => setStock(e.target.value)}
           onBlur={saveIfChanged}
+          placeholder="∞"
+          title="Stock (blank = unlimited)"
           className="input input-xs w-16 bg-white/4 border-white/10 focus:border-fuchsia-500/60 tabular-nums"
         />
-        <span className="text-white/25 text-xs">in stock</span>
+        <span className="text-white/25 text-xs">{stock.trim() === '' ? 'unlimited' : 'in stock'}</span>
         <button
           type="button"
           onClick={() => { if (confirm('Delete this variant?')) deleteVariant(variant.id) }}
@@ -94,8 +98,8 @@ export function ProductVariantsManager({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     const p = parseFloat(price)
-    const s = parseInt(stock, 10)
-    if (!sku.trim() || isNaN(p) || isNaN(s) || !allOptionsSelected) return
+    const s = stock.trim() === '' ? null : parseInt(stock, 10)
+    if (!sku.trim() || isNaN(p) || (s !== null && isNaN(s)) || !allOptionsSelected) return
 
     const sp = parseFloat(salePrice)
 
@@ -130,7 +134,10 @@ export function ProductVariantsManager({
           ))}
         </div>
       ) : (
-        <p className="text-white/30 text-sm">No variants yet. Add at least one so customers can buy this product.</p>
+        <p className="text-white/30 text-sm">
+          No variants yet — this product sells at the base price with unlimited stock. Add a variant only when you
+          need to override price or stock for a specific option combination.
+        </p>
       )}
 
       {options.length > 0 && <BulkVariantGenerator productId={productId} options={options} />}
@@ -164,7 +171,8 @@ export function ProductVariantsManager({
             type="number"
             value={stock}
             onChange={e => setStock(e.target.value)}
-            placeholder="Stock"
+            placeholder="Stock (∞)"
+            title="Blank = unlimited stock"
             className="input input-sm w-20 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
           />
         </div>
@@ -179,7 +187,7 @@ export function ProductVariantsManager({
                 className="select select-sm bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
               >
                 <option value="">{option.name}...</option>
-                {option.values.map(v => (
+                {sortOptionValueObjects(option.values).map(v => (
                   <option key={v.id} value={v.id}>{v.value}</option>
                 ))}
               </select>
@@ -195,7 +203,7 @@ export function ProductVariantsManager({
 
         <button
           type="submit"
-          disabled={isPending || !sku.trim() || !price || !stock || !allOptionsSelected}
+          disabled={isPending || !sku.trim() || !price || !allOptionsSelected}
           className="btn btn-sm self-start bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
         >
           {isPending ? <span className="loading loading-spinner loading-xs" /> : 'Add Variant'}

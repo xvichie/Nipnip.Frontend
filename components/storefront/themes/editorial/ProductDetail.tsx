@@ -45,15 +45,20 @@ export function ProductDetail({
     )
   }, [product, selected, purchasableOptions])
 
+  // A combination with no explicit variant override still sells at the base price with
+  // unlimited stock — the backend materializes a real variant for it on first purchase.
+  const selectionComplete = Object.values(selected).length === purchasableOptions.length
+  const stock = matchedVariant ? matchedVariant.stock : null
+  const canAddToCart = selectionComplete && (stock === null || stock > 0)
   const price = matchedVariant?.price ?? product.basePrice
   const salePrice = matchedVariant ? matchedVariant.salePrice : product.salePrice
   const images = product.images
 
   async function handleAddToCart() {
-    if (!matchedVariant) return
+    if (!canAddToCart) return
     setAddError(false)
     try {
-      await addItem(matchedVariant.id, quantity)
+      await addItem(product.id, Object.values(selected), quantity)
       setAdded(true)
       setTimeout(() => setAdded(false), 2000)
     } catch {
@@ -153,16 +158,16 @@ export function ProductDetail({
                   +
                 </button>
               </div>
-              {matchedVariant && (
+              {selectionComplete && stock !== null && (
                 <span className="text-xs text-[#767676]">
-                  {matchedVariant.stock > 0 ? `მარაგშია: ${matchedVariant.stock} ცალი` : 'არ არის მარაგში'}
+                  {stock > 0 ? `მარაგშია: ${stock} ცალი` : 'არ არის მარაგში'}
                 </span>
               )}
             </div>
 
             <button
               type="button"
-              disabled={!matchedVariant || matchedVariant.stock < 1}
+              disabled={!canAddToCart}
               onClick={handleAddToCart}
               className={[
                 'w-full py-3.5 border-2 text-xs uppercase tracking-widest font-medium transition-colors mb-8 disabled:opacity-40 disabled:cursor-not-allowed',
@@ -173,9 +178,9 @@ export function ProductDetail({
             >
               {added
                 ? '✓ დაემატა კალათაში'
-                : !matchedVariant
+                : !selectionComplete
                 ? 'აირჩიეთ ვარიანტი'
-                : matchedVariant.stock < 1
+                : stock !== null && stock < 1
                 ? 'არ არის მარაგში'
                 : 'კალათაში დამატება'}
             </button>
@@ -188,6 +193,13 @@ export function ProductDetail({
               <div className="pt-6 border-t border-black/10">
                 <p className="italic font-serif text-sm text-[#767676] mb-3">აღწერა</p>
                 <p className="font-serif text-base leading-relaxed max-w-md text-[#111111]">{product.description}</p>
+              </div>
+            )}
+
+            {product.videoUrl && (
+              <div className="pt-6 border-t border-black/10">
+                <p className="italic font-serif text-sm text-[#767676] mb-3">ვიდეო</p>
+                <video src={product.videoUrl} controls className="w-full max-w-sm bg-black" />
               </div>
             )}
           </div>
