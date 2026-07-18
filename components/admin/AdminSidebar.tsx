@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { UserButton } from '@clerk/nextjs'
 import { NipNipLogo } from '@/components/NipNipLogo'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 const NAV = [
   {
@@ -86,12 +87,12 @@ export function AdminSidebar() {
 
       {/* Logo */}
       <div className="h-16 flex items-center px-5 border-b border-white/6 shrink-0">
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity select-none" aria-label="NipNip">
           <NipNipLogo className="h-7" />
           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/25 text-amber-400 uppercase tracking-wider select-none">
             Admin
           </span>
-        </div>
+        </Link>
       </div>
 
       {/* Nav */}
@@ -116,9 +117,10 @@ export function AdminSidebar() {
         })}
       </nav>
 
-      {/* User */}
-      <div className="p-4 border-t border-white/6 shrink-0">
+      {/* User + Language */}
+      <div className="p-4 border-t border-white/6 shrink-0 flex items-center justify-between gap-2">
         <UserButton appearance={{ elements: { avatarBox: 'w-8 h-8' } }} />
+        <LanguageSwitcher placement="top-end" />
       </div>
 
     </aside>

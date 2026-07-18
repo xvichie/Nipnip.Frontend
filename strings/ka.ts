@@ -7,6 +7,7 @@ export const ka = {
     signIn: 'შესვლა',
     signUp: 'რეგისტრაცია',
     dashboard: 'Dashboard',
+    admin: 'Admin',
   },
   footer: {
     tagline: 'ქართული ეფილიატ პლატფორმა კრეატორებისა და მერჩანტებისთვის.',

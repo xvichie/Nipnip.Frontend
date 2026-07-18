@@ -9,6 +9,7 @@ export const ru: Strings = {
     signIn: 'Войти',
     signUp: 'Регистрация',
     dashboard: 'Панель',
+    admin: 'Admin',
   },
   footer: {
     tagline: 'Грузинская affiliate-платформа для авторов и магазинов.',

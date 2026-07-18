@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useUser, useClerk } from '@clerk/nextjs'
 import { useSignIn } from '@clerk/nextjs/legacy'
+import { AdminSidebar } from '@/components/admin/AdminSidebar'
 
 const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? '')
   .split(',').map(e => e.trim()).filter(Boolean)
@@ -79,38 +80,41 @@ export default function DemoLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#08080d] flex items-center justify-center p-8">
-      <div className="flex flex-col gap-6 w-full max-w-lg">
-        <div>
-          <h1 className="text-2xl font-black tracking-tight text-white">Demo Login</h1>
-          <p className="text-white/40 text-sm mt-1">
-            One-click sign-in as the hardcoded demo accounts — no password, no email code.
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6 flex flex-col gap-3">
-          {ROLES.map(({ role, label, redirect }) => (
-            <button
-              key={role}
-              onClick={() => handleLogin(role, redirect)}
-              disabled={loadingRole !== null}
-              className="btn w-full justify-start gap-2 bg-white/[0.04] border-white/[0.08] text-white hover:bg-white/[0.08] disabled:opacity-40"
-            >
-              {loadingRole === role ? (
-                <span className="loading loading-spinner loading-sm" />
-              ) : (
-                <span>Continue as {label}</span>
-              )}
-            </button>
-          ))}
-        </div>
-
-        {error && (
-          <div className="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
-            {error}
+    <div className="flex min-h-screen bg-[#08080d] text-white selection:bg-amber-500/20">
+      <AdminSidebar />
+      <main className="flex-1 p-8 overflow-y-auto">
+        <div className="flex flex-col gap-6 max-w-lg">
+          <div>
+            <h1 className="text-2xl font-black tracking-tight">Demo Login</h1>
+            <p className="text-white/40 text-sm mt-1">
+              One-click sign-in as the hardcoded demo accounts — no password, no email code.
+            </p>
           </div>
-        )}
-      </div>
+
+          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6 flex flex-col gap-3">
+            {ROLES.map(({ role, label, redirect }) => (
+              <button
+                key={role}
+                onClick={() => handleLogin(role, redirect)}
+                disabled={loadingRole !== null}
+                className="btn w-full justify-start gap-2 bg-white/[0.04] border-white/[0.08] text-white hover:bg-white/[0.08] disabled:opacity-40"
+              >
+                {loadingRole === role ? (
+                  <span className="loading loading-spinner loading-sm" />
+                ) : (
+                  <span>Continue as {label}</span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {error && (
+            <div className="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
+              {error}
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   )
 }

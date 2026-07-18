@@ -9,6 +9,7 @@ export const en: Strings = {
     signIn: 'Sign in',
     signUp: 'Sign up',
     dashboard: 'Dashboard',
+    admin: 'Admin',
   },
   footer: {
     tagline: 'Georgian affiliate platform for creators and merchants.',

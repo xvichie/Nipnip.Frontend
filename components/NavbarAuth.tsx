@@ -6,8 +6,11 @@ import { SignInButton, SignUpButton, UserButton } from '@clerk/nextjs'
 import { useCurrentRole } from '@/hooks/useCurrentRole'
 import { useLanguage } from '@/lib/i18n'
 
+const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? '')
+  .split(',').map(e => e.trim()).filter(Boolean)
+
 export function NavbarAuth({ fullWidth = false }: { fullWidth?: boolean }) {
-  const { isLoaded, isSignedIn } = useUser()
+  const { isLoaded, isSignedIn, user } = useUser()
   const role = useCurrentRole()
   const { t } = useLanguage()
 
@@ -19,8 +22,23 @@ export function NavbarAuth({ fullWidth = false }: { fullWidth?: boolean }) {
       role === 'merchant' ? '/dashboard/merchant/affiliate' :
       '/onboarding'
 
+    const isAdmin =
+      !!user.primaryEmailAddress?.emailAddress &&
+      ADMIN_EMAILS.includes(user.primaryEmailAddress.emailAddress)
+
     return (
       <div className={fullWidth ? 'flex items-center gap-3 w-full' : 'flex items-center gap-3'}>
+        {isAdmin && (
+          <Link
+            href="/admin"
+            className={[
+              'px-4 py-1.5 text-sm font-semibold bg-amber-500/15 border border-amber-500/25 text-amber-300 rounded-lg hover:bg-amber-500/25 transition-colors',
+              fullWidth ? 'flex-1 text-center' : '',
+            ].join(' ')}
+          >
+            {t.nav.admin}
+          </Link>
+        )}
         <Link
           href={dashboardHref}
           className={[
