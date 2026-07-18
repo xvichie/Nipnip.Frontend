@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useAdminMerchants, useAdminDeactivateMerchant, useAdminToggleMerchantHighlight } from '@/lib/queries/admin'
+import { useAdminMerchants, useAdminDeactivateMerchant, useAdminToggleMerchantHighlight, useAdminToggleMerchantTest } from '@/lib/queries/admin'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', {
@@ -15,6 +15,7 @@ export default function AdminMerchantsPage() {
   const { data, isLoading, isError } = useAdminMerchants(page)
   const { mutate: deactivate, isPending: isDeactivating } = useAdminDeactivateMerchant()
   const { mutate: toggleHighlight, isPending: isToggling } = useAdminToggleMerchantHighlight()
+  const { mutate: toggleTest, isPending: isTogglingTest } = useAdminToggleMerchantTest()
 
   const totalPages = data ? Math.ceil(data.totalCount / 50) : 1
 
@@ -60,12 +61,12 @@ export default function AdminMerchantsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/[0.06]">
-                  {['Name', 'Commission', 'Balance', 'API Key', 'Status', 'Featured', 'Created', ''].map((h, i) => (
+                  {['Name', 'Commission', 'Balance', 'API Key', 'Status', 'Featured', 'Test', 'Created', ''].map((h, i) => (
                     <th
                       key={i}
                       className={[
                         'px-5 py-3 text-xs font-medium text-white/30 uppercase tracking-widest whitespace-nowrap',
-                        i >= 6 ? 'text-right' : 'text-left',
+                        i >= 7 ? 'text-right' : 'text-left',
                       ].join(' ')}
                     >
                       {h}
@@ -117,6 +118,21 @@ export default function AdminMerchantsPage() {
                         title={m.isHighlighted ? 'Remove from featured' : 'Add to featured'}
                       >
                         {m.isHighlighted ? '✦ Featured' : '✦ Feature'}
+                      </button>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <button
+                        onClick={() => toggleTest(m.id)}
+                        disabled={isTogglingTest}
+                        className={[
+                          'btn btn-xs border transition-colors disabled:opacity-40',
+                          m.isTest
+                            ? 'bg-sky-500/15 border-sky-500/25 text-sky-300 hover:bg-sky-500/25'
+                            : 'bg-white/4 border-white/8 text-white/40 hover:text-sky-300 hover:border-sky-500/25',
+                        ].join(' ')}
+                        title={m.isTest ? 'Hidden from public listing unless viewed by the paired test creator' : 'Mark as a test account'}
+                      >
+                        {m.isTest ? 'Test' : 'Mark test'}
                       </button>
                     </td>
                     <td className="px-5 py-3.5 text-right text-white/40 text-xs whitespace-nowrap">

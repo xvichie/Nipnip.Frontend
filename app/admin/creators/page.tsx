@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useAdminCreators, useAdminToggleCreatorHighlight } from '@/lib/queries/admin'
+import { useAdminCreators, useAdminToggleCreatorHighlight, useAdminToggleCreatorTest } from '@/lib/queries/admin'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', {
@@ -13,6 +13,7 @@ export default function AdminCreatorsPage() {
   const [page, setPage] = useState(1)
   const { data, isLoading, isError } = useAdminCreators(page)
   const { mutate: toggleHighlight, isPending: isToggling } = useAdminToggleCreatorHighlight()
+  const { mutate: toggleTest, isPending: isTogglingTest } = useAdminToggleCreatorTest()
 
   const totalPages = data ? Math.ceil(data.totalCount / 50) : 1
 
@@ -42,12 +43,12 @@ export default function AdminCreatorsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/[0.06]">
-                  {['Name', 'Instagram', 'TikTok', 'Featured', 'Status', 'Created'].map((h, i) => (
+                  {['Name', 'Instagram', 'TikTok', 'Featured', 'Test', 'Status', 'Created'].map((h, i) => (
                     <th
                       key={h}
                       className={[
                         'px-5 py-3 text-xs font-medium text-white/30 uppercase tracking-widest whitespace-nowrap',
-                        i >= 4 ? 'text-right' : 'text-left',
+                        i >= 5 ? 'text-right' : 'text-left',
                       ].join(' ')}
                     >
                       {h}
@@ -84,6 +85,21 @@ export default function AdminCreatorsPage() {
                         title={c.isHighlighted ? 'Remove from featured' : 'Add to featured'}
                       >
                         {c.isHighlighted ? '✦ Featured' : '✦ Feature'}
+                      </button>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <button
+                        onClick={() => toggleTest(c.id)}
+                        disabled={isTogglingTest}
+                        className={[
+                          'btn btn-xs border transition-colors disabled:opacity-40',
+                          c.isTest
+                            ? 'bg-sky-500/15 border-sky-500/25 text-sky-300 hover:bg-sky-500/25'
+                            : 'bg-white/4 border-white/8 text-white/40 hover:text-sky-300 hover:border-sky-500/25',
+                        ].join(' ')}
+                        title={c.isTest ? 'Hidden from public directory unless viewed by the paired test merchant' : 'Mark as a test account'}
+                      >
+                        {c.isTest ? 'Test' : 'Mark test'}
                       </button>
                     </td>
                     <td className="px-5 py-3.5 text-right">

@@ -32,6 +32,7 @@ export interface MerchantResponse {
   notificationEmail: string | null
   isActive: boolean
   isHighlighted: boolean
+  isTest: boolean
   createdAt: string
 }
 

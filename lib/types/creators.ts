@@ -42,6 +42,7 @@ export interface CreatorResponse {
   linkedinFollowers: number | null
   isActive: boolean
   isHighlighted: boolean
+  isTest: boolean
   createdAt: string
 }
 

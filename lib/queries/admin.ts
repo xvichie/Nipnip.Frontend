@@ -120,6 +120,21 @@ export function useAdminToggleMerchantHighlight() {
   })
 }
 
+export function useAdminToggleMerchantTest() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const token = await getToken()
+      return apiFetch<MerchantResponse>(`/api/admin/merchants/${id}/test-flag`, token, { method: 'PUT' })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'merchants'] })
+      queryClient.invalidateQueries({ queryKey: ['merchants'] })
+    },
+  })
+}
+
 export function useAdminMerchantStore(id: string) {
   const { getToken } = useAuth()
   return useQuery({
@@ -160,6 +175,21 @@ export function useAdminToggleCreatorHighlight() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'creators'] })
       queryClient.invalidateQueries({ queryKey: ['creators', 'highlighted'] })
+    },
+  })
+}
+
+export function useAdminToggleCreatorTest() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const token = await getToken()
+      return apiFetch<CreatorResponse>(`/api/admin/creators/${id}/test-flag`, token, { method: 'PUT' })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'creators'] })
+      queryClient.invalidateQueries({ queryKey: ['creators'] })
     },
   })
 }
