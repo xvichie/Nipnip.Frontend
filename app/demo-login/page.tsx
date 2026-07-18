@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useUser, useClerk } from '@clerk/nextjs'
 import { useSignIn } from '@clerk/nextjs/legacy'
 import { AdminSidebar } from '@/components/admin/AdminSidebar'
+import { useLanguage } from '@/lib/i18n'
 
 const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? '')
   .split(',').map(e => e.trim()).filter(Boolean)
@@ -20,6 +21,7 @@ export default function DemoLoginPage() {
   const { signOut } = useClerk()
   const { signIn, setActive, isLoaded: signInLoaded } = useSignIn()
   const router = useRouter()
+  const { t } = useLanguage()
   const [loadingRole, setLoadingRole] = useState<string | null>(null)
   const [error, setError] = useState('')
 
@@ -72,20 +74,20 @@ export default function DemoLoginPage() {
     return (
       <div className="min-h-screen bg-[#08080d] flex items-center justify-center">
         <div className="text-center flex flex-col items-center gap-3">
-          <p className="text-white/40 text-sm">You&apos;re not authorized to view this page.</p>
-          <Link href="/" className="text-amber-400 text-sm hover:underline">Go home</Link>
+          <p className="text-white/40 text-sm">{t.admin.notAuthorized}</p>
+          <Link href="/" className="text-amber-400 text-sm hover:underline">{t.admin.goHome}</Link>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen bg-[#08080d] text-white selection:bg-amber-500/20">
+    <div className="flex h-screen overflow-hidden bg-[#08080d] text-white selection:bg-amber-500/20">
       <AdminSidebar />
       <main className="flex-1 p-8 overflow-y-auto">
         <div className="flex flex-col gap-6 max-w-lg">
           <div>
-            <h1 className="text-2xl font-black tracking-tight">Demo Login</h1>
+            <h1 className="text-2xl font-black tracking-tight">{t.admin.demoLogin}</h1>
             <p className="text-white/40 text-sm mt-1">
               One-click sign-in as the hardcoded demo accounts — no password, no email code.
             </p>

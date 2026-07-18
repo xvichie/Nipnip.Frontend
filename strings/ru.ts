@@ -115,6 +115,17 @@ export const ru: Strings = {
     storeDomain: 'Домен',
     storeIntegrations: 'Интеграции',
   },
+  admin: {
+    badge: 'Admin',
+    overview: 'Обзор',
+    merchants: 'Магазины',
+    creators: 'Авторы',
+    conversions: 'Конверсии',
+    payouts: 'Выплаты',
+    demoLogin: 'Демо вход',
+    notAuthorized: 'У вас нет доступа к этой странице.',
+    goHome: 'На главную',
+  },
   creatorDashboard: {
     title: 'Панель',
     subtitle: 'Твоя статистика и доходы',

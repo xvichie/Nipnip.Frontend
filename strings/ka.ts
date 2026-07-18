@@ -113,6 +113,17 @@ export const ka = {
     storeDomain: 'დომენი',
     storeIntegrations: 'ინტეგრაციები',
   },
+  admin: {
+    badge: 'Admin',
+    overview: 'მიმოხილვა',
+    merchants: 'მერჩანტები',
+    creators: 'კრეატორები',
+    conversions: 'კონვერსიები',
+    payouts: 'გადახდები',
+    demoLogin: 'დემო შესვლა',
+    notAuthorized: 'თქვენ არ გაქვთ ამ გვერდზე წვდომა.',
+    goHome: 'მთავარ გვერდზე დაბრუნება',
+  },
   creatorDashboard: {
     title: 'Dashboard',
     subtitle: 'შენი სტატისტიკა და შემოსავლები',

@@ -115,6 +115,17 @@ export const en: Strings = {
     storeDomain: 'Domain',
     storeIntegrations: 'Integrations',
   },
+  admin: {
+    badge: 'Admin',
+    overview: 'Overview',
+    merchants: 'Merchants',
+    creators: 'Creators',
+    conversions: 'Conversions',
+    payouts: 'Payouts',
+    demoLogin: 'Demo Login',
+    notAuthorized: "You're not authorized to view this page.",
+    goHome: 'Go home',
+  },
   creatorDashboard: {
     title: 'Dashboard',
     subtitle: 'Your stats and earnings',
