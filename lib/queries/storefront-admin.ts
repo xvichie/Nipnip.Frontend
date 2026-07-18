@@ -25,6 +25,7 @@ import type {
   ProductSummaryResponse,
   ProductVariantResponse,
   ReorderProductImagesRequest,
+  SetRelatedProductsRequest,
   SetStoreDomainRequest,
   StoreDomainResponse,
   StorePageResponse,
@@ -572,6 +573,34 @@ export function useDeleteProductOptionValue(productId: string, optionId: string)
       await apiFetch<void>(`/api/products/${productId}/options/${optionId}/values/${valueId}`, token, { method: 'DELETE' })
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'product', productId] }),
+  })
+}
+
+// --- Related products ---
+
+export function useRelatedProducts(productId: string) {
+  const { getToken } = useAuth()
+  return useQuery({
+    queryKey: ['storefront-admin', 'product', productId, 'related'],
+    queryFn: async () => {
+      const token = await getToken()
+      return apiFetch<ProductSummaryResponse[]>(`/api/products/${productId}/related`, token)
+    },
+  })
+}
+
+export function useSetRelatedProducts(productId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (body: SetRelatedProductsRequest) => {
+      const token = await getToken()
+      return apiFetch<ProductSummaryResponse[]>(`/api/products/${productId}/related`, token, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'product', productId, 'related'] }),
   })
 }
 

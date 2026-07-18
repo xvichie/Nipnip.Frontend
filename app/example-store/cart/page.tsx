@@ -36,7 +36,7 @@ export default function CartPage() {
         <p className="text-[#999] text-sm mt-1">{count} ნივთი</p>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Items */}
         <div className="lg:col-span-2 flex flex-col divide-y divide-[#e5e5e5]">
           {items.map(item => (

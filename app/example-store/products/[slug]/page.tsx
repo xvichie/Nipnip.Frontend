@@ -73,7 +73,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 pb-16">
-        <div className="grid lg:grid-cols-2 gap-10 xl:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16">
 
           {/* Images */}
           <div className="flex gap-3">

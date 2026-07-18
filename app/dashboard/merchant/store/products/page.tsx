@@ -61,12 +61,12 @@ export default function MerchantProductsPage() {
   return (
     <div className="flex flex-col gap-6 max-w-5xl">
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-black tracking-tight">Products</h1>
           <p className="text-white/40 text-sm mt-1">{data ? `${data.totalCount} total` : ''}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <ImportProductModal />
           <BulkImportFromFacebookModal />
           <Link
@@ -81,19 +81,19 @@ export default function MerchantProductsPage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
         <input
           type="text"
           value={searchInput}
           onChange={e => setSearchInput(e.target.value)}
           placeholder="Search products..."
-          className="input input-sm flex-1 min-w-40 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+          className="input input-sm w-full sm:flex-1 sm:min-w-40 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
         />
         {categories && categories.length > 0 && (
           <select
             value={categoryId}
             onChange={e => { setCategoryId(e.target.value); setPage(1) }}
-            className="select select-sm bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
+            className="select select-sm w-full sm:w-auto bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
           >
             <option value="">All categories</option>
             {categories.map(category => (
@@ -104,7 +104,7 @@ export default function MerchantProductsPage() {
         <select
           value={status}
           onChange={e => { setStatus(e.target.value as typeof status); setPage(1) }}
-          className="select select-sm bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
+          className="select select-sm w-full sm:w-auto bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
         >
           <option value="">All statuses</option>
           <option value="active">Active</option>
@@ -113,7 +113,7 @@ export default function MerchantProductsPage() {
         <select
           value={sort}
           onChange={e => { setSort(e.target.value as typeof sort); setPage(1) }}
-          className="select select-sm bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
+          className="select select-sm w-full sm:w-auto bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
         >
           {SORT_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
         </select>

@@ -46,17 +46,17 @@ export function Header({
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-6">
-        <Link href={`/`} className="flex items-center gap-2.5 shrink-0">
+        <Link href={`/`} className="flex items-center gap-2.5 min-w-0">
           {tokens.logoUrl ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={tokens.logoUrl} alt={storeName} className="h-8 w-auto object-contain" />
+              <img src={tokens.logoUrl} alt={storeName} className="h-8 w-auto object-contain shrink-0" />
               {tokens.showStoreName && (
-                <span className="font-black text-[#1a1a1a] text-lg tracking-tight">{storeName}</span>
+                <span className="font-black text-[#1a1a1a] text-lg tracking-tight truncate">{storeName}</span>
               )}
             </>
           ) : (
-            <span className="font-black text-[#1a1a1a] text-lg tracking-tight">{storeName}</span>
+            <span className="font-black text-[#1a1a1a] text-lg tracking-tight truncate">{storeName}</span>
           )}
         </Link>
 
@@ -143,7 +143,7 @@ export function Header({
                 <circle cx="8" cy="15.5" r="1" fill="currentColor"/>
                 <circle cx="13" cy="15.5" r="1" fill="currentColor"/>
               </svg>
-              კალათა
+              <span className="hidden sm:inline">კალათა</span>
               {count > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-white text-[10px] font-black flex items-center justify-center" style={{ color: tokens.accentColor }}>
                   {count > 9 ? '9+' : count}

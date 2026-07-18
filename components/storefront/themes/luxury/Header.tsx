@@ -46,17 +46,17 @@ export function Header({
   return (
     <header className="sticky top-0 z-50 bg-[#faf7f2] border-b border-[#1c1a17]/10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-6">
-        <Link href={`/`} className="flex items-center gap-3 shrink-0">
+        <Link href={`/`} className="flex items-center gap-3 min-w-0">
           {tokens.logoUrl ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={tokens.logoUrl} alt={storeName} className="h-9 w-auto object-contain" />
+              <img src={tokens.logoUrl} alt={storeName} className="h-9 w-auto object-contain shrink-0" />
               {tokens.showStoreName && (
-                <span className="font-serif text-[#1c1a17] text-lg tracking-[0.15em] uppercase">{storeName}</span>
+                <span className="font-serif text-[#1c1a17] text-lg tracking-[0.15em] uppercase truncate">{storeName}</span>
               )}
             </>
           ) : (
-            <span className="font-serif text-[#1c1a17] text-xl tracking-[0.15em] uppercase">{storeName}</span>
+            <span className="font-serif text-[#1c1a17] text-xl tracking-[0.15em] uppercase truncate">{storeName}</span>
           )}
         </Link>
 
@@ -139,7 +139,7 @@ export function Header({
                 <circle cx="8" cy="15.5" r="1" fill="currentColor"/>
                 <circle cx="13" cy="15.5" r="1" fill="currentColor"/>
               </svg>
-              კალათა
+              <span className="hidden sm:inline">კალათა</span>
               {count > 0 && (
                 <span
                   className="absolute -top-2 -right-2 w-4.5 h-4.5 rounded-full text-white text-[9px] font-bold flex items-center justify-center"

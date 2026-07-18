@@ -493,7 +493,7 @@ export default function StoreDesignPage() {
         <p className="text-white/40 text-sm mt-1">Changes update the preview instantly — nothing goes live until you save.</p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
         <div className="flex flex-col gap-6">
 

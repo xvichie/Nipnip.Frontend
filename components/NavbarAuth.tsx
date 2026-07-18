@@ -6,7 +6,7 @@ import { SignInButton, SignUpButton, UserButton } from '@clerk/nextjs'
 import { useCurrentRole } from '@/hooks/useCurrentRole'
 import { useLanguage } from '@/lib/i18n'
 
-export function NavbarAuth() {
+export function NavbarAuth({ fullWidth = false }: { fullWidth?: boolean }) {
   const { isLoaded, isSignedIn } = useUser()
   const role = useCurrentRole()
   const { t } = useLanguage()
@@ -16,14 +16,17 @@ export function NavbarAuth() {
   if (isSignedIn) {
     const dashboardHref =
       role === 'creator' ? '/dashboard/creator' :
-      role === 'merchant' ? '/dashboard/merchant' :
+      role === 'merchant' ? '/dashboard/merchant/affiliate' :
       '/onboarding'
 
     return (
-      <div className="flex items-center gap-3">
+      <div className={fullWidth ? 'flex items-center gap-3 w-full' : 'flex items-center gap-3'}>
         <Link
           href={dashboardHref}
-          className="px-4 py-1.5 text-sm font-semibold bg-white text-black rounded-lg hover:bg-zinc-100 transition-colors"
+          className={[
+            'px-4 py-1.5 text-sm font-semibold bg-white text-black rounded-lg hover:bg-zinc-100 transition-colors',
+            fullWidth ? 'flex-1 text-center' : '',
+          ].join(' ')}
         >
           {t.nav.dashboard}
         </Link>
@@ -33,14 +36,20 @@ export function NavbarAuth() {
   }
 
   return (
-    <nav className="flex items-center gap-2">
+    <nav className={fullWidth ? 'flex flex-col gap-2 w-full' : 'flex items-center gap-2'}>
       <SignInButton>
-        <button className="px-4 py-1.5 text-sm font-medium text-white/60 hover:text-white rounded-lg hover:bg-white/6 transition-colors">
+        <button className={[
+          'px-4 py-1.5 text-sm font-medium text-white/60 hover:text-white rounded-lg hover:bg-white/6 transition-colors',
+          fullWidth ? 'w-full py-2.5 border border-white/10' : '',
+        ].join(' ')}>
           {t.nav.signIn}
         </button>
       </SignInButton>
       <SignUpButton>
-        <button className="px-4 py-1.5 text-sm font-semibold bg-white text-black rounded-lg hover:bg-zinc-100 transition-colors">
+        <button className={[
+          'px-4 py-1.5 text-sm font-semibold bg-white text-black rounded-lg hover:bg-zinc-100 transition-colors',
+          fullWidth ? 'w-full py-2.5' : '',
+        ].join(' ')}>
           {t.nav.signUp}
         </button>
       </SignUpButton>

@@ -67,7 +67,7 @@ export const LANDING_CATEGORY_GRID_CLASS: Record<Required<ThemeConfig>['landingC
   2: 'grid-cols-2',
   3: 'grid-cols-2 sm:grid-cols-3',
   4: 'grid-cols-2 sm:grid-cols-4',
-  6: 'grid-cols-3 sm:grid-cols-6',
+  6: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6',
 }
 
 export const HERO_HEIGHT_CLASS: Record<Required<ThemeConfig>['heroHeight'], string> = {

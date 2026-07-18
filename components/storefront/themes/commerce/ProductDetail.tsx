@@ -5,6 +5,7 @@ import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { VariantSelector } from '../../VariantSelector'
 import { ImageLightbox } from '../../ImageLightbox'
 import { Breadcrumbs } from '@/components/storefront/shared/Breadcrumbs'
+import { ProductCard } from './ProductCard'
 import type { CategoryResponse, ProductDetailResponse, ThemeConfig } from '@/lib/types/storefront'
 
 export function ProductDetail({
@@ -79,7 +80,7 @@ export function ProductDetail({
           textClassName="text-slate-900"
           mutedClassName="text-slate-400 hover:text-slate-900"
         />
-        <div className="grid lg:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
           <div className="flex gap-3">
             {images.length > 1 && (
@@ -208,6 +209,17 @@ export function ProductDetail({
             )}
           </div>
         </div>
+
+        {product.relatedProducts.length > 0 && (
+          <div className="mt-14 pt-8 border-t border-slate-200">
+            <h2 className="font-black text-2xl text-slate-900 tracking-tight mb-6">მსგავსი პროდუქტები</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {product.relatedProducts.map(related => (
+                <ProductCard key={related.id} slug={slug} product={related} tokens={tokens} />
+              ))}
+            </div>
+          </div>
+        )}
 
       </div>
 

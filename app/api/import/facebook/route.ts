@@ -222,7 +222,7 @@ async function tryFetchMediaFromPost(rawUrl: string): Promise<{ imageUrl: string
 
 async function extractProductInfo(captionText: string, categoryNames: string[]): Promise<ExtractedProduct> {
   const message = await anthropic.messages.create({
-    model: 'claude-opus-4-8',
+    model: 'claude-haiku-4-5-20251001',
     max_tokens: 1024,
     output_config: {
       effort: 'medium',

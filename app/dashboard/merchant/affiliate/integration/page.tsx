@@ -693,7 +693,7 @@ export default function IntegrationPage() {
         </svg>
         <p className="text-xs text-white/40 leading-relaxed">
           {t.integration.noWebsiteNote}{' '}
-          <Link href="/dashboard/merchant/report-sale" className="text-violet-400 hover:text-violet-300 font-semibold transition-colors">
+          <Link href="/dashboard/merchant/affiliate/report-sale" className="text-violet-400 hover:text-violet-300 font-semibold transition-colors">
             {t.integration.noWebsiteLink}
           </Link>
         </p>

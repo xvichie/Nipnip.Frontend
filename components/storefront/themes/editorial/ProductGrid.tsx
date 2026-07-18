@@ -71,7 +71,7 @@ export function ProductGrid({
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 pb-24">
         <div className="mb-8 text-center">
           <p className="italic font-serif text-sm text-[#767676] mb-1">კოლექცია</p>
-          <h1 className="font-serif text-4xl sm:text-5xl tracking-tight text-[#111111]">{activeCategoryName ?? 'ყველა პროდუქტი'}</h1>
+          <h1 className="font-serif text-3xl sm:text-5xl tracking-tight text-[#111111]">{activeCategoryName ?? 'ყველა პროდუქტი'}</h1>
         </div>
 
         {displayCategories.length > 0 && (

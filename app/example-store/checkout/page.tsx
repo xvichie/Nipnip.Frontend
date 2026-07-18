@@ -324,7 +324,7 @@ export default function CheckoutPage() {
         <StepIndicator step={step as Step} />
       </div>
 
-      <div className="grid lg:grid-cols-5 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
         <div className="lg:col-span-3">
           {step === 'address' && <AddressStep form={form} setForm={setForm} onNext={() => setStep('payment')} />}
           {step === 'payment' && <PaymentStep onNext={() => setStep('confirm')} onBack={() => setStep('address')} />}

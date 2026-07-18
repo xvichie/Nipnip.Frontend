@@ -287,6 +287,11 @@ export interface ProductDetailResponse {
   images: ProductImageResponse[]
   options: ProductOptionResponse[]
   variants: ProductVariantResponse[]
+  relatedProducts: ProductSummaryResponse[]
+}
+
+export interface SetRelatedProductsRequest {
+  productIds: string[]
 }
 
 export interface CreateProductRequest {

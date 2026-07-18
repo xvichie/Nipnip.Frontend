@@ -49,7 +49,7 @@ export function Footer({
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-white/40 text-xs">© {new Date().getFullYear()} {storeName}</p>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-4">
             {showSocials && <SocialLinks tokens={tokens} />}
             <Link href={`/contact`} className="text-white/40 text-xs hover:text-white transition-colors underline underline-offset-2">
               {tokens.contactLabel}

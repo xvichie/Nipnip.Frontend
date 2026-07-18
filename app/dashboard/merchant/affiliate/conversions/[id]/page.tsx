@@ -29,7 +29,7 @@ export default function ConversionDetailPage({ params }: { params: Promise<{ id:
     <div className="flex flex-col gap-8 max-w-lg">
       <div className="flex items-center gap-3">
         <Link
-          href="/dashboard/merchant/conversions"
+          href="/dashboard/merchant/affiliate/conversions"
           className="flex items-center gap-1.5 text-white/40 hover:text-white text-sm transition-colors"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>

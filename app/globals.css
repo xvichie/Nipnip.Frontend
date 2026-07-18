@@ -16,6 +16,45 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes float-card {
+  0%, 100% { transform: translateY(0) rotate(var(--float-rotate, 0deg)); }
+  50%      { transform: translateY(-18px) rotate(calc(var(--float-rotate, 0deg) * -1)); }
+}
+
+.animate-float-card {
+  animation: float-card var(--float-duration, 7s) ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.4); }
+  50%      { opacity: 1; transform: scale(1); }
+}
+
+.animate-twinkle {
+  animation: twinkle var(--twinkle-duration, 3s) ease-in-out infinite;
+  animation-delay: var(--twinkle-delay, 0s);
+}
+
+@keyframes shimmer-sweep {
+  0%   { transform: translateX(-130%) skewX(-12deg); }
+  100% { transform: translateX(230%) skewX(-12deg); }
+}
+
+.animate-shimmer {
+  animation: shimmer-sweep 3.5s ease-in-out infinite;
+}
+
+@keyframes badge-orbit {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  33%      { transform: translateY(-10px) translateX(4px); }
+  66%      { transform: translateY(4px) translateX(-6px); }
+}
+
+.animate-badge-orbit {
+  animation: badge-orbit 9s ease-in-out infinite;
+}
+
 .dot-grid {
   background-image: radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
   background-size: 28px 28px;

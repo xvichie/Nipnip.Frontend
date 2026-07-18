@@ -179,11 +179,26 @@ const SIDEBAR_EXPAND_ICON = (
 
 // useSyncExternalStore instead of useState+useEffect — localStorage isn't available
 // during SSR, and this avoids both a hydration mismatch and an extra post-mount render.
+//
+// The collapsed-to-icon-rail state is a desktop-only affordance for reclaiming width
+// from the always-visible rail — it means nothing inside the mobile slide-out drawer,
+// which already overlays the page and closes on outside click. Without this guard, a
+// merchant who ever collapsed the desktop rail would open the mobile menu to a useless
+// icon-only strip with no labels. Below the `lg` breakpoint (matches Tailwind's `lg:`),
+// force it false regardless of what's in localStorage, and re-check on resize so it
+// updates live if the viewport crosses the breakpoint.
+const LG_BREAKPOINT_PX = 1024
+
 function subscribeToCollapsed(callback: () => void) {
   window.addEventListener(SIDEBAR_COLLAPSED_EVENT, callback)
-  return () => window.removeEventListener(SIDEBAR_COLLAPSED_EVENT, callback)
+  window.addEventListener('resize', callback)
+  return () => {
+    window.removeEventListener(SIDEBAR_COLLAPSED_EVENT, callback)
+    window.removeEventListener('resize', callback)
+  }
 }
 function getCollapsedSnapshot() {
+  if (window.innerWidth < LG_BREAKPOINT_PX) return false
   return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1'
 }
 function getCollapsedServerSnapshot() {
@@ -375,14 +390,16 @@ export function DashboardSidebar() {
     { href: '/merchants', label: t.sidebar.browseMarketplace, exact: false, icon: BROWSE_ICON },
   ]
 
-  // Merchant sidebar is split into two switchable sections (affiliate marketing vs.
-  // online store) picked via the dropdown below the badge — მთავარი/Settings stay
-  // pinned outside the switch since they apply to the whole account either way.
+  // Merchant sidebar is split into switchable sections (affiliate marketing / online
+  // store / AI agents) picked via the dropdown below the badge — Settings stays pinned
+  // outside the switch since it applies to the whole account either way. მთავარი lives
+  // inside the affiliate section since that page is itself affiliate-specific stats.
   const MERCHANT_SECTIONS: Record<MerchantSection, NavLink[]> = {
     affiliate: [
-      { href: '/dashboard/merchant/conversions', label: t.sidebar.conversions, exact: false, icon: CONVERSIONS_ICON },
-      { href: '/dashboard/merchant/report-sale', label: t.sidebar.reportSale, exact: false, icon: PLUS_ICON },
-      { href: '/dashboard/merchant/integration', label: t.sidebar.integration, exact: false, icon: CODE_ICON },
+      { href: '/dashboard/merchant/affiliate', label: t.sidebar.dashboard, exact: true, icon: GRID_ICON },
+      { href: '/dashboard/merchant/affiliate/conversions', label: t.sidebar.conversions, exact: false, icon: CONVERSIONS_ICON },
+      { href: '/dashboard/merchant/affiliate/report-sale', label: t.sidebar.reportSale, exact: false, icon: PLUS_ICON },
+      { href: '/dashboard/merchant/affiliate/integration', label: t.sidebar.integration, exact: false, icon: CODE_ICON },
     ],
     store: STORE_NAV_ITEMS.map(item => ({
       href: item.href,
@@ -416,7 +433,7 @@ export function DashboardSidebar() {
         ? '/dashboard/merchant/store'
         : next === 'ai-agents'
           ? AI_AGENT_NAV_ITEMS[0].href
-          : '/dashboard/merchant/conversions'
+          : '/dashboard/merchant/affiliate'
     )
   }
 
@@ -441,7 +458,7 @@ export function DashboardSidebar() {
           onClick={toggleCollapsed}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          className="w-7 h-7 flex items-center justify-center rounded-lg text-white/40 hover:text-white hover:bg-white/8 transition-colors shrink-0"
+          className="hidden lg:flex w-7 h-7 items-center justify-center rounded-lg text-white/40 hover:text-white hover:bg-white/8 transition-colors shrink-0"
         >
           {collapsed ? SIDEBAR_EXPAND_ICON : SIDEBAR_COLLAPSE_ICON}
         </button>
@@ -476,14 +493,6 @@ export function DashboardSidebar() {
           <div className="mx-4 border-t border-white/6 shrink-0" />
 
           <nav className={['flex-1 flex flex-col gap-0.5 overflow-y-auto', collapsed ? 'p-2' : 'p-3'].join(' ')}>
-            <NavRow
-              item={{ href: '/dashboard/merchant', label: t.sidebar.dashboard, exact: true, icon: GRID_ICON }}
-              active={pathname === '/dashboard/merchant'}
-              collapsed={collapsed}
-            />
-
-            <div className="my-2 border-t border-white/6" />
-
             {MERCHANT_SECTIONS[activeSection].map(item => (
               <NavRow
                 key={item.href}
@@ -498,14 +507,6 @@ export function DashboardSidebar() {
             <NavRow
               item={{ href: '/dashboard/merchant/settings', label: t.sidebar.settings, exact: false, icon: SETTINGS_ICON }}
               active={pathname.startsWith('/dashboard/merchant/settings')}
-              collapsed={collapsed}
-            />
-
-            <div className="my-2 border-t border-white/6" />
-
-            <NavRow
-              item={{ href: '/merchants', label: t.sidebar.marketplace, exact: false, icon: BROWSE_ICON }}
-              active={pathname.startsWith('/merchants')}
               collapsed={collapsed}
             />
           </nav>

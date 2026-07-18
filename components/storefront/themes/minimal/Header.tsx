@@ -46,17 +46,17 @@ export function Header({
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-[#e5e5e5]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-6">
-        <Link href={`/`} className="flex items-center gap-3 shrink-0">
+        <Link href={`/`} className="flex items-center gap-3 min-w-0">
           {tokens.logoUrl ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={tokens.logoUrl} alt={storeName} className="h-7 w-auto object-contain" />
+              <img src={tokens.logoUrl} alt={storeName} className="h-7 w-auto object-contain shrink-0" />
               {tokens.showStoreName && (
-                <span className="font-black text-[#111] text-base tracking-tight uppercase">{storeName}</span>
+                <span className="font-black text-[#111] text-base tracking-tight uppercase truncate">{storeName}</span>
               )}
             </>
           ) : (
-            <span className="font-black text-[#111] text-base tracking-tight uppercase">{storeName}</span>
+            <span className="font-black text-[#111] text-base tracking-tight uppercase truncate">{storeName}</span>
           )}
         </Link>
 
@@ -146,7 +146,7 @@ export function Header({
                 <circle cx="8" cy="15.5" r="1" fill="currentColor"/>
                 <circle cx="13" cy="15.5" r="1" fill="currentColor"/>
               </svg>
-              <span>კალათა</span>
+              <span className="hidden sm:inline">კალათა</span>
               {count > 0 && (
                 <span
                   className="absolute -top-2 -right-2 w-4 h-4 rounded-full text-white text-[9px] font-bold flex items-center justify-center"

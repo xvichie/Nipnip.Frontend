@@ -43,7 +43,7 @@ export function Home({
       {tokens.heroEyebrow && (
         <p className="text-xs font-bold uppercase tracking-[0.3em] text-white/70 mb-4">{tokens.heroEyebrow}</p>
       )}
-      <h1 className={`font-black text-white tracking-tight mb-6 leading-none ${isSplitHero ? 'text-4xl sm:text-6xl' : 'text-5xl sm:text-7xl'}`}>
+      <h1 className={`font-black text-white tracking-tight mb-6 leading-none ${isSplitHero ? 'text-4xl sm:text-6xl' : 'text-4xl sm:text-7xl'}`}>
         {tokens.heroHeadline || store.name}
       </h1>
       {tokens.heroSubheadline && (

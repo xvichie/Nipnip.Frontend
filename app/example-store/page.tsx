@@ -298,7 +298,7 @@ export default function StoreHomePage() {
       {/* ── Best Seller Spotlight ────────────────────────────────────── */}
       <section className="border-b border-[#e5e5e5]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
-          <div className="grid md:grid-cols-2 border border-[#e5e5e5]">
+          <div className="grid grid-cols-1 md:grid-cols-2 border border-[#e5e5e5]">
             <div className="bg-[#f7f7f7] aspect-square md:aspect-auto min-h-[320px] relative overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={bestSeller.images[0]} alt={bestSeller.name} className="w-full h-full object-cover" />

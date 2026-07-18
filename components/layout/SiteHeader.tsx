@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useRef, useEffect } from 'react'
 import { NavbarAuth } from '@/components/NavbarAuth'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { LanguageSwitcher, LanguageButtonGroup } from '@/components/LanguageSwitcher'
 import { useLanguage } from '@/lib/i18n'
 import { NipNipLogo } from '@/components/NipNipLogo'
 
@@ -210,11 +210,17 @@ function HelpDropdown() {
 export function SiteHeader() {
   const pathname = usePathname()
   const { t } = useLanguage()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   const NAV_LINKS = [
     { href: '/merchants', label: t.nav.brands },
     { href: '/creators', label: t.nav.creators },
+    { href: '/how-it-works', label: t.nav.howItWorks },
+    { href: '/faq', label: t.nav.faq },
+    { href: '/example-store', label: 'სადემო მაღაზია' },
   ]
+
+  useEffect(() => setMobileOpen(false), [pathname])
 
   return (
     <header className="fixed top-0 z-50 w-full border-b border-white/6 bg-[#08080d]/70 backdrop-blur-xl">
@@ -225,7 +231,7 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1">
-          {NAV_LINKS.map(({ href, label }) => (
+          {NAV_LINKS.slice(0, 2).map(({ href, label }) => (
             <Link
               key={href}
               href={href}
@@ -243,12 +249,66 @@ export function SiteHeader() {
           <CreateStoreDropdown />
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="hidden lg:flex items-center gap-3">
           <LanguageSwitcher />
           <NavbarAuth />
         </div>
 
+        {/* Mobile: everything (pages, language, sign in/up) lives behind this burger — */}
+        {/* nothing else renders in the header on small screens. */}
+        <button
+          type="button"
+          onClick={() => setMobileOpen(v => !v)}
+          aria-label={mobileOpen ? 'დახურვა' : 'მენიუ'}
+          aria-expanded={mobileOpen}
+          className="lg:hidden flex items-center justify-center w-9 h-9 rounded-lg text-white/60 hover:text-white hover:bg-white/6 transition-colors shrink-0"
+        >
+          {mobileOpen ? (
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
+              <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/>
+            </svg>
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
+              <path d="M3 5.5h14M3 10h14M3 14.5h14" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/>
+            </svg>
+          )}
+        </button>
+
       </div>
+
+      {/* Mobile menu panel */}
+      {mobileOpen && (
+        <div className="lg:hidden border-t border-white/6 bg-[#08080d]/95 backdrop-blur-xl max-h-[calc(100vh-3.75rem)] overflow-y-auto">
+          <nav className="flex flex-col p-3 gap-0.5">
+            {NAV_LINKS.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className={[
+                  'px-3 py-2.5 text-sm font-medium rounded-lg transition-colors',
+                  pathname === href
+                    ? 'text-white bg-white/6'
+                    : 'text-white/60 hover:text-white hover:bg-white/5',
+                ].join(' ')}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="mx-3 border-t border-white/6" />
+
+          <div className="p-3">
+            <LanguageButtonGroup />
+          </div>
+
+          <div className="mx-3 border-t border-white/6" />
+
+          <div className="p-3">
+            <NavbarAuth fullWidth />
+          </div>
+        </div>
+      )}
     </header>
   )
 }

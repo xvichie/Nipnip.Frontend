@@ -127,7 +127,7 @@ export function ProductGrid({
             <p className="text-sm text-[#666]">
               <span className="text-[#111] font-semibold">{totalCount}</span> პროდუქტი
             </p>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
               <input
                 type="text"
                 value={search}
@@ -138,7 +138,7 @@ export function ProductGrid({
               <select
                 value={sortBy}
                 onChange={e => handleSortChange(e.target.value as ProductSortOption)}
-                className="border border-[#e5e5e5] text-sm px-3 py-2 text-[#111] focus:outline-none focus:border-[#111] transition-colors bg-white"
+                className="w-full sm:w-auto shrink-0 border border-[#e5e5e5] text-sm px-3 py-2 text-[#111] focus:outline-none focus:border-[#111] transition-colors bg-white"
               >
                 {SORT_OPTIONS.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>

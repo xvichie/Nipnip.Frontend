@@ -223,7 +223,7 @@ export default function MerchantConversionsPage() {
                   return (
                     <tr
                       key={entry.id}
-                      onClick={() => router.push(`/dashboard/merchant/conversions/${entry.id}`)}
+                      onClick={() => router.push(`/dashboard/merchant/affiliate/conversions/${entry.id}`)}
                       className="border-b border-white/4 last:border-0 hover:bg-white/2 transition-colors cursor-pointer"
                     >
                       <td className="px-6 py-4 whitespace-nowrap">

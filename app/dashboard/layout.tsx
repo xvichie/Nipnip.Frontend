@@ -10,7 +10,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="drawer-content flex flex-col min-h-screen">
 
         {/* Mobile top bar */}
-        <header className="lg:hidden sticky top-0 z-10 flex items-center gap-3 h-14 px-4 border-b border-white/[0.06] bg-[#08080d]/90 backdrop-blur-sm shrink-0">
+        <header className="lg:hidden sticky top-0 z-10 flex items-center justify-between gap-3 h-14 px-4 border-b border-white/[0.06] bg-[#08080d]/90 backdrop-blur-sm shrink-0">
+          <Link href="/" className="text-base font-black text-transparent bg-clip-text bg-linear-to-r from-violet-400 to-fuchsia-400 select-none hover:opacity-80 transition-opacity">
+            NipNip
+          </Link>
           <label
             htmlFor="sidebar-drawer"
             className="btn btn-ghost btn-sm btn-square text-white/60 hover:text-white"
@@ -20,9 +23,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <path d="M2 4.5h14M2 9h14M2 13.5h14" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/>
             </svg>
           </label>
-          <Link href="/" className="text-base font-black text-transparent bg-clip-text bg-linear-to-r from-violet-400 to-fuchsia-400 select-none hover:opacity-80 transition-opacity">
-            NipNip
-          </Link>
         </header>
 
         {/* Page content */}

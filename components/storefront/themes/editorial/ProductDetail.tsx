@@ -5,6 +5,7 @@ import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { VariantSelector } from '../../VariantSelector'
 import { ImageLightbox } from '../../ImageLightbox'
 import { Breadcrumbs } from '@/components/storefront/shared/Breadcrumbs'
+import { ProductCard } from './ProductCard'
 import type { CategoryResponse, ProductDetailResponse, ThemeConfig } from '@/lib/types/storefront'
 
 export function ProductDetail({
@@ -79,7 +80,7 @@ export function ProductDetail({
           textClassName="text-[#111111]"
           mutedClassName="text-[#767676] hover:text-[#111111]"
         />
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
 
           <div className="flex gap-3">
             {images.length > 1 && (
@@ -115,7 +116,7 @@ export function ProductDetail({
           </div>
 
           <div className="flex flex-col">
-            <h1 className="font-serif text-4xl sm:text-5xl text-[#111111] tracking-tight leading-[0.95] mb-5">
+            <h1 className="font-serif text-3xl sm:text-5xl text-[#111111] tracking-tight leading-[0.95] mb-5">
               {product.name}
             </h1>
 
@@ -204,6 +205,17 @@ export function ProductDetail({
             )}
           </div>
         </div>
+
+        {product.relatedProducts.length > 0 && (
+          <div className="mt-16 pt-10 border-t border-black/10">
+            <p className="italic font-serif text-sm text-[#767676] mb-6">მსგავსი პროდუქტები</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-8">
+              {product.relatedProducts.map(related => (
+                <ProductCard key={related.id} slug={slug} product={related} tokens={tokens} />
+              ))}
+            </div>
+          </div>
+        )}
 
       </div>
 

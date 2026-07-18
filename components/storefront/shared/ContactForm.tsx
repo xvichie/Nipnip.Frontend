@@ -79,7 +79,7 @@ export function ContactForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       {heading && <h2 className={`font-bold text-lg ${textClass}`}>{heading}</h2>}
 
-      <div className="grid sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <input
           type="text"
           value={name}

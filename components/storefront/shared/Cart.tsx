@@ -53,7 +53,7 @@ export function Cart({
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className={`lg:col-span-2 flex flex-col divide-y ${surface.border}`}>
             {cart.items.map(item => {
               const outOfStock = item.stock !== null && item.stock <= 0

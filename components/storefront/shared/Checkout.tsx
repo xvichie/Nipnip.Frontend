@@ -114,7 +114,7 @@ export function Checkout({
           </div>
           <div>
             <h1 className={`font-black text-3xl mb-2 ${surface.text}`}>შეკვეთა გაფორმდა!</h1>
-            <p className={`text-sm ${surface.muted}`}>
+            <p className={`text-sm break-words ${surface.muted}`}>
               გმადლობთ, {fullName}. თქვენი შეკვეთა #{checkout.data.id.slice(0, 8)} მიღებულია. დეტალები გამოგზავნილია {email}-ზე.
             </p>
             <p className={`text-sm font-bold mt-3 ${surface.text}`}>
@@ -131,7 +131,7 @@ export function Checkout({
               <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${surface.muted}`}>
                 {PAYMENT_OPTIONS.find(opt => opt.id === checkout.data.paymentMethod)?.label}
               </p>
-              <p className={`text-sm whitespace-pre-line ${surface.text}`}>{paymentNotes[checkout.data.paymentMethod]}</p>
+              <p className={`text-sm whitespace-pre-line break-words ${surface.text}`}>{paymentNotes[checkout.data.paymentMethod]}</p>
             </div>
           )}
           <Link
@@ -173,7 +173,7 @@ export function Checkout({
         </Link>
         <h1 className={`font-black text-3xl tracking-tight mb-10 ${surface.text}`}>გადახდა</h1>
 
-        <div className="grid lg:grid-cols-5 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
           <form
             className="lg:col-span-3 flex flex-col gap-5"
             onSubmit={e => {
@@ -246,7 +246,7 @@ export function Checkout({
                         >
                           {isSelected && <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: tokens.accentColor }} />}
                         </div>
-                        <p className={`font-semibold text-sm flex-1 ${surface.text}`}>{zone.name}</p>
+                        <p className={`font-semibold text-sm flex-1 min-w-0 break-words ${surface.text}`}>{zone.name}</p>
                         <span className={`text-sm font-bold shrink-0 ${surface.text}`}>
                           {qualifiesForFreeShipping ? 'უფასო' : `₾${zone.price.toFixed(2)}`}
                         </span>
@@ -286,7 +286,7 @@ export function Checkout({
                         <p className={`font-semibold text-sm ${surface.text}`}>{opt.label}</p>
                       </button>
                       {isSelected && paymentNotes[opt.id] && (
-                        <p className={`px-4 text-xs whitespace-pre-line ${surface.muted}`}>{paymentNotes[opt.id]}</p>
+                        <p className={`px-4 text-xs whitespace-pre-line break-words ${surface.muted}`}>{paymentNotes[opt.id]}</p>
                       )}
                     </div>
                   )
@@ -307,7 +307,7 @@ export function Checkout({
           </form>
 
           <div className="lg:col-span-2">
-            <div className={`${surface.card} border ${surface.border} ${radius} p-5 sticky top-20`}>
+            <div className={`${surface.card} border ${surface.border} ${radius} p-5 lg:sticky lg:top-20`}>
               <h3 className={`font-bold text-sm mb-4 pb-4 border-b ${surface.border} ${surface.text}`}>შეკვეთის შეჯამება</h3>
               <div className={`flex flex-col divide-y ${surface.border} mb-4`}>
                 {cart.items.map(item => (

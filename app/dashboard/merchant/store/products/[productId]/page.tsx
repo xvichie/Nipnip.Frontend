@@ -8,6 +8,7 @@ import { ProductImagesManager } from '@/components/dashboard/store/ProductImages
 import { ProductVideoManager } from '@/components/dashboard/store/ProductVideoManager'
 import { ProductOptionsManager } from '@/components/dashboard/store/ProductOptionsManager'
 import { ProductVariantsManager } from '@/components/dashboard/store/ProductVariantsManager'
+import { RelatedProductsManager } from '@/components/dashboard/store/RelatedProductsManager'
 import { ExportProductButton } from '@/components/dashboard/store/ExportProductButton'
 import { FloatingFormButton } from '@/components/dashboard/FloatingFormButton'
 
@@ -200,6 +201,7 @@ export default function EditProductPage() {
       <ProductVideoManager productId={productId} videoUrl={product.videoUrl} />
       <ProductOptionsManager productId={productId} options={product.options} />
       <ProductVariantsManager productId={productId} options={product.options} variants={product.variants} />
+      <RelatedProductsManager productId={productId} />
 
     </div>
   )

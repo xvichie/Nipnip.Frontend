@@ -5,6 +5,7 @@ import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { VariantSelector } from '../../VariantSelector'
 import { ImageLightbox } from '../../ImageLightbox'
 import { Breadcrumbs } from '@/components/storefront/shared/Breadcrumbs'
+import { ProductCard } from './ProductCard'
 import type { CategoryResponse, ProductDetailResponse, ThemeConfig } from '@/lib/types/storefront'
 
 export function ProductDetail({
@@ -78,7 +79,7 @@ export function ProductDetail({
         textClassName="text-[#111]"
         mutedClassName="text-[#999] hover:text-[#111]"
       />
-      <div className="grid lg:grid-cols-2 gap-10 xl:gap-16">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16">
 
         <div className="flex gap-3">
           {images.length > 1 && (
@@ -124,11 +125,11 @@ export function ProductDetail({
 
           {salePrice !== null ? (
             <div className="flex items-center gap-3 mb-8">
-              <span className="font-black text-4xl text-[#111]">₾{salePrice.toFixed(2)}</span>
+              <span className="font-black text-3xl sm:text-4xl text-[#111]">₾{salePrice.toFixed(2)}</span>
               <span className="text-[#999] text-xl line-through">₾{price.toFixed(2)}</span>
             </div>
           ) : (
-            <p className="font-black text-4xl text-[#111] mb-8">₾{price.toFixed(2)}</p>
+            <p className="font-black text-3xl sm:text-4xl text-[#111] mb-8">₾{price.toFixed(2)}</p>
           )}
 
           <VariantSelector
@@ -198,6 +199,17 @@ export function ProductDetail({
           )}
         </div>
       </div>
+
+      {product.relatedProducts.length > 0 && (
+        <div className="mt-16 pt-10 border-t border-[#e5e5e5]">
+          <h2 className="font-black text-2xl text-[#111] tracking-tight mb-6">მსგავსი პროდუქტები</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+            {product.relatedProducts.map(related => (
+              <ProductCard key={related.id} slug={slug} product={related} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {lightboxOpen && (
         <ImageLightbox

@@ -56,23 +56,26 @@ export function Header({
         </div>
       </div>
 
-      {/* nameplate row */}
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-center text-center">
-        <Link href={`/`} className="flex items-center gap-3">
+      {/* nameplate row — grid, not absolute positioning, so the icon cluster always
+          reserves its own column and can never overlap a long centered store name */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-20 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+        <div aria-hidden />
+
+        <Link href={`/`} className="flex items-center justify-center gap-3 min-w-0">
           {tokens.logoUrl ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={tokens.logoUrl} alt={storeName} className="h-9 w-auto object-contain" />
+              <img src={tokens.logoUrl} alt={storeName} className="h-9 w-auto object-contain shrink-0" />
               {tokens.showStoreName && (
-                <span className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#111111]">{storeName}</span>
+                <span className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#111111] truncate">{storeName}</span>
               )}
             </>
           ) : (
-            <span className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#111111]">{storeName}</span>
+            <span className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#111111] truncate">{storeName}</span>
           )}
         </Link>
 
-        <div className="absolute right-4 flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center justify-end gap-2 sm:gap-3">
           {!isCheckout && (
             <Link
               href={`/cart`}

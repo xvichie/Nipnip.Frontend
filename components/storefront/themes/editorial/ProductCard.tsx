@@ -48,7 +48,7 @@ export function ProductCard({
         <QuickAddButton
           slug={slug}
           productSlug={product.slug}
-          className="absolute inset-x-0 bottom-0 z-10 w-full py-2.5 flex items-center justify-center gap-1.5 bg-[#111111] text-white text-[11px] uppercase tracking-widest opacity-0 translate-y-full group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 disabled:opacity-60"
+          className="absolute inset-x-0 bottom-0 z-10 w-full py-2.5 flex items-center justify-center gap-1.5 bg-[#111111] text-white text-[11px] uppercase tracking-widest opacity-100 translate-y-0 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:translate-y-full [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 transition-all duration-300 disabled:opacity-60"
         />
       </div>
       <div className="pt-3">
