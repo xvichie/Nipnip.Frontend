@@ -66,7 +66,7 @@ const NAV = [
     ),
   },
   {
-    href: '/admin/demo-login',
+    href: '/demo-login',
     label: 'Demo Login',
     exact: false,
     icon: (
