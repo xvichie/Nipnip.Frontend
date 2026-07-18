@@ -4,7 +4,8 @@ import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
-const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL
+const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? '')
+  .split(',').map(e => e.trim()).filter(Boolean)
 
 export function AdminGuard({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn, user } = useUser()
@@ -13,8 +14,9 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   const isAdmin =
     isLoaded &&
     isSignedIn &&
-    !!ADMIN_EMAIL &&
-    user.primaryEmailAddress?.emailAddress === ADMIN_EMAIL
+    ADMIN_EMAILS.length > 0 &&
+    !!user.primaryEmailAddress?.emailAddress &&
+    ADMIN_EMAILS.includes(user.primaryEmailAddress.emailAddress)
 
   useEffect(() => {
     if (!isLoaded) return

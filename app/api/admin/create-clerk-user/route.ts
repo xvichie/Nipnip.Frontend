@@ -1,7 +1,12 @@
 import { clerkClient } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
+import { requireAdmin } from '@/lib/adminAuth'
 
 export async function POST(req: Request) {
+  if (!(await requireAdmin())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+  }
+
   const { email, password } = await req.json()
 
   if (!email || !password) {
