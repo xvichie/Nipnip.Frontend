@@ -5,21 +5,33 @@ import { useAuth, useUser } from '@clerk/nextjs'
 import { apiFetch } from '@/lib/api'
 import type {
   AddLinkTreeItemRequest,
+  CreateLinkTreeRequest,
+  LinkTreeDetailResponse,
   LinkTreeItemResponse,
-  LinkTreeResponse,
+  LinkTreeSummaryResponse,
+  PublicLinkTreeResponse,
   ReorderLinkTreeItemsRequest,
   UpdateLinkTreeItemRequest,
+  UpdateLinkTreeRequest,
 } from '@/lib/types'
 
-export function useLinkTreeBySlug(slug: string) {
+export function usePublicLinkTreeBySlug(slug: string) {
   return useQuery({
-    queryKey: ['linktree', slug],
-    queryFn: () => apiFetch<LinkTreeResponse>(`/api/creators/${slug}/linktree`, null),
+    queryKey: ['linktree', 'public', 'slug', slug],
+    queryFn: () => apiFetch<PublicLinkTreeResponse>(`/api/linktrees/${slug}`, null),
     enabled: !!slug,
   })
 }
 
-export function useMyLinkTree() {
+export function usePublicLinkTreeByCreatorSlug(creatorSlug: string) {
+  return useQuery({
+    queryKey: ['linktree', 'public', 'creator', creatorSlug],
+    queryFn: () => apiFetch<PublicLinkTreeResponse>(`/api/linktrees/by-creator/${creatorSlug}`, null),
+    enabled: !!creatorSlug,
+  })
+}
+
+export function useMyLinkTrees() {
   const { getToken } = useAuth()
   const { isLoaded, isSignedIn } = useUser()
 
@@ -27,20 +39,33 @@ export function useMyLinkTree() {
     queryKey: ['linktree', 'me'],
     queryFn: async () => {
       const token = await getToken()
-      return apiFetch<LinkTreeResponse>('/api/creators/me/linktree', token)
+      return apiFetch<LinkTreeSummaryResponse[]>('/api/linktrees/me', token)
     },
     enabled: isLoaded && !!isSignedIn,
   })
 }
 
-export function useAddLinkTreeItem() {
+export function useLinkTreeDetail(id: string) {
+  const { getToken } = useAuth()
+
+  return useQuery({
+    queryKey: ['linktree', 'me', id],
+    queryFn: async () => {
+      const token = await getToken()
+      return apiFetch<LinkTreeDetailResponse>(`/api/linktrees/me/${id}`, token)
+    },
+    enabled: !!id,
+  })
+}
+
+export function useCreateLinkTree() {
   const { getToken } = useAuth()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (body: AddLinkTreeItemRequest) => {
+    mutationFn: async (body: CreateLinkTreeRequest) => {
       const token = await getToken()
-      return apiFetch<LinkTreeItemResponse>('/api/creators/me/linktree/items', token, {
+      return apiFetch<LinkTreeSummaryResponse>('/api/linktrees', token, {
         method: 'POST',
         body: JSON.stringify(body),
       })
@@ -51,14 +76,14 @@ export function useAddLinkTreeItem() {
   })
 }
 
-export function useUpdateLinkTreeItem() {
+export function useUpdateLinkTree() {
   const { getToken } = useAuth()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, body }: { id: string; body: UpdateLinkTreeItemRequest }) => {
+    mutationFn: async ({ id, body }: { id: string; body: UpdateLinkTreeRequest }) => {
       const token = await getToken()
-      return apiFetch<LinkTreeItemResponse>(`/api/creators/me/linktree/items/${id}`, token, {
+      return apiFetch<LinkTreeSummaryResponse>(`/api/linktrees/me/${id}`, token, {
         method: 'PUT',
         body: JSON.stringify(body),
       })
@@ -69,16 +94,14 @@ export function useUpdateLinkTreeItem() {
   })
 }
 
-export function useDeleteLinkTreeItem() {
+export function useDeleteLinkTree() {
   const { getToken } = useAuth()
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (id: string) => {
       const token = await getToken()
-      return apiFetch<void>(`/api/creators/me/linktree/items/${id}`, token, {
-        method: 'DELETE',
-      })
+      return apiFetch<void>(`/api/linktrees/me/${id}`, token, { method: 'DELETE' })
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['linktree', 'me'] })
@@ -86,20 +109,88 @@ export function useDeleteLinkTreeItem() {
   })
 }
 
-export function useReorderLinkTree() {
+export function useSetDefaultLinkTree() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const token = await getToken()
+      return apiFetch<void>(`/api/linktrees/me/${id}/set-default`, token, { method: 'PUT' })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['linktree', 'me'] })
+    },
+  })
+}
+
+export function useAddLinkTreeItem() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ treeId, body }: { treeId: string; body: AddLinkTreeItemRequest }) => {
+      const token = await getToken()
+      return apiFetch<LinkTreeItemResponse>(`/api/linktrees/me/${treeId}/items`, token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: (_, { treeId }) => {
+      queryClient.invalidateQueries({ queryKey: ['linktree', 'me', treeId] })
+      queryClient.invalidateQueries({ queryKey: ['linktree', 'me'] })
+    },
+  })
+}
+
+export function useUpdateLinkTreeItem(treeId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ id, body }: { id: string; body: UpdateLinkTreeItemRequest }) => {
+      const token = await getToken()
+      return apiFetch<LinkTreeItemResponse>(`/api/linktrees/me/items/${id}`, token, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['linktree', 'me', treeId] })
+    },
+  })
+}
+
+export function useDeleteLinkTreeItem(treeId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const token = await getToken()
+      return apiFetch<void>(`/api/linktrees/me/items/${id}`, token, { method: 'DELETE' })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['linktree', 'me', treeId] })
+      queryClient.invalidateQueries({ queryKey: ['linktree', 'me'] })
+    },
+  })
+}
+
+export function useReorderLinkTree(treeId: string) {
   const { getToken } = useAuth()
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (body: ReorderLinkTreeItemsRequest) => {
       const token = await getToken()
-      return apiFetch<void>('/api/creators/me/linktree/reorder', token, {
+      return apiFetch<void>(`/api/linktrees/me/${treeId}/reorder`, token, {
         method: 'PUT',
         body: JSON.stringify(body),
       })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['linktree', 'me'] })
+      queryClient.invalidateQueries({ queryKey: ['linktree', 'me', treeId] })
     },
   })
 }
