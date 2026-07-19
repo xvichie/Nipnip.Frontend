@@ -16,6 +16,7 @@ export interface UpdateMerchantRequest {
   logoUrl?: string | null
   commissionPercent?: number | null
   notificationEmail?: string | null
+  isPublic?: boolean | null
 }
 
 export interface MerchantResponse {
@@ -33,7 +34,20 @@ export interface MerchantResponse {
   isActive: boolean
   isHighlighted: boolean
   isTest: boolean
+  isPublic: boolean
+  isApprovedForViewer: boolean
   createdAt: string
+}
+
+export interface ApprovedCreatorResponse {
+  creatorId: string
+  creatorName: string
+  creatorSlug: string
+  creatorAvatarUrl: string | null
+}
+
+export interface AddApprovedCreatorRequest {
+  creatorId: string
 }
 
 export interface TopCreatorEntry {

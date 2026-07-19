@@ -71,6 +71,13 @@ const CODE_ICON = (
     <path d="M5.5 5L2 8l3.5 3M10.5 5L14 8l-3.5 3M9.5 4.5l-3 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 )
+const ACCESS_ICON = (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+    <rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
+    <path d="M5.5 7V4.8a2.5 2.5 0 0 1 5 0V7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+    <circle cx="8" cy="10.3" r="1" fill="currentColor"/>
+  </svg>
+)
 const STORE_ICON = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
     <path d="M2 6l.7-3.5A1 1 0 0 1 3.68 1.7h8.64a1 1 0 0 1 .98.8L14 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -410,6 +417,7 @@ export function DashboardSidebar() {
       { href: '/dashboard/merchant/affiliate/conversions', label: t.sidebar.conversions, exact: false, icon: CONVERSIONS_ICON },
       { href: '/dashboard/merchant/affiliate/report-sale', label: t.sidebar.reportSale, exact: false, icon: PLUS_ICON },
       { href: '/dashboard/merchant/affiliate/integration', label: t.sidebar.integration, exact: false, icon: CODE_ICON },
+      { href: '/dashboard/merchant/affiliate/access', label: t.sidebar.creatorAccess, exact: false, icon: ACCESS_ICON },
     ],
     store: STORE_NAV_ITEMS.map(item => ({
       href: item.href,

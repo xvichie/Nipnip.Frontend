@@ -207,7 +207,7 @@ function TreeManager({
 
   const items = tree?.items ?? []
   const addedMerchantIds = new Set(items.map(i => i.merchantId))
-  const availableMerchants = (merchantsData?.items ?? []).filter(m => !addedMerchantIds.has(m.id))
+  const availableMerchants = (merchantsData?.items ?? []).filter(m => !addedMerchantIds.has(m.id) && m.isApprovedForViewer)
 
   const bioUrl = typeof window === 'undefined' || !tree
     ? ''

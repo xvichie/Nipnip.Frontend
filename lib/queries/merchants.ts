@@ -3,7 +3,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth, useUser } from '@clerk/nextjs'
 import { apiFetch } from '@/lib/api'
-import type { MerchantDashboardResponse, MerchantResponse, MerchantSnippetResponse, PaginatedResult, UpdateMerchantRequest } from '@/lib/types'
+import type {
+  AddApprovedCreatorRequest,
+  ApprovedCreatorResponse,
+  MerchantDashboardResponse,
+  MerchantResponse,
+  MerchantSnippetResponse,
+  PaginatedResult,
+  UpdateMerchantRequest,
+} from '@/lib/types'
 
 export function useMerchantMe() {
   const { getToken } = useAuth()
@@ -91,6 +99,53 @@ export function useMerchantDashboard(from?: string, to?: string) {
         `/api/merchants/me/dashboard${qs ? `?${qs}` : ''}`,
         token
       )
+    },
+  })
+}
+
+export function useApprovedCreators() {
+  const { getToken } = useAuth()
+  const { isLoaded, isSignedIn } = useUser()
+
+  return useQuery({
+    queryKey: ['merchant', 'approved-creators'],
+    queryFn: async () => {
+      const token = await getToken()
+      return apiFetch<ApprovedCreatorResponse[]>('/api/merchants/me/approved-creators', token)
+    },
+    enabled: isLoaded && !!isSignedIn,
+  })
+}
+
+export function useAddApprovedCreator() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (body: AddApprovedCreatorRequest) => {
+      const token = await getToken()
+      return apiFetch<ApprovedCreatorResponse>('/api/merchants/me/approved-creators', token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['merchant', 'approved-creators'] })
+    },
+  })
+}
+
+export function useRemoveApprovedCreator() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (creatorId: string) => {
+      const token = await getToken()
+      return apiFetch<void>(`/api/merchants/me/approved-creators/${creatorId}`, token, { method: 'DELETE' })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['merchant', 'approved-creators'] })
     },
   })
 }

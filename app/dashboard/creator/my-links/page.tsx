@@ -222,6 +222,8 @@ function MerchantCard({
   getLinkLabel: string
   featured?: boolean
 }) {
+  const { t } = useLanguage()
+
   return (
     <div className={`group rounded-2xl border transition-all duration-200 p-5 flex flex-col gap-4 ${
       featured
@@ -237,25 +239,45 @@ function MerchantCard({
             <p className="text-white/30 text-xs truncate">{merchant.websiteUrl.replace(/^https?:\/\//, '')}</p>
           )}
         </div>
-        <span className="shrink-0 text-xs font-black text-violet-400 bg-violet-500/10 border border-violet-500/20 rounded-lg px-2 py-1 tabular-nums">
-          {merchant.commissionPercent}%
-        </span>
+        <div className="shrink-0 flex flex-col items-end gap-1">
+          <span className="text-xs font-black text-violet-400 bg-violet-500/10 border border-violet-500/20 rounded-lg px-2 py-1 tabular-nums">
+            {merchant.commissionPercent}%
+          </span>
+          {!merchant.isPublic && (
+            <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded px-1.5 py-0.5 uppercase tracking-wider">
+              {t.myLinks.privateLabel}
+            </span>
+          )}
+        </div>
       </div>
 
       {merchant.description && (
         <p className="text-white/40 text-xs leading-relaxed line-clamp-2">{merchant.description}</p>
       )}
 
-      <button
-        onClick={onGetLink}
-        className="btn btn-sm w-full mt-auto bg-violet-500/15 border-violet-500/25 text-violet-300 hover:bg-violet-500/25 hover:text-violet-200 rounded-xl normal-case font-semibold gap-2"
-      >
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-          <path d="M5.5 8.5a3.1 3.1 0 0 0 4.4 0l1.75-1.75a3.1 3.1 0 0 0-4.4-4.4l-.875.875" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M8.5 5.5a3.1 3.1 0 0 0-4.4 0L2.35 7.25a3.1 3.1 0 0 0 4.4 4.4l.875-.875" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-        {getLinkLabel}
-      </button>
+      {merchant.isApprovedForViewer ? (
+        <button
+          onClick={onGetLink}
+          className="btn btn-sm w-full mt-auto bg-violet-500/15 border-violet-500/25 text-violet-300 hover:bg-violet-500/25 hover:text-violet-200 rounded-xl normal-case font-semibold gap-2"
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+            <path d="M5.5 8.5a3.1 3.1 0 0 0 4.4 0l1.75-1.75a3.1 3.1 0 0 0-4.4-4.4l-.875.875" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M8.5 5.5a3.1 3.1 0 0 0-4.4 0L2.35 7.25a3.1 3.1 0 0 0 4.4 4.4l.875-.875" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          {getLinkLabel}
+        </button>
+      ) : (
+        <button
+          disabled
+          className="btn btn-sm w-full mt-auto bg-white/4 border-white/8 text-white/30 rounded-xl normal-case font-semibold gap-2 cursor-not-allowed"
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+            <rect x="3" y="6.5" width="8" height="6" rx="1.3" stroke="currentColor" strokeWidth="1.3"/>
+            <path d="M4.8 6.5V4.7a2.2 2.2 0 0 1 4.4 0V6.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+          </svg>
+          {t.myLinks.privateLocked}
+        </button>
+      )}
 
     </div>
   )
