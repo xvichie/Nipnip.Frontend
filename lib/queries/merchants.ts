@@ -5,7 +5,7 @@ import { useAuth, useUser } from '@clerk/nextjs'
 import { apiFetch } from '@/lib/api'
 import type {
   AddApprovedCreatorRequest,
-  ApprovedCreatorResponse,
+  MerchantAccessRequestResponse,
   MerchantDashboardResponse,
   MerchantResponse,
   MerchantSnippetResponse,
@@ -103,15 +103,15 @@ export function useMerchantDashboard(from?: string, to?: string) {
   })
 }
 
-export function useApprovedCreators() {
+export function useAccessRequests() {
   const { getToken } = useAuth()
   const { isLoaded, isSignedIn } = useUser()
 
   return useQuery({
-    queryKey: ['merchant', 'approved-creators'],
+    queryKey: ['merchant', 'access-requests'],
     queryFn: async () => {
       const token = await getToken()
-      return apiFetch<ApprovedCreatorResponse[]>('/api/merchants/me/approved-creators', token)
+      return apiFetch<MerchantAccessRequestResponse[]>('/api/merchants/me/access-requests', token)
     },
     enabled: isLoaded && !!isSignedIn,
   })
@@ -124,28 +124,43 @@ export function useAddApprovedCreator() {
   return useMutation({
     mutationFn: async (body: AddApprovedCreatorRequest) => {
       const token = await getToken()
-      return apiFetch<ApprovedCreatorResponse>('/api/merchants/me/approved-creators', token, {
+      return apiFetch<MerchantAccessRequestResponse>('/api/merchants/me/access-requests', token, {
         method: 'POST',
         body: JSON.stringify(body),
       })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['merchant', 'approved-creators'] })
+      queryClient.invalidateQueries({ queryKey: ['merchant', 'access-requests'] })
     },
   })
 }
 
-export function useRemoveApprovedCreator() {
+export function useApproveAccessRequest() {
   const { getToken } = useAuth()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (creatorId: string) => {
+    mutationFn: async (requestId: string) => {
       const token = await getToken()
-      return apiFetch<void>(`/api/merchants/me/approved-creators/${creatorId}`, token, { method: 'DELETE' })
+      return apiFetch<MerchantAccessRequestResponse>(`/api/merchants/me/access-requests/${requestId}/approve`, token, { method: 'PUT' })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['merchant', 'approved-creators'] })
+      queryClient.invalidateQueries({ queryKey: ['merchant', 'access-requests'] })
+    },
+  })
+}
+
+export function useRejectAccessRequest() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (requestId: string) => {
+      const token = await getToken()
+      return apiFetch<MerchantAccessRequestResponse>(`/api/merchants/me/access-requests/${requestId}/reject`, token, { method: 'PUT' })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['merchant', 'access-requests'] })
     },
   })
 }

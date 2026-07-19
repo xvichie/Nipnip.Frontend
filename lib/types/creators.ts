@@ -1,3 +1,5 @@
+import type { AccessRequestStatus } from './merchants'
+
 export interface RegisterCreatorRequest {
   name: string
   slug: string
@@ -62,4 +64,19 @@ export interface CreatorDashboardResponse {
   topMerchants: TopMerchantEntry[]
   from: string | null
   to: string | null
+}
+
+export interface CreatorAccessRequestResponse {
+  id: string
+  merchantId: string
+  merchantName: string
+  merchantSlug: string
+  merchantLogoUrl: string | null
+  status: AccessRequestStatus
+  createdAt: string
+  respondedAt: string | null
+}
+
+export interface RequestMerchantAccessRequest {
+  merchantId: string
 }

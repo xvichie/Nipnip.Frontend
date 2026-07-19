@@ -5,27 +5,34 @@ import { useLanguage } from '@/lib/i18n'
 import {
   useMerchantMe,
   useUpdateMerchant,
-  useApprovedCreators,
+  useAccessRequests,
   useAddApprovedCreator,
-  useRemoveApprovedCreator,
+  useApproveAccessRequest,
+  useRejectAccessRequest,
 } from '@/lib/queries/merchants'
 import { useCreators } from '@/lib/queries/creators'
+import type { MerchantAccessRequestResponse } from '@/lib/types'
 
 export default function CreatorAccessPage() {
   const { t } = useLanguage()
   const { data: merchant, isLoading: merchantLoading, isError: merchantError } = useMerchantMe()
   const updateMerchant = useUpdateMerchant(merchant?.id ?? '')
-  const { data: approved, isLoading, isError } = useApprovedCreators()
+  const { data: requests, isLoading, isError } = useAccessRequests()
   const { data: creatorsData } = useCreators(1, 100)
 
   const [selectedCreatorId, setSelectedCreatorId] = useState('')
   const [addError, setAddError] = useState('')
 
   const addApproved = useAddApprovedCreator()
-  const removeApproved = useRemoveApprovedCreator()
+  const approveRequest = useApproveAccessRequest()
+  const rejectRequest = useRejectAccessRequest()
 
-  const approvedIds = new Set((approved ?? []).map(a => a.creatorId))
-  const availableCreators = (creatorsData?.items ?? []).filter(c => !approvedIds.has(c.id))
+  const requestedCreatorIds = new Set((requests ?? []).map(r => r.creatorId))
+  const availableCreators = (creatorsData?.items ?? []).filter(c => !requestedCreatorIds.has(c.id))
+
+  const pending = (requests ?? []).filter(r => r.status === 'Pending')
+  const approved = (requests ?? []).filter(r => r.status === 'Approved')
+  const rejected = (requests ?? []).filter(r => r.status === 'Rejected')
 
   function togglePublic() {
     if (!merchant) return
@@ -101,38 +108,101 @@ export default function CreatorAccessPage() {
             {addError && <p className="text-error text-xs">{addError}</p>}
           </div>
 
-          <div className="flex flex-col gap-3">
-            {isLoading ? (
-              <div className="flex flex-col gap-3">
-                {Array.from({ length: 3 }).map((_, i) => <div key={i} className="skeleton h-14 rounded-2xl" />)}
-              </div>
-            ) : isError ? (
-              <div className="alert alert-error rounded-2xl text-sm">{t.creatorAccess.loadError}</div>
-            ) : !approved || approved.length === 0 ? (
-              <div className="rounded-2xl border border-white/7 bg-white/2 py-16 text-center">
-                <p className="text-white/20 text-sm">{t.creatorAccess.empty}</p>
-              </div>
-            ) : (
-              approved.map(c => (
-                <div key={c.creatorId} className="rounded-2xl border border-white/7 bg-white/2 p-4 flex items-center gap-3">
-                  <CreatorAvatar name={c.creatorName} avatarUrl={c.creatorAvatarUrl} />
-                  <div className="min-w-0 flex-1">
-                    <p className="font-bold text-white text-sm truncate">{c.creatorName}</p>
-                    <p className="text-white/30 text-xs truncate">@{c.creatorSlug}</p>
-                  </div>
-                  <button
-                    onClick={() => removeApproved.mutate(c.creatorId)}
-                    className="btn btn-xs bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 shrink-0"
-                  >
-                    {t.creatorAccess.remove}
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
+          {isLoading ? (
+            <div className="flex flex-col gap-3">
+              {Array.from({ length: 3 }).map((_, i) => <div key={i} className="skeleton h-14 rounded-2xl" />)}
+            </div>
+          ) : isError ? (
+            <div className="alert alert-error rounded-2xl text-sm">{t.creatorAccess.loadError}</div>
+          ) : !requests || requests.length === 0 ? (
+            <div className="rounded-2xl border border-white/7 bg-white/2 py-16 text-center">
+              <p className="text-white/20 text-sm">{t.creatorAccess.empty}</p>
+            </div>
+          ) : (
+            <>
+              {pending.length > 0 && (
+                <RequestSection
+                  title={t.creatorAccess.pendingSection}
+                  items={pending}
+                  render={r => (
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => approveRequest.mutate(r.id)}
+                        className="btn btn-xs bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20"
+                      >
+                        {t.creatorAccess.approve}
+                      </button>
+                      <button
+                        onClick={() => rejectRequest.mutate(r.id)}
+                        className="btn btn-xs bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20"
+                      >
+                        {t.creatorAccess.reject}
+                      </button>
+                    </div>
+                  )}
+                />
+              )}
+
+              {approved.length > 0 && (
+                <RequestSection
+                  title={t.creatorAccess.approvedSection}
+                  items={approved}
+                  render={r => (
+                    <button
+                      onClick={() => rejectRequest.mutate(r.id)}
+                      className="btn btn-xs bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 shrink-0"
+                    >
+                      {t.creatorAccess.remove}
+                    </button>
+                  )}
+                />
+              )}
+
+              {rejected.length > 0 && (
+                <RequestSection
+                  title={t.creatorAccess.rejectedSection}
+                  items={rejected}
+                  render={r => (
+                    <button
+                      onClick={() => approveRequest.mutate(r.id)}
+                      className="btn btn-xs bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 shrink-0"
+                    >
+                      {t.creatorAccess.approve}
+                    </button>
+                  )}
+                />
+              )}
+            </>
+          )}
         </>
       )}
 
+    </div>
+  )
+}
+
+function RequestSection({
+  title,
+  items,
+  render,
+}: {
+  title: string
+  items: MerchantAccessRequestResponse[]
+  render: (item: MerchantAccessRequestResponse) => React.ReactNode
+}) {
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-white/40 text-xs uppercase tracking-widest">{title}</p>
+      {items.map(r => (
+        <div key={r.id} className="rounded-2xl border border-white/7 bg-white/2 p-4 flex items-center gap-3">
+          <CreatorAvatar name={r.creatorName} avatarUrl={r.creatorAvatarUrl} />
+          <div className="min-w-0 flex-1">
+            <p className="font-bold text-white text-sm truncate">{r.creatorName}</p>
+            <p className="text-white/30 text-xs truncate">@{r.creatorSlug}</p>
+          </div>
+          {render(r)}
+        </div>
+      ))}
     </div>
   )
 }

@@ -2,9 +2,9 @@
 
 import { useRef, useState } from 'react'
 import { useMerchants, useHighlightedMerchants } from '@/lib/queries/merchants'
-import { useCreatorMe } from '@/lib/queries/creators'
+import { useCreatorMe, useMyAccessRequests, useRequestMerchantAccess } from '@/lib/queries/creators'
 import { useLanguage } from '@/lib/i18n'
-import type { MerchantResponse } from '@/lib/types'
+import type { AccessRequestStatus, MerchantResponse } from '@/lib/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
 const PAGE_SIZE = 12
@@ -19,8 +19,14 @@ export default function MyLinksPage() {
   const { data: creator } = useCreatorMe()
   const { data: highlighted, isLoading: loadingHighlighted } = useHighlightedMerchants()
   const { data, isLoading, isError } = useMerchants(page, PAGE_SIZE)
+  const { data: accessRequests } = useMyAccessRequests()
+  const requestAccess = useRequestMerchantAccess()
 
   const totalPages = data ? Math.ceil(data.totalCount / PAGE_SIZE) : 1
+
+  const statusByMerchantId = new Map<string, AccessRequestStatus>(
+    (accessRequests ?? []).map(r => [r.merchantId, r.status])
+  )
 
   function openModal(merchant: MerchantResponse) {
     setSelected(merchant)
@@ -65,6 +71,9 @@ export default function MyLinksPage() {
                   merchant={merchant}
                   onGetLink={() => openModal(merchant)}
                   getLinkLabel={t.myLinks.getLink}
+                  accessStatus={statusByMerchantId.get(merchant.id) ?? null}
+                  onRequestAccess={() => requestAccess.mutate({ merchantId: merchant.id })}
+                  requestPending={requestAccess.isPending}
                   featured
                 />
               ))}
@@ -101,6 +110,9 @@ export default function MyLinksPage() {
                   merchant={merchant}
                   onGetLink={() => openModal(merchant)}
                   getLinkLabel={t.myLinks.getLink}
+                  accessStatus={statusByMerchantId.get(merchant.id) ?? null}
+                  onRequestAccess={() => requestAccess.mutate({ merchantId: merchant.id })}
+                  requestPending={requestAccess.isPending}
                 />
               ))}
             </div>
@@ -215,11 +227,17 @@ function MerchantCard({
   merchant,
   onGetLink,
   getLinkLabel,
+  accessStatus,
+  onRequestAccess,
+  requestPending,
   featured,
 }: {
   merchant: MerchantResponse
   onGetLink: () => void
   getLinkLabel: string
+  accessStatus: AccessRequestStatus | null
+  onRequestAccess: () => void
+  requestPending: boolean
   featured?: boolean
 }) {
   const { t } = useLanguage()
@@ -266,16 +284,24 @@ function MerchantCard({
           </svg>
           {getLinkLabel}
         </button>
-      ) : (
+      ) : accessStatus === 'Pending' ? (
         <button
           disabled
-          className="btn btn-sm w-full mt-auto bg-white/4 border-white/8 text-white/30 rounded-xl normal-case font-semibold gap-2 cursor-not-allowed"
+          className="btn btn-sm w-full mt-auto bg-amber-500/10 border-amber-500/20 text-amber-400 rounded-xl normal-case font-semibold gap-2 cursor-not-allowed"
+        >
+          {t.myLinks.requestPending}
+        </button>
+      ) : (
+        <button
+          onClick={onRequestAccess}
+          disabled={requestPending}
+          className="btn btn-sm w-full mt-auto bg-white/4 border-white/8 text-white/50 hover:text-white hover:border-violet-500/30 rounded-xl normal-case font-semibold gap-2 disabled:opacity-40"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
             <rect x="3" y="6.5" width="8" height="6" rx="1.3" stroke="currentColor" strokeWidth="1.3"/>
             <path d="M4.8 6.5V4.7a2.2 2.2 0 0 1 4.4 0V6.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
           </svg>
-          {t.myLinks.privateLocked}
+          {accessStatus === 'Rejected' ? t.myLinks.requestAgain : t.myLinks.requestAccess}
         </button>
       )}
 

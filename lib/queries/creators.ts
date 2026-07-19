@@ -3,7 +3,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth, useUser } from '@clerk/nextjs'
 import { apiFetch } from '@/lib/api'
-import type { CreatorDashboardResponse, CreatorResponse, PaginatedResult, UpdateCreatorRequest } from '@/lib/types'
+import type {
+  CreatorAccessRequestResponse,
+  CreatorDashboardResponse,
+  CreatorResponse,
+  PaginatedResult,
+  RequestMerchantAccessRequest,
+  UpdateCreatorRequest,
+} from '@/lib/types'
 
 export function useCreators(page = 1, pageSize = 12) {
   return useQuery({
@@ -73,6 +80,38 @@ export function useCreatorDashboard(from?: string, to?: string) {
         `/api/creators/me/dashboard${qs ? `?${qs}` : ''}`,
         token
       )
+    },
+  })
+}
+
+export function useMyAccessRequests() {
+  const { getToken } = useAuth()
+  const { isLoaded, isSignedIn } = useUser()
+
+  return useQuery({
+    queryKey: ['creator', 'access-requests'],
+    queryFn: async () => {
+      const token = await getToken()
+      return apiFetch<CreatorAccessRequestResponse[]>('/api/creators/me/access-requests', token)
+    },
+    enabled: isLoaded && !!isSignedIn,
+  })
+}
+
+export function useRequestMerchantAccess() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (body: RequestMerchantAccessRequest) => {
+      const token = await getToken()
+      return apiFetch<CreatorAccessRequestResponse>('/api/creators/me/access-requests', token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['creator', 'access-requests'] })
     },
   })
 }

@@ -39,11 +39,17 @@ export interface MerchantResponse {
   createdAt: string
 }
 
-export interface ApprovedCreatorResponse {
+export type AccessRequestStatus = 'Pending' | 'Approved' | 'Rejected'
+
+export interface MerchantAccessRequestResponse {
+  id: string
   creatorId: string
   creatorName: string
   creatorSlug: string
   creatorAvatarUrl: string | null
+  status: AccessRequestStatus
+  createdAt: string
+  respondedAt: string | null
 }
 
 export interface AddApprovedCreatorRequest {
