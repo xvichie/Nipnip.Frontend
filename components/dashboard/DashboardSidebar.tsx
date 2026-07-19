@@ -38,6 +38,15 @@ const LINK_ICON = (
     <path d="M9.5 6.5a3.536 3.536 0 0 0-5 0l-2 2a3.536 3.536 0 0 0 5 5l1-1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 )
+const LINK_TREE_ICON = (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+    <path d="M8 1.5v11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <path d="M8 5.5H4.5a1.5 1.5 0 0 0-1.5 1.5v1M8 9H4.5a1.5 1.5 0 0 0-1.5 1.5v1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="8" cy="14" r="1.5" stroke="currentColor" strokeWidth="1.4"/>
+    <circle cx="3" cy="8.5" r="1.5" stroke="currentColor" strokeWidth="1.4"/>
+    <circle cx="3" cy="12" r="1.5" stroke="currentColor" strokeWidth="1.4"/>
+  </svg>
+)
 const EARNINGS_ICON = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
     <rect x="1" y="4" width="14" height="9" rx="2" stroke="currentColor" strokeWidth="1.5"/>
@@ -383,6 +392,7 @@ export function DashboardSidebar() {
   const CREATOR_NAV: NavItem[] = [
     { href: '/dashboard/creator', label: t.sidebar.dashboard, exact: true, icon: GRID_ICON },
     { href: '/dashboard/creator/my-links', label: t.sidebar.myLinks, exact: false, icon: LINK_ICON },
+    { href: '/dashboard/creator/link-tree', label: t.sidebar.linkTree, exact: false, icon: LINK_TREE_ICON },
     { href: '/dashboard/creator/earnings', label: t.sidebar.earnings, exact: false, icon: EARNINGS_ICON },
     { href: '/dashboard/creator/payouts', label: t.sidebar.payouts, exact: false, icon: PAYOUT_ICON },
     { href: '/dashboard/creator/settings', label: t.sidebar.settings, exact: false, icon: SETTINGS_ICON },
