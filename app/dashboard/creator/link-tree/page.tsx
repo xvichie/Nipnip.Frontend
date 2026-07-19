@@ -81,14 +81,14 @@ export default function LinkTreePage() {
         <p className="text-white/40 text-sm mt-1">{t.linkTree.subtitle}</p>
       </div>
 
-      {treesLoading ? (
-        <div className="skeleton h-10 w-64 rounded-xl" />
-      ) : treesError ? (
+      {treesError ? (
         <div className="alert alert-error rounded-2xl text-sm">{t.linkTree.loadError}</div>
+      ) : treesLoading || !trees ? (
+        <div className="skeleton h-10 w-64 rounded-xl" />
       ) : (
         <>
           <div className="flex flex-wrap items-center gap-2">
-            {trees!.map(tree => (
+            {trees.map(tree => (
               <button
                 key={tree.id}
                 onClick={() => setSelectedTreeId(tree.id)}
