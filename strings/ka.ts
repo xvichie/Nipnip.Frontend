@@ -195,7 +195,6 @@ export const ka = {
     loadError: 'ლინკ ტრის ჩატვირთვა ვერ მოხერხდა.',
     newTree: 'ახალი ლინკ ტრი',
     treeNamePlaceholder: 'სახელი (მაგ. საზაფხულო არჩევანი)',
-    treeSlugPlaceholder: 'url-სლაგი',
     create: 'შექმნა',
     createError: 'ლინკ ტრის შექმნა ვერ მოხერხდა.',
     defaultBadge: 'ძირითადი',

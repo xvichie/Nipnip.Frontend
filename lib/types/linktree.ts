@@ -35,7 +35,6 @@ export interface PublicLinkTreeResponse {
 
 export interface CreateLinkTreeRequest {
   name: string
-  slug: string
 }
 
 export interface UpdateLinkTreeRequest {

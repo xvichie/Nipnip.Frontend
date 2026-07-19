@@ -197,7 +197,6 @@ export const en: Strings = {
     loadError: 'Failed to load your link tree.',
     newTree: 'New link tree',
     treeNamePlaceholder: 'Name (e.g. Summer Picks)',
-    treeSlugPlaceholder: 'url-slug',
     create: 'Create',
     createError: 'Failed to create link tree.',
     defaultBadge: 'Default',

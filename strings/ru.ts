@@ -197,7 +197,6 @@ export const ru: Strings = {
     loadError: 'Не удалось загрузить твоё линк-дерево.',
     newTree: 'Новое линк-дерево',
     treeNamePlaceholder: 'Название (напр. Летняя подборка)',
-    treeSlugPlaceholder: 'url-слаг',
     create: 'Создать',
     createError: 'Не удалось создать линк-дерево.',
     defaultBadge: 'По умолчанию',

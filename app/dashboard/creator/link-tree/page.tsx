@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useLanguage } from '@/lib/i18n'
 import { useCreatorMe } from '@/lib/queries/creators'
 import { useMerchants } from '@/lib/queries/merchants'
@@ -39,10 +39,9 @@ export default function LinkTreePage() {
   const { data: trees, isLoading: treesLoading, isError: treesError } = useMyLinkTrees()
 
   const [selectedTreeId, setSelectedTreeId] = useState<string | null>(null)
-  const [showNewTreeForm, setShowNewTreeForm] = useState(false)
   const [newTreeName, setNewTreeName] = useState('')
-  const [newTreeSlug, setNewTreeSlug] = useState('')
   const [createError, setCreateError] = useState('')
+  const modalRef = useRef<HTMLDialogElement>(null)
 
   const createTree = useCreateLinkTree()
   const deleteTree = useDeleteLinkTree()
@@ -50,19 +49,19 @@ export default function LinkTreePage() {
 
   const activeTreeId = selectedTreeId ?? trees?.find(tr => tr.isDefault)?.id ?? trees?.[0]?.id ?? null
 
-  function handleNameChange(v: string) {
-    setNewTreeName(v)
-    setNewTreeSlug(prev => prev || v.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
+  function openNewTreeModal() {
+    setNewTreeName('')
+    setCreateError('')
+    modalRef.current?.showModal()
   }
 
   async function handleCreateTree() {
     setCreateError('')
     try {
-      const created = await createTree.mutateAsync({ name: newTreeName.trim(), slug: newTreeSlug.trim() })
+      const created = await createTree.mutateAsync({ name: newTreeName.trim() })
       setSelectedTreeId(created.id)
-      setShowNewTreeForm(false)
+      modalRef.current?.close()
       setNewTreeName('')
-      setNewTreeSlug('')
     } catch {
       setCreateError(t.linkTree.createError)
     }
@@ -110,39 +109,55 @@ export default function LinkTreePage() {
               </button>
             ))}
             <button
-              onClick={() => setShowNewTreeForm(v => !v)}
+              onClick={openNewTreeModal}
               className="btn btn-sm gap-1 rounded-xl bg-white/4 border-white/8 text-white/50 hover:text-white normal-case"
             >
               {PLUS_ICON} {t.linkTree.newTree}
             </button>
           </div>
 
-          {showNewTreeForm && (
-            <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex flex-col sm:flex-row gap-2">
-              <input
-                type="text"
-                value={newTreeName}
-                onChange={e => handleNameChange(e.target.value)}
-                placeholder={t.linkTree.treeNamePlaceholder}
-                className="input flex-1 bg-white/4 border-white/8 focus:border-violet-500/60"
-              />
-              <input
-                type="text"
-                value={newTreeSlug}
-                onChange={e => setNewTreeSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                placeholder={t.linkTree.treeSlugPlaceholder}
-                className="input flex-1 bg-white/4 border-white/8 focus:border-violet-500/60 font-mono"
-              />
-              <button
-                onClick={handleCreateTree}
-                disabled={!newTreeName.trim() || !newTreeSlug.trim() || createTree.isPending}
-                className="btn bg-violet-500/20 border-violet-500/30 text-violet-300 hover:bg-violet-500/30 disabled:opacity-40 shrink-0"
-              >
-                {t.linkTree.create}
-              </button>
-              {createError && <p className="text-error text-xs">{createError}</p>}
+          <dialog ref={modalRef} className="modal">
+            <div className="modal-box bg-[#0f0f18] border border-white/8 rounded-2xl max-w-md p-0 overflow-hidden">
+
+              <div className="px-6 pt-6 pb-4 border-b border-white/6 flex items-center justify-between gap-4">
+                <h3 className="font-bold text-white text-base">{t.linkTree.newTree}</h3>
+                <form method="dialog">
+                  <button className="btn btn-ghost btn-sm btn-square text-white/40 hover:text-white shrink-0">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                      <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  </button>
+                </form>
+              </div>
+
+              <div className="px-6 py-5 flex flex-col gap-3">
+                <input
+                  type="text"
+                  autoFocus
+                  value={newTreeName}
+                  onChange={e => setNewTreeName(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && newTreeName.trim()) handleCreateTree() }}
+                  placeholder={t.linkTree.treeNamePlaceholder}
+                  className="input w-full bg-white/4 border-white/8 focus:border-violet-500/60"
+                />
+                {createError && <p className="text-error text-xs">{createError}</p>}
+              </div>
+
+              <div className="px-6 pb-6">
+                <button
+                  onClick={handleCreateTree}
+                  disabled={!newTreeName.trim() || createTree.isPending}
+                  className="btn w-full bg-violet-500/20 border-violet-500/30 text-violet-300 hover:bg-violet-500/30 disabled:opacity-40 rounded-xl normal-case"
+                >
+                  {createTree.isPending ? <span className="loading loading-spinner loading-sm" /> : t.linkTree.create}
+                </button>
+              </div>
+
             </div>
-          )}
+            <form method="dialog" className="modal-backdrop">
+              <button>close</button>
+            </form>
+          </dialog>
 
           {activeTreeId && (
             <TreeManager
