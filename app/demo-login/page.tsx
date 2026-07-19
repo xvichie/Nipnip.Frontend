@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useUser, useClerk } from '@clerk/nextjs'
 import { useSignIn } from '@clerk/nextjs/legacy'
@@ -16,11 +15,17 @@ const ROLES: { role: 'merchant' | 'creator'; label: string; redirect: string }[]
   { role: 'creator', label: 'Demo Creator', redirect: '/dashboard/creator' },
 ]
 
+// Hard navigation, not router.push — a client-side transition can leave useAuth()/getToken() on the
+// destination page still resolved against the old (admin) session, causing 401s on the first
+// authenticated API calls there. A full reload forces Clerk to re-init from the fresh session cookie.
+function hardNavigate(url: string) {
+  window.location.href = url
+}
+
 export default function DemoLoginPage() {
   const { isLoaded: userLoaded, isSignedIn, user } = useUser()
   const { signOut } = useClerk()
   const { signIn, setActive, isLoaded: signInLoaded } = useSignIn()
-  const router = useRouter()
   const { t } = useLanguage()
   const [loadingRole, setLoadingRole] = useState<string | null>(null)
   const [error, setError] = useState('')
@@ -52,7 +57,7 @@ export default function DemoLoginPage() {
       const result = await signIn.create({ strategy: 'ticket', ticket: tokenData.token })
       if (result.status === 'complete' && result.createdSessionId) {
         await setActive({ session: result.createdSessionId })
-        router.push(redirect)
+        hardNavigate(redirect)
       } else {
         throw new Error('Sign-in did not complete')
       }
