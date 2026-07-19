@@ -13,7 +13,7 @@ import { useCreators } from '@/lib/queries/creators'
 
 export default function CreatorAccessPage() {
   const { t } = useLanguage()
-  const { data: merchant } = useMerchantMe()
+  const { data: merchant, isLoading: merchantLoading, isError: merchantError } = useMerchantMe()
   const updateMerchant = useUpdateMerchant(merchant?.id ?? '')
   const { data: approved, isLoading, isError } = useApprovedCreators()
   const { data: creatorsData } = useCreators(1, 100)
@@ -51,23 +51,29 @@ export default function CreatorAccessPage() {
         <p className="text-white/40 text-sm mt-1">{t.creatorAccess.subtitle}</p>
       </div>
 
-      <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex items-center justify-between gap-4">
-        <div>
-          <p className="font-bold text-white text-sm">
-            {merchant?.isPublic ?? true ? t.creatorAccess.publicLabel : t.creatorAccess.privateLabel}
-          </p>
-          <p className="text-white/40 text-xs mt-1">
-            {merchant?.isPublic ?? true ? t.creatorAccess.publicHint : t.creatorAccess.privateHint}
-          </p>
+      {merchantLoading ? (
+        <div className="skeleton h-20 rounded-2xl" />
+      ) : merchantError || !merchant ? (
+        <div className="alert alert-error rounded-2xl text-sm">{t.creatorAccess.loadError}</div>
+      ) : (
+        <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex items-center justify-between gap-4">
+          <div>
+            <p className="font-bold text-white text-sm">
+              {merchant.isPublic ? t.creatorAccess.publicLabel : t.creatorAccess.privateLabel}
+            </p>
+            <p className="text-white/40 text-xs mt-1">
+              {merchant.isPublic ? t.creatorAccess.publicHint : t.creatorAccess.privateHint}
+            </p>
+          </div>
+          <input
+            type="checkbox"
+            className="toggle [--tglbg:theme(colors.white/10%)] border-white/15 checked:border-violet-500 checked:bg-violet-500 checked:[--tglbg:theme(colors.violet.900)]"
+            checked={merchant.isPublic}
+            disabled={updateMerchant.isPending}
+            onChange={togglePublic}
+          />
         </div>
-        <input
-          type="checkbox"
-          className="toggle [--tglbg:theme(colors.white/10%)] border-white/15 checked:border-violet-500 checked:bg-violet-500 checked:[--tglbg:theme(colors.violet.900)]"
-          checked={merchant?.isPublic ?? true}
-          disabled={!merchant || updateMerchant.isPending}
-          onChange={togglePublic}
-        />
-      </div>
+      )}
 
       {merchant && !merchant.isPublic && (
         <>
