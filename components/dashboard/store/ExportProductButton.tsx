@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import { useFacebookProductPreview, useFacebookPublish, useFacebookStatus } from '@/lib/queries/facebook'
 import { useInstagramProductPreview, useInstagramPublish, useInstagramStatus } from '@/lib/queries/instagram'
+import { useTikTokProductPreview, useTikTokPublish, useTikTokStatus } from '@/lib/queries/tiktok'
 import { BetaBadge } from './BetaBadge'
 
-type Platform = 'choose' | 'facebook' | 'instagram'
+type Platform = 'choose' | 'facebook' | 'instagram' | 'tiktok'
 
 export function ExportProductButton({ productId }: { productId: string }) {
   const [open, setOpen] = useState(false)
@@ -15,11 +16,14 @@ export function ExportProductButton({ productId }: { productId: string }) {
   const fbConnected = fbStatus?.connected ?? false
   const { data: igStatus, isLoading: igStatusLoading } = useInstagramStatus()
   const igConnected = igStatus?.connected ?? false
+  const { data: ttStatus, isLoading: ttStatusLoading } = useTikTokStatus()
+  const ttConnected = ttStatus?.connected ?? false
 
   const { data: fbPreview, isLoading: fbPreviewLoading } = useFacebookProductPreview(productId, open && platform === 'facebook')
   const { data: igPreview, isLoading: igPreviewLoading } = useInstagramProductPreview(productId, open && platform === 'instagram')
+  const { data: ttPreview, isLoading: ttPreviewLoading } = useTikTokProductPreview(productId, open && platform === 'tiktok')
   const preview = platform === 'facebook' ? fbPreview : platform === 'instagram' ? igPreview : undefined
-  const previewLoading = platform === 'facebook' ? fbPreviewLoading : platform === 'instagram' ? igPreviewLoading : false
+  const previewLoading = platform === 'facebook' ? fbPreviewLoading : platform === 'instagram' ? igPreviewLoading : platform === 'tiktok' ? ttPreviewLoading : false
 
   // "Adjust state during render" instead of an effect — seeds the editable textarea
   // once from the fetched default message; close() resets both so reopening re-seeds fresh.
@@ -30,11 +34,23 @@ export function ExportProductButton({ productId }: { productId: string }) {
     setMessage(preview.message)
   }
 
+  // TikTok has separate title/description fields (not one message), seeded the same way.
+  const [ttTitle, setTtTitle] = useState('')
+  const [ttDescription, setTtDescription] = useState('')
+  const [seededTt, setSeededTt] = useState(false)
+  if (ttPreview && !seededTt) {
+    setSeededTt(true)
+    setTtTitle(ttPreview.title)
+    setTtDescription(ttPreview.description)
+  }
+
   const { mutate: publishFacebook, isPending: fbPending } = useFacebookPublish()
   const { mutate: publishInstagram, isPending: igPending } = useInstagramPublish()
-  const isPending = platform === 'facebook' ? fbPending : platform === 'instagram' ? igPending : false
+  const { mutate: publishTikTok, isPending: ttPending } = useTikTokPublish()
+  const isPending = platform === 'facebook' ? fbPending : platform === 'instagram' ? igPending : platform === 'tiktok' ? ttPending : false
 
   const [result, setResult] = useState<{ postUrl: string } | null>(null)
+  const [ttResult, setTtResult] = useState<{ privacyLevel: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   function close() {
@@ -43,7 +59,11 @@ export function ExportProductButton({ productId }: { productId: string }) {
     setPlatform('choose')
     setMessage('')
     setSeededMessage(null)
+    setTtTitle('')
+    setTtDescription('')
+    setSeededTt(false)
     setResult(null)
+    setTtResult(null)
     setError(null)
   }
 
@@ -54,9 +74,20 @@ export function ExportProductButton({ productId }: { productId: string }) {
 
     if (platform === 'facebook') publishFacebook({ productId, message: message.trim() }, { onSuccess, onError })
     else if (platform === 'instagram') publishInstagram({ productId, message: message.trim() }, { onSuccess, onError })
+    else if (platform === 'tiktok') {
+      publishTikTok(
+        { productId, title: ttTitle.trim(), description: ttDescription.trim() },
+        {
+          onSuccess: data => setTtResult({ privacyLevel: data.privacyLevel }),
+          onError: () => setError('Failed to post to your TikTok account.'),
+        },
+      )
+    }
   }
 
-  if (fbStatusLoading || igStatusLoading) return null
+  if (fbStatusLoading || igStatusLoading || ttStatusLoading) return null
+
+  const platformLabel = platform === 'facebook' ? 'Facebook' : platform === 'instagram' ? 'Instagram' : platform === 'tiktok' ? 'TikTok' : ''
 
   return (
     <>
@@ -74,7 +105,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
           <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#14141c] flex flex-col overflow-hidden max-h-[90vh]">
             <div className="flex items-center justify-between px-5 pt-5">
               <h3 className="text-sm font-semibold text-white">
-                {platform === 'choose' ? 'Export product' : `Post to ${platform === 'facebook' ? 'Facebook' : 'Instagram'}`}
+                {platform === 'choose' ? 'Export product' : `Post to ${platformLabel}`}
               </h3>
               <button
                 type="button"
@@ -123,6 +154,23 @@ export function ExportProductButton({ productId }: { productId: string }) {
                   <BetaBadge />
                   {!igConnected && <span className="text-white/30 text-xs font-normal ml-auto">Connect first</span>}
                 </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPlatform('tiktok')}
+                  disabled={!ttConnected}
+                  className="btn w-full justify-start gap-3 bg-white/8 border-white/15 text-white/80 hover:bg-white/12 disabled:opacity-40"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <path
+                      d="M11.5 1.5c.28 1.4 1.15 2.4 2.5 2.6v1.9c-.95-.03-1.8-.34-2.5-.86v4.1a3.6 3.6 0 1 1-3.6-3.6c.16 0 .3.01.45.03v1.95a1.7 1.7 0 1 0 1.25 1.64V1.5h1.9Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  TikTok
+                  <BetaBadge />
+                  {!ttConnected && <span className="text-white/30 text-xs font-normal ml-auto">Connect first</span>}
+                </button>
               </div>
             ) : (
               <div className="flex flex-col gap-4 px-5 pt-4 pb-5 overflow-y-auto">
@@ -137,7 +185,82 @@ export function ExportProductButton({ productId }: { productId: string }) {
                   Back
                 </button>
 
-                {result ? (
+                {platform === 'tiktok' ? (
+                  ttResult ? (
+                    <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
+                      Posted to TikTok — visible as: {ttResult.privacyLevel.replaceAll('_', ' ').toLowerCase()}.
+                      {ttResult.privacyLevel !== 'PUBLIC_TO_EVERYONE' && (
+                        <p className="text-emerald-400/70 text-xs mt-1">
+                          Your app isn&apos;t yet audited by TikTok, so early posts are only visible to your own account.
+                        </p>
+                      )}
+                    </div>
+                  ) : ttPreviewLoading || !ttPreview ? (
+                    <div className="flex flex-col gap-3">
+                      <div className="skeleton h-24 rounded-xl" />
+                      <div className="skeleton h-9 rounded-xl" />
+                      <div className="skeleton h-24 rounded-xl" />
+                    </div>
+                  ) : (
+                    <>
+                      {ttPreview.imageUrls.length > 0 ? (
+                        <div className="flex gap-2 overflow-x-auto">
+                          {ttPreview.imageUrls.map((url, i) => (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img key={url + i} src={url} alt="" className="w-20 h-20 shrink-0 object-cover rounded-lg border border-white/10" />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
+                          TikTok photo posts need at least one photo — add one to this product first.
+                        </div>
+                      )}
+
+                      <div className="fieldset gap-2">
+                        <label htmlFor="tt-title" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                          Title
+                        </label>
+                        <input
+                          id="tt-title"
+                          value={ttTitle}
+                          onChange={e => setTtTitle(e.target.value)}
+                          disabled={isPending}
+                          maxLength={90}
+                          className="input w-full bg-white/4 border-white/10 focus:border-white/30"
+                        />
+                      </div>
+
+                      <div className="fieldset gap-2">
+                        <label htmlFor="tt-description" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                          Description
+                        </label>
+                        <textarea
+                          id="tt-description"
+                          value={ttDescription}
+                          onChange={e => setTtDescription(e.target.value)}
+                          rows={5}
+                          disabled={isPending}
+                          className="textarea w-full bg-white/4 border-white/10 focus:border-white/30 resize-none"
+                        />
+                      </div>
+
+                      {error && (
+                        <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
+                          {error}
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={handlePublish}
+                        disabled={isPending || !ttTitle.trim() || ttPreview.imageUrls.length === 0}
+                        className="btn w-full gap-2 text-white disabled:opacity-40 bg-white/15 hover:bg-white/20 border-white/20"
+                      >
+                        {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Post to TikTok'}
+                      </button>
+                    </>
+                  )
+                ) : result ? (
                   <>
                     <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
                       Posted to your {platform === 'facebook' ? 'Facebook Page' : 'Instagram account'}.

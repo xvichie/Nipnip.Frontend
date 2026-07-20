@@ -6,8 +6,10 @@ import { useLanguage } from '@/lib/i18n'
 import type { Strings } from '@/lib/i18n'
 import { uploadImage, cloudinaryConfigured } from '@/lib/uploadImage'
 import { withBackgroundRemoved } from '@/lib/media/cloudinary-transform'
+import Link from 'next/link'
 import { useMerchantMe } from '@/lib/queries/merchants'
 import { PRODUCT_IMPORT_STORAGE_KEY, type ProductImportData } from '@/lib/productImport'
+import { useTikTokPublishImages, useTikTokStatus } from '@/lib/queries/tiktok'
 import { PostLayoutCard } from '@/components/dashboard/media/PostLayoutCard'
 import {
   COLOR_PRESETS,
@@ -107,6 +109,14 @@ export default function SocialPostCreatorPage() {
   const [creatingProduct, setCreatingProduct] = useState(false)
   const [imgDims, setImgDims] = useState<{ width: number; height: number } | null>(null)
 
+  const { data: ttStatus } = useTikTokStatus()
+  const { mutate: publishTiktokImages, isPending: tiktokPosting } = useTikTokPublishImages()
+  const [tiktokLayout, setTiktokLayout] = useState<LayoutKey>('centered')
+  const [tiktokTitle, setTiktokTitle] = useState('')
+  const [tiktokDescription, setTiktokDescription] = useState('')
+  const [tiktokResult, setTiktokResult] = useState<{ privacyLevel: string } | null>(null)
+  const [tiktokError, setTiktokError] = useState('')
+
   useEffect(() => {
     if (!logoUrl) {
       loadedLogoImageRef.current = null
@@ -133,6 +143,10 @@ export default function SocialPostCreatorPage() {
     loadedImageRef.current = null
     setImgDims(null)
     setTransparentUrl('')
+    setTiktokTitle('')
+    setTiktokDescription('')
+    setTiktokResult(null)
+    setTiktokError('')
     setUploading(true)
     try {
       const url = await uploadImage(file)
@@ -222,6 +236,30 @@ export default function SocialPostCreatorPage() {
     } catch {
       setError(t.socialPostCreator.createProductError)
       setCreatingProduct(false)
+    }
+  }
+
+  const isTiktok = selectedPlatformKey === 'tiktok'
+  const tiktokPreviewReady = isTiktok && !!previews[tiktokLayout]
+
+  // Uploads just the selected layout's canvas image to Cloudinary, then publishes it straight
+  // to the merchant's connected TikTok account — unlike Create Product, this isn't tied to a
+  // Product row at all, so it hits the ad-hoc publish-images endpoint instead.
+  async function handlePostToTiktok() {
+    if (!tiktokPreviewReady) return
+    setTiktokError('')
+    try {
+      const file = await dataUrlToFile(previews[tiktokLayout]!, `tiktok-${tiktokLayout}.png`)
+      const uploadedUrl = await uploadImage(file)
+      publishTiktokImages(
+        { imageUrls: [uploadedUrl], title: tiktokTitle.trim(), description: tiktokDescription.trim() },
+        {
+          onSuccess: data => setTiktokResult({ privacyLevel: data.privacyLevel }),
+          onError: () => setTiktokError(t.socialPostCreator.postToTiktokError),
+        },
+      )
+    } catch {
+      setTiktokError(t.socialPostCreator.postToTiktokError)
     }
   }
 
@@ -424,6 +462,103 @@ export default function SocialPostCreatorPage() {
             )}
             {t.socialPostCreator.createProduct}
           </button>
+        </div>
+      )}
+
+      {isTiktok && transparentUrl && !removingBg && (
+        <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+          <div>
+            <p className="font-bold text-white text-sm">{t.socialPostCreator.postToTiktokTitle}</p>
+            <p className="text-white/40 text-xs mt-1">{t.socialPostCreator.postToTiktokSubtitle}</p>
+          </div>
+
+          {!ttStatus?.connected ? (
+            <div className="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-white/50 flex items-center justify-between gap-3">
+              <span>{t.socialPostCreator.postToTiktokNotConnected}</span>
+              <Link
+                href="/dashboard/merchant/store/integrations"
+                className="btn btn-sm h-auto rounded-lg bg-white/8 border-white/15 text-white/80 hover:bg-white/12 normal-case shrink-0"
+              >
+                {t.socialPostCreator.postToTiktokConnectLink}
+              </Link>
+            </div>
+          ) : tiktokResult ? (
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
+              {t.socialPostCreator.postToTiktokSuccessPrefix} {tiktokResult.privacyLevel.replaceAll('_', ' ').toLowerCase()}.
+              {tiktokResult.privacyLevel !== 'PUBLIC_TO_EVERYONE' && (
+                <p className="text-emerald-400/70 text-xs mt-1">{t.socialPostCreator.postToTiktokAuditNote}</p>
+              )}
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-col gap-2">
+                <p className="text-white/40 text-xs uppercase tracking-widest">{t.socialPostCreator.postToTiktokLayoutLabel}</p>
+                <div className="flex gap-2">
+                  {LAYOUT_KEYS.map(layout => {
+                    const previewUrl = previews[layout]
+                    return (
+                      <button
+                        key={layout}
+                        onClick={() => setTiktokLayout(layout)}
+                        disabled={!previewUrl}
+                        className={[
+                          'relative w-16 h-16 rounded-xl overflow-hidden border-2 shrink-0 disabled:opacity-30',
+                          tiktokLayout === layout ? 'border-fuchsia-400' : 'border-white/10 hover:border-white/25',
+                        ].join(' ')}
+                      >
+                        {previewUrl && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={previewUrl} alt="" className="w-full h-full object-cover" />
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="fieldset gap-2">
+                <label htmlFor="tt-post-title" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                  {t.socialPostCreator.postToTiktokTitleLabel}
+                </label>
+                <input
+                  id="tt-post-title"
+                  value={tiktokTitle}
+                  onChange={e => setTiktokTitle(e.target.value)}
+                  maxLength={90}
+                  disabled={tiktokPosting}
+                  className="input w-full bg-white/4 border-white/10 focus:border-white/30"
+                />
+              </div>
+
+              <div className="fieldset gap-2">
+                <label htmlFor="tt-post-description" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                  {t.socialPostCreator.postToTiktokDescLabel}
+                </label>
+                <textarea
+                  id="tt-post-description"
+                  value={tiktokDescription}
+                  onChange={e => setTiktokDescription(e.target.value)}
+                  rows={4}
+                  disabled={tiktokPosting}
+                  className="textarea w-full bg-white/4 border-white/10 focus:border-white/30 resize-none"
+                />
+              </div>
+
+              {tiktokError && (
+                <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
+                  {tiktokError}
+                </div>
+              )}
+
+              <button
+                onClick={handlePostToTiktok}
+                disabled={!tiktokPreviewReady || !tiktokTitle.trim() || tiktokPosting}
+                className="btn h-auto rounded-xl px-6 py-3.5 normal-case font-semibold gap-2 bg-white/15 hover:bg-white/20 border-white/20 text-white disabled:opacity-40 self-start"
+              >
+                {tiktokPosting ? <span className="loading loading-spinner loading-sm" /> : t.socialPostCreator.postToTiktokButton}
+              </button>
+            </>
+          )}
         </div>
       )}
 

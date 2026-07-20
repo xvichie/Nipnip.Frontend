@@ -86,31 +86,45 @@ export function SiteFooter() {
 
         </div>
 
-        <div className="border-t border-white/5 pt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-white/20 text-sm">
-            © {new Date().getFullYear()} NipNip · {t.footer.copyright}
-          </p>
-          <div className="flex items-center gap-6">
-            <a
-              href="mailto:andriakhvichia2005@gmail.com"
-              className="text-white/25 hover:text-white/60 text-sm transition-colors"
-            >
-              andriakhvichia2005@gmail.com
-            </a>
-            <a
-              href="https://tally.ge"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 opacity-30 hover:opacity-70 transition-opacity"
-            >
-              <span className="text-white/60 text-sm">{t.footer.poweredBy}</span>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://www.tally.ge/images/logos/tally-logo-white.png"
-                alt="Tally"
-                className="h-5 w-auto"
-              />
-            </a>
+        <div className="border-t border-white/5 pt-8 flex flex-col gap-6">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <Link href="/privacy" className="text-white/25 hover:text-white/60 text-sm transition-colors">
+              {t.footer.privacy}
+            </Link>
+            <Link href="/terms" className="text-white/25 hover:text-white/60 text-sm transition-colors">
+              {t.footer.terms}
+            </Link>
+            <Link href="/data-deletion" className="text-white/25 hover:text-white/60 text-sm transition-colors">
+              {t.footer.dataDeletion}
+            </Link>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-white/20 text-sm">
+              © {new Date().getFullYear()} NipNip · {t.footer.copyright}
+            </p>
+            <div className="flex items-center gap-6">
+              <a
+                href="mailto:andriakhvichia2005@gmail.com"
+                className="text-white/25 hover:text-white/60 text-sm transition-colors"
+              >
+                andriakhvichia2005@gmail.com
+              </a>
+              <a
+                href="https://tally.ge"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 opacity-30 hover:opacity-70 transition-opacity"
+              >
+                <span className="text-white/60 text-sm">{t.footer.poweredBy}</span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://www.tally.ge/images/logos/tally-logo-white.png"
+                  alt="Tally"
+                  className="h-5 w-auto"
+                />
+              </a>
+            </div>
           </div>
         </div>
 

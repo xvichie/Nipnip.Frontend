@@ -52,6 +52,21 @@ export default function PrivacyPage() {
               </div>
 
               <div>
+                <h2 className="text-white font-bold text-base mb-2">TikTok account data</h2>
+                <p>
+                  If a merchant chooses to connect their TikTok account, we request basic profile access
+                  (<code className="text-violet-300">user.info.basic</code>) to show which account is connected,
+                  and content-publishing access (<code className="text-violet-300">video.publish</code>) so the
+                  merchant can post their own product photos to TikTok as a photo post directly from their store
+                  dashboard. We do not read, import, or otherwise access any of the merchant&apos;s existing TikTok
+                  posts, videos, followers, or analytics — the connection is used only to publish new posts the
+                  merchant explicitly initiates. Access and refresh tokens are stored encrypted and used solely to
+                  serve that merchant&apos;s own publish requests. A merchant can disconnect their TikTok account at
+                  any time from their store dashboard, which immediately deletes the stored tokens.
+                </p>
+              </div>
+
+              <div>
                 <h2 className="text-white font-bold text-base mb-2">How we use information</h2>
                 <p>
                   We use collected information to operate the marketplace: displaying storefronts, processing
@@ -64,8 +79,9 @@ export default function PrivacyPage() {
                 <h2 className="text-white font-bold text-base mb-2">Third-party services</h2>
                 <p>
                   We use Clerk for authentication, Cloudinary for image and video hosting, and — where a merchant
-                  opts in — the Facebook Graph API for the import feature described above. Each provider processes
-                  data only as needed to provide their respective service to NipNip.
+                  opts in — the Facebook Graph API for the import feature and the TikTok API for the publishing
+                  feature described above. Each provider processes data only as needed to provide their respective
+                  service to NipNip.
                 </p>
               </div>
 
@@ -73,7 +89,7 @@ export default function PrivacyPage() {
                 <h2 className="text-white font-bold text-base mb-2">Data deletion</h2>
                 <p>
                   See our <Link href="/data-deletion" className="text-violet-400 hover:text-violet-300">Data Deletion Instructions</Link> page
-                  for how to request deletion of your data, including any connected Facebook Page.
+                  for how to request deletion of your data, including any connected Facebook Page or TikTok account.
                 </p>
               </div>
 
@@ -82,6 +98,14 @@ export default function PrivacyPage() {
                 <p>
                   Questions about this policy or your data can be sent via our{' '}
                   <Link href="/contact" className="text-violet-400 hover:text-violet-300">contact page</Link>.
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-white font-bold text-base mb-2">Terms of Service</h2>
+                <p>
+                  Use of NipNip is also governed by our{' '}
+                  <Link href="/terms" className="text-violet-400 hover:text-violet-300">Terms of Service</Link>.
                 </p>
               </div>
             </div>

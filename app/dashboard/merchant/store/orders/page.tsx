@@ -1,8 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useAddOrderNote, useMyOrders, useMyOrdersMonthly, useUpdateOrderStatus, useUpdatePaymentConfirmed } from '@/lib/queries/storefront-admin'
+import { useQuickShipperStatus, useRefreshQuickShipperOrder } from '@/lib/queries/quickshipper'
 import { MonthlyBarChart } from '@/components/dashboard/MonthlyBarChart'
+import { QuickShipperOrderModal } from '@/components/dashboard/store/QuickShipperOrderModal'
 import type { OrderDetailResponse, OrderStatus } from '@/lib/types/storefront'
 
 const PAGE_SIZE = 20
@@ -48,12 +51,14 @@ function monthLabelFull(year: number, month: number) {
   return new Date(year, month - 1, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
 }
 
-function OrderRow({ order }: { order: OrderDetailResponse }) {
+function OrderRow({ order, quickShipperReady }: { order: OrderDetailResponse; quickShipperReady: boolean }) {
   const [expanded, setExpanded] = useState(false)
   const [noteText, setNoteText] = useState('')
+  const [shippingModalOpen, setShippingModalOpen] = useState(false)
   const { mutate: updateStatus, isPending: statusPending } = useUpdateOrderStatus()
   const { mutate: updatePaymentConfirmed, isPending: paymentPending } = useUpdatePaymentConfirmed()
   const { mutate: addNote, isPending: notePending } = useAddOrderNote()
+  const { mutate: refreshQuickShipper, isPending: refreshingQuickShipper } = useRefreshQuickShipperOrder()
   const { date, time } = formatDateTime(order.createdAt)
   const isBankTransfer = order.paymentMethod === 'BankTransfer'
   const paymentConfirmed = !!order.paymentConfirmedAt
@@ -217,6 +222,56 @@ function OrderRow({ order }: { order: OrderDetailResponse }) {
             </div>
           )}
 
+          {/* QuickShipper delivery */}
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">მიწოდება</p>
+            {order.quickShipperOrderId ? (
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="inline-flex items-center rounded-lg border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-300">
+                  QuickShipper #{order.quickShipperOrderId}{order.quickShipperStatus ? ` · ${order.quickShipperStatus}` : ''}
+                </span>
+                {order.quickShipperTrackingUrl && (
+                  <a
+                    href={order.quickShipperTrackingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-white/50 hover:text-white underline underline-offset-2"
+                  >
+                    თვალყურის დევნება
+                  </a>
+                )}
+                <button
+                  type="button"
+                  disabled={refreshingQuickShipper}
+                  onClick={() => refreshQuickShipper(order.id)}
+                  className="btn btn-xs bg-white/4 border-white/8 text-white/50 hover:text-white disabled:opacity-40"
+                >
+                  {refreshingQuickShipper ? <span className="loading loading-spinner loading-xs" /> : 'განახლება'}
+                </button>
+              </div>
+            ) : quickShipperReady ? (
+              <button
+                type="button"
+                onClick={() => setShippingModalOpen(true)}
+                className="self-start rounded-lg border border-amber-500/30 bg-amber-500/15 px-3 py-1.5 text-xs font-medium text-amber-300 hover:bg-amber-500/25 transition-colors"
+              >
+                QuickShipper-ით გაგზავნა
+              </button>
+            ) : (
+              <p className="text-white/25 text-xs">
+                დააკავშირე QuickShipper და დააყენე ასაღები მისამართი{' '}
+                <Link href="/dashboard/merchant/store/integrations" className="underline underline-offset-2 hover:text-white/50">
+                  ინტეგრაციების გვერდზე
+                </Link>
+                .
+              </p>
+            )}
+          </div>
+
+          {shippingModalOpen && (
+            <QuickShipperOrderModal orderId={order.id} onClose={() => setShippingModalOpen(false)} />
+          )}
+
           {/* Notes */}
           <div className="flex flex-col gap-2">
             <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">კომენტარები</p>
@@ -261,6 +316,8 @@ export default function MerchantStoreOrdersPage() {
   const [page, setPage] = useState(1)
   const [status, setStatus] = useState<OrderStatus | undefined>(undefined)
   const [selectedMonth, setSelectedMonth] = useState<{ year: number; month: number } | null>(null)
+  const { data: quickShipperStatus } = useQuickShipperStatus()
+  const quickShipperReady = !!quickShipperStatus?.isConnected && quickShipperStatus.hasPickupLocation
 
   const { data: monthly, isLoading: monthlyLoading, isError: monthlyError } = useMyOrdersMonthly(status)
   const { data, isLoading, isError } = useMyOrders({
@@ -518,7 +575,7 @@ export default function MerchantStoreOrdersPage() {
             <p className="text-white/20 text-sm">შეკვეთები ჯერ არ არის.</p>
           </div>
         ) : (
-          data.items.map(order => <OrderRow key={order.id} order={order} />)
+          data.items.map(order => <OrderRow key={order.id} order={order} quickShipperReady={quickShipperReady} />)
         )}
       </div>
 

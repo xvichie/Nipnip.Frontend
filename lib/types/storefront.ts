@@ -1,4 +1,4 @@
-export type PaymentMethod = 'CashOnDelivery' | 'BankTransfer'
+export type PaymentMethod = 'CashOnDelivery' | 'BankTransfer' | 'Flitt'
 
 export type OrderStatus = 'Pending' | 'Confirmed' | 'Shipped' | 'Delivered' | 'Cancelled'
 
@@ -84,6 +84,7 @@ export interface ThemeConfig {
   codNotes?: string
   bankTransferEnabled?: boolean
   bankTransferNotes?: string
+  flittEnabled?: boolean
   shippingZones?: ShippingZone[]
   freeShippingThreshold?: number | null
 }
@@ -377,6 +378,7 @@ export interface OrderResponse {
   shippingFee: number
   shippingZoneName: string | null
   createdAt: string
+  redirectUrl: string | null
 }
 
 export interface OrderItemResponse {
@@ -413,6 +415,10 @@ export interface OrderDetailResponse {
   paymentConfirmedAt: string | null
   items: OrderItemResponse[]
   notes: OrderNoteResponse[]
+  quickShipperOrderId: number | null
+  quickShipperStatus: string | null
+  quickShipperTrackingUrl: string | null
+  quickShipperDeliveryFee: number | null
 }
 
 export interface UpdateOrderStatusRequest {
@@ -508,6 +514,37 @@ export interface InstagramProductPreviewResponse {
 
 export interface InstagramPublishResponse {
   postUrl: string
+}
+
+export interface TikTokConnectUrlResponse {
+  url: string
+}
+
+export interface TikTokStatusResponse {
+  connected: boolean
+  displayName: string | null
+}
+
+export interface TikTokProductPreviewResponse {
+  imageUrls: string[]
+  title: string
+  description: string
+}
+
+export interface TikTokPublishRequest {
+  title: string
+  description: string
+}
+
+export interface TikTokPublishImagesRequest {
+  imageUrls: string[]
+  title: string
+  description: string
+}
+
+export interface TikTokPublishResponse {
+  posted: boolean
+  privacyLevel: string
 }
 
 export interface AiAgentSettingsResponse {

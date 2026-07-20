@@ -168,6 +168,7 @@ export default function StoreDesignPage() {
   const [codNotes, setCodNotes] = useState(DEFAULT_THEME_CONFIG.codNotes)
   const [bankTransferEnabled, setBankTransferEnabled] = useState(DEFAULT_THEME_CONFIG.bankTransferEnabled)
   const [bankTransferNotes, setBankTransferNotes] = useState(DEFAULT_THEME_CONFIG.bankTransferNotes)
+  const [flittEnabled, setFlittEnabled] = useState(DEFAULT_THEME_CONFIG.flittEnabled)
   const [shippingZones, setShippingZones] = useState(DEFAULT_THEME_CONFIG.shippingZones)
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(DEFAULT_THEME_CONFIG.freeShippingThreshold)
   const [logoUploading, setLogoUploading] = useState(false)
@@ -230,6 +231,7 @@ export default function StoreDesignPage() {
     setCodNotes(parsed.codNotes)
     setBankTransferEnabled(parsed.bankTransferEnabled)
     setBankTransferNotes(parsed.bankTransferNotes)
+    setFlittEnabled(parsed.flittEnabled)
     setShippingZones(parsed.shippingZones)
     setFreeShippingThreshold(parsed.freeShippingThreshold)
   }
@@ -351,6 +353,7 @@ export default function StoreDesignPage() {
           codNotes,
           bankTransferEnabled,
           bankTransferNotes,
+          flittEnabled,
           shippingZones,
           freeShippingThreshold,
         }),
@@ -417,6 +420,7 @@ export default function StoreDesignPage() {
     codNotes,
     bankTransferEnabled,
     bankTransferNotes,
+    flittEnabled,
     shippingZones,
     freeShippingThreshold,
   }

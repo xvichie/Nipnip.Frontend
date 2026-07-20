@@ -29,10 +29,21 @@ export default function DataDeletionPage() {
               </div>
 
               <div>
+                <h2 className="text-white font-bold text-base mb-2">Disconnecting your TikTok account</h2>
+                <p>
+                  If you connected a TikTok account to NipNip to publish product photos, you can remove that
+                  connection at any time from your store dashboard under <span className="text-white/80">Integrations
+                  → TikTok</span>. Disconnecting immediately and permanently deletes the stored access and refresh
+                  tokens from our database — nothing is retained after disconnection, and no further requests are
+                  made to TikTok on your behalf.
+                </p>
+              </div>
+
+              <div>
                 <h2 className="text-white font-bold text-base mb-2">Requesting full account deletion</h2>
                 <p>
-                  To delete your NipNip account and associated data (including any Facebook connection, store, or
-                  product data), contact us via our <Link href="/contact" className="text-violet-400 hover:text-violet-300">contact page</Link> with
+                  To delete your NipNip account and associated data (including any Facebook or TikTok connection,
+                  store, or product data), contact us via our <Link href="/contact" className="text-violet-400 hover:text-violet-300">contact page</Link> with
                   your account email and a request to delete your data. We will confirm and process deletion
                   requests within a reasonable time, except where we&apos;re required to retain certain records
                   (e.g. completed order/transaction history) for legal or accounting purposes.
@@ -44,6 +55,7 @@ export default function DataDeletionPage() {
                 <ul className="list-disc list-inside flex flex-col gap-1.5">
                   <li>Your account and profile information.</li>
                   <li>Any connected Facebook Page access token (deleted immediately on disconnect, or as part of account deletion).</li>
+                  <li>Any connected TikTok access/refresh tokens (deleted immediately on disconnect, or as part of account deletion).</li>
                   <li>Store and product data you created, where applicable.</li>
                 </ul>
               </div>

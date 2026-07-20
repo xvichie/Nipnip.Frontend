@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useCheckout } from '@/lib/queries/storefront'
 import { getStoreRef } from '@/lib/store/referral'
@@ -30,6 +30,17 @@ const PAYMENT_OPTIONS: { id: PaymentMethod; label: string; icon: React.ReactNode
         <path d="M4.5 9.5v9M9 9.5v9M15 9.5v9M19.5 9.5v9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
         <path d="M2.5 21h19" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
         <path d="M2.5 9.5h19" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'Flitt',
+    label: 'ბარათით გადახდა',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <rect x="2.5" y="5" width="19" height="14" rx="2" stroke="currentColor" strokeWidth="1.6"/>
+        <path d="M2.5 9.5h19" stroke="currentColor" strokeWidth="1.6"/>
+        <path d="M6 14.5h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
       </svg>
     ),
   },
@@ -75,13 +86,18 @@ export function Checkout({
   const [address, setAddress] = useState('')
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
 
-  const paymentNotes: Record<PaymentMethod, string> = {
+  // Flitt has no buyer-facing notes — it's an automatic hosted-checkout redirect, unlike
+  // COD/bank transfer which need manual instructions (courier cash, IBAN, etc).
+  const paymentNotes: Partial<Record<PaymentMethod, string>> = {
     CashOnDelivery: tokens.codNotes,
     BankTransfer: tokens.bankTransferNotes,
   }
-  const enabledPaymentOptions = PAYMENT_OPTIONS.filter(opt =>
-    opt.id === 'CashOnDelivery' ? tokens.codEnabled : tokens.bankTransferEnabled
-  )
+  const paymentEnabled: Record<PaymentMethod, boolean> = {
+    CashOnDelivery: tokens.codEnabled,
+    BankTransfer: tokens.bankTransferEnabled,
+    Flitt: tokens.flittEnabled,
+  }
+  const enabledPaymentOptions = PAYMENT_OPTIONS.filter(opt => paymentEnabled[opt.id])
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
     () => enabledPaymentOptions[0]?.id ?? 'CashOnDelivery'
@@ -102,6 +118,22 @@ export function Checkout({
 
   const inputClass = `w-full border ${surface.border} ${surface.inputBg} ${surface.text} ${radius} px-4 py-3 text-sm placeholder:opacity-40 focus:outline-none transition-colors`
   const labelClass = `block text-xs font-semibold uppercase tracking-wider mb-1.5 ${surface.muted}`
+
+  const redirectUrl = checkout.isSuccess ? checkout.data.redirectUrl : null
+
+  // Flitt orders aren't placed yet — the customer still has to pay on Flitt's hosted page,
+  // so this navigates away instead of showing the normal "order complete" screen below.
+  useEffect(() => {
+    if (redirectUrl) window.location.href = redirectUrl
+  }, [redirectUrl])
+
+  if (redirectUrl) {
+    return (
+      <div className={`${surface.page} min-h-screen flex items-center justify-center`}>
+        <p className={`text-sm ${surface.muted}`}>გადამისამართება უსაფრთხო გადახდის გვერდზე...</p>
+      </div>
+    )
+  }
 
   if (checkout.isSuccess) {
     return (
