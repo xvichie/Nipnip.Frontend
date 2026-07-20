@@ -233,8 +233,13 @@ export const en: Strings = {
   },
   postCreator: {
     subtitle: 'Turn your products into ready-to-share social media posts.',
-    comingSoonTitle: 'Coming soon',
-    comingSoonBody: 'Pick a product and generate a caption and images for Instagram or Facebook — right from here.',
+    bgRemoveTitle: 'Background remover',
+    bgRemoveHint: 'Upload a product photo to get a clean, transparent-background version — great for social posts.',
+    uploadPrompt: 'Click to upload a photo',
+    uploadError: 'Upload failed. Try again.',
+    original: 'Original',
+    bgRemoved: 'Background removed',
+    download: 'Download',
   },
   earnings: {
     title: 'Earnings',

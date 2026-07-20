@@ -233,8 +233,13 @@ export const ru: Strings = {
   },
   postCreator: {
     subtitle: 'Превращай свои товары в готовые посты для соцсетей.',
-    comingSoonTitle: 'Скоро',
-    comingSoonBody: 'Выбери товар и создай подпись и изображения для Instagram или Facebook — прямо здесь.',
+    bgRemoveTitle: 'Удаление фона',
+    bgRemoveHint: 'Загрузи фото товара и получи чистую версию с прозрачным фоном — отлично подходит для постов.',
+    uploadPrompt: 'Нажми, чтобы загрузить фото',
+    uploadError: 'Не удалось загрузить. Попробуй снова.',
+    original: 'Оригинал',
+    bgRemoved: 'Без фона',
+    download: 'Скачать',
   },
   earnings: {
     title: 'Доходы',
