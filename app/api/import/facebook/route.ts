@@ -225,7 +225,6 @@ async function extractProductInfo(captionText: string, categoryNames: string[]):
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 1024,
     output_config: {
-      effort: 'medium',
       format: { type: 'json_schema', schema: buildExtractionSchema(categoryNames) },
     },
     system: buildSystemPrompt(categoryNames),
@@ -258,6 +257,7 @@ export async function POST(req: NextRequest) {
   try {
     extracted = await extractProductInfo(captionText, categories.map(c => c.name))
   } catch (err) {
+    console.error('Facebook/Instagram import extraction failed:', err)
     if (err instanceof Anthropic.APIError) {
       return NextResponse.json({ error: 'AI parsing failed. Try again in a moment.' }, { status: 502 })
     }
