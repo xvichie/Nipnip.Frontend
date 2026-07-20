@@ -3,17 +3,7 @@
 import { useRef, useState } from 'react'
 import { useLanguage } from '@/lib/i18n'
 import { uploadImage, cloudinaryConfigured } from '@/lib/uploadImage'
-
-// Cloudinary transformations are just URL segments — no separate processing call needed;
-// the transformed image is generated (and cached) on first request.
-function withTransformation(url: string, transformation: string): string {
-  return url.replace('/upload/', `/upload/${transformation}/`)
-}
-
-// e_background_removal caps input at 25 megapixels — a modern phone photo can easily exceed
-// that (e.g. a 40MP shot 400 errors outright). c_limit,w_4000,h_4000 downscales to fit within
-// 4000x4000 (16MP) first, only if larger — chained as its own step before the effect runs.
-const BG_REMOVE_TRANSFORM = 'c_limit,w_4000,h_4000/e_background_removal,f_png'
+import { BG_REMOVE_TRANSFORM, withTransformation } from '@/lib/media/cloudinary-transform'
 
 // Classic checkerboard pattern to show transparency in the background-removed preview.
 const CHECKERBOARD_STYLE: React.CSSProperties = {
