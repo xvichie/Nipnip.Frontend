@@ -4,6 +4,12 @@ import { NextRequest, NextResponse } from 'next/server'
 // ownership of with TikTok — our product images live on Cloudinary's shared domain, which we
 // don't own, so this re-serves one of our OWN Cloudinary images from our own domain instead.
 // Restricted to our own cloud name only, so this can't be abused as an open image proxy.
+//
+// The [filename] segment is never read — its only purpose is to give the URL TikTok actually
+// fetches a real-looking file extension (e.g. /tiktok-proxy/photo.jpg), since a bare
+// /tiktok-proxy?src=... URL has no extension of its own even though the real image behind it
+// does, and TikTok's format check appears to key off the fetched URL rather than only the
+// Content-Type header or the file's actual bytes.
 
 const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
 
