@@ -37,6 +37,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
   // TikTok has separate title/description fields (not one message), seeded the same way.
   const [ttTitle, setTtTitle] = useState('')
   const [ttDescription, setTtDescription] = useState('')
+  const [ttAutoMusic, setTtAutoMusic] = useState(false)
   const [seededTt, setSeededTt] = useState(false)
   if (ttPreview && !seededTt) {
     setSeededTt(true)
@@ -61,6 +62,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
     setSeededMessage(null)
     setTtTitle('')
     setTtDescription('')
+    setTtAutoMusic(false)
     setSeededTt(false)
     setResult(null)
     setTtResult(null)
@@ -76,7 +78,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
     else if (platform === 'instagram') publishInstagram({ productId, message: message.trim() }, { onSuccess, onError })
     else if (platform === 'tiktok') {
       publishTikTok(
-        { productId, title: ttTitle.trim(), description: ttDescription.trim() },
+        { productId, title: ttTitle.trim(), description: ttDescription.trim(), autoAddMusic: ttAutoMusic },
         {
           onSuccess: data => setTtResult({ privacyLevel: data.privacyLevel }),
           onError: () => setError('Failed to post to your TikTok account.'),
@@ -243,6 +245,17 @@ export function ExportProductButton({ productId }: { productId: string }) {
                           className="textarea w-full bg-white/4 border-white/10 focus:border-white/30 resize-none"
                         />
                       </div>
+
+                      <label className="flex items-center gap-2 text-xs text-white/50">
+                        <input
+                          type="checkbox"
+                          checked={ttAutoMusic}
+                          onChange={e => setTtAutoMusic(e.target.checked)}
+                          disabled={isPending}
+                          className="checkbox checkbox-xs checkbox-secondary"
+                        />
+                        Let TikTok add recommended music
+                      </label>
 
                       {error && (
                         <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">

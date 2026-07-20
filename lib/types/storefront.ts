@@ -534,12 +534,14 @@ export interface TikTokProductPreviewResponse {
 export interface TikTokPublishRequest {
   title: string
   description: string
+  autoAddMusic?: boolean
 }
 
 export interface TikTokPublishImagesRequest {
   imageUrls: string[]
   title: string
   description: string
+  autoAddMusic?: boolean
 }
 
 export interface TikTokPublishResponse {

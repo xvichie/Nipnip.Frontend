@@ -111,9 +111,12 @@ export default function SocialPostCreatorPage() {
 
   const { data: ttStatus } = useTikTokStatus()
   const { mutate: publishTiktokImages, isPending: tiktokPosting } = useTikTokPublishImages()
-  const [tiktokLayout, setTiktokLayout] = useState<LayoutKey>('centered')
+  // Order matters — this is the exact order images appear in the TikTok photo carousel, with
+  // the first entry doubling as the cover. Clicking a layout appends/removes it from the end.
+  const [tiktokSelectedLayouts, setTiktokSelectedLayouts] = useState<LayoutKey[]>(['centered'])
   const [tiktokTitle, setTiktokTitle] = useState('')
   const [tiktokDescription, setTiktokDescription] = useState('')
+  const [tiktokAutoMusic, setTiktokAutoMusic] = useState(false)
   const [tiktokResult, setTiktokResult] = useState<{ privacyLevel: string } | null>(null)
   const [tiktokError, setTiktokError] = useState('')
 
@@ -145,6 +148,8 @@ export default function SocialPostCreatorPage() {
     setTransparentUrl('')
     setTiktokTitle('')
     setTiktokDescription('')
+    setTiktokAutoMusic(false)
+    setTiktokSelectedLayouts(['centered'])
     setTiktokResult(null)
     setTiktokError('')
     setUploading(true)
@@ -240,19 +245,29 @@ export default function SocialPostCreatorPage() {
   }
 
   const isTiktok = selectedPlatformKey === 'tiktok'
-  const tiktokPreviewReady = isTiktok && !!previews[tiktokLayout]
+  const tiktokPreviewReady = isTiktok && tiktokSelectedLayouts.length > 0 && tiktokSelectedLayouts.every(layout => previews[layout])
 
-  // Uploads just the selected layout's canvas image to Cloudinary, then publishes it straight
-  // to the merchant's connected TikTok account — unlike Create Product, this isn't tied to a
-  // Product row at all, so it hits the ad-hoc publish-images endpoint instead.
+  function toggleTiktokLayout(layout: LayoutKey) {
+    setTiktokSelectedLayouts(prev =>
+      prev.includes(layout) ? prev.filter(l => l !== layout) : [...prev, layout],
+    )
+  }
+
+  // Uploads each selected layout's canvas image to Cloudinary (in the order they were picked)
+  // and publishes them together as one TikTok photo carousel — unlike Create Product, this
+  // isn't tied to a Product row at all, so it hits the ad-hoc publish-images endpoint instead.
   async function handlePostToTiktok() {
     if (!tiktokPreviewReady) return
     setTiktokError('')
     try {
-      const file = await dataUrlToFile(previews[tiktokLayout]!, `tiktok-${tiktokLayout}.png`)
-      const uploadedUrl = await uploadImage(file)
+      const uploadedUrls = await Promise.all(
+        tiktokSelectedLayouts.map(async layout => {
+          const file = await dataUrlToFile(previews[layout]!, `tiktok-${layout}.png`)
+          return uploadImage(file)
+        }),
+      )
       publishTiktokImages(
-        { imageUrls: [uploadedUrl], title: tiktokTitle.trim(), description: tiktokDescription.trim() },
+        { imageUrls: uploadedUrls, title: tiktokTitle.trim(), description: tiktokDescription.trim(), autoAddMusic: tiktokAutoMusic },
         {
           onSuccess: data => setTiktokResult({ privacyLevel: data.privacyLevel }),
           onError: () => setTiktokError(t.socialPostCreator.postToTiktokError),
@@ -493,22 +508,30 @@ export default function SocialPostCreatorPage() {
             <>
               <div className="flex flex-col gap-2">
                 <p className="text-white/40 text-xs uppercase tracking-widest">{t.socialPostCreator.postToTiktokLayoutLabel}</p>
+                <p className="text-white/25 text-[11px] -mt-1">{t.socialPostCreator.postToTiktokLayoutHint}</p>
                 <div className="flex gap-2">
                   {LAYOUT_KEYS.map(layout => {
                     const previewUrl = previews[layout]
+                    const orderIndex = tiktokSelectedLayouts.indexOf(layout)
+                    const selected = orderIndex !== -1
                     return (
                       <button
                         key={layout}
-                        onClick={() => setTiktokLayout(layout)}
+                        onClick={() => toggleTiktokLayout(layout)}
                         disabled={!previewUrl}
                         className={[
                           'relative w-16 h-16 rounded-xl overflow-hidden border-2 shrink-0 disabled:opacity-30',
-                          tiktokLayout === layout ? 'border-fuchsia-400' : 'border-white/10 hover:border-white/25',
+                          selected ? 'border-fuchsia-400' : 'border-white/10 hover:border-white/25',
                         ].join(' ')}
                       >
                         {previewUrl && (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={previewUrl} alt="" className="w-full h-full object-cover" />
+                        )}
+                        {selected && (
+                          <span className="absolute top-1 left-1 w-5 h-5 rounded-full bg-fuchsia-500 text-white text-[11px] font-bold flex items-center justify-center shadow">
+                            {orderIndex + 1}
+                          </span>
                         )}
                       </button>
                     )
@@ -543,6 +566,18 @@ export default function SocialPostCreatorPage() {
                   className="textarea w-full bg-white/4 border-white/10 focus:border-white/30 resize-none"
                 />
               </div>
+
+              <label className="flex items-center gap-2 text-xs text-white/50">
+                <input
+                  type="checkbox"
+                  checked={tiktokAutoMusic}
+                  onChange={e => setTiktokAutoMusic(e.target.checked)}
+                  disabled={tiktokPosting}
+                  className="checkbox checkbox-xs checkbox-secondary"
+                />
+                {t.socialPostCreator.postToTiktokAutoMusic}
+              </label>
+              <p className="text-white/25 text-[11px] -mt-3">{t.socialPostCreator.postToTiktokAutoMusicHint}</p>
 
               {tiktokError && (
                 <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
