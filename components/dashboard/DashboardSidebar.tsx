@@ -10,6 +10,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { NipNipLogo } from '@/components/NipNipLogo'
 import { STORE_NAV_ITEMS } from '@/lib/dashboard/store-nav'
 import { AI_AGENT_NAV_ITEMS } from '@/lib/dashboard/ai-agent-nav'
+import { MEDIA_TOOL_NAV_ITEMS } from '@/lib/dashboard/media-tools-nav'
 import { SIDEBAR_COLLAPSED_EVENT, SIDEBAR_COLLAPSED_KEY } from '@/lib/dashboard/sidebar-state'
 
 const GRID_ICON = (
@@ -173,6 +174,13 @@ const CHAT_AGENT_ICON = (
     <circle cx="8" cy="11" r="0.9" fill="currentColor"/>
   </svg>
 )
+const MEDIA_ICON = (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+    <rect x="1.5" y="3.5" width="13" height="9.5" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
+    <circle cx="5.2" cy="7" r="1.4" stroke="currentColor" strokeWidth="1.3"/>
+    <path d="M1.5 11.5l3.3-3 2.7 2.3 2.3-2 3.2 2.7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)
 
 // Classic "panel" sidebar-toggle glyph (Notion/Linear/VS Code style) — the shaded
 // segment mirrors sides between states, so the icon itself communicates the action.
@@ -240,7 +248,7 @@ type NavLink = { href: string; label: string; exact: boolean; icon: React.ReactN
 type NavDivider = { divider: true }
 type NavItem = NavLink | NavDivider
 
-type MerchantSection = 'affiliate' | 'store' | 'ai-agents'
+type MerchantSection = 'affiliate' | 'store' | 'ai-agents' | 'media'
 
 // Portal-rendered instead of a plain absolutely-positioned popover — the sidebar's
 // drawer wrapper clips overflow-x unconditionally (see the dropdown-direction attempt
@@ -431,19 +439,28 @@ export function DashboardSidebar() {
       exact: item.exact,
       icon: CHAT_AGENT_ICON,
     })),
+    media: MEDIA_TOOL_NAV_ITEMS.map(item => ({
+      href: item.href,
+      label: t.sidebar[item.labelKey],
+      exact: item.exact,
+      icon: MEDIA_ICON,
+    })),
   }
 
   const SECTION_META: Record<MerchantSection, { label: string; icon: React.ReactNode }> = {
     affiliate: { label: t.sidebar.affiliateGroup, icon: CONVERSIONS_ICON },
     store: { label: t.sidebar.onlineStoreGroup, icon: STORE_ICON },
     'ai-agents': { label: t.sidebar.aiAgentsGroup, icon: CHAT_AGENT_ICON },
+    media: { label: t.sidebar.mediaToolsGroup, icon: MEDIA_ICON },
   }
 
   const activeSection: MerchantSection = pathname.startsWith('/dashboard/merchant/ai-agents')
     ? 'ai-agents'
     : pathname.startsWith('/dashboard/merchant/store')
       ? 'store'
-      : 'affiliate'
+      : pathname.startsWith('/dashboard/merchant/media')
+        ? 'media'
+        : 'affiliate'
 
   function handleSectionChange(next: MerchantSection) {
     router.push(
@@ -451,7 +468,9 @@ export function DashboardSidebar() {
         ? '/dashboard/merchant/store'
         : next === 'ai-agents'
           ? AI_AGENT_NAV_ITEMS[0].href
-          : '/dashboard/merchant/affiliate'
+          : next === 'media'
+            ? MEDIA_TOOL_NAV_ITEMS[0].href
+            : '/dashboard/merchant/affiliate'
     )
   }
 

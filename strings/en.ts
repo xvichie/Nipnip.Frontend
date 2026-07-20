@@ -104,6 +104,8 @@ export const en: Strings = {
     onlineStoreGroup: 'Online Store',
     aiAgentsGroup: 'AI Agents',
     messagingAgent: 'Messaging Agent',
+    mediaToolsGroup: 'Media Tools',
+    postCreator: 'Post Creator',
     storeOverview: 'Details',
     storeOrders: 'Orders',
     storeCategories: 'Categories',
@@ -228,6 +230,11 @@ export const en: Strings = {
     rejectedSection: 'Rejected',
     approve: 'Approve',
     reject: 'Reject',
+  },
+  postCreator: {
+    subtitle: 'Turn your products into ready-to-share social media posts.',
+    comingSoonTitle: 'Coming soon',
+    comingSoonBody: 'Pick a product and generate a caption and images for Instagram or Facebook — right from here.',
   },
   earnings: {
     title: 'Earnings',

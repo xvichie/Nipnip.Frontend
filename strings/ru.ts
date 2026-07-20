@@ -104,6 +104,8 @@ export const ru: Strings = {
     onlineStoreGroup: 'Интернет-магазин',
     aiAgentsGroup: 'AI-агенты',
     messagingAgent: 'Агент сообщений',
+    mediaToolsGroup: 'Медиа-инструменты',
+    postCreator: 'Создание постов',
     storeOverview: 'Детали',
     storeOrders: 'Заказы',
     storeCategories: 'Категории',
@@ -228,6 +230,11 @@ export const ru: Strings = {
     rejectedSection: 'Отклонённые',
     approve: 'Одобрить',
     reject: 'Отклонить',
+  },
+  postCreator: {
+    subtitle: 'Превращай свои товары в готовые посты для соцсетей.',
+    comingSoonTitle: 'Скоро',
+    comingSoonBody: 'Выбери товар и создай подпись и изображения для Instagram или Facebook — прямо здесь.',
   },
   earnings: {
     title: 'Доходы',

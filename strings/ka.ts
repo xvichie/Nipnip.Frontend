@@ -102,6 +102,8 @@ export const ka = {
     onlineStoreGroup: 'ონლაინ მაღაზია',
     aiAgentsGroup: 'AI აგენტები',
     messagingAgent: 'შეტყობინებების აგენტი',
+    mediaToolsGroup: 'მედია ხელსაწყოები',
+    postCreator: 'პოსტის შემქმნელი',
     storeOverview: 'დეტალები',
     storeOrders: 'შეკვეთები',
     storeCategories: 'კატეგორიები',
@@ -226,6 +228,11 @@ export const ka = {
     rejectedSection: 'უარყოფილი',
     approve: 'დამტკიცება',
     reject: 'უარყოფა',
+  },
+  postCreator: {
+    subtitle: 'აქციე შენი პროდუქტები გასაზიარებელ სოციალური მედიის პოსტებად.',
+    comingSoonTitle: 'მალე',
+    comingSoonBody: 'აირჩიე პროდუქტი და შექმენი წარწერა და სურათები Instagram-ისთვის ან Facebook-ისთვის — პირდაპირ აქედან.',
   },
   earnings: {
     title: 'Earnings',
