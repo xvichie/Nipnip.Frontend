@@ -105,7 +105,7 @@ export const en: Strings = {
     aiAgentsGroup: 'AI Agents',
     messagingAgent: 'Messaging Agent',
     mediaToolsGroup: 'Media Tools',
-    postCreator: 'Post Creator',
+    backgroundRemover: 'Background Remover',
     storeOverview: 'Details',
     storeOrders: 'Orders',
     storeCategories: 'Categories',
@@ -231,10 +231,8 @@ export const en: Strings = {
     approve: 'Approve',
     reject: 'Reject',
   },
-  postCreator: {
-    subtitle: 'Turn your products into ready-to-share social media posts.',
-    bgRemoveTitle: 'Background remover',
-    bgRemoveHint: 'Upload a product photo to get a clean, transparent-background version — great for social posts.',
+  backgroundRemover: {
+    subtitle: 'Upload a product photo to get a clean, transparent-background version — great for social posts.',
     uploadPrompt: 'Click to upload a photo',
     uploadError: 'Upload failed. Try again.',
     original: 'Original',

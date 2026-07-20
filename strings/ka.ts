@@ -103,7 +103,7 @@ export const ka = {
     aiAgentsGroup: 'AI აგენტები',
     messagingAgent: 'შეტყობინებების აგენტი',
     mediaToolsGroup: 'მედია ხელსაწყოები',
-    postCreator: 'პოსტის შემქმნელი',
+    backgroundRemover: 'ფონის წამშლელი',
     storeOverview: 'დეტალები',
     storeOrders: 'შეკვეთები',
     storeCategories: 'კატეგორიები',
@@ -229,10 +229,8 @@ export const ka = {
     approve: 'დამტკიცება',
     reject: 'უარყოფა',
   },
-  postCreator: {
-    subtitle: 'აქციე შენი პროდუქტები გასაზიარებელ სოციალური მედიის პოსტებად.',
-    bgRemoveTitle: 'ფონის წამშლელი',
-    bgRemoveHint: 'ატვირთე პროდუქტის ფოტო და მიიღე სუფთა, გამჭვირვალე ფონის ვერსია — შესანიშნავია სოციალური მედიის პოსტებისთვის.',
+  backgroundRemover: {
+    subtitle: 'ატვირთე პროდუქტის ფოტო და მიიღე სუფთა, გამჭვირვალე ფონის ვერსია — შესანიშნავია სოციალური მედიის პოსტებისთვის.',
     uploadPrompt: 'დააკლიკე ფოტოს ასატვირთად',
     uploadError: 'ატვირთვა ვერ მოხერხდა. სცადე თავიდან.',
     original: 'ორიგინალი',

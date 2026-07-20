@@ -23,7 +23,7 @@ const CHECKERBOARD_STYLE: React.CSSProperties = {
   backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0px',
 }
 
-export default function PostCreatorPage() {
+export default function BackgroundRemoverPage() {
   const { t } = useLanguage()
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -46,7 +46,7 @@ export default function PostCreatorPage() {
       // can't represent transparency, so the "background removed" result silently isn't.
       setResultUrl(withTransformation(url, BG_REMOVE_TRANSFORM))
     } catch {
-      setError(t.postCreator.uploadError)
+      setError(t.backgroundRemover.uploadError)
       setOriginalUrl('')
     } finally {
       setUploading(false)
@@ -58,16 +58,11 @@ export default function PostCreatorPage() {
     <div className="flex flex-col gap-8">
 
       <div>
-        <h1 className="text-2xl font-black tracking-tight">{t.sidebar.postCreator}</h1>
-        <p className="text-white/40 text-sm mt-1">{t.postCreator.subtitle}</p>
+        <h1 className="text-2xl font-black tracking-tight">{t.sidebar.backgroundRemover}</h1>
+        <p className="text-white/40 text-sm mt-1">{t.backgroundRemover.subtitle}</p>
       </div>
 
       <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
-        <div>
-          <p className="font-bold text-white text-sm">{t.postCreator.bgRemoveTitle}</p>
-          <p className="text-white/40 text-xs mt-1">{t.postCreator.bgRemoveHint}</p>
-        </div>
-
         {!cloudinaryConfigured ? (
           <p className="text-amber-400/80 text-xs">
             Cloudinary is not configured — add NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET to .env.local
@@ -90,7 +85,7 @@ export default function PostCreatorPage() {
                   <path d="M10 3v10M6 7l4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M3 14v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
-                <span className="text-white/30 text-sm">{t.postCreator.uploadPrompt}</span>
+                <span className="text-white/30 text-sm">{t.backgroundRemover.uploadPrompt}</span>
               </>
             )}
           </label>
@@ -105,21 +100,21 @@ export default function PostCreatorPage() {
         {resultUrl && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
-              <p className="text-white/40 text-xs uppercase tracking-widest">{t.postCreator.original}</p>
+              <p className="text-white/40 text-xs uppercase tracking-widest">{t.backgroundRemover.original}</p>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={originalUrl} alt="" className="w-full rounded-xl object-cover border border-white/8" />
             </div>
             <div className="flex flex-col gap-2">
-              <p className="text-white/40 text-xs uppercase tracking-widest">{t.postCreator.bgRemoved}</p>
+              <p className="text-white/40 text-xs uppercase tracking-widest">{t.backgroundRemover.bgRemoved}</p>
               <div className="rounded-xl overflow-hidden border border-white/8" style={CHECKERBOARD_STYLE}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={resultUrl} alt="" className="w-full object-contain" />
               </div>
               <a
                 href={withTransformation(originalUrl, `${BG_REMOVE_TRANSFORM},fl_attachment`)}
-                className="btn btn-sm bg-fuchsia-500/15 border-fuchsia-500/25 text-fuchsia-300 hover:bg-fuchsia-500/25 rounded-xl normal-case font-semibold self-start"
+                className="btn btn-sm h-auto shrink-0 rounded-xl px-4 bg-fuchsia-500/15 border-fuchsia-500/25 text-fuchsia-300 hover:bg-fuchsia-500/25 normal-case font-semibold self-start"
               >
-                {t.postCreator.download}
+                {t.backgroundRemover.download}
               </a>
             </div>
           </div>

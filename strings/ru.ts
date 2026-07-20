@@ -105,7 +105,7 @@ export const ru: Strings = {
     aiAgentsGroup: 'AI-агенты',
     messagingAgent: 'Агент сообщений',
     mediaToolsGroup: 'Медиа-инструменты',
-    postCreator: 'Создание постов',
+    backgroundRemover: 'Удаление фона',
     storeOverview: 'Детали',
     storeOrders: 'Заказы',
     storeCategories: 'Категории',
@@ -231,10 +231,8 @@ export const ru: Strings = {
     approve: 'Одобрить',
     reject: 'Отклонить',
   },
-  postCreator: {
-    subtitle: 'Превращай свои товары в готовые посты для соцсетей.',
-    bgRemoveTitle: 'Удаление фона',
-    bgRemoveHint: 'Загрузи фото товара и получи чистую версию с прозрачным фоном — отлично подходит для постов.',
+  backgroundRemover: {
+    subtitle: 'Загрузи фото товара и получи чистую версию с прозрачным фоном — отлично подходит для постов.',
     uploadPrompt: 'Нажми, чтобы загрузить фото',
     uploadError: 'Не удалось загрузить. Попробуй снова.',
     original: 'Оригинал',
