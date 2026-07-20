@@ -23,19 +23,27 @@ function isOwnCloudinaryUrl(rawUrl: string): boolean {
   }
 }
 
+// TikTok's Content Posting API only accepts JPEG or WebP for photo posts — PNG (what our
+// Social Post Creator canvas exports, and what merchants often upload) is rejected outright
+// with file_format_check_failed. Cloudinary can transcode on the fly via an f_jpg flag inserted
+// right after /upload/, regardless of the source file's own format or extension.
+function toJpegUrl(rawUrl: string): string {
+  return rawUrl.replace('/upload/', '/upload/f_jpg/')
+}
+
 export async function GET(req: NextRequest) {
   const src = req.nextUrl.searchParams.get('src')
   if (!src || !isOwnCloudinaryUrl(src)) {
     return NextResponse.json({ error: 'Invalid image URL.' }, { status: 400 })
   }
 
-  const upstream = await fetch(src)
+  const upstream = await fetch(toJpegUrl(src))
   if (!upstream.ok || !upstream.body) {
     return NextResponse.json({ error: 'Could not fetch the source image.' }, { status: 502 })
   }
 
   const headers: Record<string, string> = {
-    'Content-Type': upstream.headers.get('content-type') ?? 'image/jpeg',
+    'Content-Type': 'image/jpeg',
     'Cache-Control': 'public, max-age=86400, immutable',
   }
   const contentLength = upstream.headers.get('content-length')
