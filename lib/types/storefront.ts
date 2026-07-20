@@ -532,8 +532,9 @@ export interface TikTokProductPreviewResponse {
 }
 
 export interface TikTokPublishRequest {
-  title: string
-  description: string
+  title?: string
+  description?: string
+  hashtags?: string
   autoAddMusic?: boolean
 }
 

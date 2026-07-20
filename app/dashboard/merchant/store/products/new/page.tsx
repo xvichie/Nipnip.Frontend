@@ -18,6 +18,7 @@ import { ProductOptionsManager } from '@/components/dashboard/store/ProductOptio
 import { ProductVariantsManager } from '@/components/dashboard/store/ProductVariantsManager'
 import { useFacebookPublish, useFacebookStatus } from '@/lib/queries/facebook'
 import { useInstagramPublish, useInstagramStatus } from '@/lib/queries/instagram'
+import { useTikTokPublish, useTikTokStatus } from '@/lib/queries/tiktok'
 import { FloatingFormButton } from '@/components/dashboard/FloatingFormButton'
 import { BetaBadge } from '@/components/dashboard/store/BetaBadge'
 
@@ -71,6 +72,8 @@ export default function NewProductPage() {
   const [saved, setSaved] = useState(false)
   const [shareToFacebook, setShareToFacebook] = useState(false)
   const [shareToInstagram, setShareToInstagram] = useState(false)
+  const [shareToTiktok, setShareToTiktok] = useState(false)
+  const [tiktokHashtags, setTiktokHashtags] = useState('')
 
   const { data: fbStatus } = useFacebookStatus()
   const fbConnected = fbStatus?.connected ?? false
@@ -79,6 +82,10 @@ export default function NewProductPage() {
   const { data: igStatus } = useInstagramStatus()
   const igConnected = igStatus?.connected ?? false
   const { mutate: publishToInstagram } = useInstagramPublish()
+
+  const { data: ttStatus } = useTikTokStatus()
+  const ttConnected = ttStatus?.connected ?? false
+  const { mutate: publishToTiktok } = useTikTokPublish()
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -166,6 +173,9 @@ export default function NewProductPage() {
           }
           if (shareToInstagram && igConnected && stagedImages.length > 0) {
             publishToInstagram({ productId: created.id })
+          }
+          if (shareToTiktok && ttConnected && stagedImages.length > 0) {
+            publishToTiktok({ productId: created.id, hashtags: tiktokHashtags.trim() || undefined })
           }
 
           // Seed the query cache before revealing the live managers below, so both this page
@@ -396,6 +406,54 @@ export default function NewProductPage() {
                   'Automatically posts this product to your connected Instagram account as soon as you create it below.'
                 )}
               </p>
+            </div>
+
+            <div className="flex flex-col gap-2 pt-3 border-t border-white/5">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={shareToTiktok}
+                  onChange={e => setShareToTiktok(e.target.checked)}
+                  disabled={!ttConnected}
+                  className={`toggle toggle-sm ${shareToTiktok ? 'toggle-success' : 'toggle-error'} disabled:opacity-30`}
+                />
+                <span className="text-sm text-white/70 flex items-center gap-2">
+                  Share to TikTok
+                  <BetaBadge />
+                </span>
+              </label>
+              <p className="text-white/30 text-xs leading-relaxed">
+                {!ttConnected ? (
+                  <>
+                    Connect TikTok in{' '}
+                    <Link href="/dashboard/merchant/store/integrations" className="text-fuchsia-400 hover:text-fuchsia-300">
+                      Integrations
+                    </Link>{' '}
+                    to enable this.
+                  </>
+                ) : stagedImages.length === 0 ? (
+                  'Add at least one photo above — TikTok posts require one.'
+                ) : (
+                  'Automatically posts this product to your connected TikTok account as soon as you create it below.'
+                )}
+              </p>
+
+              {shareToTiktok && ttConnected && (
+                <div className="fieldset gap-1.5 mt-1">
+                  <label htmlFor="tiktok-hashtags" className="fieldset-legend text-white/50 text-xs uppercase tracking-wider">
+                    Hashtags
+                  </label>
+                  <input
+                    id="tiktok-hashtags"
+                    type="text"
+                    value={tiktokHashtags}
+                    onChange={e => setTiktokHashtags(e.target.value)}
+                    placeholder="#shoes #newarrival #georgia"
+                    className="input input-sm w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                  />
+                  <p className="text-white/20 text-[11px]">Added to the end of the TikTok post&apos;s description.</p>
+                </div>
+              )}
             </div>
           </div>
         </>
