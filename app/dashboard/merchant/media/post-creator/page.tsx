@@ -10,6 +10,11 @@ function withTransformation(url: string, transformation: string): string {
   return url.replace('/upload/', `/upload/${transformation}/`)
 }
 
+// e_background_removal caps input at 25 megapixels — a modern phone photo can easily exceed
+// that (e.g. a 40MP shot 400 errors outright). c_limit,w_4000,h_4000 downscales to fit within
+// 4000x4000 (16MP) first, only if larger — chained as its own step before the effect runs.
+const BG_REMOVE_TRANSFORM = 'c_limit,w_4000,h_4000/e_background_removal,f_png'
+
 // Classic checkerboard pattern to show transparency in the background-removed preview.
 const CHECKERBOARD_STYLE: React.CSSProperties = {
   backgroundImage:
@@ -39,7 +44,7 @@ export default function PostCreatorPage() {
       setOriginalUrl(url)
       // f_png is required — without it Cloudinary keeps the original (e.g. jpg) format, which
       // can't represent transparency, so the "background removed" result silently isn't.
-      setResultUrl(withTransformation(url, 'e_background_removal,f_png'))
+      setResultUrl(withTransformation(url, BG_REMOVE_TRANSFORM))
     } catch {
       setError(t.postCreator.uploadError)
       setOriginalUrl('')
@@ -111,7 +116,7 @@ export default function PostCreatorPage() {
                 <img src={resultUrl} alt="" className="w-full object-contain" />
               </div>
               <a
-                href={withTransformation(originalUrl, 'e_background_removal,f_png,fl_attachment')}
+                href={withTransformation(originalUrl, `${BG_REMOVE_TRANSFORM},fl_attachment`)}
                 className="btn btn-sm bg-fuchsia-500/15 border-fuchsia-500/25 text-fuchsia-300 hover:bg-fuchsia-500/25 rounded-xl normal-case font-semibold self-start"
               >
                 {t.postCreator.download}
