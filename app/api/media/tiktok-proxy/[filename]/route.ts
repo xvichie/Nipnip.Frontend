@@ -34,11 +34,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Could not fetch the source image.' }, { status: 502 })
   }
 
-  return new NextResponse(upstream.body, {
-    status: 200,
-    headers: {
-      'Content-Type': upstream.headers.get('content-type') ?? 'image/jpeg',
-      'Cache-Control': 'public, max-age=86400, immutable',
-    },
-  })
+  const headers: Record<string, string> = {
+    'Content-Type': upstream.headers.get('content-type') ?? 'image/jpeg',
+    'Cache-Control': 'public, max-age=86400, immutable',
+  }
+  const contentLength = upstream.headers.get('content-length')
+  if (contentLength) headers['Content-Length'] = contentLength
+
+  return new NextResponse(upstream.body, { status: 200, headers })
 }
