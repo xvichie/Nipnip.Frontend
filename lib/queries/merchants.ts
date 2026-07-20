@@ -5,6 +5,7 @@ import { useAuth, useUser } from '@clerk/nextjs'
 import { apiFetch } from '@/lib/api'
 import type {
   AddApprovedCreatorRequest,
+  AiImageUsageResponse,
   MerchantAccessRequestResponse,
   MerchantDashboardResponse,
   MerchantResponse,
@@ -162,5 +163,19 @@ export function useRejectAccessRequest() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['merchant', 'access-requests'] })
     },
+  })
+}
+
+export function useAiImageUsage() {
+  const { getToken } = useAuth()
+  const { isLoaded, isSignedIn } = useUser()
+
+  return useQuery({
+    queryKey: ['merchant', 'ai-image-usage'],
+    queryFn: async () => {
+      const token = await getToken()
+      return apiFetch<AiImageUsageResponse>('/api/merchants/me/ai-image-usage', token)
+    },
+    enabled: isLoaded && !!isSignedIn,
   })
 }

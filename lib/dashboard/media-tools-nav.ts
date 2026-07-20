@@ -11,4 +11,5 @@ export interface MediaToolNavItem {
 export const MEDIA_TOOL_NAV_ITEMS: MediaToolNavItem[] = [
   { href: '/dashboard/merchant/media/background-remover', exact: false, labelKey: 'backgroundRemover' },
   { href: '/dashboard/merchant/media/social-post-creator', exact: false, labelKey: 'socialPostCreator' },
+  { href: '/dashboard/merchant/media/ai-product-photos', exact: false, labelKey: 'aiProductPhotos' },
 ]

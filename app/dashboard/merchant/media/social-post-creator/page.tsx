@@ -1,46 +1,56 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/lib/i18n'
 import type { Strings } from '@/lib/i18n'
 import { uploadImage, cloudinaryConfigured } from '@/lib/uploadImage'
 import { withBackgroundRemoved } from '@/lib/media/cloudinary-transform'
+import { useMerchantMe } from '@/lib/queries/merchants'
+import { PRODUCT_IMPORT_STORAGE_KEY, type ProductImportData } from '@/lib/productImport'
+import { PostLayoutCard } from '@/components/dashboard/media/PostLayoutCard'
+import {
+  COLOR_PRESETS,
+  LAYOUT_KEYS,
+  PLATFORM_SIZES,
+  drawBackground,
+  drawLogoBadge,
+  drawPriceBadge,
+  drawProductLayout,
+  makeDefaultLayoutEditState,
+  type BackgroundMode,
+  type LayoutEditState,
+  type LayoutKey,
+  type PatternKey,
+} from '@/lib/media/social-post-layout'
 
-interface PlatformSize {
-  key: string
-  labelKey: keyof Strings['socialPostCreator']
-  width: number
-  height: number
+const LAYOUT_LABEL_KEYS: Record<LayoutKey, keyof Strings['socialPostCreator']> = {
+  centered: 'layoutCentered',
+  rotated: 'layoutRotated',
+  'bottom-crop': 'layoutBottomCrop',
 }
 
-// Widely-recommended current sizes per platform. Product Page matches this app's own
-// storefront product-card convention (aspect-square).
-const PLATFORM_SIZES: PlatformSize[] = [
-  { key: 'facebook', labelKey: 'platformFacebook', width: 1200, height: 630 },
-  { key: 'instagram-post', labelKey: 'platformInstagramPost', width: 1080, height: 1080 },
-  { key: 'instagram-story', labelKey: 'platformInstagramStory', width: 1080, height: 1920 },
-  { key: 'tiktok', labelKey: 'platformTiktok', width: 1080, height: 1920 },
-  { key: 'product-page', labelKey: 'platformProductPage', width: 1200, height: 1200 },
-]
-
-type LayoutKey = 'centered' | 'rotated' | 'bottom-crop'
-
-const LAYOUTS: { key: LayoutKey; labelKey: keyof Strings['socialPostCreator'] }[] = [
-  { key: 'centered', labelKey: 'layoutCentered' },
-  { key: 'rotated', labelKey: 'layoutRotated' },
-  { key: 'bottom-crop', labelKey: 'layoutBottomCrop' },
-]
-
-type BackgroundMode = 'solid' | 'pattern'
-type PatternKey = 'dots' | 'stripes' | 'grid'
-
-const COLOR_PRESETS = ['#ffffff', '#0a0a0a', '#f5efe6', '#fbd5df', '#cfe8ff', '#d9ead3', '#e8ddc8', '#1b2a4a']
+const PLATFORM_LABEL_KEYS: Record<string, keyof Strings['socialPostCreator']> = {
+  facebook: 'platformFacebook',
+  'instagram-post': 'platformInstagramPost',
+  'instagram-story': 'platformInstagramStory',
+  tiktok: 'platformTiktok',
+  'product-page': 'platformProductPage',
+}
 
 const PATTERNS: { key: PatternKey; labelKey: keyof Strings['socialPostCreator'] }[] = [
   { key: 'dots', labelKey: 'patternDots' },
   { key: 'stripes', labelKey: 'patternStripes' },
   { key: 'grid', labelKey: 'patternGrid' },
+  { key: 'checkerboard', labelKey: 'patternCheckerboard' },
+  { key: 'waves', labelKey: 'patternWaves' },
 ]
+
+const DEFAULT_PRICE_TEXT = '29.99 ₾'
+
+// Redrawing is cheap client-side canvas work, but the native color input fires on every
+// pixel of drag — debounce so it doesn't redraw 3 canvases hundreds of times a second.
+const REGEN_DEBOUNCE_MS = 120
 
 const CHECKERBOARD_STYLE: React.CSSProperties = {
   backgroundImage:
@@ -49,10 +59,9 @@ const CHECKERBOARD_STYLE: React.CSSProperties = {
   backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0px',
 }
 
-interface GeneratedImage {
-  platformKey: string
-  layoutKey: LayoutKey
-  dataUrl: string
+async function dataUrlToFile(dataUrl: string, filename: string): Promise<File> {
+  const blob = await (await fetch(dataUrl)).blob()
+  return new File([blob], filename, { type: 'image/png' })
 }
 
 function loadImage(url: string): Promise<HTMLImageElement> {
@@ -65,122 +74,23 @@ function loadImage(url: string): Promise<HTMLImageElement> {
   })
 }
 
-function isLightColor(hex: string): boolean {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return (0.299 * r + 0.587 * g + 0.114 * b) > 150
-}
-
-function drawBackground(ctx: CanvasRenderingContext2D, w: number, h: number, color: string, pattern: PatternKey | null) {
-  ctx.fillStyle = color
-  ctx.fillRect(0, 0, w, h)
-  if (!pattern) return
-
-  const accent = isLightColor(color) ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.10)'
-
-  if (pattern === 'dots') {
-    const spacing = Math.max(28, Math.round(w / 20))
-    const radius = spacing * 0.1
-    ctx.fillStyle = accent
-    for (let y = spacing / 2; y < h; y += spacing) {
-      for (let x = spacing / 2; x < w; x += spacing) {
-        ctx.beginPath()
-        ctx.arc(x, y, radius, 0, Math.PI * 2)
-        ctx.fill()
-      }
-    }
-  } else if (pattern === 'stripes') {
-    const spacing = Math.max(32, Math.round(w / 16))
-    ctx.save()
-    ctx.beginPath()
-    ctx.rect(0, 0, w, h)
-    ctx.clip()
-    ctx.strokeStyle = accent
-    ctx.lineWidth = spacing * 0.45
-    for (let x = -h; x < w + h; x += spacing) {
-      ctx.beginPath()
-      ctx.moveTo(x, 0)
-      ctx.lineTo(x + h, h)
-      ctx.stroke()
-    }
-    ctx.restore()
-  } else if (pattern === 'grid') {
-    const spacing = Math.max(36, Math.round(w / 14))
-    ctx.strokeStyle = accent
-    ctx.lineWidth = 1.5
-    for (let x = 0; x <= w; x += spacing) {
-      ctx.beginPath()
-      ctx.moveTo(x, 0)
-      ctx.lineTo(x, h)
-      ctx.stroke()
-    }
-    for (let y = 0; y <= h; y += spacing) {
-      ctx.beginPath()
-      ctx.moveTo(0, y)
-      ctx.lineTo(w, y)
-      ctx.stroke()
-    }
+function makeDefaultEditStateMap(): Record<LayoutKey, LayoutEditState> {
+  return {
+    centered: makeDefaultLayoutEditState(DEFAULT_PRICE_TEXT),
+    rotated: makeDefaultLayoutEditState(DEFAULT_PRICE_TEXT),
+    'bottom-crop': makeDefaultLayoutEditState(DEFAULT_PRICE_TEXT),
   }
-}
-
-function drawCentered(ctx: CanvasRenderingContext2D, img: HTMLImageElement, w: number, h: number) {
-  const maxW = w * 0.72
-  const maxH = h * 0.72
-  const scale = Math.min(maxW / img.width, maxH / img.height)
-  const dw = img.width * scale
-  const dh = img.height * scale
-  ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh)
-}
-
-// Scaled down further than "centered" so the diagonal footprint (~1.41x a square's side)
-// still clears the frame after rotating.
-function drawRotated(ctx: CanvasRenderingContext2D, img: HTMLImageElement, w: number, h: number) {
-  const maxW = w * 0.5
-  const maxH = h * 0.5
-  const scale = Math.min(maxW / img.width, maxH / img.height)
-  const dw = img.width * scale
-  const dh = img.height * scale
-  ctx.save()
-  ctx.translate(w / 2, h / 2)
-  ctx.rotate((-45 * Math.PI) / 180)
-  ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh)
-  ctx.restore()
-}
-
-// Crops off the top 25% of the source (e.g. collar/shoulders on a garment shot), then scales
-// the remaining bottom 75% to fully cover the frame — a close-up, zoomed-in crop.
-function drawBottomCrop(ctx: CanvasRenderingContext2D, img: HTMLImageElement, w: number, h: number) {
-  const cropTop = img.height * 0.25
-  const cropHeight = img.height - cropTop
-  const destAspect = w / h
-  const cropAspect = img.width / cropHeight
-
-  let sx = 0
-  let sy = cropTop
-  let sWidth = img.width
-  let sHeight = cropHeight
-
-  if (cropAspect > destAspect) {
-    sWidth = cropHeight * destAspect
-    sx = (img.width - sWidth) / 2
-  } else {
-    sHeight = img.width / destAspect
-    sy = img.height - sHeight
-  }
-
-  ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, w, h)
-}
-
-function drawLayout(ctx: CanvasRenderingContext2D, img: HTMLImageElement, w: number, h: number, layout: LayoutKey) {
-  if (layout === 'centered') drawCentered(ctx, img, w, h)
-  else if (layout === 'rotated') drawRotated(ctx, img, w, h)
-  else drawBottomCrop(ctx, img, w, h)
 }
 
 export default function SocialPostCreatorPage() {
   const { t } = useLanguage()
+  const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
+  const loadedImageRef = useRef<HTMLImageElement | null>(null)
+  const loadedLogoImageRef = useRef<HTMLImageElement | null>(null)
+
+  const { data: merchant } = useMerchantMe()
+  const logoUrl = merchant?.logoUrl ?? null
 
   const [transparentUrl, setTransparentUrl] = useState('')
   const [uploading, setUploading] = useState(false)
@@ -191,54 +101,127 @@ export default function SocialPostCreatorPage() {
   const [color, setColor] = useState(COLOR_PRESETS[0])
   const [pattern, setPattern] = useState<PatternKey>('dots')
 
-  const [generating, setGenerating] = useState(false)
-  const [results, setResults] = useState<GeneratedImage[]>([])
+  const [selectedPlatformKey, setSelectedPlatformKey] = useState(PLATFORM_SIZES[0].key)
+  const [editStateMap, setEditStateMap] = useState<Record<LayoutKey, LayoutEditState>>(makeDefaultEditStateMap)
+  const [previews, setPreviews] = useState<Partial<Record<LayoutKey, string>>>({})
+  const [creatingProduct, setCreatingProduct] = useState(false)
+  const [imgDims, setImgDims] = useState<{ width: number; height: number } | null>(null)
+
+  useEffect(() => {
+    if (!logoUrl) {
+      loadedLogoImageRef.current = null
+      return
+    }
+    let cancelled = false
+    loadImage(logoUrl).then(img => {
+      if (!cancelled) loadedLogoImageRef.current = img
+    }).catch(() => {
+      loadedLogoImageRef.current = null
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [logoUrl])
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
 
     setError('')
-    setResults([])
+    setPreviews({})
+    setEditStateMap(makeDefaultEditStateMap())
+    loadedImageRef.current = null
+    setImgDims(null)
     setTransparentUrl('')
     setUploading(true)
     try {
       const url = await uploadImage(file)
+      const bgRemovedUrl = withBackgroundRemoved(url)
       setRemovingBg(true)
-      setTransparentUrl(withBackgroundRemoved(url))
+      setTransparentUrl(bgRemovedUrl)
+      const img = await loadImage(bgRemovedUrl)
+      loadedImageRef.current = img
+      setImgDims({ width: img.naturalWidth, height: img.naturalHeight })
+      setRemovingBg(false)
     } catch {
       setError(t.socialPostCreator.uploadError)
+      setRemovingBg(false)
     } finally {
       setUploading(false)
       if (fileRef.current) fileRef.current.value = ''
     }
   }
 
-  async function handleGenerate() {
-    if (!transparentUrl) return
-    setError('')
-    setGenerating(true)
-    setResults([])
-    try {
-      const img = await loadImage(transparentUrl)
-      const next: GeneratedImage[] = []
-      for (const platform of PLATFORM_SIZES) {
-        for (const layout of LAYOUTS) {
-          const canvas = document.createElement('canvas')
-          canvas.width = platform.width
-          canvas.height = platform.height
-          const ctx = canvas.getContext('2d')
-          if (!ctx) continue
-          drawBackground(ctx, platform.width, platform.height, color, backgroundMode === 'pattern' ? pattern : null)
-          drawLayout(ctx, img, platform.width, platform.height, layout.key)
-          next.push({ platformKey: platform.key, layoutKey: layout.key, dataUrl: canvas.toDataURL('image/png') })
+  const selectedPlatform = useMemo(
+    () => PLATFORM_SIZES.find(p => p.key === selectedPlatformKey) ?? PLATFORM_SIZES[0],
+    [selectedPlatformKey],
+  )
+
+  // Auto-regenerates the downloadable PNGs for the selected platform whenever the source
+  // image or any background/position/badge setting changes. Purely local canvas compositing
+  // — no extra upload, API call, or Cloudinary transform runs here, so it's free to run live.
+  useEffect(() => {
+    const img = loadedImageRef.current
+    if (!img || removingBg) return
+
+    const timeout = setTimeout(() => {
+      const next: Partial<Record<LayoutKey, string>> = {}
+      for (const layout of LAYOUT_KEYS) {
+        const canvas = document.createElement('canvas')
+        canvas.width = selectedPlatform.width
+        canvas.height = selectedPlatform.height
+        const ctx = canvas.getContext('2d')
+        if (!ctx) continue
+
+        const layoutState = editStateMap[layout]
+        drawBackground(ctx, selectedPlatform.width, selectedPlatform.height, color, backgroundMode === 'pattern' ? pattern : null)
+        drawProductLayout(ctx, img, img.naturalWidth, img.naturalHeight, selectedPlatform.width, selectedPlatform.height, layout, layoutState.product)
+        if (layoutState.price.visible && layoutState.price.text.trim()) {
+          drawPriceBadge(ctx, selectedPlatform.width, selectedPlatform.height, layoutState.price.text, layoutState.price.position)
         }
+        if (layoutState.logo.visible && loadedLogoImageRef.current) {
+          const logo = loadedLogoImageRef.current
+          drawLogoBadge(ctx, logo, logo.naturalWidth, logo.naturalHeight, selectedPlatform.width, selectedPlatform.height, layoutState.logo.position)
+        }
+        next[layout] = canvas.toDataURL('image/png')
       }
-      setResults(next)
+      setPreviews(next)
+    }, REGEN_DEBOUNCE_MS)
+
+    return () => clearTimeout(timeout)
+  }, [transparentUrl, removingBg, backgroundMode, color, pattern, selectedPlatform, editStateMap])
+
+  const isProductPage = selectedPlatformKey === 'product-page'
+  const productPagePreviewsReady = isProductPage && LAYOUT_KEYS.every(layout => previews[layout])
+
+  // Uploads the 3 generated Product Page images to Cloudinary (they only exist as in-memory
+  // canvas data URLs up to this point) and hands them to the new-product page via the same
+  // sessionStorage hand-off ImportProductModal already uses for Facebook/Instagram imports.
+  async function handleCreateProduct() {
+    if (!productPagePreviewsReady) return
+    setError('')
+    setCreatingProduct(true)
+    try {
+      const uploadedUrls = await Promise.all(
+        LAYOUT_KEYS.map(async layout => {
+          const file = await dataUrlToFile(previews[layout]!, `product-page-${layout}.png`)
+          return uploadImage(file)
+        }),
+      )
+      const importData: ProductImportData = {
+        name: null,
+        description: null,
+        price: null,
+        optionGroups: [],
+        categoryId: null,
+        imageUrls: uploadedUrls,
+        videoUrl: null,
+      }
+      sessionStorage.setItem(PRODUCT_IMPORT_STORAGE_KEY, JSON.stringify(importData))
+      router.push('/dashboard/merchant/store/products/new')
     } catch {
-      setError(t.socialPostCreator.uploadError)
-    } finally {
-      setGenerating(false)
+      setError(t.socialPostCreator.createProductError)
+      setCreatingProduct(false)
     }
   }
 
@@ -289,16 +272,7 @@ export default function SocialPostCreatorPage() {
           <div className="flex items-center gap-4">
             <div className="rounded-xl overflow-hidden border border-white/8 w-28 h-28 shrink-0" style={CHECKERBOARD_STYLE}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={transparentUrl}
-                alt=""
-                className="w-full h-full object-contain"
-                onLoad={() => setRemovingBg(false)}
-                onError={() => {
-                  setRemovingBg(false)
-                  setError(t.socialPostCreator.uploadError)
-                }}
-              />
+              <img src={transparentUrl} alt="" className="w-full h-full object-contain" />
             </div>
             {removingBg && (
               <span className="flex items-center gap-2 text-white/40 text-sm">
@@ -311,127 +285,145 @@ export default function SocialPostCreatorPage() {
       </div>
 
       {transparentUrl && !removingBg && (
-        <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
-          <p className="text-white/40 text-xs uppercase tracking-widest">{t.socialPostCreator.backgroundLabel}</p>
+        <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+          <div className="flex flex-col gap-4">
+            <p className="text-white/40 text-xs uppercase tracking-widest">{t.socialPostCreator.backgroundLabel}</p>
 
-          <div className="flex gap-2">
-            <button
-              onClick={() => setBackgroundMode('solid')}
-              className={[
-                'btn btn-sm h-auto rounded-xl px-4 normal-case font-semibold',
-                backgroundMode === 'solid'
-                  ? 'bg-fuchsia-500/20 border-fuchsia-500/30 text-fuchsia-300'
-                  : 'bg-white/4 border-white/8 text-white/50 hover:text-white',
-              ].join(' ')}
-            >
-              {t.socialPostCreator.solid}
-            </button>
-            <button
-              onClick={() => setBackgroundMode('pattern')}
-              className={[
-                'btn btn-sm h-auto rounded-xl px-4 normal-case font-semibold',
-                backgroundMode === 'pattern'
-                  ? 'bg-fuchsia-500/20 border-fuchsia-500/30 text-fuchsia-300'
-                  : 'bg-white/4 border-white/8 text-white/50 hover:text-white',
-              ].join(' ')}
-            >
-              {t.socialPostCreator.pattern}
-            </button>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {COLOR_PRESETS.map(preset => (
+            <div className="flex gap-2">
               <button
-                key={preset}
-                onClick={() => setColor(preset)}
-                aria-label={preset}
-                style={{ background: preset }}
+                onClick={() => setBackgroundMode('solid')}
                 className={[
-                  'w-8 h-8 rounded-lg border-2 transition-transform',
-                  color === preset ? 'border-fuchsia-400 scale-110' : 'border-white/15 hover:scale-105',
+                  'btn h-auto rounded-xl px-5 py-3 normal-case font-semibold',
+                  backgroundMode === 'solid'
+                    ? 'bg-fuchsia-500/20 border-fuchsia-500/30 text-fuchsia-300'
+                    : 'bg-white/4 border-white/8 text-white/50 hover:text-white',
                 ].join(' ')}
-              />
-            ))}
-            <label
-              className="relative w-8 h-8 rounded-lg border-2 border-dashed border-white/25 hover:border-white/40 cursor-pointer flex items-center justify-center overflow-hidden"
-              title={t.socialPostCreator.customColor}
-            >
-              <input
-                type="color"
-                value={color}
-                onChange={e => setColor(e.target.value)}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-              />
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className="text-white/40 pointer-events-none">
-                <path d="M7 2v10M2 7h10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-              </svg>
-            </label>
+              >
+                {t.socialPostCreator.solid}
+              </button>
+              <button
+                onClick={() => setBackgroundMode('pattern')}
+                className={[
+                  'btn h-auto rounded-xl px-5 py-3 normal-case font-semibold',
+                  backgroundMode === 'pattern'
+                    ? 'bg-fuchsia-500/20 border-fuchsia-500/30 text-fuchsia-300'
+                    : 'bg-white/4 border-white/8 text-white/50 hover:text-white',
+                ].join(' ')}
+              >
+                {t.socialPostCreator.pattern}
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              {COLOR_PRESETS.map(preset => (
+                <button
+                  key={preset}
+                  onClick={() => setColor(preset)}
+                  aria-label={preset}
+                  style={{ background: preset }}
+                  className={[
+                    'w-11 h-11 rounded-xl border-2 transition-transform',
+                    color === preset ? 'border-fuchsia-400 scale-110' : 'border-white/15 hover:scale-105',
+                  ].join(' ')}
+                />
+              ))}
+              <label
+                className="relative w-11 h-11 rounded-xl border-2 border-dashed border-white/25 hover:border-white/40 cursor-pointer flex items-center justify-center overflow-hidden"
+                title={t.socialPostCreator.customColor}
+              >
+                <input
+                  type="color"
+                  value={color}
+                  onChange={e => setColor(e.target.value)}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+                <svg width="16" height="16" viewBox="0 0 14 14" fill="none" aria-hidden className="text-white/40 pointer-events-none">
+                  <path d="M7 2v10M2 7h10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                </svg>
+              </label>
+            </div>
+
+            {backgroundMode === 'pattern' && (
+              <div className="flex flex-wrap gap-2">
+                {PATTERNS.map(p => (
+                  <button
+                    key={p.key}
+                    onClick={() => setPattern(p.key)}
+                    className={[
+                      'btn h-auto rounded-lg px-4 py-2.5 normal-case font-medium',
+                      pattern === p.key
+                        ? 'bg-fuchsia-500/20 border-fuchsia-500/30 text-fuchsia-300'
+                        : 'bg-white/4 border-white/8 text-white/50 hover:text-white',
+                    ].join(' ')}
+                  >
+                    {t.socialPostCreator[p.labelKey]}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {backgroundMode === 'pattern' && (
-            <div className="flex flex-wrap gap-2">
-              {PATTERNS.map(p => (
-                <button
-                  key={p.key}
-                  onClick={() => setPattern(p.key)}
-                  className={[
-                    'btn btn-xs h-auto rounded-lg px-3 normal-case font-medium',
-                    pattern === p.key
-                      ? 'bg-fuchsia-500/20 border-fuchsia-500/30 text-fuchsia-300'
-                      : 'bg-white/4 border-white/8 text-white/50 hover:text-white',
-                  ].join(' ')}
-                >
-                  {t.socialPostCreator[p.labelKey]}
-                </button>
+          <div className="flex flex-col gap-2 sm:w-72">
+            <p className="text-white/40 text-xs uppercase tracking-widest">{t.socialPostCreator.platformLabel}</p>
+            <select
+              value={selectedPlatformKey}
+              onChange={e => setSelectedPlatformKey(e.target.value)}
+              className="select bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
+            >
+              {PLATFORM_SIZES.map(platform => (
+                <option key={platform.key} value={platform.key}>
+                  {t.socialPostCreator[PLATFORM_LABEL_KEYS[platform.key]]} — {platform.width}×{platform.height}
+                </option>
               ))}
-            </div>
-          )}
-
-          <button
-            onClick={handleGenerate}
-            disabled={generating}
-            className="btn h-auto rounded-xl px-4 bg-fuchsia-500/20 border-fuchsia-500/30 text-fuchsia-300 hover:bg-fuchsia-500/30 disabled:opacity-40 normal-case font-semibold self-start gap-2"
-          >
-            {generating && <span className="loading loading-spinner loading-sm" />}
-            {generating ? t.socialPostCreator.generating : t.socialPostCreator.generate}
-          </button>
+            </select>
+          </div>
         </div>
       )}
 
-      {results.length > 0 && (
-        <div className="flex flex-col gap-6">
-          {PLATFORM_SIZES.map(platform => (
-            <div key={platform.key} className="flex flex-col gap-3">
-              <p className="font-bold text-white text-sm">
-                {t.socialPostCreator[platform.labelKey]}
-                <span className="text-white/30 font-normal ml-2">{platform.width}×{platform.height}</span>
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {LAYOUTS.map(layout => {
-                  const item = results.find(r => r.platformKey === platform.key && r.layoutKey === layout.key)
-                  if (!item) return null
-                  return (
-                    <div key={layout.key} className="flex flex-col gap-2">
-                      <div className="rounded-xl overflow-hidden border border-white/8">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={item.dataUrl} alt="" className="w-full object-cover" />
-                      </div>
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-white/40 text-xs">{t.socialPostCreator[layout.labelKey]}</span>
-                        <a
-                          href={item.dataUrl}
-                          download={`${platform.key}-${layout.key}.png`}
-                          className="btn btn-xs h-auto rounded-lg px-3 bg-fuchsia-500/15 border-fuchsia-500/25 text-fuchsia-300 hover:bg-fuchsia-500/25 normal-case font-semibold"
-                        >
-                          {t.socialPostCreator.download}
-                        </a>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
+      {transparentUrl && !removingBg && imgDims && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          {LAYOUT_KEYS.map(layout => (
+            <PostLayoutCard
+              key={layout}
+              layout={layout}
+              labelKey={LAYOUT_LABEL_KEYS[layout]}
+              platform={selectedPlatform}
+              transparentUrl={transparentUrl}
+              imgWidth={imgDims.width}
+              imgHeight={imgDims.height}
+              backgroundMode={backgroundMode}
+              color={color}
+              pattern={pattern}
+              logoUrl={logoUrl}
+              editState={editStateMap[layout]}
+              onChange={next => setEditStateMap(prev => ({ ...prev, [layout]: next }))}
+              onReset={() => setEditStateMap(prev => ({ ...prev, [layout]: makeDefaultLayoutEditState(DEFAULT_PRICE_TEXT) }))}
+              downloadUrl={previews[layout]}
+            />
           ))}
+        </div>
+      )}
+
+      {isProductPage && transparentUrl && !removingBg && (
+        <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+          <div>
+            <p className="font-bold text-white text-sm">{t.socialPostCreator.createProductTitle}</p>
+            <p className="text-white/40 text-xs mt-1">{t.socialPostCreator.createProductSubtitle}</p>
+          </div>
+          <button
+            onClick={handleCreateProduct}
+            disabled={!productPagePreviewsReady || creatingProduct}
+            className="btn h-auto rounded-xl px-6 py-3.5 normal-case font-semibold gap-2 bg-fuchsia-500/20 border-fuchsia-500/30 text-fuchsia-300 hover:bg-fuchsia-500/30 disabled:opacity-40 shrink-0"
+          >
+            {creatingProduct ? (
+              <span className="loading loading-spinner loading-sm" />
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+              </svg>
+            )}
+            {t.socialPostCreator.createProduct}
+          </button>
         </div>
       )}
 

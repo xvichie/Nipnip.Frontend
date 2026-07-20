@@ -56,6 +56,12 @@ export interface AddApprovedCreatorRequest {
   creatorId: string
 }
 
+export interface AiImageUsageResponse {
+  used: number
+  limit: number
+  period: string
+}
+
 export interface TopCreatorEntry {
   creatorId: string
   creatorName: string
