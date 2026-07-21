@@ -135,7 +135,7 @@ function OrderDetailsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div
-        className="w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl bg-[#141418] border border-white/10 p-6 flex flex-col gap-6"
+        className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-[#141418] border border-white/10 p-6 flex flex-col gap-6"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
@@ -145,28 +145,6 @@ function OrderDetailsModal({
               <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
             </svg>
           </button>
-        </div>
-
-        {/* Customer info */}
-        <div className="rounded-xl bg-white/2 border border-white/5 p-4 flex flex-wrap gap-x-8 gap-y-2 text-xs">
-          <a href={`mailto:${order.email}`} className="text-white/60 hover:text-white transition-colors">
-            {order.email}
-          </a>
-          <a href={`tel:${order.phone}`} className="text-white/60 hover:text-white transition-colors">
-            {order.phone}
-          </a>
-          {order.latitude && order.longitude ? (
-            <a
-              href={`https://www.google.com/maps?q=${order.latitude},${order.longitude}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white/60 hover:text-white transition-colors underline underline-offset-2"
-            >
-              {order.address}
-            </a>
-          ) : (
-            <span className="text-white/60">{order.address}</span>
-          )}
         </div>
 
         {/* Items */}
@@ -234,25 +212,30 @@ function OrderDetailsModal({
           </div>
         </div>
 
-        {/* Payment confirmation */}
-        {isBankTransfer && (
-          <div className="flex flex-col gap-2">
-            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">გადახდა</p>
-            <button
-              type="button"
-              disabled={paymentPending}
-              onClick={() => updatePaymentConfirmed({ id: order.id, confirmed: !paymentConfirmed })}
-              className={[
-                'self-start rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-40',
-                paymentConfirmed
-                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                  : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
-              ].join(' ')}
-            >
-              {paymentConfirmed ? '✓ გადახდილია — მონიშვნის მოხსნა' : 'მონიშვნა როგორც გადახდილი'}
-            </button>
+        {/* Payment */}
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">გადახდა</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="inline-flex items-center rounded-lg border border-white/10 bg-white/4 px-2.5 py-1 text-xs font-medium text-white/70">
+              {PAYMENT_LABELS[order.paymentMethod] ?? order.paymentMethod}
+            </span>
+            {isBankTransfer && (
+              <button
+                type="button"
+                disabled={paymentPending}
+                onClick={() => updatePaymentConfirmed({ id: order.id, confirmed: !paymentConfirmed })}
+                className={[
+                  'rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-40',
+                  paymentConfirmed
+                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                    : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                ].join(' ')}
+              >
+                {paymentConfirmed ? '✓ გადახდილია — მონიშვნის მოხსნა' : 'მონიშვნა როგორც გადახდილი'}
+              </button>
+            )}
           </div>
-        )}
+        </div>
 
         {/* QuickShipper delivery */}
         <div className="flex flex-col gap-2">
@@ -307,6 +290,54 @@ function OrderDetailsModal({
         {shippingModalOpen && (
           <QuickShipperOrderModal orderId={order.id} onClose={() => setShippingModalOpen(false)} />
         )}
+
+        {/* Customer */}
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">მომხმარებელი</p>
+          <div className="rounded-xl bg-white/2 border border-white/5 p-4 flex flex-col gap-2.5">
+            <a href={`mailto:${order.email}`} className="flex items-center gap-2.5 text-sm text-white/70 hover:text-white transition-colors">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0 text-white/30">
+                <rect x="2" y="3.5" width="12" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
+                <path d="M2.5 4.5 8 8.5l5.5-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              {order.email}
+            </a>
+            <a href={`tel:${order.phone}`} className="flex items-center gap-2.5 text-sm text-white/70 hover:text-white transition-colors">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0 text-white/30">
+                <path d="M3.5 2.5h2.2l1 3-1.5 1.2a8 8 0 0 0 3.6 3.6l1.2-1.5 3 1v2.2a1 1 0 0 1-1.1 1 11 11 0 0 1-9.4-9.4 1 1 0 0 1 1-1.1Z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              {order.phone}
+            </a>
+            <div className="flex items-start gap-2.5 text-sm text-white/70">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0 text-white/30 mt-0.5">
+                <path d="M8 14.5s5-4.4 5-8.2A5 5 0 0 0 3 6.3c0 3.8 5 8.2 5 8.2Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+                <circle cx="8" cy="6.3" r="1.8" stroke="currentColor" strokeWidth="1.4"/>
+              </svg>
+              {order.latitude && order.longitude ? (
+                <a
+                  href={`https://www.google.com/maps?q=${order.latitude},${order.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors underline underline-offset-2"
+                >
+                  {order.address}
+                </a>
+              ) : (
+                <span>{order.address}</span>
+              )}
+            </div>
+          </div>
+          {order.latitude && order.longitude && (
+            <div className="rounded-xl overflow-hidden border border-white/10 h-52">
+              <iframe
+                title="მისამართის რუკა"
+                className="w-full h-full border-0"
+                loading="lazy"
+                src={`https://www.openstreetmap.org/export/embed.html?bbox=${order.longitude - 0.006}%2C${order.latitude - 0.006}%2C${order.longitude + 0.006}%2C${order.latitude + 0.006}&layer=mapnik&marker=${order.latitude}%2C${order.longitude}`}
+              />
+            </div>
+          )}
+        </div>
 
         {/* Notes */}
         <div className="flex flex-col gap-2">
