@@ -50,7 +50,7 @@ export function ImportProductModal() {
   const { data: igMedia, isLoading: igMediaLoading } = useInstagramMedia(open && igConnected && platform === 'instagram' && mode === 'post')
   const { mutateAsync: fetchIgMediaDetail } = useInstagramMediaDetail()
 
-  const { data: mmStatus, isLoading: mmStatusLoading } = useMyMarketStatus()
+  const { data: mmStatus } = useMyMarketStatus()
   const mmConnected = mmStatus?.isConnected ?? false
 
   const [pickedId, setPickedId] = useState<string | null>(null)
@@ -362,7 +362,11 @@ export function ImportProductModal() {
                   Back
                 </button>
 
-                {mmStatusLoading ? (
+                {mmStatus === undefined ? (
+                  // Not `mmStatusLoading` (React Query v5's isLoading is isPending && isFetching) —
+                  // if Clerk's auth hasn't resolved the instant this renders, the query is briefly
+                  // `enabled: false`, so isFetching is false and isLoading reports false too even
+                  // though there's no data yet, which was falling through to "not connected".
                   <div className="skeleton h-40 rounded-2xl" />
                 ) : mmConnected && !mymarketManual ? (
                   <>
