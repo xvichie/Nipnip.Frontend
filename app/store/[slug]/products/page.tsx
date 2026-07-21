@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: 'ყველა პროდუქტი',
     description: truncateDescription(`დაათვალიერეთ ${store.name}-ის ყველა პროდუქტი.`),
-    alternates: { canonical: getStoreUrl(slug, '/products') },
+    alternates: { canonical: getStoreUrl(slug, '/products', store.customDomain) },
   }
 }
 
@@ -45,8 +45,8 @@ export default async function ProductsPage({
   return (
     <>
       <JsonLd data={buildBreadcrumbJsonLd([
-        { name: store.name, url: getStoreUrl(slug) },
-        { name: 'ყველა პროდუქტი', url: getStoreUrl(slug, '/products') },
+        { name: store.name, url: getStoreUrl(slug, '', store.customDomain) },
+        { name: 'ყველა პროდუქტი', url: getStoreUrl(slug, '/products', store.customDomain) },
       ])} />
       <GridComponent
         slug={slug}

@@ -6,6 +6,7 @@ const SITE_URL = 'https://www.nipnip.ge'
 
 interface StoreSitemapEntry {
   slug: string
+  customDomain: string | null
 }
 
 function sitemapEntry(loc: string): string {
@@ -21,7 +22,7 @@ export async function GET() {
 
   const entries = [
     sitemapEntry(`${SITE_URL}/main-sitemap.xml`),
-    ...stores.map(s => sitemapEntry(`${getStoreOrigin(s.slug)}/sitemap.xml`)),
+    ...stores.map(s => sitemapEntry(`${getStoreOrigin(s.slug, s.customDomain)}/sitemap.xml`)),
   ]
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</sitemapindex>`

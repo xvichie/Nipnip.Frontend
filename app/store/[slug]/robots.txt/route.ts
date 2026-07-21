@@ -9,8 +9,9 @@ export async function GET(
 ) {
   const { slug } = await params
 
+  let store: StoreResponse
   try {
-    const store = await apiFetch<StoreResponse>(`/api/stores/${slug}`, null)
+    store = await apiFetch<StoreResponse>(`/api/stores/${slug}`, null)
     if (!store.isActive) {
       return new NextResponse('User-agent: *\nDisallow: /\n', { headers: { 'Content-Type': 'text/plain' } })
     }
@@ -27,7 +28,7 @@ export async function GET(
     'Disallow: /cart',
     'Disallow: /checkout',
     '',
-    `Sitemap: ${getStoreOrigin(slug)}/sitemap.xml`,
+    `Sitemap: ${getStoreOrigin(slug, store.customDomain)}/sitemap.xml`,
     '',
   ].join('\n')
 

@@ -14,6 +14,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug, pageSlug } = await params
 
+  const store = await apiFetch<StoreResponse>(`/api/stores/${slug}`, null)
+
   let page: StorePageResponse
   try {
     page = await apiFetch<StorePageResponse>(`/api/stores/${slug}/pages/${pageSlug}`, null)
@@ -24,7 +26,7 @@ export async function generateMetadata({
   return {
     title: page.title,
     description: page.content ? truncateDescription(page.content) : undefined,
-    alternates: { canonical: getStoreUrl(slug, `/pages/${pageSlug}`) },
+    alternates: { canonical: getStoreUrl(slug, `/pages/${pageSlug}`, store.customDomain) },
   }
 }
 
@@ -50,8 +52,8 @@ export default async function StorePageRoute({
   return (
     <>
       <JsonLd data={buildBreadcrumbJsonLd([
-        { name: store.name, url: getStoreUrl(slug) },
-        { name: page.title, url: getStoreUrl(slug, `/pages/${pageSlug}`) },
+        { name: store.name, url: getStoreUrl(slug, '', store.customDomain) },
+        { name: page.title, url: getStoreUrl(slug, `/pages/${pageSlug}`, store.customDomain) },
       ])} />
       <StorePageView slug={slug} page={page} themeId={themeId} />
     </>

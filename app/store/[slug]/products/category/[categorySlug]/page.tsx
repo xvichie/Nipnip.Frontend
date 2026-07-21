@@ -31,7 +31,7 @@ export async function generateMetadata({
   return {
     title: categoryName,
     description: truncateDescription(`დაათვალიერეთ ${categoryName} კატეგორიის პროდუქტები ${store.name}-ში.`),
-    alternates: { canonical: getStoreUrl(slug, `/products/category/${categorySlug}`) },
+    alternates: { canonical: getStoreUrl(slug, `/products/category/${categorySlug}`, store.customDomain) },
   }
 }
 
@@ -55,9 +55,9 @@ export default async function ProductsByCategoryPage({
   return (
     <>
       <JsonLd data={buildBreadcrumbJsonLd([
-        { name: store.name, url: getStoreUrl(slug) },
-        { name: 'ყველა პროდუქტი', url: getStoreUrl(slug, '/products') },
-        { name: category?.name ?? categorySlug, url: getStoreUrl(slug, `/products/category/${categorySlug}`) },
+        { name: store.name, url: getStoreUrl(slug, '', store.customDomain) },
+        { name: 'ყველა პროდუქტი', url: getStoreUrl(slug, '/products', store.customDomain) },
+        { name: category?.name ?? categorySlug, url: getStoreUrl(slug, `/products/category/${categorySlug}`, store.customDomain) },
       ])} />
       <GridComponent
         slug={slug}

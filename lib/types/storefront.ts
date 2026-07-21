@@ -104,6 +104,7 @@ export interface StoreResponse {
   isActive: boolean
   affiliateEnabled: boolean
   createdAt: string
+  customDomain: string | null
 }
 
 export interface UpdateStoreRequest {

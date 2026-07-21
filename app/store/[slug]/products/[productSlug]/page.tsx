@@ -50,7 +50,7 @@ export async function generateMetadata({
       description,
       images: image ? [image] : undefined,
     },
-    alternates: { canonical: getStoreUrl(slug, `/products/${productSlug}`) },
+    alternates: { canonical: getStoreUrl(slug, `/products/${productSlug}`, store.customDomain) },
   }
 }
 
@@ -79,16 +79,16 @@ export default async function ProductDetailPage({
   const category = categories.find(c => c.id === product.categoryId)
 
   const categoryCrumb = category
-    ? { name: category.name, url: getStoreUrl(slug, `/products/category/${category.slug}`) }
-    : { name: 'ყველა პროდუქტი', url: getStoreUrl(slug, '/products') }
+    ? { name: category.name, url: getStoreUrl(slug, `/products/category/${category.slug}`, store.customDomain) }
+    : { name: 'ყველა პროდუქტი', url: getStoreUrl(slug, '/products', store.customDomain) }
 
   return (
     <>
-      <JsonLd data={buildProductJsonLd(slug, store.name, product)} />
+      <JsonLd data={buildProductJsonLd(slug, store.name, product, store.customDomain)} />
       <JsonLd data={buildBreadcrumbJsonLd([
-        { name: store.name, url: getStoreUrl(slug) },
+        { name: store.name, url: getStoreUrl(slug, '', store.customDomain) },
         categoryCrumb,
-        { name: product.name, url: getStoreUrl(slug, `/products/${productSlug}`) },
+        { name: product.name, url: getStoreUrl(slug, `/products/${productSlug}`, store.customDomain) },
       ])} />
       <DetailComponent slug={slug} product={product} category={category} tokens={tokens} />
     </>

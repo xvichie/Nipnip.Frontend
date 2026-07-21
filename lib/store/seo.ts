@@ -2,12 +2,16 @@ import type { ProductDetailResponse, StoreResponse, ThemeConfig } from '@/lib/ty
 
 export const STOREFRONT_ROOT_DOMAIN = 'nipnip.ge'
 
-export function getStoreOrigin(slug: string): string {
+// Falls back to the nipnip.ge subdomain unless a verified custom domain is passed — callers
+// only ever have a custom domain here once it's actually verified (the API never returns an
+// unverified one), so there's no risk of pointing search engines at a domain that isn't live.
+export function getStoreOrigin(slug: string, customDomain?: string | null): string {
+  if (customDomain) return `https://${customDomain}`
   return `https://${slug}.${STOREFRONT_ROOT_DOMAIN}`
 }
 
-export function getStoreUrl(slug: string, path = ''): string {
-  const origin = getStoreOrigin(slug)
+export function getStoreUrl(slug: string, path = '', customDomain?: string | null): string {
+  const origin = getStoreOrigin(slug, customDomain)
   if (!path || path === '/') return origin
   return `${origin}${path.startsWith('/') ? path : `/${path}`}`
 }
@@ -34,7 +38,7 @@ export function getStoreDescription(store: StoreResponse, tokens: Required<Theme
 }
 
 export function buildStoreJsonLd(slug: string, store: StoreResponse, tokens: Required<ThemeConfig>) {
-  const url = getStoreOrigin(slug)
+  const url = getStoreOrigin(slug, store.customDomain)
   const sameAs = [tokens.socialInstagram, tokens.socialFacebook, tokens.socialTiktok, tokens.socialYoutube].filter(Boolean)
 
   return {
@@ -55,8 +59,8 @@ export function buildStoreJsonLd(slug: string, store: StoreResponse, tokens: Req
   }
 }
 
-export function buildProductJsonLd(slug: string, storeName: string, product: ProductDetailResponse) {
-  const url = getStoreUrl(slug, `/products/${product.slug}`)
+export function buildProductJsonLd(slug: string, storeName: string, product: ProductDetailResponse, customDomain?: string | null) {
+  const url = getStoreUrl(slug, `/products/${product.slug}`, customDomain)
   const images = product.images.map(img => img.url)
   const prices = product.variants.map(v => v.salePrice ?? v.price)
   const minPrice = prices.length > 0 ? Math.min(...prices) : product.salePrice ?? product.basePrice

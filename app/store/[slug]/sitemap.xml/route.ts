@@ -30,12 +30,12 @@ export async function GET(
   const products = productsPage.items
 
   const entries = [
-    urlEntry(getStoreUrl(slug), '1.0'),
-    urlEntry(getStoreUrl(slug, '/products'), '0.9'),
-    urlEntry(getStoreUrl(slug, '/contact'), '0.5'),
-    ...categories.map(c => urlEntry(getStoreUrl(slug, `/products/category/${c.slug}`), '0.7')),
-    ...products.map(p => urlEntry(getStoreUrl(slug, `/products/${p.slug}`), '0.8')),
-    ...pages.map(p => urlEntry(getStoreUrl(slug, `/pages/${p.slug}`), '0.5')),
+    urlEntry(getStoreUrl(slug, '', store.customDomain), '1.0'),
+    urlEntry(getStoreUrl(slug, '/products', store.customDomain), '0.9'),
+    urlEntry(getStoreUrl(slug, '/contact', store.customDomain), '0.5'),
+    ...categories.map(c => urlEntry(getStoreUrl(slug, `/products/category/${c.slug}`, store.customDomain), '0.7')),
+    ...products.map(p => urlEntry(getStoreUrl(slug, `/products/${p.slug}`, store.customDomain), '0.8')),
+    ...pages.map(p => urlEntry(getStoreUrl(slug, `/pages/${p.slug}`, store.customDomain), '0.5')),
   ]
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>`

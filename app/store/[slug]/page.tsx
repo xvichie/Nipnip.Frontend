@@ -17,7 +17,8 @@ const HOME_COMPONENTS = { minimal: MinimalHome, bold: BoldHome, classic: Classic
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  return { alternates: { canonical: getStoreUrl(slug) } }
+  const store = await apiFetch<StoreResponse>(`/api/stores/${slug}`, null)
+  return { alternates: { canonical: getStoreUrl(slug, '', store.customDomain) } }
 }
 
 export default async function StoreHomePage({ params }: { params: Promise<{ slug: string }> }) {

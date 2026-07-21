@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!store.isActive) return {}
 
   const tokens = parseThemeConfig(store.themeConfig)
-  const url = getStoreOrigin(slug)
+  const url = getStoreOrigin(slug, store.customDomain)
   const title = getStoreTitle(store, tokens)
   const description = getStoreDescription(store, tokens)
   const ogImage = getStoreOgImage(tokens)

@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: label,
     description,
-    alternates: { canonical: getStoreUrl(slug, '/contact') },
+    alternates: { canonical: getStoreUrl(slug, '/contact', store.customDomain) },
   }
 }
 
@@ -38,8 +38,8 @@ export default async function StoreContactPage({ params }: { params: Promise<{ s
   return (
     <>
       <JsonLd data={buildBreadcrumbJsonLd([
-        { name: store.name, url: getStoreUrl(slug) },
-        { name: tokens.contactLabel, url: getStoreUrl(slug, '/contact') },
+        { name: store.name, url: getStoreUrl(slug, '', store.customDomain) },
+        { name: tokens.contactLabel, url: getStoreUrl(slug, '/contact', store.customDomain) },
       ])} />
       <ContactPage slug={slug} storeName={store.name} themeId={themeId} tokens={tokens} />
     </>
