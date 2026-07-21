@@ -391,12 +391,9 @@ function MyMarketCard() {
   return (
     <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex flex-col gap-4">
       <div className="flex items-center gap-4">
-        <div className="w-11 h-11 rounded-xl bg-[#00A99D]/15 border border-[#00A99D]/30 flex items-center justify-center shrink-0">
-          <svg width="20" height="20" viewBox="0 0 16 16" fill="none" aria-hidden>
-            <path d="M2 6l1-3.5h10L14 6" stroke="#5fd9cd" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M2 6v6.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V6" stroke="#5fd9cd" strokeWidth="1.4" strokeLinecap="round"/>
-            <path d="M2 6a2 2 0 0 0 4 0m0 0a2 2 0 0 0 4 0m0 0a2 2 0 0 0 4 0" stroke="#5fd9cd" strokeWidth="1.4" strokeLinecap="round"/>
-          </svg>
+        <div className="w-11 h-11 rounded-xl overflow-hidden border border-white/10 shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/mymarket-logo.jpg" alt="" className="w-full h-full object-cover" />
         </div>
 
         <div className="flex-1 min-w-0">
@@ -429,13 +426,13 @@ function MyMarketCard() {
             value={shopIdInput}
             onChange={e => setShopIdInput(e.target.value)}
             placeholder="https://mymarket.ge/shops/15915/ or just 15915"
-            className="input input-sm bg-white/4 border-white/10 focus:border-[#00A99D]/60 flex-1"
+            className="input input-sm bg-white/4 border-white/10 focus:border-amber-500/60 flex-1"
           />
           <button
             type="button"
             onClick={handleConnect}
             disabled={connecting || !shopIdInput.trim()}
-            className="btn btn-sm bg-[#00A99D]/15 border-[#00A99D]/30 text-[#5fd9cd] hover:bg-[#00A99D]/25 disabled:opacity-40 shrink-0"
+            className="btn btn-sm bg-amber-500/15 border-amber-500/30 text-amber-300 hover:bg-amber-500/25 disabled:opacity-40 shrink-0"
           >
             {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Save'}
           </button>

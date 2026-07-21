@@ -325,13 +325,12 @@ export function ImportProductModal() {
                 <button
                   type="button"
                   onClick={() => setPlatform('mymarket')}
-                  className="btn w-full justify-start gap-3 bg-[#00A99D]/15 border-[#00A99D]/30 text-[#5fd9cd] hover:bg-[#00A99D]/25"
+                  className="btn w-full justify-start gap-3 bg-amber-500/15 border-amber-500/30 text-amber-300 hover:bg-amber-500/25"
                 >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-                    <path d="M2 6l1-3.5h10L14 6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M2 6v6.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-                    <path d="M2 6a2 2 0 0 0 4 0m0 0a2 2 0 0 0 4 0m0 0a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-                  </svg>
+                  <span className="w-4 h-4 rounded-sm overflow-hidden shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/mymarket-logo.jpg" alt="" className="w-full h-full object-cover" />
+                  </span>
                   MyMarket
                 </button>
               </div>
@@ -366,7 +365,7 @@ export function ImportProductModal() {
                     onChange={e => setMymarketUrl(e.target.value)}
                     placeholder="https://mymarket.ge/pr/30635007/..."
                     disabled={loading}
-                    className="input w-full bg-white/4 border-white/10 focus:border-[#00A99D]/60"
+                    className="input w-full bg-white/4 border-white/10 focus:border-amber-500/60"
                     required
                   />
                 </div>
@@ -380,7 +379,7 @@ export function ImportProductModal() {
                 <button
                   type="submit"
                   disabled={loading || !mymarketUrl.trim()}
-                  className="btn w-full gap-2 bg-[#00A99D] hover:bg-[#00c2b3] border-[#00A99D] hover:border-[#00c2b3] text-white disabled:opacity-40"
+                  className="btn w-full gap-2 bg-amber-500 hover:bg-amber-400 border-amber-500 hover:border-amber-400 text-black font-semibold disabled:opacity-40"
                 >
                   {loading ? <span className="loading loading-spinner loading-sm" /> : 'Import'}
                 </button>
