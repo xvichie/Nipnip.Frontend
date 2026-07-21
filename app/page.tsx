@@ -351,8 +351,129 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Bottom CTA ─────────────────────────────────────────────── */}
+      {/* ── Pricing preview ────────────────────────────────────────── */}
       <section className="relative py-32 px-6 bg-[#0c0c12] border-t border-white/5 overflow-hidden">
+        <div className="absolute top-10 right-0 w-100 h-100 rounded-full pointer-events-none bg-violet-600/10 blur-[130px]" />
+        <div className="absolute bottom-0 left-10 w-80 h-80 rounded-full pointer-events-none bg-fuchsia-500/10 blur-[110px]" />
+
+        <div className="relative z-10 max-w-6xl mx-auto">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-16">
+            <div className="max-w-xl">
+              <p className="text-violet-400 text-sm font-semibold uppercase tracking-widest mb-3">
+                {t.landing.pricingBadge}
+              </p>
+              <h2 className="font-display text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight">
+                {t.landing.pricingTitle}<br />
+                <span className="text-white/30">{t.landing.pricingAccent}</span>
+              </h2>
+            </div>
+            <Link
+              href="/pricing"
+              className="group inline-flex items-center gap-1.5 text-white/50 hover:text-white text-sm font-medium transition-colors shrink-0"
+            >
+              {t.landing.pricingViewAll}
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className="transition-transform group-hover:translate-x-1">
+                <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 items-stretch">
+            {/* Starter */}
+            <div className="group relative flex flex-col p-7 lg:p-8 rounded-2xl border border-white/7 bg-white/2 hover:bg-white/4 hover:border-violet-500/25 hover:-translate-y-1 transition-all duration-300">
+              <div className="flex items-center gap-2.5 mb-7">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-violet-500/10 border border-violet-500/20 text-violet-300 shrink-0">
+                  {STORE_ICON}
+                </div>
+                <h3 className="font-display text-white font-bold text-lg">Starter</h3>
+              </div>
+
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-display text-5xl font-black text-transparent bg-clip-text bg-linear-to-r from-emerald-300 to-emerald-400">
+                  1 ₾
+                </span>
+                <span className="text-white/40 text-sm">/{t.landing.pricingPerMonth}</span>
+              </div>
+              <p className="text-emerald-400 text-xs font-semibold mt-2">{t.landing.pricingTrial}</p>
+
+              <div className="h-px bg-white/7 my-5" />
+
+              <p className="text-white/45 text-sm leading-relaxed mt-auto">
+                {t.landing.pricingThen}{' '}
+                <span className="text-white/30 line-through">69.99 ₾</span>{' '}
+                <span className="text-white font-semibold">49.99 ₾</span>
+                /{t.landing.pricingPerMonth}
+              </p>
+            </div>
+
+            {/* Growth — highlighted */}
+            <div className="group relative flex flex-col p-7 lg:p-8 rounded-2xl border border-fuchsia-500/25 bg-linear-to-br from-fuchsia-500/8 via-violet-500/5 to-transparent hover:border-fuchsia-500/40 hover:-translate-y-1 transition-all duration-300">
+              <span className="absolute -top-3 left-7 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-linear-to-r from-fuchsia-500 to-violet-500 text-white shadow-lg shadow-fuchsia-900/30">
+                {t.landing.pricingPopular}
+              </span>
+
+              <div className="flex items-center gap-2.5 mb-7 mt-1">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-linear-to-br from-fuchsia-500/20 to-violet-500/20 border border-fuchsia-500/30 text-fuchsia-300 shrink-0">
+                  {AI_AGENT_ICON}
+                </div>
+                <h3 className="font-display text-white font-bold text-lg">Growth</h3>
+              </div>
+
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-display text-5xl font-black text-transparent bg-clip-text bg-linear-to-r from-emerald-300 to-emerald-400">
+                  1 ₾
+                </span>
+                <span className="text-white/40 text-sm">/{t.landing.pricingPerMonth}</span>
+              </div>
+              <p className="text-emerald-400 text-xs font-semibold mt-2">{t.landing.pricingTrial}</p>
+
+              <div className="h-px bg-white/7 my-5" />
+
+              <p className="text-white/45 text-sm leading-relaxed mt-auto">
+                {t.landing.pricingThen}{' '}
+                <span className="text-white/30 line-through">119.99 ₾</span>{' '}
+                <span className="text-white font-semibold">89.99 ₾</span>
+                /{t.landing.pricingPerMonth}
+              </p>
+            </div>
+
+            {/* Affiliate commission */}
+            <div className="group relative flex flex-col p-7 lg:p-8 rounded-2xl border border-white/7 bg-white/2 hover:bg-white/4 hover:border-violet-500/25 hover:-translate-y-1 transition-all duration-300">
+              <div className="flex items-center gap-2.5 mb-7">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-violet-500/10 border border-violet-500/20 text-violet-300 shrink-0">
+                  {AFFILIATE_ICON}
+                </div>
+                <h3 className="font-display text-white font-bold text-lg">{t.landing.pricingAffiliateTitle}</h3>
+              </div>
+
+              <div className="flex items-center gap-5 mt-auto">
+                <div>
+                  <p className="font-display text-4xl font-black text-transparent bg-clip-text bg-linear-to-r from-violet-400 to-fuchsia-400">2%</p>
+                  <p className="text-white/40 text-xs mt-1">{t.landing.pricingAffiliateMerchant}</p>
+                </div>
+                <div className="w-px h-10 bg-white/8" />
+                <div>
+                  <p className="font-display text-4xl font-black text-transparent bg-clip-text bg-linear-to-r from-violet-400 to-fuchsia-400">1%</p>
+                  <p className="text-white/40 text-xs mt-1">{t.landing.pricingAffiliateCreator}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <Link
+            href="/pricing"
+            className="sm:hidden mt-8 flex text-white/40 hover:text-white text-sm font-medium transition-colors items-center justify-center gap-1"
+          >
+            {t.landing.pricingViewAll}
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+              <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </Link>
+        </div>
+      </section>
+
+      {/* ── Bottom CTA ─────────────────────────────────────────────── */}
+      <section className="relative py-32 px-6 bg-[#08080d] border-t border-white/5 overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-75 bg-violet-700/15 rounded-full blur-[100px] pointer-events-none" />
         <div className="relative z-10 max-w-2xl mx-auto text-center flex flex-col items-center gap-6">
           <h2 className="font-display text-4xl lg:text-5xl font-black tracking-tight leading-tight whitespace-pre-line">

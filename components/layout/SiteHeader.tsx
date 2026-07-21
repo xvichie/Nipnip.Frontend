@@ -216,6 +216,7 @@ export function SiteHeader() {
     { href: '/merchants', label: t.nav.brands },
     { href: '/creators', label: t.nav.creators },
     { href: '/how-it-works', label: t.nav.howItWorks },
+    { href: '/pricing', label: 'ფასები' },
     { href: '/faq', label: t.nav.faq },
     { href: '/example-store', label: 'სადემო მაღაზია' },
   ]
@@ -231,7 +232,7 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1">
-          {NAV_LINKS.slice(0, 2).map(({ href, label }) => (
+          {NAV_LINKS.filter(({ href }) => ['/merchants', '/creators', '/pricing'].includes(href)).map(({ href, label }) => (
             <Link
               key={href}
               href={href}
