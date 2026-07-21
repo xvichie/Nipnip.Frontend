@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import { useMyCategories } from '@/lib/queries/storefront-admin'
 import { useFacebookPostDetail, useFacebookPosts, useFacebookStatus } from '@/lib/queries/facebook'
 import { useInstagramMedia, useInstagramMediaDetail, useInstagramStatus } from '@/lib/queries/instagram'
+import { useMyMarketStatus } from '@/lib/queries/mymarket'
+import { MyMarketProductPicker } from './MyMarketProductPicker'
 import { uploadImage, uploadVideo } from '@/lib/uploadImage'
 import { viewTransitionNameFor, withViewTransition } from '@/lib/viewTransition'
 import { PRODUCT_IMPORT_STORAGE_KEY, type ProductImportData } from '@/lib/productImport'
@@ -31,6 +33,7 @@ export function ImportProductModal() {
   const [imageUrlInput, setImageUrlInput] = useState('')
   const [videoUrl, setVideoUrl] = useState('')
   const [mymarketUrl, setMymarketUrl] = useState('')
+  const [mymarketManual, setMymarketManual] = useState(false)
   const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingVideo, setUploadingVideo] = useState(false)
@@ -46,6 +49,9 @@ export function ImportProductModal() {
   const igConnected = igStatus?.connected ?? false
   const { data: igMedia, isLoading: igMediaLoading } = useInstagramMedia(open && igConnected && platform === 'instagram' && mode === 'post')
   const { mutateAsync: fetchIgMediaDetail } = useInstagramMediaDetail()
+
+  const { data: mmStatus, isLoading: mmStatusLoading } = useMyMarketStatus()
+  const mmConnected = mmStatus?.isConnected ?? false
 
   const [pickedId, setPickedId] = useState<string | null>(null)
   const dragIndex = useRef<number | null>(null)
@@ -69,6 +75,7 @@ export function ImportProductModal() {
     setVideoUrl('')
     setUploadedVideoUrl(null)
     setMymarketUrl('')
+    setMymarketManual(false)
     setError(null)
   }
 
@@ -220,16 +227,16 @@ export function ImportProductModal() {
   }
 
   // MyMarket products already come back as clean structured JSON (no caption text to run
-  // through an AI extractor) — just parse the product ID out of the pasted link and fetch.
-  async function runMyMarketImport(productUrl: string): Promise<boolean> {
-    if (!productUrl.trim()) return false
+  // through an AI extractor) — just resolve a product ID (either typed in directly by the
+  // picker, or parsed server-side out of a pasted link) and fetch.
+  async function runMyMarketImport(body: { productUrl?: string; productId?: string }): Promise<boolean> {
     setLoading(true)
     setError(null)
     try {
       const res = await fetch('/api/import/mymarket', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productUrl: productUrl.trim() }),
+        body: JSON.stringify(body),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -249,7 +256,15 @@ export function ImportProductModal() {
 
   function handleMyMarketImport(e: React.FormEvent) {
     e.preventDefault()
-    void runMyMarketImport(mymarketUrl)
+    if (!mymarketUrl.trim()) return
+    void runMyMarketImport({ productUrl: mymarketUrl })
+  }
+
+  async function handleMyMarketPick(productId: string) {
+    setPickedId(productId)
+    setError(null)
+    await runMyMarketImport({ productId })
+    setPickedId(null)
   }
 
   const busy = loading || uploadingImage || uploadingVideo || !!pickedId
@@ -335,7 +350,7 @@ export function ImportProductModal() {
                 </button>
               </div>
             ) : platform === 'mymarket' ? (
-              <form onSubmit={handleMyMarketImport} className="flex flex-col gap-4 px-5 pt-4 pb-5">
+              <div className="flex flex-col gap-4 px-5 pt-4 pb-5">
                 <button
                   type="button"
                   onClick={backFromMode}
@@ -347,43 +362,97 @@ export function ImportProductModal() {
                   Back
                 </button>
 
-                <p className="text-white/40 text-xs leading-relaxed">
-                  Paste the product page link from MyMarket.ge — the title, photos, price, and attributes are pulled
-                  in automatically. Review everything before saving.
-                </p>
+                {mmStatusLoading ? (
+                  <div className="skeleton h-40 rounded-2xl" />
+                ) : mmConnected && !mymarketManual ? (
+                  <>
+                    <p className="text-white/40 text-xs leading-relaxed">
+                      Pick a product from your connected MyMarket shop — everything below is pulled in
+                      automatically. Review it before saving.
+                    </p>
+                    <MyMarketProductPicker
+                      shopId={mmStatus!.shopId!}
+                      onPick={handleMyMarketPick}
+                      pickingId={pickedId}
+                      disabled={busy}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setMymarketManual(true)}
+                      className="text-white/30 hover:text-white/60 text-xs self-start"
+                    >
+                      Or paste a product link instead
+                    </button>
+                    {error && (
+                      <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
+                        {error}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <form onSubmit={handleMyMarketImport} className="flex flex-col gap-4">
+                    {mmConnected && (
+                      <button
+                        type="button"
+                        onClick={() => setMymarketManual(false)}
+                        className="text-white/30 hover:text-white/60 text-xs self-start flex items-center gap-1"
+                      >
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
+                          <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Browse my products instead
+                      </button>
+                    )}
 
-                <div className="fieldset gap-2">
-                  <label htmlFor="mymarket-url" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                    Product link <span className="text-error">*</span>
-                  </label>
-                  <input
-                    id="mymarket-url"
-                    type="url"
-                    inputMode="url"
-                    autoFocus
-                    value={mymarketUrl}
-                    onChange={e => setMymarketUrl(e.target.value)}
-                    placeholder="https://mymarket.ge/pr/30635007/..."
-                    disabled={loading}
-                    className="input w-full bg-white/4 border-white/10 focus:border-amber-500/60"
-                    required
-                  />
-                </div>
+                    <p className="text-white/40 text-xs leading-relaxed">
+                      Paste the product page link from MyMarket.ge — the title, photos, price, and attributes are
+                      pulled in automatically. Review everything before saving.
+                    </p>
 
-                {error && (
-                  <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
-                    {error}
-                  </div>
+                    <div className="fieldset gap-2">
+                      <label htmlFor="mymarket-url" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                        Product link <span className="text-error">*</span>
+                      </label>
+                      <input
+                        id="mymarket-url"
+                        type="url"
+                        inputMode="url"
+                        autoFocus
+                        value={mymarketUrl}
+                        onChange={e => setMymarketUrl(e.target.value)}
+                        placeholder="https://mymarket.ge/pr/30635007/..."
+                        disabled={loading}
+                        className="input w-full bg-white/4 border-white/10 focus:border-amber-500/60"
+                        required
+                      />
+                    </div>
+
+                    {!mmConnected && (
+                      <p className="text-white/25 text-xs leading-relaxed">
+                        Connect your shop in{' '}
+                        <Link href="/dashboard/merchant/store/integrations" className="text-amber-400 hover:text-amber-300">
+                          Integrations
+                        </Link>{' '}
+                        to browse your products directly.
+                      </p>
+                    )}
+
+                    {error && (
+                      <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
+                        {error}
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={loading || !mymarketUrl.trim()}
+                      className="btn w-full gap-2 bg-amber-500 hover:bg-amber-400 border-amber-500 hover:border-amber-400 text-black font-semibold disabled:opacity-40"
+                    >
+                      {loading ? <span className="loading loading-spinner loading-sm" /> : 'Import'}
+                    </button>
+                  </form>
                 )}
-
-                <button
-                  type="submit"
-                  disabled={loading || !mymarketUrl.trim()}
-                  className="btn w-full gap-2 bg-amber-500 hover:bg-amber-400 border-amber-500 hover:border-amber-400 text-black font-semibold disabled:opacity-40"
-                >
-                  {loading ? <span className="loading loading-spinner loading-sm" /> : 'Import'}
-                </button>
-              </form>
+              </div>
             ) : mode === 'choose' ? (
               <div className="flex flex-col gap-4 px-5 pt-4 pb-5">
                 <button

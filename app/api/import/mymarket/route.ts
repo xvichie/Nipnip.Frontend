@@ -127,19 +127,16 @@ async function fetchProductJson(productId: string): Promise<MyMarketApiResponse 
 }
 
 export async function POST(req: NextRequest) {
-  let body: { productUrl?: string }
+  let body: { productUrl?: string; productId?: string }
   try {
     body = await req.json()
   } catch {
     return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 })
   }
 
-  const productUrl = body.productUrl?.trim()
-  if (!productUrl) {
-    return NextResponse.json({ error: 'Paste a MyMarket product link first.' }, { status: 400 })
-  }
-
-  const productId = extractProductId(productUrl)
+  // The product picker (browsing a connected shop) already knows the numeric ID and can
+  // skip straight to it; the manual-paste form only has a URL to derive one from.
+  const productId = body.productId?.trim() || (body.productUrl?.trim() ? extractProductId(body.productUrl.trim()) : null)
   if (!productId) {
     return NextResponse.json({ error: "Couldn't find a product ID in that link." }, { status: 400 })
   }
