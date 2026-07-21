@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { reuploadToCloudinary, tryFetchDirectMedia } from '@/lib/server/cloudinaryRemoteUpload'
 
 // Used by ImportProductModal for both Facebook and Instagram — the AI extraction and
 // Cloudinary re-upload here are platform-agnostic (just caption text + image/video URLs).
-
-const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
 
 const ALLOWED_HOSTS = new Set([
   'facebook.com',
@@ -114,74 +112,12 @@ function isAllowedFacebookUrl(raw: string): URL | null {
   return url
 }
 
-function isFetchableUrl(raw: string): URL | null {
-  let url: URL
-  try {
-    url = new URL(raw)
-  } catch {
-    return null
-  }
-  if (url.protocol !== 'https:' && url.protocol !== 'http:') return null
-  return url
-}
-
 function getMetaContent(html: string, property: string): string | null {
   const tagRegex = new RegExp(`<meta[^>]+(?:property|name)=["']${property}["'][^>]*>`, 'i')
   const tagMatch = html.match(tagRegex)
   if (!tagMatch) return null
   const contentMatch = tagMatch[0].match(/content=["']([^"']*)["']/i)
   return contentMatch ? contentMatch[1] : null
-}
-
-// Delegates the actual fetch to Cloudinary (it supports a remote URL as the
-// `file` param), so our server never downloads third-party media bytes itself.
-async function reuploadToCloudinary(mediaUrl: string, resourceType: 'image' | 'video'): Promise<string | null> {
-  if (!CLOUD_NAME || !UPLOAD_PRESET) return mediaUrl // not configured — pass the URL through as-is
-
-  const form = new FormData()
-  form.append('file', mediaUrl)
-  form.append('upload_preset', UPLOAD_PRESET)
-
-  try {
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, {
-      method: 'POST',
-      body: form,
-    })
-    if (!res.ok) {
-      console.error(`Cloudinary remote-fetch upload failed (${res.status}) for ${mediaUrl}:`, await res.text())
-      return null
-    }
-    const data = (await res.json()) as { secure_url?: string }
-    return data.secure_url ?? null
-  } catch (err) {
-    console.error(`Cloudinary remote-fetch upload threw for ${mediaUrl}:`, err)
-    return null
-  }
-}
-
-// A URL already hosted on this Cloudinary account (e.g. the merchant uploaded a file
-// directly in the modal) is already final — re-uploading it would just be a wasteful
-// round-trip through Cloudinary fetching from itself, and would reorder results
-// relative to the input since resolution happens out of order otherwise.
-function isOwnCloudinaryUrl(rawUrl: string): boolean {
-  if (!CLOUD_NAME) return false
-  try {
-    return new URL(rawUrl).hostname === 'res.cloudinary.com' && rawUrl.includes(`/${CLOUD_NAME}/`)
-  } catch {
-    return false
-  }
-}
-
-// Preferred path: the merchant pasted the media's own URL (e.g. right-click →
-// "Copy image address" on the photo in the post). CDN URLs are usually fetchable
-// without the login wall that blocks the post page itself. Facebook video URLs
-// rarely work this way (signed, expiring, segmented streams) — direct upload is
-// the reliable path for video; this is a bonus for whoever does have a real link.
-async function tryFetchDirectMedia(rawUrl: string, resourceType: 'image' | 'video'): Promise<string | null> {
-  if (isOwnCloudinaryUrl(rawUrl)) return rawUrl
-  const url = isFetchableUrl(rawUrl)
-  if (!url) return null
-  return reuploadToCloudinary(url.toString(), resourceType)
 }
 
 // Fallback path: scrape the post page's og:image / og:video tags in one request.

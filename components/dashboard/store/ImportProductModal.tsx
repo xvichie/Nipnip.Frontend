@@ -11,7 +11,7 @@ import { viewTransitionNameFor, withViewTransition } from '@/lib/viewTransition'
 import { PRODUCT_IMPORT_STORAGE_KEY, type ProductImportData } from '@/lib/productImport'
 import { BetaBadge } from './BetaBadge'
 
-type Platform = 'choose' | 'facebook' | 'instagram'
+type Platform = 'choose' | 'facebook' | 'instagram' | 'mymarket'
 type Mode = 'choose' | 'post' | 'manual'
 
 interface PickableItem {
@@ -30,6 +30,7 @@ export function ImportProductModal() {
   const [images, setImages] = useState<string[]>([])
   const [imageUrlInput, setImageUrlInput] = useState('')
   const [videoUrl, setVideoUrl] = useState('')
+  const [mymarketUrl, setMymarketUrl] = useState('')
   const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingVideo, setUploadingVideo] = useState(false)
@@ -67,6 +68,7 @@ export function ImportProductModal() {
     setImageUrlInput('')
     setVideoUrl('')
     setUploadedVideoUrl(null)
+    setMymarketUrl('')
     setError(null)
   }
 
@@ -217,6 +219,39 @@ export function ImportProductModal() {
     void runImport(captionText, images, videoUrl)
   }
 
+  // MyMarket products already come back as clean structured JSON (no caption text to run
+  // through an AI extractor) — just parse the product ID out of the pasted link and fetch.
+  async function runMyMarketImport(productUrl: string): Promise<boolean> {
+    if (!productUrl.trim()) return false
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/import/mymarket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productUrl: productUrl.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error ?? 'Failed to import that product.')
+        return false
+      }
+      sessionStorage.setItem(PRODUCT_IMPORT_STORAGE_KEY, JSON.stringify(data as ProductImportData))
+      router.push('/dashboard/merchant/store/products/new?imported=mymarket')
+      return true
+    } catch {
+      setError('Failed to import that product.')
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function handleMyMarketImport(e: React.FormEvent) {
+    e.preventDefault()
+    void runMyMarketImport(mymarketUrl)
+  }
+
   const busy = loading || uploadingImage || uploadingVideo || !!pickedId
 
   return (
@@ -239,7 +274,9 @@ export function ImportProductModal() {
           <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#14141c] flex flex-col overflow-hidden max-h-[90vh]">
             <div className="flex items-center justify-between px-5 pt-5">
               <h3 className="text-sm font-semibold text-white">
-                {platform === 'choose' ? 'Import a product' : `Import from ${platform === 'facebook' ? 'Facebook' : 'Instagram'}`}
+                {platform === 'choose'
+                  ? 'Import a product'
+                  : `Import from ${platform === 'facebook' ? 'Facebook' : platform === 'instagram' ? 'Instagram' : 'MyMarket'}`}
               </h3>
               <button
                 type="button"
@@ -284,7 +321,70 @@ export function ImportProductModal() {
                   Instagram
                   <BetaBadge />
                 </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPlatform('mymarket')}
+                  className="btn w-full justify-start gap-3 bg-[#00A99D]/15 border-[#00A99D]/30 text-[#5fd9cd] hover:bg-[#00A99D]/25"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <path d="M2 6l1-3.5h10L14 6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M2 6v6.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                    <path d="M2 6a2 2 0 0 0 4 0m0 0a2 2 0 0 0 4 0m0 0a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                  </svg>
+                  MyMarket
+                </button>
               </div>
+            ) : platform === 'mymarket' ? (
+              <form onSubmit={handleMyMarketImport} className="flex flex-col gap-4 px-5 pt-4 pb-5">
+                <button
+                  type="button"
+                  onClick={backFromMode}
+                  className="text-white/30 hover:text-white/60 text-xs self-start flex items-center gap-1"
+                >
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
+                    <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Back
+                </button>
+
+                <p className="text-white/40 text-xs leading-relaxed">
+                  Paste the product page link from MyMarket.ge — the title, photos, price, and attributes are pulled
+                  in automatically. Review everything before saving.
+                </p>
+
+                <div className="fieldset gap-2">
+                  <label htmlFor="mymarket-url" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                    Product link <span className="text-error">*</span>
+                  </label>
+                  <input
+                    id="mymarket-url"
+                    type="url"
+                    inputMode="url"
+                    autoFocus
+                    value={mymarketUrl}
+                    onChange={e => setMymarketUrl(e.target.value)}
+                    placeholder="https://mymarket.ge/pr/30635007/..."
+                    disabled={loading}
+                    className="input w-full bg-white/4 border-white/10 focus:border-[#00A99D]/60"
+                    required
+                  />
+                </div>
+
+                {error && (
+                  <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading || !mymarketUrl.trim()}
+                  className="btn w-full gap-2 bg-[#00A99D] hover:bg-[#00c2b3] border-[#00A99D] hover:border-[#00c2b3] text-white disabled:opacity-40"
+                >
+                  {loading ? <span className="loading loading-spinner loading-sm" /> : 'Import'}
+                </button>
+              </form>
             ) : mode === 'choose' ? (
               <div className="flex flex-col gap-4 px-5 pt-4 pb-5">
                 <button
