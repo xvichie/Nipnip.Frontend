@@ -282,6 +282,16 @@ function OrderDetailsModal({
               >
                 {refreshingQuickShipper ? <span className="loading loading-spinner loading-xs" /> : 'განახლება'}
               </button>
+              {order.quickShipperTrackingUrl && (
+                <div className="w-full rounded-xl overflow-hidden border border-white/10 h-72">
+                  <iframe
+                    title="QuickShipper თვალყურის დევნება"
+                    className="w-full h-full border-0"
+                    loading="lazy"
+                    src={order.quickShipperTrackingUrl}
+                  />
+                </div>
+              )}
             </div>
           ) : quickShipperReady ? (
             <button
