@@ -52,27 +52,16 @@ function monthLabelFull(year: number, month: number) {
 }
 
 function OrderRow({ order, quickShipperReady }: { order: OrderDetailResponse; quickShipperReady: boolean }) {
-  const [expanded, setExpanded] = useState(false)
-  const [noteText, setNoteText] = useState('')
-  const [shippingModalOpen, setShippingModalOpen] = useState(false)
-  const { mutate: updateStatus, isPending: statusPending } = useUpdateOrderStatus()
-  const { mutate: updatePaymentConfirmed, isPending: paymentPending } = useUpdatePaymentConfirmed()
-  const { mutate: addNote, isPending: notePending } = useAddOrderNote()
-  const { mutate: refreshQuickShipper, isPending: refreshingQuickShipper } = useRefreshQuickShipperOrder()
+  const [detailsOpen, setDetailsOpen] = useState(false)
   const { date, time } = formatDateTime(order.createdAt)
   const isBankTransfer = order.paymentMethod === 'BankTransfer'
   const paymentConfirmed = !!order.paymentConfirmedAt
-
-  function handleAddNote() {
-    if (!noteText.trim()) return
-    addNote({ id: order.id, content: noteText.trim() }, { onSuccess: () => setNoteText('') })
-  }
 
   return (
     <div className="border-b border-white/4 last:border-0">
       <button
         type="button"
-        onClick={() => setExpanded(v => !v)}
+        onClick={() => setDetailsOpen(true)}
         className="w-full flex items-center gap-4 px-6 py-4 text-left hover:bg-white/2 transition-colors"
       >
         <div className="min-w-0 flex-1">
@@ -108,206 +97,252 @@ function OrderRow({ order, quickShipperReady }: { order: OrderDetailResponse; qu
           <p className="text-white/25 text-xs whitespace-nowrap">{time}</p>
         </div>
 
-        <svg
-          width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden
-          className={`shrink-0 text-white/30 transition-transform ${expanded ? 'rotate-180' : ''}`}
-        >
-          <path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className="shrink-0 text-white/30">
+          <path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
 
-      {expanded && (
-        <div className="px-6 pb-6 flex flex-col gap-6">
+      {detailsOpen && (
+        <OrderDetailsModal order={order} quickShipperReady={quickShipperReady} onClose={() => setDetailsOpen(false)} />
+      )}
+    </div>
+  )
+}
 
-          {/* Customer info */}
-          <div className="rounded-xl bg-white/2 border border-white/5 p-4 flex flex-wrap gap-x-8 gap-y-2 text-xs">
-            <a href={`mailto:${order.email}`} className="text-white/60 hover:text-white transition-colors">
-              {order.email}
+function OrderDetailsModal({
+  order,
+  quickShipperReady,
+  onClose,
+}: {
+  order: OrderDetailResponse
+  quickShipperReady: boolean
+  onClose: () => void
+}) {
+  const [noteText, setNoteText] = useState('')
+  const [shippingModalOpen, setShippingModalOpen] = useState(false)
+  const { mutate: updateStatus, isPending: statusPending } = useUpdateOrderStatus()
+  const { mutate: updatePaymentConfirmed, isPending: paymentPending } = useUpdatePaymentConfirmed()
+  const { mutate: addNote, isPending: notePending } = useAddOrderNote()
+  const { mutate: refreshQuickShipper, isPending: refreshingQuickShipper } = useRefreshQuickShipperOrder()
+  const isBankTransfer = order.paymentMethod === 'BankTransfer'
+  const paymentConfirmed = !!order.paymentConfirmedAt
+
+  function handleAddNote() {
+    if (!noteText.trim()) return
+    addNote({ id: order.id, content: noteText.trim() }, { onSuccess: () => setNoteText('') })
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+      <div
+        className="w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl bg-[#141418] border border-white/10 p-6 flex flex-col gap-6"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-white">{order.customerName}</h2>
+          <button onClick={onClose} className="text-white/30 hover:text-white" aria-label="დახურვა">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+              <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Customer info */}
+        <div className="rounded-xl bg-white/2 border border-white/5 p-4 flex flex-wrap gap-x-8 gap-y-2 text-xs">
+          <a href={`mailto:${order.email}`} className="text-white/60 hover:text-white transition-colors">
+            {order.email}
+          </a>
+          <a href={`tel:${order.phone}`} className="text-white/60 hover:text-white transition-colors">
+            {order.phone}
+          </a>
+          {order.latitude && order.longitude ? (
+            <a
+              href={`https://www.google.com/maps?q=${order.latitude},${order.longitude}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/60 hover:text-white transition-colors underline underline-offset-2"
+            >
+              {order.address}
             </a>
-            <a href={`tel:${order.phone}`} className="text-white/60 hover:text-white transition-colors">
-              {order.phone}
-            </a>
-            {order.latitude && order.longitude ? (
-              <a
-                href={`https://www.google.com/maps?q=${order.latitude},${order.longitude}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/60 hover:text-white transition-colors underline underline-offset-2"
-              >
-                {order.address}
-              </a>
-            ) : (
-              <span className="text-white/60">{order.address}</span>
-            )}
-          </div>
+          ) : (
+            <span className="text-white/60">{order.address}</span>
+          )}
+        </div>
 
-          {/* Items */}
-          <div className="flex flex-col gap-2">
-            {order.items.map(item => (
-              <div key={item.id} className="flex items-center gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5">
-                <div className="w-10 h-10 rounded-lg overflow-hidden bg-white/5 shrink-0 flex items-center justify-center">
-                  {item.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-white/15 text-[9px]">—</span>
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm text-white truncate">{item.productName}</p>
-                  {item.options.length > 0 && (
-                    <p className="text-white/30 text-xs truncate">
-                      {item.options.map(o => `${o.optionName}: ${o.value}`).join(', ')}
-                    </p>
-                  )}
-                </div>
-                <p className="text-white/40 text-xs shrink-0">×{item.quantity}</p>
-                <p className="text-white/70 text-sm font-medium shrink-0 w-16 text-right">
-                  {(item.priceAtPurchase * item.quantity).toFixed(2)} ₾
-                </p>
+        {/* Items */}
+        <div className="flex flex-col gap-2">
+          {order.items.map(item => (
+            <Link
+              key={item.id}
+              href={`/dashboard/merchant/store/products/${item.productId}`}
+              className="flex items-center gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 hover:bg-white/4 hover:border-white/10 transition-colors"
+            >
+              <div className="w-10 h-10 rounded-lg overflow-hidden bg-white/5 shrink-0 flex items-center justify-center">
+                {item.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-white/15 text-[9px]">—</span>
+                )}
               </div>
-            ))}
-            {order.shippingZoneName && (
-              <div className="flex items-center gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5">
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm text-white/60">მიწოდება — {order.shippingZoneName}</p>
-                </div>
-                <p className="text-white/70 text-sm font-medium shrink-0">
-                  {order.shippingFee > 0 ? `${order.shippingFee.toFixed(2)} ₾` : 'უფასო'}
-                </p>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm text-white truncate">{item.productName}</p>
+                {item.options.length > 0 && (
+                  <p className="text-white/30 text-xs truncate">
+                    {item.options.map(o => `${o.optionName}: ${o.value}`).join(', ')}
+                  </p>
+                )}
               </div>
-            )}
-          </div>
-
-          {/* Status changer */}
-          <div className="flex flex-col gap-2">
-            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">სტატუსი</p>
-            <div className="flex flex-wrap gap-2">
-              {STATUS_OPTIONS.map(opt => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  disabled={statusPending}
-                  onClick={() => updateStatus({ id: order.id, status: opt.value })}
-                  className={[
-                    'rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-40',
-                    order.status === opt.value
-                      ? STATUS_CLASSES[opt.value]
-                      : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
-                  ].join(' ')}
-                >
-                  {opt.label}
-                </button>
-              ))}
+              <p className="text-white/40 text-xs shrink-0">×{item.quantity}</p>
+              <p className="text-white/70 text-sm font-medium shrink-0 w-16 text-right">
+                {(item.priceAtPurchase * item.quantity).toFixed(2)} ₾
+              </p>
+            </Link>
+          ))}
+          {order.shippingZoneName && (
+            <div className="flex items-center gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm text-white/60">მიწოდება — {order.shippingZoneName}</p>
+              </div>
+              <p className="text-white/70 text-sm font-medium shrink-0">
+                {order.shippingFee > 0 ? `${order.shippingFee.toFixed(2)} ₾` : 'უფასო'}
+              </p>
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* Payment confirmation */}
-          {isBankTransfer && (
-            <div className="flex flex-col gap-2">
-              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">გადახდა</p>
+        {/* Status changer */}
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">სტატუსი</p>
+          <div className="flex flex-wrap gap-2">
+            {STATUS_OPTIONS.map(opt => (
               <button
+                key={opt.value}
                 type="button"
-                disabled={paymentPending}
-                onClick={() => updatePaymentConfirmed({ id: order.id, confirmed: !paymentConfirmed })}
+                disabled={statusPending}
+                onClick={() => updateStatus({ id: order.id, status: opt.value })}
                 className={[
-                  'self-start rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-40',
-                  paymentConfirmed
-                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                  'rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-40',
+                  order.status === opt.value
+                    ? STATUS_CLASSES[opt.value]
                     : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
                 ].join(' ')}
               >
-                {paymentConfirmed ? '✓ გადახდილია — მონიშვნის მოხსნა' : 'მონიშვნა როგორც გადახდილი'}
+                {opt.label}
               </button>
-            </div>
-          )}
-
-          {/* QuickShipper delivery */}
-          <div className="flex flex-col gap-2">
-            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">მიწოდება</p>
-            {order.quickShipperOrderId ? (
-              <div className="flex items-center gap-3 flex-wrap">
-                <span className="inline-flex items-center rounded-lg border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-300">
-                  QuickShipper #{order.quickShipperOrderId}{order.quickShipperStatus ? ` · ${order.quickShipperStatus}` : ''}
-                </span>
-                {order.quickShipperTrackingUrl && (
-                  <a
-                    href={order.quickShipperTrackingUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-white/50 hover:text-white underline underline-offset-2"
-                  >
-                    თვალყურის დევნება
-                  </a>
-                )}
-                <button
-                  type="button"
-                  disabled={refreshingQuickShipper}
-                  onClick={() => refreshQuickShipper(order.id)}
-                  className="btn btn-xs bg-white/4 border-white/8 text-white/50 hover:text-white disabled:opacity-40"
-                >
-                  {refreshingQuickShipper ? <span className="loading loading-spinner loading-xs" /> : 'განახლება'}
-                </button>
-              </div>
-            ) : quickShipperReady ? (
-              <button
-                type="button"
-                onClick={() => setShippingModalOpen(true)}
-                className="self-start rounded-lg border border-amber-500/30 bg-amber-500/15 px-3 py-1.5 text-xs font-medium text-amber-300 hover:bg-amber-500/25 transition-colors"
-              >
-                QuickShipper-ით გაგზავნა
-              </button>
-            ) : (
-              <p className="text-white/25 text-xs">
-                დააკავშირე QuickShipper და დააყენე ასაღები მისამართი{' '}
-                <Link href="/dashboard/merchant/store/integrations" className="underline underline-offset-2 hover:text-white/50">
-                  ინტეგრაციების გვერდზე
-                </Link>
-                .
-              </p>
-            )}
-          </div>
-
-          {shippingModalOpen && (
-            <QuickShipperOrderModal orderId={order.id} onClose={() => setShippingModalOpen(false)} />
-          )}
-
-          {/* Notes */}
-          <div className="flex flex-col gap-2">
-            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">კომენტარები</p>
-            {order.notes.length > 0 && (
-              <div className="flex flex-col gap-2">
-                {order.notes.map(note => {
-                  const noteTime = formatDateTime(note.createdAt)
-                  return (
-                    <div key={note.id} className="rounded-xl bg-white/2 border border-white/5 px-4 py-2.5">
-                      <p className="text-white/70 text-sm whitespace-pre-wrap">{note.content}</p>
-                      <p className="text-white/25 text-[11px] mt-1">{noteTime.date} · {noteTime.time}</p>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-            <div className="flex items-start gap-2">
-              <textarea
-                value={noteText}
-                onChange={e => setNoteText(e.target.value)}
-                placeholder="დაამატეთ კომენტარი..."
-                rows={2}
-                className="flex-1 rounded-xl bg-white/4 border border-white/10 focus:border-fuchsia-500/60 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none resize-none transition-colors"
-              />
-              <button
-                type="button"
-                onClick={handleAddNote}
-                disabled={notePending || !noteText.trim()}
-                className="btn btn-sm bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40 shrink-0"
-              >
-                დამატება
-              </button>
-            </div>
+            ))}
           </div>
         </div>
-      )}
+
+        {/* Payment confirmation */}
+        {isBankTransfer && (
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">გადახდა</p>
+            <button
+              type="button"
+              disabled={paymentPending}
+              onClick={() => updatePaymentConfirmed({ id: order.id, confirmed: !paymentConfirmed })}
+              className={[
+                'self-start rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-40',
+                paymentConfirmed
+                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                  : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+              ].join(' ')}
+            >
+              {paymentConfirmed ? '✓ გადახდილია — მონიშვნის მოხსნა' : 'მონიშვნა როგორც გადახდილი'}
+            </button>
+          </div>
+        )}
+
+        {/* QuickShipper delivery */}
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">მიწოდება</p>
+          {order.quickShipperOrderId ? (
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 rounded-lg border border-violet-500/25 bg-violet-500/10 px-2.5 py-1 text-xs font-medium text-violet-300">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/quickshipper-logo.jpg" alt="" className="w-3.5 h-3.5 rounded object-cover" />
+                QuickShipper #{order.quickShipperOrderId}{order.quickShipperStatus ? ` · ${order.quickShipperStatus}` : ''}
+              </span>
+              {order.quickShipperTrackingUrl && (
+                <a
+                  href={order.quickShipperTrackingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-white/50 hover:text-white underline underline-offset-2"
+                >
+                  თვალყურის დევნება
+                </a>
+              )}
+              <button
+                type="button"
+                disabled={refreshingQuickShipper}
+                onClick={() => refreshQuickShipper(order.id)}
+                className="btn btn-xs bg-white/4 border-white/8 text-white/50 hover:text-white disabled:opacity-40"
+              >
+                {refreshingQuickShipper ? <span className="loading loading-spinner loading-xs" /> : 'განახლება'}
+              </button>
+            </div>
+          ) : quickShipperReady ? (
+            <button
+              type="button"
+              onClick={() => setShippingModalOpen(true)}
+              className="self-start inline-flex items-center gap-2 rounded-lg border border-violet-500/30 bg-gradient-to-r from-fuchsia-500/15 to-violet-500/15 px-3 py-1.5 text-xs font-medium text-violet-200 hover:from-fuchsia-500/25 hover:to-violet-500/25 transition-colors"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/quickshipper-logo.jpg" alt="" className="w-4 h-4 rounded object-cover" />
+              QuickShipper-ით გაგზავნა
+            </button>
+          ) : (
+            <p className="text-white/25 text-xs">
+              დააკავშირე QuickShipper და დააყენე ასაღები მისამართი{' '}
+              <Link href="/dashboard/merchant/store/integrations" className="underline underline-offset-2 hover:text-white/50">
+                ინტეგრაციების გვერდზე
+              </Link>
+              .
+            </p>
+          )}
+        </div>
+
+        {shippingModalOpen && (
+          <QuickShipperOrderModal orderId={order.id} onClose={() => setShippingModalOpen(false)} />
+        )}
+
+        {/* Notes */}
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">კომენტარები</p>
+          {order.notes.length > 0 && (
+            <div className="flex flex-col gap-2">
+              {order.notes.map(note => {
+                const noteTime = formatDateTime(note.createdAt)
+                return (
+                  <div key={note.id} className="rounded-xl bg-white/2 border border-white/5 px-4 py-2.5">
+                    <p className="text-white/70 text-sm whitespace-pre-wrap">{note.content}</p>
+                    <p className="text-white/25 text-[11px] mt-1">{noteTime.date} · {noteTime.time}</p>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+          <div className="flex items-start gap-2">
+            <textarea
+              value={noteText}
+              onChange={e => setNoteText(e.target.value)}
+              placeholder="დაამატეთ კომენტარი..."
+              rows={2}
+              className="flex-1 rounded-xl bg-white/4 border border-white/10 focus:border-fuchsia-500/60 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none resize-none transition-colors"
+            />
+            <button
+              type="button"
+              onClick={handleAddNote}
+              disabled={notePending || !noteText.trim()}
+              className="btn btn-sm bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40 shrink-0"
+            >
+              დამატება
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
