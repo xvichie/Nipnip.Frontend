@@ -3,7 +3,32 @@ import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Providers } from "./providers";
+import { JsonLd } from "@/components/storefront/shared/JsonLd";
 import "./globals.css";
+
+// Site-wide identity for Google (distinct from the per-store Store/Product JSON-LD each
+// merchant storefront already renders) — helps Google understand what NipNip itself is, not
+// just the individual stores hosted on it.
+const ORGANIZATION_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': 'https://www.nipnip.ge#organization',
+  name: 'NipNip',
+  url: 'https://www.nipnip.ge',
+  sameAs: [
+    'https://instagram.com/nipnip.ge',
+    'https://tiktok.com/@nipnip.ge',
+  ],
+}
+
+const WEBSITE_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': 'https://www.nipnip.ge#website',
+  name: 'NipNip',
+  url: 'https://www.nipnip.ge',
+  publisher: { '@id': 'https://www.nipnip.ge#organization' },
+}
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -66,6 +91,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${bpgFont.variable} h-full antialiased`}
       >
         <body className={`${bpgFont.className} min-h-full flex flex-col`}>
+          <JsonLd data={ORGANIZATION_JSON_LD} />
+          <JsonLd data={WEBSITE_JSON_LD} />
           <Providers>{children}</Providers>
         </body>
       </html>
