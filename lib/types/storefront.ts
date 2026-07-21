@@ -598,3 +598,28 @@ export interface ConversationSummaryResponse {
 export interface ConversationDetailResponse extends ConversationSummaryResponse {
   messages: ConversationMessageResponse[]
 }
+
+export interface TrackPageViewRequest {
+  path: string
+  referrer?: string | null
+  visitorId: string
+}
+
+export interface TopPageEntry {
+  path: string
+  views: number
+}
+
+export interface ReferrerEntry {
+  source: string
+  visits: number
+}
+
+export interface StoreAnalyticsSummaryResponse {
+  visits: number
+  pageViews: number
+  productViews: number
+  orders: number
+  topPages: TopPageEntry[]
+  sources: ReferrerEntry[]
+}

@@ -114,6 +114,12 @@ const DOC_ICON = (
     <path d="M5.5 8h5M5.5 10.5h5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
   </svg>
 )
+const ANALYTICS_ICON = (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+    <path d="M2 2v10.5a1.5 1.5 0 0 0 1.5 1.5H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M4.5 10.5 8 6.5l2.2 2 3.3-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)
 const PALETTE_ICON = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
     <path d="M8 1.5a6.5 6.5 0 1 0 0 13c.8 0 1.3-.7.9-1.4-.2-.4-.1-.9.3-1.1.3-.2.7-.2 1 0 .6.4 1.4.1 1.6-.6.6-2 .2-4.3-1.3-6C9.4 4.2 8 3.8 8 1.5Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
@@ -231,6 +237,7 @@ function getCollapsedServerSnapshot() {
 
 const STORE_NAV_ICONS: Record<string, React.ReactNode> = {
   '/dashboard/merchant/store': STORE_ICON,
+  '/dashboard/merchant/store/analytics': ANALYTICS_ICON,
   '/dashboard/merchant/store/design': PALETTE_ICON,
   '/dashboard/merchant/store/categories': TAG_ICON,
   '/dashboard/merchant/store/products': BOX_ICON,

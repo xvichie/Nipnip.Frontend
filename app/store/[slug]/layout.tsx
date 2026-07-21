@@ -7,6 +7,7 @@ import { parseThemeConfig } from '@/lib/store/theme-config'
 import { isThemeId, SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { buildStoreJsonLd, getStoreDescription, getStoreOgImage, getStoreOrigin, getStoreTitle } from '@/lib/store/seo'
 import { JsonLd } from '@/components/storefront/shared/JsonLd'
+import { PageViewTracker } from '@/components/storefront/shared/PageViewTracker'
 import { Header as MinimalHeader } from '@/components/storefront/themes/minimal/Header'
 import { Footer as MinimalFooter } from '@/components/storefront/themes/minimal/Footer'
 import { Header as BoldHeader } from '@/components/storefront/themes/bold/Header'
@@ -99,6 +100,7 @@ export default async function StoreLayout({
   return (
     <div className={`min-h-screen flex flex-col ${SURFACE_CLASSES[themeId].page} ${SURFACE_CLASSES[themeId].text}`}>
       <JsonLd data={buildStoreJsonLd(slug, store, tokens)} />
+      <PageViewTracker slug={slug} />
       <StorefrontToastProvider>
         <StorefrontCartProvider slug={slug}>
           {showTopBar && <SocialBar themeId={themeId} tokens={tokens} edge="top" />}
