@@ -135,7 +135,7 @@ function OrderDetailsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div
-        className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-[#141418] border border-white/10 p-6 flex flex-col gap-6"
+        className="w-full max-w-4xl max-h-[95vh] overflow-y-auto rounded-2xl bg-[#141418] border border-white/10 p-6 flex flex-col gap-6"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
@@ -264,16 +264,6 @@ function OrderDetailsModal({
                 <img src="/quickshipper-logo.jpg" alt="" className="w-3.5 h-3.5 rounded object-cover" />
                 QuickShipper #{order.quickShipperOrderId}{order.quickShipperStatus ? ` · ${order.quickShipperStatus}` : ''}
               </span>
-              {order.quickShipperTrackingUrl && (
-                <a
-                  href={order.quickShipperTrackingUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-white/50 hover:text-white underline underline-offset-2"
-                >
-                  თვალყურის დევნება
-                </a>
-              )}
               <button
                 type="button"
                 disabled={refreshingQuickShipper}
@@ -283,7 +273,17 @@ function OrderDetailsModal({
                 {refreshingQuickShipper ? <span className="loading loading-spinner loading-xs" /> : 'განახლება'}
               </button>
               {order.quickShipperTrackingUrl && (
-                <div className="w-full rounded-xl overflow-hidden border border-white/10 h-72">
+                <a
+                  href={order.quickShipperTrackingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-xs bg-white/4 border-white/8 text-white/50 hover:text-white"
+                >
+                  თრექინგის მთლიანად ჩვენება
+                </a>
+              )}
+              {order.quickShipperTrackingUrl && (
+                <div className="w-full rounded-xl overflow-hidden border border-white/10 h-[600px]">
                   <iframe
                     title="QuickShipper თვალყურის დევნება"
                     className="w-full h-full border-0"
