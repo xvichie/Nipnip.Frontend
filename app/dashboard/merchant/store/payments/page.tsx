@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { useFlittStatus } from '@/lib/queries/flitt'
+import { useTbcStatus } from '@/lib/queries/tbc'
 import { parseThemeConfig } from '@/lib/store/theme-config'
 
 export default function MerchantStorePaymentsPage() {
@@ -13,11 +14,15 @@ export default function MerchantStorePaymentsPage() {
   const { data: flittStatus } = useFlittStatus()
   const flittConnected = flittStatus?.isConnected ?? false
 
+  const { data: tbcStatus } = useTbcStatus()
+  const tbcConnected = tbcStatus?.isConnected ?? false
+
   const [codEnabled, setCodEnabled] = useState(true)
   const [codNotes, setCodNotes] = useState('')
   const [bankTransferEnabled, setBankTransferEnabled] = useState(true)
   const [bankTransferNotes, setBankTransferNotes] = useState('')
   const [flittEnabled, setFlittEnabled] = useState(false)
+  const [tbcEnabled, setTbcEnabled] = useState(false)
   const [saved, setSaved] = useState(false)
 
   // "Adjust state during render" instead of an effect — hydrates once from the
@@ -31,6 +36,7 @@ export default function MerchantStorePaymentsPage() {
     setBankTransferEnabled(parsed.bankTransferEnabled)
     setBankTransferNotes(parsed.bankTransferNotes)
     setFlittEnabled(parsed.flittEnabled)
+    setTbcEnabled(parsed.tbcEnabled)
   }
 
   function handleSave() {
@@ -45,6 +51,7 @@ export default function MerchantStorePaymentsPage() {
           bankTransferEnabled,
           bankTransferNotes,
           flittEnabled,
+          tbcEnabled,
         }),
       },
       { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
@@ -77,12 +84,12 @@ export default function MerchantStorePaymentsPage() {
           <input
             type="checkbox"
             checked={codEnabled}
-            disabled={codEnabled && !bankTransferEnabled && !flittEnabled}
+            disabled={codEnabled && !bankTransferEnabled && !flittEnabled && !tbcEnabled}
             onChange={e => setCodEnabled(e.target.checked)}
             className={`toggle toggle-sm ${codEnabled ? 'toggle-success' : 'toggle-error'}`}
           />
         </div>
-        {codEnabled && !bankTransferEnabled && !flittEnabled && (
+        {codEnabled && !bankTransferEnabled && !flittEnabled && !tbcEnabled && (
           <p className="text-white/30 text-xs -mt-2">At least one payment method must stay enabled.</p>
         )}
         <div className="fieldset gap-2">
@@ -106,12 +113,12 @@ export default function MerchantStorePaymentsPage() {
           <input
             type="checkbox"
             checked={bankTransferEnabled}
-            disabled={bankTransferEnabled && !codEnabled && !flittEnabled}
+            disabled={bankTransferEnabled && !codEnabled && !flittEnabled && !tbcEnabled}
             onChange={e => setBankTransferEnabled(e.target.checked)}
             className={`toggle toggle-sm ${bankTransferEnabled ? 'toggle-success' : 'toggle-error'}`}
           />
         </div>
-        {bankTransferEnabled && !codEnabled && !flittEnabled && (
+        {bankTransferEnabled && !codEnabled && !flittEnabled && !tbcEnabled && (
           <p className="text-white/30 text-xs -mt-2">At least one payment method must stay enabled.</p>
         )}
         <div className="fieldset gap-2">
@@ -135,17 +142,45 @@ export default function MerchantStorePaymentsPage() {
           <input
             type="checkbox"
             checked={flittEnabled}
-            disabled={!flittConnected || (flittEnabled && !codEnabled && !bankTransferEnabled)}
+            disabled={!flittConnected || (flittEnabled && !codEnabled && !bankTransferEnabled && !tbcEnabled)}
             onChange={e => setFlittEnabled(e.target.checked)}
             className={`toggle toggle-sm ${flittEnabled ? 'toggle-success' : 'toggle-error'}`}
           />
         </div>
-        {flittEnabled && !codEnabled && !bankTransferEnabled && (
+        {flittEnabled && !codEnabled && !bankTransferEnabled && !tbcEnabled && (
           <p className="text-white/30 text-xs -mt-2">At least one payment method must stay enabled.</p>
         )}
         {!flittConnected && (
           <p className="text-white/30 text-xs -mt-2">
             Connect your Flitt account under{' '}
+            <Link href="/dashboard/merchant/store/integrations" className="underline underline-offset-2 hover:text-white/60">
+              Integrations
+            </Link>{' '}
+            to enable this.
+          </p>
+        )}
+      </div>
+
+      <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold text-white">Card payments (TBC)</h2>
+            <p className="text-white/40 text-xs mt-0.5">Buyer pays by card on a secure TBC-hosted checkout page.</p>
+          </div>
+          <input
+            type="checkbox"
+            checked={tbcEnabled}
+            disabled={!tbcConnected || (tbcEnabled && !codEnabled && !bankTransferEnabled && !flittEnabled)}
+            onChange={e => setTbcEnabled(e.target.checked)}
+            className={`toggle toggle-sm ${tbcEnabled ? 'toggle-success' : 'toggle-error'}`}
+          />
+        </div>
+        {tbcEnabled && !codEnabled && !bankTransferEnabled && !flittEnabled && (
+          <p className="text-white/30 text-xs -mt-2">At least one payment method must stay enabled.</p>
+        )}
+        {!tbcConnected && (
+          <p className="text-white/30 text-xs -mt-2">
+            Connect your TBC account under{' '}
             <Link href="/dashboard/merchant/store/integrations" className="underline underline-offset-2 hover:text-white/60">
               Integrations
             </Link>{' '}

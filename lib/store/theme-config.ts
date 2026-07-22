@@ -51,6 +51,7 @@ export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   bankTransferEnabled: true,
   bankTransferNotes: '',
   flittEnabled: false,
+  tbcEnabled: false,
   shippingZones: [],
   freeShippingThreshold: null,
 }

@@ -44,6 +44,17 @@ const PAYMENT_OPTIONS: { id: PaymentMethod; label: string; icon: React.ReactNode
       </svg>
     ),
   },
+  {
+    id: 'Tbc',
+    label: 'ბარათით გადახდა (TBC)',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <rect x="2.5" y="5" width="19" height="14" rx="2" stroke="currentColor" strokeWidth="1.6"/>
+        <path d="M2.5 9.5h19" stroke="currentColor" strokeWidth="1.6"/>
+        <path d="M6 14.5h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
 ]
 
 function Section({
@@ -86,8 +97,8 @@ export function Checkout({
   const [address, setAddress] = useState('')
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
 
-  // Flitt has no buyer-facing notes — it's an automatic hosted-checkout redirect, unlike
-  // COD/bank transfer which need manual instructions (courier cash, IBAN, etc).
+  // Flitt/TBC have no buyer-facing notes — both are automatic hosted-checkout redirects,
+  // unlike COD/bank transfer which need manual instructions (courier cash, IBAN, etc).
   const paymentNotes: Partial<Record<PaymentMethod, string>> = {
     CashOnDelivery: tokens.codNotes,
     BankTransfer: tokens.bankTransferNotes,
@@ -96,6 +107,7 @@ export function Checkout({
     CashOnDelivery: tokens.codEnabled,
     BankTransfer: tokens.bankTransferEnabled,
     Flitt: tokens.flittEnabled,
+    Tbc: tokens.tbcEnabled,
   }
   const enabledPaymentOptions = PAYMENT_OPTIONS.filter(opt => paymentEnabled[opt.id])
 

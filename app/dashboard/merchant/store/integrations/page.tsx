@@ -12,6 +12,7 @@ import {
   useSavePickupLocation,
 } from '@/lib/queries/quickshipper'
 import { useConnectFlitt, useDisconnectFlitt, useFlittStatus } from '@/lib/queries/flitt'
+import { useConnectTbc, useDisconnectTbc, useTbcStatus } from '@/lib/queries/tbc'
 import { useConnectMyMarket, useDisconnectMyMarket, useMyMarketStatus } from '@/lib/queries/mymarket'
 import { useConnectPhubber, useDisconnectPhubber, usePhubberStatus } from '@/lib/queries/phubber'
 import { useConnectExtra, useDisconnectExtra, useExtraStatus } from '@/lib/queries/extra'
@@ -206,6 +207,7 @@ function IntegrationsPageContent() {
 
       <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2 mt-2">Payment Providers</p>
       <FlittCard />
+      <TbcCard />
 
       <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2 mt-2">Marketplaces</p>
       <MyMarketCard />
@@ -363,6 +365,91 @@ function FlittCard() {
             onClick={handleConnect}
             disabled={connecting || !merchantId.trim() || !secretKey.trim()}
             className="btn btn-sm bg-[#788FFF]/15 border-[#788FFF]/30 text-[#788FFF] hover:bg-[#788FFF]/25 disabled:opacity-40 shrink-0"
+          >
+            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Connect'}
+          </button>
+        </div>
+      )}
+      {connectError && <p className="text-error text-xs">{connectError.message}</p>}
+    </div>
+  )
+}
+
+function TbcCard() {
+  const { data: status, isLoading } = useTbcStatus()
+  const { mutate: connect, isPending: connecting, error: connectError } = useConnectTbc()
+  const { mutate: disconnect, isPending: disconnecting } = useDisconnectTbc()
+
+  const [clientId, setClientId] = useState('')
+  const [clientSecret, setClientSecret] = useState('')
+
+  const connected = status?.isConnected ?? false
+
+  function handleConnect() {
+    if (!clientId.trim() || !clientSecret.trim()) return
+    connect(
+      { clientId: clientId.trim(), clientSecret },
+      { onSuccess: () => setClientSecret('') }
+    )
+  }
+
+  function handleDisconnect() {
+    if (!confirm('Disconnect TBC? Card payments will stop working at checkout until you reconnect.')) return
+    disconnect()
+  }
+
+  return (
+    <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex flex-col gap-4">
+      <div className="flex items-center gap-4">
+        <div className="w-11 h-11 rounded-xl overflow-hidden border border-white/10 shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/tbc-logo.jpg" alt="" className="w-full h-full object-cover" />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-white">TBC</p>
+          {isLoading ? (
+            <p className="text-white/30 text-xs mt-0.5">Checking connection...</p>
+          ) : connected ? (
+            <p className="text-emerald-400 text-xs mt-0.5">Connected — Client ID {status?.clientId}</p>
+          ) : (
+            <p className="text-white/30 text-xs mt-0.5">Connect your TBC E-Commerce account to accept card payments at checkout.</p>
+          )}
+        </div>
+
+        {!isLoading && connected && (
+          <button
+            type="button"
+            onClick={handleDisconnect}
+            disabled={disconnecting}
+            className="btn btn-sm bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40 shrink-0"
+          >
+            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'Disconnect'}
+          </button>
+        )}
+      </div>
+
+      {!isLoading && !connected && (
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+          <input
+            type="text"
+            value={clientId}
+            onChange={e => setClientId(e.target.value)}
+            placeholder="Client ID"
+            className="input input-sm bg-white/4 border-white/10 focus:border-[#4FC3F7]/60 flex-1"
+          />
+          <input
+            type="password"
+            value={clientSecret}
+            onChange={e => setClientSecret(e.target.value)}
+            placeholder="Client secret"
+            className="input input-sm bg-white/4 border-white/10 focus:border-[#4FC3F7]/60 flex-1"
+          />
+          <button
+            type="button"
+            onClick={handleConnect}
+            disabled={connecting || !clientId.trim() || !clientSecret.trim()}
+            className="btn btn-sm bg-[#4FC3F7]/15 border-[#4FC3F7]/30 text-[#4FC3F7] hover:bg-[#4FC3F7]/25 disabled:opacity-40 shrink-0"
           >
             {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Connect'}
           </button>

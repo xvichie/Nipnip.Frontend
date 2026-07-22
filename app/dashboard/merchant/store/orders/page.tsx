@@ -231,6 +231,17 @@ function OrderDetailsModal({
                 </svg>
                 Flitt
               </a>
+            ) : order.paymentMethod === 'Tbc' ? (
+              <a
+                href="https://ecom.tbcpayments.ge"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#4FC3F7]/30 bg-[#4FC3F7]/15 px-2.5 py-1 text-xs font-medium text-[#4FC3F7] hover:bg-[#4FC3F7]/25 transition-colors"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/tbc-logo.jpg" alt="" className="w-3.5 h-3.5 rounded object-cover" />
+                TBC
+              </a>
             ) : (
               <span className="inline-flex items-center rounded-lg border border-white/10 bg-white/4 px-2.5 py-1 text-xs font-medium text-white/70">
                 {PAYMENT_LABELS[order.paymentMethod] ?? order.paymentMethod}
