@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { apiFetch, ApiError } from '@/lib/api'
 import { StorefrontCartProvider } from '@/lib/store/storefront-cart-context'
 import { StorefrontToastProvider } from '@/lib/store/storefront-toast-context'
-import { parseThemeConfig } from '@/lib/store/theme-config'
+import { parseThemeConfig, parseThemeOverride } from '@/lib/store/theme-config'
 import { isThemeId, SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { buildStoreJsonLd, getStoreDescription, getStoreOgImage, getStoreOrigin, getStoreTitle } from '@/lib/store/seo'
 import { JsonLd } from '@/components/storefront/shared/JsonLd'
@@ -91,6 +91,9 @@ export default async function StoreLayout({
   ])
   const tokens = parseThemeConfig(store.themeConfig)
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
+  // Admin-authored only (written exclusively through the AdminOnly-gated admin API) — trusted
+  // content, hence the raw <style>/dangerouslySetInnerHTML below.
+  const override = store.themeOverrideEnabled ? parseThemeOverride(store.themeOverride) : {}
 
   const Header = HEADERS[themeId]
   const Footer = FOOTERS[themeId]
@@ -101,6 +104,8 @@ export default async function StoreLayout({
     <div className={`min-h-screen flex flex-col ${SURFACE_CLASSES[themeId].page} ${SURFACE_CLASSES[themeId].text}`}>
       <JsonLd data={buildStoreJsonLd(slug, store, tokens)} />
       <PageViewTracker slug={slug} />
+      {override.customCss && <style dangerouslySetInnerHTML={{ __html: override.customCss }} />}
+      {override.announcementHtml && <div dangerouslySetInnerHTML={{ __html: override.announcementHtml }} />}
       <StorefrontToastProvider>
         <StorefrontCartProvider slug={slug}>
           {showTopBar && <SocialBar themeId={themeId} tokens={tokens} edge="top" />}
@@ -110,6 +115,7 @@ export default async function StoreLayout({
           {showBottomBar && <SocialBar themeId={themeId} tokens={tokens} edge="bottom" />}
         </StorefrontCartProvider>
       </StorefrontToastProvider>
+      {override.footerExtraHtml && <div dangerouslySetInnerHTML={{ __html: override.footerExtraHtml }} />}
     </div>
   )
 }

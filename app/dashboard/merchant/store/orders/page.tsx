@@ -7,6 +7,7 @@ import { useQuickShipperStatus, useRefreshQuickShipperOrder } from '@/lib/querie
 import { MonthlyBarChart } from '@/components/dashboard/MonthlyBarChart'
 import { QuickShipperOrderModal } from '@/components/dashboard/store/QuickShipperOrderModal'
 import type { OrderDetailResponse, OrderStatus } from '@/lib/types/storefront'
+import { CImg } from '@/components/ui/CImg'
 
 const PAGE_SIZE = 20
 
@@ -157,8 +158,7 @@ function OrderDetailsModal({
             >
               <div className="w-10 h-10 rounded-lg overflow-hidden bg-white/5 shrink-0 flex items-center justify-center">
                 {item.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
+                  <CImg src={item.imageUrl} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-white/15 text-[9px]">—</span>
                 )}
@@ -238,8 +238,7 @@ function OrderDetailsModal({
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-lg border border-[#4FC3F7]/30 bg-[#4FC3F7]/15 px-2.5 py-1 text-xs font-medium text-[#4FC3F7] hover:bg-[#4FC3F7]/25 transition-colors"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/tbc-logo.jpg" alt="" className="w-3.5 h-3.5 rounded object-cover" />
+                <CImg src="/tbc-logo.jpg" alt="" className="w-3.5 h-3.5 rounded object-cover" />
                 TBC
               </a>
             ) : order.paymentMethod === 'Bog' ? (
@@ -249,8 +248,7 @@ function OrderDetailsModal({
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-lg border border-[#FF6A2B]/30 bg-[#FF6A2B]/15 px-2.5 py-1 text-xs font-medium text-[#FF6A2B] hover:bg-[#FF6A2B]/25 transition-colors"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/bog-logo.jpg" alt="" className="w-3.5 h-3.5 rounded object-cover" />
+                <CImg src="/bog-logo.jpg" alt="" className="w-3.5 h-3.5 rounded object-cover" />
                 BOG
               </a>
             ) : order.paymentMethod === 'CityPay' ? (
@@ -260,8 +258,7 @@ function OrderDetailsModal({
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-lg border border-[#E63946]/30 bg-[#E63946]/15 px-2.5 py-1 text-xs font-medium text-[#E63946] hover:bg-[#E63946]/25 transition-colors"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/citypay-logo.png" alt="" className="w-3.5 h-3.5 rounded object-cover" />
+                <CImg src="/citypay-logo.png" alt="" className="w-3.5 h-3.5 rounded object-cover" />
                 CityPay
               </a>
             ) : (
@@ -293,8 +290,7 @@ function OrderDetailsModal({
           {order.quickShipperOrderId ? (
             <div className="flex items-center gap-3 flex-wrap">
               <span className="inline-flex items-center gap-1.5 rounded-lg border border-violet-500/25 bg-violet-500/10 px-2.5 py-1 text-xs font-medium text-violet-300">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/quickshipper-logo.jpg" alt="" className="w-3.5 h-3.5 rounded object-cover" />
+                <CImg src="/quickshipper-logo.jpg" alt="" className="w-3.5 h-3.5 rounded object-cover" />
                 QuickShipper #{order.quickShipperOrderId}{order.quickShipperStatus ? ` · ${order.quickShipperStatus}` : ''}
               </span>
               <button
@@ -332,8 +328,7 @@ function OrderDetailsModal({
               onClick={() => setShippingModalOpen(true)}
               className="self-start inline-flex items-center gap-2 rounded-lg border border-violet-500/30 bg-gradient-to-r from-fuchsia-500/15 to-violet-500/15 px-3 py-1.5 text-xs font-medium text-violet-200 hover:from-fuchsia-500/25 hover:to-violet-500/25 transition-colors"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/quickshipper-logo.jpg" alt="" className="w-4 h-4 rounded object-cover" />
+              <CImg src="/quickshipper-logo.jpg" alt="" className="w-4 h-4 rounded object-cover" />
               QuickShipper-ით გაგზავნა
             </button>
           ) : (

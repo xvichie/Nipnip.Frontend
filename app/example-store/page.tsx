@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { PRODUCTS, CATEGORIES, getCategoryName } from '@/lib/store/products'
 import { useCart } from '@/lib/store/cart-context'
+import { CImg } from '@/components/ui/CImg'
 
 function badgeClass(badge: string) {
   if (badge === 'ფასდაკლება') return 'bg-[#c8102e] text-white'
@@ -42,8 +43,7 @@ function ProductCard({ product }: { product: (typeof PRODUCTS)[0] }) {
     <Link href={`/example-store/products/${product.slug}`} className="group block">
       <div className="bg-white border border-[#e5e5e5] hover:shadow-md transition-shadow duration-200">
         <div className="relative aspect-square bg-[#f7f7f7] overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <CImg
             src={product.images[0]}
             alt={product.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -159,8 +159,7 @@ export default function StoreHomePage() {
                   <Link key={p.id} href={`/example-store/products?category=${p.category}`}
                     className="group flex flex-col gap-1.5">
                     <div className="aspect-square bg-[#f7f7f7] overflow-hidden border border-[#e5e5e5]">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={p.images[0]} alt={p.name}
+                      <CImg src={p.images[0]} alt={p.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     </div>
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-[#555] group-hover:text-[#111] transition-colors">
@@ -188,8 +187,7 @@ export default function StoreHomePage() {
 
           {/* ── Right: full-bleed product photo ── */}
           <div className="hidden lg:block relative bg-[#f0efed] overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <CImg
               src={bestSeller.images[0]}
               alt={bestSeller.name}
               className="absolute inset-0 w-full h-full object-cover object-center"
@@ -300,8 +298,7 @@ export default function StoreHomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
           <div className="grid grid-cols-1 md:grid-cols-2 border border-[#e5e5e5]">
             <div className="bg-[#f7f7f7] aspect-square md:aspect-auto min-h-[320px] relative overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={bestSeller.images[0]} alt={bestSeller.name} className="w-full h-full object-cover" />
+              <CImg src={bestSeller.images[0]} alt={bestSeller.name} className="w-full h-full object-cover" />
               <span className="absolute top-4 left-4 bg-white border border-[#e5e5e5] text-[#111] text-[9px] font-bold px-2.5 py-1 uppercase tracking-wider">
                 ბესტსელერი
               </span>

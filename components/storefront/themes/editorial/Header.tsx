@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { getNavCategories, getNavPages } from '@/lib/store/nav-menu'
 import type { CategoryResponse, StorePageResponse, ThemeConfig } from '@/lib/types/storefront'
+import { CImg } from '@/components/ui/CImg'
 
 function Divider() {
   return <span className="w-px h-3 bg-black/15" aria-hidden />
@@ -64,8 +65,7 @@ export function Header({
         <Link href={`/`} className="flex items-center justify-center gap-3 min-w-0">
           {tokens.logoUrl ? (
             <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={tokens.logoUrl} alt={storeName} className="h-9 w-auto object-contain shrink-0" />
+              <CImg src={tokens.logoUrl} cldWidth={240} alt={storeName} className="h-9 w-auto object-contain shrink-0" />
               {tokens.showStoreName && (
                 <span className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#111111] truncate">{storeName}</span>
               )}

@@ -18,6 +18,7 @@ import { viewTransitionNameFor, withViewTransition } from '@/lib/viewTransition'
 import { PRODUCT_IMPORT_STORAGE_KEY, type ProductImportData } from '@/lib/productImport'
 import type { ExtraProductSummary } from '@/lib/types'
 import { BetaBadge } from './BetaBadge'
+import { CImg } from '@/components/ui/CImg'
 
 type Platform = 'choose' | 'facebook' | 'instagram' | 'mymarket' | 'phubber' | 'extra' | 'facebook-bulk'
 type Mode = 'choose' | 'post' | 'manual'
@@ -467,8 +468,7 @@ export function ImportProductModal() {
                   className="btn w-full justify-start gap-3 bg-amber-500/15 border-amber-500/30 text-amber-300 hover:bg-amber-500/25"
                 >
                   <span className="w-4 h-4 rounded-sm overflow-hidden shrink-0">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/mymarket-logo.jpg" alt="" className="w-full h-full object-cover" />
+                    <CImg src="/mymarket-logo.jpg" alt="" className="w-full h-full object-cover" />
                   </span>
                   MyMarket
                 </button>
@@ -479,8 +479,7 @@ export function ImportProductModal() {
                   className="btn w-full justify-start gap-3 bg-[#EAC7C5]/20 border-[#EAC7C5]/40 text-[#EAC7C5] hover:bg-[#EAC7C5]/30"
                 >
                   <span className="w-4 h-4 rounded-sm overflow-hidden shrink-0">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/phubber-logo.jpg" alt="" className="w-full h-full object-cover" />
+                    <CImg src="/phubber-logo.jpg" alt="" className="w-full h-full object-cover" />
                   </span>
                   Phubber
                 </button>
@@ -491,8 +490,7 @@ export function ImportProductModal() {
                   className="btn w-full justify-start gap-3 bg-[#7A1DFF]/15 border-[#7A1DFF]/30 text-[#c299ff] hover:bg-[#7A1DFF]/25"
                 >
                   <span className="w-4 h-4 rounded-sm overflow-hidden shrink-0">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/extra-logo.jpg" alt="" className="w-full h-full object-cover" />
+                    <CImg src="/extra-logo.jpg" alt="" className="w-full h-full object-cover" />
                   </span>
                   Extra.ge
                 </button>
@@ -916,8 +914,7 @@ export function ImportProductModal() {
                               className="relative w-16 h-16 rounded-lg overflow-hidden border border-white/10 shrink-0 hover:border-fuchsia-500/60 transition-colors disabled:opacity-40"
                             >
                               {item.thumbnailUrl ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img src={item.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                                <CImg src={item.thumbnailUrl} alt="" className="w-full h-full object-cover" />
                               ) : (
                                 <div className="w-full h-full bg-white/4 flex items-center justify-center text-white/20 text-[9px] p-1 text-center leading-tight">
                                   {item.text?.slice(0, 40) ?? 'Post'}
@@ -980,8 +977,7 @@ export function ImportProductModal() {
                           style={{ viewTransitionName: viewTransitionNameFor(url) }}
                           className="relative w-14 h-14 rounded-lg overflow-hidden border border-white/10 group shrink-0 cursor-grab active:cursor-grabbing"
                         >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={url} alt="" className="w-full h-full object-cover pointer-events-none" />
+                          <CImg src={url} alt="" className="w-full h-full object-cover pointer-events-none" />
                           {i === 0 && (
                             <span className="absolute top-0.5 left-0.5 rounded bg-fuchsia-600 text-white text-[8px] font-bold px-1 py-0.5">
                               Cover

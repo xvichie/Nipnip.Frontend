@@ -5,6 +5,7 @@ import { useMerchants, useHighlightedMerchants } from '@/lib/queries/merchants'
 import { useCreatorMe, useMyAccessRequests, useRequestMerchantAccess } from '@/lib/queries/creators'
 import { useLanguage } from '@/lib/i18n'
 import type { AccessRequestStatus, MerchantResponse } from '@/lib/types'
+import { CImg } from '@/components/ui/CImg'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
 const PAGE_SIZE = 12
@@ -315,8 +316,7 @@ function MerchantLogo({ merchant, size }: { merchant: MerchantResponse | null; s
 
   if (merchant?.logoUrl) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <CImg
         src={merchant.logoUrl}
         alt={merchant.name}
         className={`${dim} rounded-xl object-cover shrink-0`}

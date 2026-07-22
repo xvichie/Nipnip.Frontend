@@ -5,6 +5,7 @@ import { uploadImage } from '@/lib/uploadImage'
 import { useCreateProductImage, useDeleteProductImage, useReorderProductImages } from '@/lib/queries/storefront-admin'
 import type { ProductImageResponse } from '@/lib/types/storefront'
 import { viewTransitionNameFor, withViewTransition } from '@/lib/viewTransition'
+import { CImg } from '@/components/ui/CImg'
 
 export function ProductImagesManager({ productId, images }: { productId: string; images: ProductImageResponse[] }) {
   const { mutate: createImage, isPending: isCreating } = useCreateProductImage(productId)
@@ -90,8 +91,7 @@ export function ProductImagesManager({ productId, images }: { productId: string;
             style={{ viewTransitionName: viewTransitionNameFor(image.id) }}
             className="relative w-20 h-20 rounded-xl overflow-hidden border border-white/10 group cursor-grab active:cursor-grabbing"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image.url} alt="" className="w-full h-full object-cover pointer-events-none" />
+            <CImg src={image.url} alt="" className="w-full h-full object-cover pointer-events-none" />
             {index === 0 && (
               <span className="absolute top-1 left-1 rounded bg-fuchsia-600 text-white text-[9px] font-bold px-1.5 py-0.5">
                 Cover

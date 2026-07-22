@@ -8,6 +8,7 @@ import { Breadcrumbs } from '@/components/storefront/shared/Breadcrumbs'
 import { ProductCard } from './ProductCard'
 import { glowShadow, shadeColor } from '@/lib/store/theme-config'
 import type { CategoryResponse, ProductDetailResponse, ThemeConfig } from '@/lib/types/storefront'
+import { CImg } from '@/components/ui/CImg'
 
 export function ProductDetail({
   slug,
@@ -94,8 +95,7 @@ export function ProductDetail({
                     className="w-16 h-16 rounded-xl overflow-hidden border-2 transition-colors bg-white/[0.06]"
                     style={{ borderColor: activeImage === i ? tokens.accentColor : 'rgba(255,255,255,0.1)' }}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={image.url} alt="" className="w-full h-full object-cover" />
+                    <CImg src={image.url} cldWidth={160} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -111,8 +111,7 @@ export function ProductDetail({
                   aria-label="სურათის გადიდება"
                   className="w-full h-full cursor-zoom-in"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={images[activeImage].url} alt={product.name} className="w-full h-full object-cover" />
+                  <CImg src={images[activeImage].url} cldWidth={1000} alt={product.name} className="w-full h-full object-contain" />
                 </button>
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-white/20 text-xs uppercase tracking-wider">

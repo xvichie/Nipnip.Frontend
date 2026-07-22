@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import { getCategoryIcon } from '@/lib/store/category-icons'
+import { CImg } from '@/components/ui/CImg'
 
 export function CategoryIcon({
   iconUrl,
@@ -18,8 +19,7 @@ export function CategoryIcon({
   const Icon = getCategoryIcon(iconKey)
 
   if (iconUrl) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={iconUrl} alt="" className={`${className} object-cover rounded-full`} />
+    return <CImg src={iconUrl} alt="" className={`${className} object-cover rounded-full`} />
   }
   if (Icon) {
     // eslint-disable-next-line react-hooks/static-components

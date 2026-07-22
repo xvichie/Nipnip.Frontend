@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { getThemeDefinition, RADIUS_CLASS, SURFACE_CLASSES } from '@/lib/storefront-themes'
 import type { ThemeConfig, ThemeId } from '@/lib/types/storefront'
+import { CImg } from '@/components/ui/CImg'
 
 export function Cart({
   slug,
@@ -65,8 +66,7 @@ export function Cart({
                     className={`w-20 h-20 shrink-0 overflow-hidden ${radius} ${surface.card} border ${surface.border}`}
                   >
                     {item.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={item.imageUrl} alt={item.productName} className="w-full h-full object-cover" />
+                      <CImg src={item.imageUrl} alt={item.productName} className="w-full h-full object-cover" />
                     ) : (
                       <div className={`w-full h-full flex items-center justify-center text-[10px] ${surface.muted}`}>
                         სურათი არ არის

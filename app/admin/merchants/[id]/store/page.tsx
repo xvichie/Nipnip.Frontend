@@ -3,7 +3,104 @@
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { useAdminCreateStore, useAdminMerchant, useAdminMerchantStore } from '@/lib/queries/admin'
+import { useAdminCreateStore, useAdminMerchant, useAdminMerchantStore, useAdminSetStoreThemeOverride } from '@/lib/queries/admin'
+
+const THEME_OVERRIDE_PLACEHOLDER = `{
+  "customCss": ".hero { background: #111 !important; }",
+  "announcementHtml": "<div style=\\"background:#111;color:#fff;text-align:center;padding:8px;font-size:13px\\">🎉 20% off this week</div>",
+  "footerExtraHtml": "<p style=\\"text-align:center;padding:12px;font-size:12px;color:#888\\">As seen on TV</p>"
+}`
+
+function formatOverride(raw: string | null): string {
+  if (!raw) return ''
+  try {
+    return JSON.stringify(JSON.parse(raw), null, 2)
+  } catch {
+    return raw
+  }
+}
+
+function ThemeOverrideEditor({ merchantId, currentOverride, enabled }: { merchantId: string; currentOverride: string | null; enabled: boolean }) {
+  const { mutate: setOverride, isPending, error, isSuccess } = useAdminSetStoreThemeOverride(merchantId)
+  const [json, setJson] = useState(() => formatOverride(currentOverride))
+  const [parseError, setParseError] = useState<string | null>(null)
+
+  // "Adjust state during render" instead of an effect — hydrates once from the fetched
+  // override, which arrives async, so there's no lazy-initializer moment to hook into.
+  const [prevOverride, setPrevOverride] = useState(currentOverride)
+  if (currentOverride !== prevOverride) {
+    setPrevOverride(currentOverride)
+    setJson(formatOverride(currentOverride))
+  }
+
+  function handleChange(value: string) {
+    setJson(value)
+    if (!value.trim()) { setParseError(null); return }
+    try {
+      JSON.parse(value)
+      setParseError(null)
+    } catch {
+      setParseError('Invalid JSON')
+    }
+  }
+
+  function handleSave() {
+    const trimmed = json.trim()
+    if (trimmed && parseError) return
+    setOverride({ themeOverride: trimmed || null })
+  }
+
+  return (
+    <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.03] p-6 flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h2 className="text-sm font-bold text-amber-300">Custom Theme Override — NipNip only</h2>
+          <p className="text-white/40 text-xs mt-1">
+            Layered on top of the merchant&apos;s own theme. They can toggle it on/off but not edit it.
+          </p>
+        </div>
+        {currentOverride && (
+          <span className={[
+            'shrink-0 inline-flex items-center rounded-lg border px-2 py-0.5 text-xs font-medium',
+            enabled
+              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+              : 'bg-white/[0.04] border-white/[0.08] text-white/30',
+          ].join(' ')}>
+            {enabled ? 'Enabled by merchant' : 'Disabled by merchant'}
+          </span>
+        )}
+      </div>
+
+      <textarea
+        value={json}
+        onChange={e => handleChange(e.target.value)}
+        placeholder={THEME_OVERRIDE_PLACEHOLDER}
+        rows={10}
+        spellCheck={false}
+        className={[
+          'textarea w-full bg-[#0b0b10] font-mono text-xs leading-relaxed resize-y',
+          parseError ? 'border-error/60 focus:border-error' : 'border-white/10 focus:border-amber-500/60',
+        ].join(' ')}
+      />
+      <p className="text-white/25 text-xs -mt-2">
+        Supported keys: <code className="text-white/40">customCss</code>, <code className="text-white/40">announcementHtml</code>, <code className="text-white/40">footerExtraHtml</code>. Leave empty to clear the override.
+      </p>
+
+      {parseError && <p className="text-error text-xs">{parseError}</p>}
+      {error && <p className="text-error text-xs">Failed to save. Check the JSON and try again.</p>}
+      {isSuccess && !isPending && <p className="text-emerald-400 text-xs">Saved.</p>}
+
+      <button
+        type="button"
+        onClick={handleSave}
+        disabled={isPending || !!parseError}
+        className="btn btn-sm self-start gap-2 bg-amber-500/15 border-amber-500/25 text-amber-300 hover:bg-amber-500/25 disabled:opacity-40"
+      >
+        {isPending ? <span className="loading loading-spinner loading-xs" /> : 'Save Override'}
+      </button>
+    </div>
+  )
+}
 
 export default function AdminMerchantStorePage() {
   const { id } = useParams<{ id: string }>()
@@ -107,7 +204,13 @@ export default function AdminMerchantStorePage() {
             The merchant can now log into their dashboard and populate categories, products, and variants.
           </p>
         </div>
-      ) : (
+      ) : null}
+
+      {store && (
+        <ThemeOverrideEditor merchantId={id} currentOverride={store.themeOverride} enabled={store.themeOverrideEnabled} />
+      )}
+
+      {!store && (
         <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6">
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 

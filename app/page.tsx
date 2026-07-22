@@ -7,6 +7,7 @@ import { SiteHeader } from '@/components/layout/SiteHeader'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { FeaturedMerchantsCarousel } from '@/components/FeaturedMerchantsCarousel'
 import { useLanguage } from '@/lib/i18n'
+import { CImg } from '@/components/ui/CImg'
 
 const STORE_ICON = (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
@@ -155,8 +156,7 @@ export default function LandingPage() {
               style={{ '--float-duration': '7s', '--float-delay': '0s', '--float-rotate': '-3deg' } as CSSProperties}
             >
               <div className="h-28 relative overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <CImg
                   src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=300&h=200&q=80"
                   alt=""
                   className="w-full h-full object-cover"

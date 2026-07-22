@@ -6,6 +6,7 @@ import { SiteFooter } from '@/components/layout/SiteFooter'
 import { useCreators, useHighlightedCreators } from '@/lib/queries/creators'
 import { useLanguage } from '@/lib/i18n'
 import type { CreatorResponse } from '@/lib/types'
+import { CImg } from '@/components/ui/CImg'
 
 function formatFollowers(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
@@ -70,8 +71,7 @@ function CreatorAvatar({ c, size }: { c: CreatorResponse; size: 'sm' | 'md' | 'l
   const initials = c.name.slice(0, 2).toUpperCase()
   if (c.avatarUrl) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <CImg
         src={c.avatarUrl}
         alt={c.name}
         className={`${dim} rounded-full object-cover border-2 border-white/15 shrink-0`}

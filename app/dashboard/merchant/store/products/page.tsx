@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useDeleteProduct, useDuplicateProduct, useMyCategories, useMyProducts } from '@/lib/queries/storefront-admin'
 import { ImportProductModal } from '@/components/dashboard/store/ImportProductModal'
+import { CImg } from '@/components/ui/CImg'
 
 const SORT_OPTIONS = [
   { value: 'createdAt-desc', label: 'Newest first' },
@@ -145,12 +146,15 @@ export default function MerchantProductsPage() {
               </thead>
               <tbody>
                 {data.items.map(product => (
-                  <tr key={product.id} className="border-b border-white/4 last:border-0 hover:bg-white/2 transition-colors">
+                  <tr
+                    key={product.id}
+                    onClick={() => router.push(`/dashboard/merchant/store/products/${product.id}`)}
+                    className="border-b border-white/4 last:border-0 hover:bg-white/2 transition-colors cursor-pointer"
+                  >
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-3">
                         {product.thumbnailUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={product.thumbnailUrl} alt="" className="w-10 h-10 rounded-lg object-cover border border-white/10" />
+                          <CImg src={product.thumbnailUrl} cldWidth={80} alt="" className="w-10 h-10 rounded-lg object-cover border border-white/10" />
                         ) : (
                           <div className="w-10 h-10 rounded-lg bg-white/4 border border-white/8" />
                         )}
@@ -168,27 +172,42 @@ export default function MerchantProductsPage() {
                         {product.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-5 py-3.5 text-right" onClick={e => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-1.5">
                         <Link
                           href={`/dashboard/merchant/store/products/${product.id}`}
-                          className="btn btn-xs bg-white/4 border-white/8 text-white/60 hover:text-white"
+                          aria-label="Edit"
+                          className="tooltip tooltip-top btn btn-xs btn-square bg-white/4 border-white/8 text-white/60 hover:text-white"
+                          data-tip="Edit"
                         >
-                          Edit
+                          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden>
+                            <path d="M9.5 1.5l3 3-7 7-3.5 1 1-3.5 6.5-6.5z" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
                         </Link>
                         <button
+                          type="button"
                           onClick={() => handleDuplicate(product.id)}
                           disabled={isDuplicating}
-                          className="btn btn-xs bg-white/4 border-white/8 text-white/60 hover:text-white disabled:opacity-40"
+                          aria-label="Duplicate"
+                          className="tooltip tooltip-top btn btn-xs btn-square bg-white/4 border-white/8 text-white/60 hover:text-white disabled:opacity-40"
+                          data-tip="Duplicate"
                         >
-                          Duplicate
+                          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden>
+                            <rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+                            <path d="M9 5V3.5A1.5 1.5 0 0 0 7.5 2h-5A1.5 1.5 0 0 0 1 3.5v5A1.5 1.5 0 0 0 2.5 10H4" stroke="currentColor" strokeWidth="1.3"/>
+                          </svg>
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleDelete(product.id, product.name)}
                           disabled={isDeleting}
-                          className="btn btn-xs bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40"
+                          aria-label="Delete"
+                          className="tooltip tooltip-top btn btn-xs btn-square bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40"
+                          data-tip="Delete"
                         >
-                          Delete
+                          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden>
+                            <path d="M2.5 3.5h9M5.5 3.5V2a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1.5M5.5 6.5v4M8.5 6.5v4M3.5 3.5l.5 8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1l.5-8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
                         </button>
                       </div>
                     </td>

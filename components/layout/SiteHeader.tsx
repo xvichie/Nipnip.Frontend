@@ -7,6 +7,7 @@ import { NavbarAuth } from '@/components/NavbarAuth'
 import { LanguageSwitcher, LanguageButtonGroup } from '@/components/LanguageSwitcher'
 import { useLanguage } from '@/lib/i18n'
 import { NipNipLogo } from '@/components/NipNipLogo'
+import { CImg } from '@/components/ui/CImg'
 
 // Store-front icon used inside the dropdown
 function StoreIcon({ className }: { className?: string }) {
@@ -75,8 +76,7 @@ function CreateStoreDropdown() {
             >
               {/* Store thumbnail */}
               <div className="w-10 h-10 rounded-xl bg-[#1a1a2e] border border-white/8 overflow-hidden shrink-0 flex items-center justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <CImg
                   src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=80&q=80"
                   alt="NipNip Shoes"
                   className="w-full h-full object-cover opacity-90"
@@ -213,8 +213,6 @@ export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const NAV_LINKS = [
-    { href: '/merchants', label: t.nav.brands },
-    { href: '/creators', label: t.nav.creators },
     { href: '/how-it-works', label: t.nav.howItWorks },
     { href: '/pricing', label: 'ფასები' },
     { href: '/faq', label: t.nav.faq },
@@ -232,7 +230,7 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1">
-          {NAV_LINKS.filter(({ href }) => ['/merchants', '/creators', '/pricing'].includes(href)).map(({ href, label }) => (
+          {NAV_LINKS.filter(({ href }) => ['/pricing'].includes(href)).map(({ href, label }) => (
             <Link
               key={href}
               href={href}

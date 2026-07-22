@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useLanguage } from '@/lib/i18n'
 import type { Strings } from '@/lib/i18n'
+import { CImg } from '@/components/ui/CImg'
 import {
   PRODUCT_ROTATION_MAX,
   PRODUCT_ROTATION_MIN,
@@ -136,8 +137,7 @@ export function PostLayoutCard({
       >
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
 
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <CImg
           src={transparentUrl}
           alt=""
           draggable={false}
@@ -157,8 +157,7 @@ export function PostLayoutCard({
         )}
 
         {editState.logo.visible && logoUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <CImg
             src={logoUrl}
             alt=""
             draggable={false}

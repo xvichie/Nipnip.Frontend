@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useMyMarketProducts } from '@/lib/queries/mymarket'
+import { CImg } from '@/components/ui/CImg'
 
 interface MyMarketProductPickerProps {
   shopId: string
@@ -40,8 +41,7 @@ export function MyMarketProductPicker({ shopId, onPick, pickingId, disabled }: M
               >
                 <div className="aspect-square bg-white/4 relative">
                   {product.thumbnailUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={product.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                    <CImg src={product.thumbnailUrl} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-white/20 text-[9px] p-1 text-center">
                       No photo

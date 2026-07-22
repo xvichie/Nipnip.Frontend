@@ -7,6 +7,7 @@ import { useHighlightedMerchants } from '@/lib/queries/merchants'
 import { useCreatorMe } from '@/lib/queries/creators'
 import { useLanguage } from '@/lib/i18n'
 import type { MerchantResponse } from '@/lib/types'
+import { CImg } from '@/components/ui/CImg'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
 
@@ -19,13 +20,15 @@ function MerchantLogo({ m, size }: { m: MerchantResponse; size: 'sm' | 'lg' }) {
   const dim = size === 'sm' ? 'w-11 h-11 text-sm' : 'w-24 h-24 text-3xl'
   if (m.logoUrl) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={m.logoUrl}
-        alt={m.name}
-        className={`${dim} rounded-2xl object-cover border border-white/10 shrink-0`}
-        onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
-      />
+      <div className={`${dim} rounded-2xl bg-white/5 border border-white/10 shrink-0 flex items-center justify-center overflow-hidden`}>
+        <CImg
+          src={m.logoUrl}
+          cldWidth={size === 'sm' ? 88 : 192}
+          alt={m.name}
+          className="w-full h-full object-contain"
+          onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+        />
+      </div>
     )
   }
   return (
@@ -77,6 +80,7 @@ export function FeaturedMerchantsCarousel() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [selected, setSelected] = useState<MerchantResponse | null>(null)
   const [copied, setCopied] = useState(false)
+  const [overflowing, setOverflowing] = useState(false)
 
   const items = merchants ?? []
 
@@ -85,12 +89,25 @@ export function FeaturedMerchantsCarousel() {
     : ''
 
   useEffect(() => {
-    if (items.length <= 1) return
+    const track = trackRef.current
+    if (!track) return
+    function checkOverflow() {
+      if (!track) return
+      setOverflowing(track.scrollWidth > track.clientWidth + 1)
+    }
+    checkOverflow()
+    const observer = new ResizeObserver(checkOverflow)
+    observer.observe(track)
+    return () => observer.disconnect()
+  }, [items.length])
+
+  useEffect(() => {
+    if (!overflowing || items.length <= 1) return
     intervalRef.current = setInterval(() => {
       setActiveIndex(i => (i + 1) % items.length)
     }, 3000)
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [items.length])
+  }, [items.length, overflowing])
 
   useEffect(() => {
     if (!trackRef.current || items.length === 0) return
@@ -154,7 +171,7 @@ export function FeaturedMerchantsCarousel() {
           ))}
         </div>
 
-        {items.length > 1 && (
+        {overflowing && items.length > 1 && (
           <div className="flex items-center justify-center gap-1.5 mt-4">
             {items.map((_, i) => (
               <button

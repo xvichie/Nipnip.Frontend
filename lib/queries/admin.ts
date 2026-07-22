@@ -164,6 +164,23 @@ export function useAdminCreateStore(id: string) {
   })
 }
 
+export function useAdminSetStoreThemeOverride(id: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (body: { themeOverride: string | null }) => {
+      const token = await getToken()
+      return apiFetch<StoreResponse>(`/api/admin/merchants/${id}/store/theme-override`, token, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: store => {
+      queryClient.setQueryData(['admin', 'merchant', id, 'store'], store)
+    },
+  })
+}
+
 export function useAdminToggleCreatorHighlight() {
   const { getToken } = useAuth()
   const queryClient = useQueryClient()

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useCreatorMe, useUpdateCreator } from '@/lib/queries/creators'
 import { uploadImage } from '@/lib/uploadImage'
 import { useLanguage } from '@/lib/i18n'
+import { CImg } from '@/components/ui/CImg'
 
 export default function CreatorSettingsPage() {
   const { data: creator, isLoading } = useCreatorMe()
@@ -122,8 +123,7 @@ export default function CreatorSettingsPage() {
 
       <div className="flex items-center gap-4">
         {avatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <CImg
             src={avatarUrl}
             alt={creator?.name}
             className="w-16 h-16 rounded-2xl object-cover border border-white/10"
@@ -179,8 +179,7 @@ export default function CreatorSettingsPage() {
                   <span className="loading loading-spinner loading-sm text-violet-400" />
                 </div>
               ) : (avatarPreview ?? avatarUrl) ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <CImg
                   src={avatarPreview ?? avatarUrl}
                   alt="avatar preview"
                   className="w-14 h-14 rounded-full object-cover border border-white/10 shrink-0"

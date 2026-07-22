@@ -7,6 +7,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useFacebookPosts, useFacebookStatus } from '@/lib/queries/facebook'
 import { useMyCategories } from '@/lib/queries/storefront-admin'
 import { apiFetch, ApiError } from '@/lib/api'
+import { CImg } from '@/components/ui/CImg'
 import type {
   CreateProductRequest,
   FacebookPostDetailResponse,
@@ -241,8 +242,7 @@ export function BulkImportFromFacebookSection({ onImportingChange, onDone }: Bul
                     ].join(' ')}
                   >
                     {post.thumbnailUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={post.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                      <CImg src={post.thumbnailUrl} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full bg-white/4 flex items-center justify-center text-white/20 text-[8px] p-1 text-center leading-tight">
                         {post.message?.slice(0, 30) ?? 'Post'}

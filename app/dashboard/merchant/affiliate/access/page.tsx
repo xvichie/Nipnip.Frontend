@@ -12,6 +12,7 @@ import {
 } from '@/lib/queries/merchants'
 import { useCreators } from '@/lib/queries/creators'
 import type { MerchantAccessRequestResponse } from '@/lib/types'
+import { CImg } from '@/components/ui/CImg'
 
 export default function CreatorAccessPage() {
   const { t } = useLanguage()
@@ -212,8 +213,7 @@ function CreatorAvatar({ name, avatarUrl }: { name: string; avatarUrl: string | 
 
   if (avatarUrl) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <CImg
         src={avatarUrl}
         alt={name}
         className="w-10 h-10 rounded-xl object-cover shrink-0"

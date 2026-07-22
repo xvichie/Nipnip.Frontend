@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react'
 import { uploadImage } from '@/lib/uploadImage'
 import { viewTransitionNameFor, withViewTransition } from '@/lib/viewTransition'
+import { CImg } from '@/components/ui/CImg'
 
 export function StagedImagesEditor({ images, onChange }: { images: string[]; onChange: (urls: string[]) => void }) {
   const [uploading, setUploading] = useState(false)
@@ -67,8 +68,7 @@ export function StagedImagesEditor({ images, onChange }: { images: string[]; onC
             style={{ viewTransitionName: viewTransitionNameFor(url) }}
             className="relative w-20 h-20 rounded-xl overflow-hidden border border-white/10 group cursor-grab active:cursor-grabbing"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={url} alt="" className="w-full h-full object-cover pointer-events-none" />
+            <CImg src={url} alt="" className="w-full h-full object-cover pointer-events-none" />
             {index === 0 && (
               <span className="absolute top-1 left-1 rounded bg-fuchsia-600 text-white text-[9px] font-bold px-1.5 py-0.5">
                 Cover

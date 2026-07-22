@@ -5,6 +5,7 @@ import { useFacebookProductPreview, useFacebookPublish, useFacebookStatus } from
 import { useInstagramProductPreview, useInstagramPublish, useInstagramStatus } from '@/lib/queries/instagram'
 import { useTikTokProductPreview, useTikTokPublish, useTikTokStatus } from '@/lib/queries/tiktok'
 import { BetaBadge } from './BetaBadge'
+import { CImg } from '@/components/ui/CImg'
 
 type Platform = 'choose' | 'facebook' | 'instagram' | 'tiktok'
 
@@ -208,8 +209,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
                       {ttPreview.imageUrls.length > 0 ? (
                         <div className="flex gap-2 overflow-x-auto">
                           {ttPreview.imageUrls.map((url, i) => (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img key={url + i} src={url} alt="" className="w-20 h-20 shrink-0 object-cover rounded-lg border border-white/10" />
+                            <CImg key={url + i} src={url} alt="" className="w-20 h-20 shrink-0 object-cover rounded-lg border border-white/10" />
                           ))}
                         </div>
                       ) : (
@@ -295,8 +295,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
                 ) : (
                   <>
                     {preview.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={preview.imageUrl} alt="" className="w-full h-40 object-cover rounded-xl border border-white/10" />
+                      <CImg src={preview.imageUrl} alt="" className="w-full h-40 object-cover rounded-xl border border-white/10" />
                     ) : platform === 'instagram' ? (
                       <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
                         Instagram posts need at least one photo — add one to this product first.

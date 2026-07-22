@@ -11,6 +11,7 @@ import { useMerchantMe } from '@/lib/queries/merchants'
 import { PRODUCT_IMPORT_STORAGE_KEY, type ProductImportData } from '@/lib/productImport'
 import { useTikTokPublishImages, useTikTokStatus } from '@/lib/queries/tiktok'
 import { PostLayoutCard } from '@/components/dashboard/media/PostLayoutCard'
+import { CImg } from '@/components/ui/CImg'
 import {
   COLOR_PRESETS,
   LAYOUT_KEYS,
@@ -324,8 +325,7 @@ export default function SocialPostCreatorPage() {
         {transparentUrl && (
           <div className="flex items-center gap-4">
             <div className="rounded-xl overflow-hidden border border-white/8 w-28 h-28 shrink-0" style={CHECKERBOARD_STYLE}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={transparentUrl} alt="" className="w-full h-full object-contain" />
+              <CImg src={transparentUrl} alt="" className="w-full h-full object-contain" />
             </div>
             {removingBg && (
               <span className="flex items-center gap-2 text-white/40 text-sm">
@@ -525,8 +525,7 @@ export default function SocialPostCreatorPage() {
                         ].join(' ')}
                       >
                         {previewUrl && (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={previewUrl} alt="" className="w-full h-full object-cover" />
+                          <CImg src={previewUrl} alt="" className="w-full h-full object-cover" />
                         )}
                         {selected && (
                           <span className="absolute top-1 left-1 w-5 h-5 rounded-full bg-fuchsia-500 text-white text-[11px] font-bold flex items-center justify-center shadow">

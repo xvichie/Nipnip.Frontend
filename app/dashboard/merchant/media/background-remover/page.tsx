@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import { useLanguage } from '@/lib/i18n'
 import { uploadImage, cloudinaryConfigured } from '@/lib/uploadImage'
 import { BG_REMOVE_TRANSFORM, withTransformation } from '@/lib/media/cloudinary-transform'
+import { CImg } from '@/components/ui/CImg'
 
 // Classic checkerboard pattern to show transparency in the background-removed preview.
 const CHECKERBOARD_STYLE: React.CSSProperties = {
@@ -91,14 +92,12 @@ export default function BackgroundRemoverPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <p className="text-white/40 text-xs uppercase tracking-widest">{t.backgroundRemover.original}</p>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={originalUrl} alt="" className="w-full rounded-xl object-cover border border-white/8" />
+              <CImg src={originalUrl} alt="" className="w-full rounded-xl object-cover border border-white/8" />
             </div>
             <div className="flex flex-col gap-2">
               <p className="text-white/40 text-xs uppercase tracking-widest">{t.backgroundRemover.bgRemoved}</p>
               <div className="rounded-xl overflow-hidden border border-white/8" style={CHECKERBOARD_STYLE}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={resultUrl} alt="" className="w-full object-contain" />
+                <CImg src={resultUrl} alt="" className="w-full object-contain" />
               </div>
               <a
                 href={withTransformation(originalUrl, `${BG_REMOVE_TRANSFORM},fl_attachment`)}

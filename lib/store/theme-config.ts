@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import type { ThemeConfig } from '@/lib/types/storefront'
+import type { AdminThemeOverride, ThemeConfig } from '@/lib/types/storefront'
 
 export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   accentColor: '#111111',
@@ -7,6 +7,8 @@ export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   logoUrl: '',
   showStoreName: false,
   heroImageUrl: '',
+  heroImageFit: 'contain',
+  heroImagePosition: 'center',
   bannerType: 'image',
   bannerUrl: '',
   bannerColor: '',
@@ -19,8 +21,11 @@ export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   heroMobileImagePosition: 'inherit',
   heroMobileTextAlign: 'inherit',
   heroEyebrow: 'მოგესალმებით',
+  heroEyebrowSize: 'md',
   heroHeadline: '',
+  heroHeadlineSize: 'md',
   heroSubheadline: '',
+  heroSubheadlineSize: 'md',
   seoTagline: '',
   seoDescription: '',
   contactEmail: '',
@@ -64,6 +69,16 @@ export function parseThemeConfig(raw: string): Required<ThemeConfig> {
     return { ...DEFAULT_THEME_CONFIG, ...parsed }
   } catch {
     return DEFAULT_THEME_CONFIG
+  }
+}
+
+// Admin-only overlay (customCss / announcementHtml / footerExtraHtml) — see AdminThemeOverride.
+export function parseThemeOverride(raw: string | null | undefined): AdminThemeOverride {
+  if (!raw) return {}
+  try {
+    return JSON.parse(raw) as AdminThemeOverride
+  } catch {
+    return {}
   }
 }
 
@@ -114,6 +129,42 @@ export function getHeroTextAlignClass(tokens: Required<ThemeConfig>): string {
   }
 
   return `${HERO_ALIGN_CLASS[tokens.heroMobileTextAlign]} ${HERO_ALIGN_CLASS_MD[desktopHorizontal]}`
+}
+
+export const HERO_IMAGE_POSITION_CLASS: Record<Required<ThemeConfig>['heroImagePosition'], string> = {
+  center: 'object-center',
+  top: 'object-top',
+  bottom: 'object-bottom',
+  left: 'object-left',
+  right: 'object-right',
+}
+
+export function getHeroImageClass(tokens: Required<ThemeConfig>): string {
+  if (tokens.heroImageFit === 'cover') {
+    return `w-full h-full object-cover ${HERO_IMAGE_POSITION_CLASS[tokens.heroImagePosition]}`
+  }
+  return 'max-w-full max-h-full object-contain'
+}
+
+export const HERO_HEADLINE_SIZE_CLASS: Record<Required<ThemeConfig>['heroHeadlineSize'], string> = {
+  sm: 'text-2xl sm:text-3xl',
+  md: 'text-4xl sm:text-6xl',
+  lg: 'text-5xl sm:text-7xl',
+  xl: 'text-6xl sm:text-8xl',
+}
+
+export const HERO_SUBHEADLINE_SIZE_CLASS: Record<Required<ThemeConfig>['heroSubheadlineSize'], string> = {
+  sm: 'text-xs',
+  md: 'text-sm sm:text-base',
+  lg: 'text-base sm:text-lg',
+  xl: 'text-lg sm:text-xl',
+}
+
+export const HERO_EYEBROW_SIZE_CLASS: Record<Required<ThemeConfig>['heroEyebrowSize'], string> = {
+  sm: 'text-[10px]',
+  md: 'text-xs',
+  lg: 'text-sm',
+  xl: 'text-base',
 }
 
 export const HERO_TEXT_POSITIONS: Required<ThemeConfig>['heroTextPosition'][] = [

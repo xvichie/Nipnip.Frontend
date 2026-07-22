@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useCart } from '@/lib/store/cart-context'
+import { CImg } from '@/components/ui/CImg'
 
 export default function CartPage() {
   const { items, count, subtotal, removeItem, updateQty } = useCart()
@@ -48,8 +49,7 @@ export default function CartPage() {
                 href={`/example-store/products/${item.product.slug}`}
                 className="w-24 h-24 bg-[#f7f7f7] shrink-0 overflow-hidden hover:opacity-80 transition-opacity"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                <CImg src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
               </Link>
 
               <div className="flex-1 min-w-0">

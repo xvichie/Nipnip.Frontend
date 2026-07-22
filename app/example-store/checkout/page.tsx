@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useCart } from '@/lib/store/cart-context'
+import { CImg } from '@/components/ui/CImg'
 
 type AddressForm = {
   firstName: string; lastName: string; email: string; phone: string
@@ -204,8 +205,7 @@ function ConfirmStep({ form, onBack, onPlace }: { form: AddressForm; onBack: () 
           {items.map(item => (
             <div key={`${item.product.id}-${item.color}-${item.size}`} className="flex items-center gap-3 py-3">
               <div className="w-12 h-12 bg-[#f7f7f7] overflow-hidden shrink-0">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.product.images[0]} alt="" className="w-full h-full object-cover" />
+                <CImg src={item.product.images[0]} alt="" className="w-full h-full object-cover" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[#111] font-semibold text-xs truncate">{item.product.name}</p>
@@ -340,8 +340,7 @@ export default function CheckoutPage() {
               {items.map(item => (
                 <div key={`${item.product.id}-${item.color}-${item.size}`} className="flex items-center gap-3 py-3">
                   <div className="relative w-12 h-12 bg-[#f7f7f7] overflow-hidden shrink-0">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.product.images[0]} alt="" className="w-full h-full object-cover" />
+                    <CImg src={item.product.images[0]} alt="" className="w-full h-full object-cover" />
                     <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#111] text-white text-[9px] font-bold flex items-center justify-center">
                       {item.quantity}
                     </span>

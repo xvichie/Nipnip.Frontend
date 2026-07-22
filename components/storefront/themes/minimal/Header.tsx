@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { getNavCategories, getNavPages } from '@/lib/store/nav-menu'
 import type { CategoryResponse, StorePageResponse, ThemeConfig } from '@/lib/types/storefront'
+import { CImg } from '@/components/ui/CImg'
 
 export function Header({
   slug,
@@ -49,8 +50,7 @@ export function Header({
         <Link href={`/`} className="flex items-center gap-3 min-w-0">
           {tokens.logoUrl ? (
             <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={tokens.logoUrl} alt={storeName} className="h-7 w-auto object-contain shrink-0" />
+              <CImg src={tokens.logoUrl} cldWidth={240} alt={storeName} className="h-7 w-auto object-contain shrink-0" />
               {tokens.showStoreName && (
                 <span className="font-black text-[#111] text-base tracking-tight uppercase truncate">{storeName}</span>
               )}

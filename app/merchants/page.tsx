@@ -9,6 +9,7 @@ import { useMerchants, useHighlightedMerchants } from '@/lib/queries/merchants'
 import { useCreatorMe } from '@/lib/queries/creators'
 import { useLanguage } from '@/lib/i18n'
 import type { MerchantResponse } from '@/lib/types'
+import { CImg } from '@/components/ui/CImg'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
 
@@ -21,8 +22,7 @@ function MerchantLogo({ m, size }: { m: MerchantResponse; size: 'sm' | 'md' | 'l
   const initials = m.name.slice(0, 2).toUpperCase()
   if (m.logoUrl) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <CImg
         src={m.logoUrl}
         alt={m.name}
         className={`${dim} rounded-2xl object-cover border border-white/10 shrink-0`}

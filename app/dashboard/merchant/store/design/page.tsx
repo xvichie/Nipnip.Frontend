@@ -29,6 +29,7 @@ import { Home as CommerceHome } from '@/components/storefront/themes/commerce/Ho
 import { Header as EditorialHeader } from '@/components/storefront/themes/editorial/Header'
 import { Footer as EditorialFooter } from '@/components/storefront/themes/editorial/Footer'
 import { Home as EditorialHome } from '@/components/storefront/themes/editorial/Home'
+import { CImg } from '@/components/ui/CImg'
 import type {
   BannerPattern,
   BannerPlacement,
@@ -37,11 +38,14 @@ import type {
   CategoryMenuScope,
   FooterContactFormPosition,
   HeroHeight,
+  HeroImageFit,
+  HeroImagePosition,
   HeroLayout,
   HeroMobileImagePosition,
   HeroMobileImageVisibility,
   HeroMobileTextAlign,
   HeroTextPosition,
+  HeroTextSize,
   LandingCategoryColumns,
   ProductSummaryResponse,
   SocialsPosition,
@@ -81,8 +85,7 @@ function ImageField({
           {uploading ? (
             <span className="loading loading-spinner loading-sm text-fuchsia-400" />
           ) : value ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={value} alt={label} className="w-full h-full object-cover" />
+            <CImg src={value} alt={label} className="w-full h-full object-cover" />
           ) : (
             <span className="text-white/20 text-[10px]">None</span>
           )}
@@ -108,12 +111,42 @@ function ImageField({
   )
 }
 
+const TEXT_SIZE_OPTIONS: { value: HeroTextSize; label: string }[] = [
+  { value: 'sm', label: 'S' },
+  { value: 'md', label: 'M' },
+  { value: 'lg', label: 'L' },
+  { value: 'xl', label: 'XL' },
+]
+
+function HeroTextSizePicker({ value, onChange }: { value: HeroTextSize; onChange: (v: HeroTextSize) => void }) {
+  return (
+    <div className="grid grid-cols-4 gap-2">
+      {TEXT_SIZE_OPTIONS.map(opt => (
+        <button
+          key={opt.value}
+          type="button"
+          onClick={() => onChange(opt.value)}
+          className={[
+            'rounded-lg border py-1.5 text-xs font-semibold text-center transition-colors',
+            value === opt.value
+              ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+              : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+          ].join(' ')}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export default function StoreDesignPage() {
   const { data: store, isLoading } = useMyStore()
   const { data: categories } = useMyCategories()
   const { data: pages } = useMyPages()
-  const { data: productsPage } = useMyProducts({ page: 1, pageSize: 8 })
+  const { data: productsPage, isLoading: productsLoading } = useMyProducts({ page: 1, pageSize: 8 })
   const { mutate: updateStore, isPending, error } = useUpdateMyStore()
+  const { mutate: setThemeOverrideEnabled, isPending: isTogglingOverride } = useUpdateMyStore()
 
   const [themeId, setThemeId] = useState<ThemeId>('minimal')
   const [themePickerOpen, setThemePickerOpen] = useState(false)
@@ -125,6 +158,8 @@ export default function StoreDesignPage() {
   const [logoUrl, setLogoUrl] = useState('')
   const [showStoreName, setShowStoreName] = useState(DEFAULT_THEME_CONFIG.showStoreName)
   const [heroImageUrl, setHeroImageUrl] = useState('')
+  const [heroImageFit, setHeroImageFit] = useState<HeroImageFit>(DEFAULT_THEME_CONFIG.heroImageFit)
+  const [heroImagePosition, setHeroImagePosition] = useState<HeroImagePosition>(DEFAULT_THEME_CONFIG.heroImagePosition)
   const [bannerType, setBannerType] = useState<BannerType>(DEFAULT_THEME_CONFIG.bannerType)
   const [bannerUrl, setBannerUrl] = useState('')
   const [bannerColor, setBannerColor] = useState('')
@@ -137,8 +172,11 @@ export default function StoreDesignPage() {
   const [heroMobileImagePosition, setHeroMobileImagePosition] = useState<HeroMobileImagePosition>(DEFAULT_THEME_CONFIG.heroMobileImagePosition)
   const [heroMobileTextAlign, setHeroMobileTextAlign] = useState<HeroMobileTextAlign>(DEFAULT_THEME_CONFIG.heroMobileTextAlign)
   const [heroEyebrow, setHeroEyebrow] = useState(DEFAULT_THEME_CONFIG.heroEyebrow)
+  const [heroEyebrowSize, setHeroEyebrowSize] = useState<HeroTextSize>(DEFAULT_THEME_CONFIG.heroEyebrowSize)
   const [heroHeadline, setHeroHeadline] = useState('')
+  const [heroHeadlineSize, setHeroHeadlineSize] = useState<HeroTextSize>(DEFAULT_THEME_CONFIG.heroHeadlineSize)
   const [heroSubheadline, setHeroSubheadline] = useState('')
+  const [heroSubheadlineSize, setHeroSubheadlineSize] = useState<HeroTextSize>(DEFAULT_THEME_CONFIG.heroSubheadlineSize)
   const [seoTagline, setSeoTagline] = useState('')
   const [seoDescription, setSeoDescription] = useState('')
   const [contactEmail, setContactEmail] = useState('')
@@ -191,6 +229,8 @@ export default function StoreDesignPage() {
     setLogoUrl(parsed.logoUrl)
     setShowStoreName(parsed.showStoreName)
     setHeroImageUrl(parsed.heroImageUrl)
+    setHeroImageFit(parsed.heroImageFit)
+    setHeroImagePosition(parsed.heroImagePosition)
     setBannerType(parsed.bannerType)
     setBannerUrl(parsed.bannerUrl)
     setBannerColor(parsed.bannerColor)
@@ -203,8 +243,11 @@ export default function StoreDesignPage() {
     setHeroMobileImagePosition(parsed.heroMobileImagePosition)
     setHeroMobileTextAlign(parsed.heroMobileTextAlign)
     setHeroEyebrow(parsed.heroEyebrow)
+    setHeroEyebrowSize(parsed.heroEyebrowSize)
     setHeroHeadline(parsed.heroHeadline)
+    setHeroHeadlineSize(parsed.heroHeadlineSize)
     setHeroSubheadline(parsed.heroSubheadline)
+    setHeroSubheadlineSize(parsed.heroSubheadlineSize)
     setSeoTagline(parsed.seoTagline)
     setSeoDescription(parsed.seoDescription)
     setContactEmail(parsed.contactEmail)
@@ -316,6 +359,8 @@ export default function StoreDesignPage() {
           logoUrl,
           showStoreName,
           heroImageUrl,
+          heroImageFit,
+          heroImagePosition,
           bannerType,
           bannerUrl,
           bannerColor,
@@ -328,8 +373,11 @@ export default function StoreDesignPage() {
           heroMobileImagePosition,
           heroMobileTextAlign,
           heroEyebrow,
+          heroEyebrowSize,
           heroHeadline,
+          heroHeadlineSize,
           heroSubheadline,
+          heroSubheadlineSize,
           seoTagline: seoTagline.trim() || undefined,
           seoDescription: seoDescription.trim() || undefined,
           contactEmail,
@@ -386,6 +434,8 @@ export default function StoreDesignPage() {
     logoUrl,
     showStoreName,
     heroImageUrl,
+    heroImageFit,
+    heroImagePosition,
     bannerType,
     bannerUrl,
     bannerColor,
@@ -398,8 +448,11 @@ export default function StoreDesignPage() {
     heroMobileImagePosition,
     heroMobileTextAlign,
     heroEyebrow,
+    heroEyebrowSize,
     heroHeadline,
+    heroHeadlineSize,
     heroSubheadline,
+    heroSubheadlineSize,
     seoTagline,
     seoDescription,
     contactEmail,
@@ -437,7 +490,9 @@ export default function StoreDesignPage() {
     freeShippingThreshold,
   }
   const selectableCategories = withSaleCategory((categories ?? []).filter(c => !c.parentCategoryId), showSaleCategory)
-  const previewProducts = productsPage?.items.length ? productsPage.items : PLACEHOLDER_PRODUCTS
+  const previewProducts = productsPage?.items.length
+    ? productsPage.items
+    : productsLoading ? [] : PLACEHOLDER_PRODUCTS
   const HeaderPreview = HEADERS[themeId]
   const FooterPreview = FOOTERS[themeId]
   const HomePreview = HOMES[themeId]
@@ -508,6 +563,23 @@ export default function StoreDesignPage() {
         <h1 className="text-2xl font-black tracking-tight">Design &amp; Theme</h1>
         <p className="text-white/40 text-sm mt-1">Changes update the preview instantly — nothing goes live until you save.</p>
       </div>
+
+      {store.themeOverride && (
+        <div className="flex items-center justify-between gap-4 rounded-2xl border border-amber-500/25 bg-amber-500/8 px-5 py-4">
+          <div>
+            <p className="text-sm font-semibold text-amber-300">✦ Custom theme set by NipNip</p>
+            <p className="text-white/40 text-xs mt-0.5">NipNip has applied extra styling to your store on top of your theme below. Turn it off if you don&apos;t want it.</p>
+          </div>
+          <input
+            type="checkbox"
+            aria-label="Custom theme set by NipNip"
+            className={`toggle shrink-0 ${store.themeOverrideEnabled ? 'toggle-success' : ''}`}
+            checked={store.themeOverrideEnabled}
+            disabled={isTogglingOverride}
+            onChange={e => setThemeOverrideEnabled({ themeOverrideEnabled: e.target.checked })}
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
@@ -623,6 +695,65 @@ export default function StoreDesignPage() {
             )}
             <ImageField label="Hero Image" value={heroImageUrl} uploading={heroImageUploading} onFile={handleHeroImageFile} onClear={() => setHeroImageUrl('')} />
             <p className="text-white/30 text-xs -mt-3">Shown next to your hero text when Layout below is set to Image left/right.</p>
+
+            {heroImageUrl && (
+              <>
+                <div className="fieldset gap-2">
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Image fit</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {([
+                      { value: 'contain', label: 'Fit whole image', desc: 'Nothing gets cropped' },
+                      { value: 'cover', label: 'Fill the space', desc: 'Crops to fill, edge to edge' },
+                    ] as { value: HeroImageFit; label: string; desc: string }[]).map(opt => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setHeroImageFit(opt.value)}
+                        className={[
+                          'rounded-lg border px-3 py-2 text-left transition-colors',
+                          heroImageFit === opt.value
+                            ? 'border-fuchsia-500 bg-fuchsia-500/10'
+                            : 'border-white/10 bg-white/4 hover:border-white/25',
+                        ].join(' ')}
+                      >
+                        <p className={`text-xs font-medium ${heroImageFit === opt.value ? 'text-white' : 'text-white/50'}`}>{opt.label}</p>
+                        <p className="text-white/30 text-[10px] mt-0.5">{opt.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {heroImageFit === 'cover' && (
+                  <div className="fieldset gap-2">
+                    <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Focus position</label>
+                    <div className="grid grid-cols-5 gap-2">
+                      {([
+                        { value: 'left', label: 'Left' },
+                        { value: 'top', label: 'Top' },
+                        { value: 'center', label: 'Center' },
+                        { value: 'bottom', label: 'Bottom' },
+                        { value: 'right', label: 'Right' },
+                      ] as { value: HeroImagePosition; label: string }[]).map(opt => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setHeroImagePosition(opt.value)}
+                          className={[
+                            'rounded-lg border px-2 py-2 text-[11px] font-medium text-center transition-colors',
+                            heroImagePosition === opt.value
+                              ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                              : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                          ].join(' ')}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-white/30 text-xs mt-1">Which part of the image stays visible when it&apos;s cropped to fill the space.</p>
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
@@ -927,6 +1058,7 @@ export default function StoreDesignPage() {
                 className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
               />
               <p className="text-white/30 text-xs">The small label above the headline. Clear it to hide entirely.</p>
+              <HeroTextSizePicker value={heroEyebrowSize} onChange={setHeroEyebrowSize} />
             </div>
 
             <div className="fieldset gap-2">
@@ -938,6 +1070,7 @@ export default function StoreDesignPage() {
                 placeholder={store.name}
                 className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
               />
+              <HeroTextSizePicker value={heroHeadlineSize} onChange={setHeroHeadlineSize} />
             </div>
 
             <div className="fieldset gap-2">
@@ -948,6 +1081,7 @@ export default function StoreDesignPage() {
                 rows={2}
                 className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 resize-none"
               />
+              <HeroTextSizePicker value={heroSubheadlineSize} onChange={setHeroSubheadlineSize} />
             </div>
           </div>
 

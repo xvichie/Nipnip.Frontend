@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { uploadImage } from '@/lib/uploadImage'
 import { CATEGORY_ICON_GROUPS, getCategoryIcon } from '@/lib/store/category-icons'
 import { CATEGORY_EMOJI_GROUPS } from '@/lib/store/category-emoji'
+import { CImg } from '@/components/ui/CImg'
 
 export interface IconValue {
   iconUrl: string | null
@@ -30,8 +31,7 @@ export function IconPreview({
   const Icon = getCategoryIcon(iconKey)
 
   if (iconUrl) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={iconUrl} alt="" className={`${className} rounded-lg object-cover shrink-0`} />
+    return <CImg src={iconUrl} alt="" className={`${className} rounded-lg object-cover shrink-0`} />
   }
   if (Icon) {
     return (

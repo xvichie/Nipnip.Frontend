@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useLanguage } from '@/lib/i18n'
 import { NipNipLogo } from '@/components/NipNipLogo'
+import { CImg } from '@/components/ui/CImg'
 
 export function SiteFooter() {
   const { t } = useLanguage()
@@ -22,6 +23,7 @@ export function SiteFooter() {
 
   const MERCHANT_LINKS = [
     { href: '/how-it-works#merchants', label: t.footer.joinAsMerchant },
+    { href: '/creators', label: t.footer.creators },
     { href: '/dashboard/merchant', label: t.footer.merchantDashboard },
     { href: '/contact', label: t.footer.contact },
   ]
@@ -117,8 +119,7 @@ export function SiteFooter() {
                 className="flex items-center gap-2 opacity-30 hover:opacity-70 transition-opacity"
               >
                 <span className="text-white/60 text-sm">{t.footer.poweredBy}</span>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <CImg
                   src="https://www.tally.ge/images/logos/tally-logo-white.png"
                   alt="Tally"
                   className="h-5 w-auto"

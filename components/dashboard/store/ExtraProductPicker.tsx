@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useExtraProducts } from '@/lib/queries/extra'
 import type { ExtraProductSummary } from '@/lib/types'
+import { CImg } from '@/components/ui/CImg'
 
 interface ExtraProductPickerProps {
   sellerId: string
@@ -43,8 +44,7 @@ export function ExtraProductPicker({ sellerId, onPick, pickingId, disabled }: Ex
                 >
                   <div className="aspect-square bg-white/4 relative">
                     {product.thumbnailUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={product.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                      <CImg src={product.thumbnailUrl} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white/20 text-[9px] p-1 text-center">
                         No photo

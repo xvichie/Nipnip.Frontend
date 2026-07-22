@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useMerchantMe, useUpdateMerchant } from '@/lib/queries/merchants'
 import { uploadImage } from '@/lib/uploadImage'
 import { useLanguage } from '@/lib/i18n'
+import { CImg } from '@/components/ui/CImg'
 
 export default function MerchantSettingsPage() {
   const { data: merchant, isLoading } = useMerchantMe()
@@ -85,7 +86,7 @@ export default function MerchantSettingsPage() {
 
   const initials = (merchant?.name ?? '??').slice(0, 2).toUpperCase()
 
-  if (isLoading) {
+  if (isLoading || !merchant) {
     return (
       <div className="flex flex-col gap-8 max-w-lg">
         <div className="skeleton h-8 w-40 rounded-xl" />
@@ -104,8 +105,7 @@ export default function MerchantSettingsPage() {
 
       <div className="flex items-center gap-4">
         {logoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <CImg
             src={logoUrl}
             alt={merchant?.name}
             className="w-16 h-16 rounded-2xl object-cover border border-white/10"
@@ -207,8 +207,7 @@ export default function MerchantSettingsPage() {
                   <span className="loading loading-spinner loading-sm text-fuchsia-400" />
                 </div>
               ) : (logoPreview ?? logoUrl) ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <CImg
                   src={logoPreview ?? logoUrl}
                   alt="logo preview"
                   className="w-14 h-14 rounded-xl object-cover border border-white/10 shrink-0"

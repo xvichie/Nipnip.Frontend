@@ -23,6 +23,7 @@ export const ru: Strings = {
     contact: 'Контакт',
     signUp: 'Регистрация',
     merchants: 'Магазины',
+    creators: 'Авторы',
     creatorDashboard: 'Панель автора',
     joinAsMerchant: 'Присоединиться',
     merchantDashboard: 'Панель магазина',

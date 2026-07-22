@@ -22,6 +22,7 @@ import { FacebookPagePickerModal } from '@/components/dashboard/store/FacebookPa
 import { BetaBadge } from '@/components/dashboard/store/BetaBadge'
 import { SoonBadge } from '@/components/dashboard/store/SoonBadge'
 import { PickupLocationPicker } from '@/components/dashboard/store/PickupLocationPicker'
+import { CImg } from '@/components/ui/CImg'
 
 function HowToConnect({ children }: { children: React.ReactNode }) {
   return (
@@ -428,8 +429,7 @@ function TbcCard() {
     <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <div className="w-11 h-11 rounded-xl overflow-hidden border border-white/10 shrink-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/tbc-logo.jpg" alt="" className="w-full h-full object-cover" />
+          <CImg src="/tbc-logo.jpg" alt="" className="w-full h-full object-cover" />
         </div>
 
         <div className="flex-1 min-w-0">
@@ -497,8 +497,7 @@ function BogCard() {
     <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex flex-col gap-4 opacity-60">
       <div className="flex items-center gap-4">
         <div className="w-11 h-11 rounded-xl overflow-hidden border border-white/10 shrink-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/bog-logo.jpg" alt="" className="w-full h-full object-cover" />
+          <CImg src="/bog-logo.jpg" alt="" className="w-full h-full object-cover" />
         </div>
 
         <div className="flex-1 min-w-0">
@@ -544,8 +543,7 @@ function CityPayCard() {
     <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <div className="w-11 h-11 rounded-xl overflow-hidden border border-white/10 shrink-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/citypay-logo.png" alt="" className="w-full h-full object-cover" />
+          <CImg src="/citypay-logo.png" alt="" className="w-full h-full object-cover" />
         </div>
 
         <div className="flex-1 min-w-0">
@@ -635,8 +633,7 @@ function MyMarketCard() {
     <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <div className="w-11 h-11 rounded-xl overflow-hidden border border-white/10 shrink-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/mymarket-logo.jpg" alt="" className="w-full h-full object-cover" />
+          <CImg src="/mymarket-logo.jpg" alt="" className="w-full h-full object-cover" />
         </div>
 
         <div className="flex-1 min-w-0">
@@ -715,8 +712,7 @@ function PhubberCard() {
     <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <div className="w-11 h-11 rounded-xl overflow-hidden border border-white/10 shrink-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/phubber-logo.jpg" alt="" className="w-full h-full object-cover" />
+          <CImg src="/phubber-logo.jpg" alt="" className="w-full h-full object-cover" />
         </div>
 
         <div className="flex-1 min-w-0">
@@ -795,8 +791,7 @@ function ExtraCard() {
     <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <div className="w-11 h-11 rounded-xl overflow-hidden border border-white/10 shrink-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/extra-logo.jpg" alt="" className="w-full h-full object-cover" />
+          <CImg src="/extra-logo.jpg" alt="" className="w-full h-full object-cover" />
         </div>
 
         <div className="flex-1 min-w-0">
@@ -910,8 +905,7 @@ function QuickShipperCard() {
     <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <div className="w-11 h-11 rounded-xl overflow-hidden border border-white/10 shrink-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/quickshipper-logo.jpg" alt="" className="w-full h-full object-cover" />
+          <CImg src="/quickshipper-logo.jpg" alt="" className="w-full h-full object-cover" />
         </div>
 
         <div className="flex-1 min-w-0">

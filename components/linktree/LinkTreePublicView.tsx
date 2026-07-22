@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { PublicLinkTreeResponse } from '@/lib/types'
+import { CImg } from '@/components/ui/CImg'
 
 export function LinkTreePublicView({ linkTree }: { linkTree: PublicLinkTreeResponse }) {
   return (
@@ -7,8 +8,7 @@ export function LinkTreePublicView({ linkTree }: { linkTree: PublicLinkTreeRespo
       <div className="w-full max-w-md flex flex-col items-center gap-6">
 
         {linkTree.creatorAvatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <CImg
             src={linkTree.creatorAvatarUrl}
             alt={linkTree.creatorName}
             className="w-24 h-24 rounded-full object-cover border border-white/10"
@@ -35,8 +35,7 @@ export function LinkTreePublicView({ linkTree }: { linkTree: PublicLinkTreeRespo
                 className="w-full flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-violet-500/30 transition-colors px-5 py-4"
               >
                 {item.merchantLogoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <CImg
                     src={item.merchantLogoUrl}
                     alt={item.merchantName}
                     className="w-9 h-9 rounded-lg object-cover shrink-0"

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { CImg } from '@/components/ui/CImg'
 
 export function ImageLightbox({
   images,
@@ -78,8 +79,7 @@ export function ImageLightbox({
         </>
       )}
 
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <CImg
         src={active.url}
         alt=""
         draggable={false}

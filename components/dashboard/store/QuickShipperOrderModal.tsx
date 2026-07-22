@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useCreateQuickShipperOrder, useQuickShipperCustomFields, useQuickShipperFees } from '@/lib/queries/quickshipper'
 import type { QuickShipperFeeOptionResponse } from '@/lib/types'
+import { CImg } from '@/components/ui/CImg'
 
 interface QuickShipperOrderModalProps {
   orderId: string
@@ -86,8 +87,7 @@ export function QuickShipperOrderModal({ orderId, onClose }: QuickShipperOrderMo
                   ].join(' ')}
                 >
                   {option.providerLogoUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={option.providerLogoUrl} alt="" className="w-8 h-8 rounded-lg object-contain bg-white/10 shrink-0" />
+                    <CImg src={option.providerLogoUrl} alt="" className="w-8 h-8 rounded-lg object-contain bg-white/10 shrink-0" />
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-white truncate">{option.providerName}</p>

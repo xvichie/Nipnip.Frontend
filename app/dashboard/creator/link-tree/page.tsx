@@ -16,6 +16,7 @@ import {
   useReorderLinkTree,
 } from '@/lib/queries/linktree'
 import type { LinkTreeItemResponse } from '@/lib/types'
+import { CImg } from '@/components/ui/CImg'
 
 const UP_ICON = (
   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
@@ -431,8 +432,7 @@ function MerchantLogo({ name, logoUrl }: { name: string; logoUrl: string | null 
 
   if (logoUrl) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <CImg
         src={logoUrl}
         alt={name}
         className="w-10 h-10 rounded-xl object-cover shrink-0"

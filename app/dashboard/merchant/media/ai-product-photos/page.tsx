@@ -8,6 +8,7 @@ import type { Strings } from '@/lib/i18n'
 import { uploadImage, cloudinaryConfigured } from '@/lib/uploadImage'
 import { withTransformation } from '@/lib/media/cloudinary-transform'
 import { useAiImageUsage } from '@/lib/queries/merchants'
+import { CImg } from '@/components/ui/CImg'
 import {
   LIGHTING_PRESETS,
   SCENE_PRESETS,
@@ -146,8 +147,7 @@ export default function AiProductPhotosPage() {
         <div className="flex flex-wrap gap-3">
           {referenceUrls.map(url => (
             <div key={url} className="relative w-24 h-24 rounded-xl overflow-hidden border border-white/8 group shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt="" className="w-full h-full object-cover" />
+              <CImg src={url} alt="" className="w-full h-full object-cover" />
               <button
                 onClick={() => removeReference(url)}
                 className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 text-white/80 hover:text-white hover:bg-black/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
@@ -273,8 +273,7 @@ export default function AiProductPhotosPage() {
             {results.map(result => (
               <div key={result.id} className="flex flex-col gap-2">
                 <div className="rounded-xl overflow-hidden border border-white/8">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={result.imageUrl} alt="" className="w-full object-cover" />
+                  <CImg src={result.imageUrl} alt="" className="w-full object-cover" />
                 </div>
                 <a
                   href={withTransformation(result.imageUrl, 'fl_attachment')}

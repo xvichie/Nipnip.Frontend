@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import { ProductCard } from './ProductCard'
 import { CategoryIcon } from '@/components/storefront/shared/CategoryIcon'
-import { getBannerBackgroundStyle, getHeroTextAlignClass, hasBanner, HERO_HEIGHT_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
+import { getBannerBackgroundStyle, getHeroImageClass, getHeroTextAlignClass, hasBanner, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
 import { getLandingCategories } from '@/lib/store/landing-categories'
 import type { CategoryResponse, ProductSummaryResponse, StoreResponse, ThemeConfig } from '@/lib/types/storefront'
+import { CImg } from '@/components/ui/CImg'
 
 export function Home({
   slug,
@@ -39,13 +40,13 @@ export function Home({
   const heroText = (
     <div className={`w-full max-w-xl ${textAlignClass}`}>
       {tokens.heroEyebrow && (
-        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#999] mb-4">{tokens.heroEyebrow}</p>
+        <p className={`${HERO_EYEBROW_SIZE_CLASS[tokens.heroEyebrowSize]} font-semibold uppercase tracking-[0.28em] text-[#999] mb-4`}>{tokens.heroEyebrow}</p>
       )}
-      <h1 className={`font-black text-[#111] tracking-tight mb-4 ${isSplitHero ? 'text-4xl sm:text-5xl' : 'text-4xl sm:text-6xl'}`}>
+      <h1 className={`font-black text-[#111] tracking-tight mb-4 ${HERO_HEADLINE_SIZE_CLASS[tokens.heroHeadlineSize]}`}>
         {tokens.heroHeadline || store.name}
       </h1>
       {tokens.heroSubheadline && (
-        <p className="text-[#666] text-sm mb-6">{tokens.heroSubheadline}</p>
+        <p className={`text-[#666] ${HERO_SUBHEADLINE_SIZE_CLASS[tokens.heroSubheadlineSize]} mb-6`}>{tokens.heroSubheadline}</p>
       )}
       <Link
         href={`/products`}
@@ -61,8 +62,7 @@ export function Home({
     <div className={`relative h-full ${imageOrderClass} ${heroImageHiddenMobile ? 'hidden md:block' : ''}`}>
       {imageBanner && <div className="absolute -inset-4 sm:-inset-6" style={bannerStyle} />}
       <div className={`relative h-full flex items-center justify-center overflow-hidden ${imageBanner || sectionBanner ? '' : 'bg-[#f7f7f7]'}`}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={tokens.heroImageUrl} alt={tokens.heroHeadline || store.name} className="max-w-full max-h-full object-contain" />
+        <CImg src={tokens.heroImageUrl} cldWidth={1400} alt={tokens.heroHeadline || store.name} className={getHeroImageClass(tokens)} />
       </div>
     </div>
   )

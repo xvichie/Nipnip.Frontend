@@ -1,9 +1,9 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { useMyCategories, useMyProduct, useUpdateProduct } from '@/lib/queries/storefront-admin'
+import { useMyCategories, useMyProduct, useRelatedProducts, useSetRelatedProducts, useUpdateProduct } from '@/lib/queries/storefront-admin'
 import { ProductImagesManager } from '@/components/dashboard/store/ProductImagesManager'
 import { ProductVideoManager } from '@/components/dashboard/store/ProductVideoManager'
 import { ProductOptionsManager } from '@/components/dashboard/store/ProductOptionsManager'
@@ -11,12 +11,15 @@ import { ProductVariantsManager } from '@/components/dashboard/store/ProductVari
 import { RelatedProductsManager } from '@/components/dashboard/store/RelatedProductsManager'
 import { ExportProductButton } from '@/components/dashboard/store/ExportProductButton'
 import { FloatingFormButton } from '@/components/dashboard/FloatingFormButton'
+import type { ProductSummaryResponse } from '@/lib/types'
 
 export default function EditProductPage() {
   const { productId } = useParams<{ productId: string }>()
   const { data: product, isLoading, isError } = useMyProduct(productId)
   const { data: categories } = useMyCategories()
-  const { mutate: updateProduct, isPending, error } = useUpdateProduct(productId)
+  const { mutateAsync: updateProduct, isPending, error } = useUpdateProduct(productId)
+  const { data: relatedProducts, isLoading: relatedLoading } = useRelatedProducts(productId)
+  const { mutateAsync: setRelated, isPending: isSavingRelated } = useSetRelatedProducts(productId)
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -24,14 +27,25 @@ export default function EditProductPage() {
   const [salePrice, setSalePrice] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [isActive, setIsActive] = useState(true)
-  const [saved, setSaved] = useState(false)
+  const [relatedPicks, setRelatedPicks] = useState<ProductSummaryResponse[]>([])
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const contentRef = useRef<HTMLDivElement>(null)
 
-  // "Adjust state during render" instead of an effect: these fields hydrate once from
-  // the fetched product, which arrives async, so there's no lazy-initializer moment to hook into.
-  const [prevProduct, setPrevProduct] = useState(product)
-  if (product && product !== prevProduct) {
-    setPrevProduct(product)
+  function showToast(type: 'success' | 'error', message: string) {
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+    setToast({ type, message })
+    toastTimer.current = setTimeout(() => setToast(null), 3000)
+  }
+
+  useEffect(() => () => { if (toastTimer.current) clearTimeout(toastTimer.current) }, [])
+
+  // "Adjust state during render" instead of an effect: these fields hydrate once per productId
+  // from the fetched product. Keying off the id (not object reference) means a background
+  // refetch of the SAME product — e.g. from window focus — never clobbers in-progress edits.
+  const [prevProductId, setPrevProductId] = useState<string | null>(null)
+  if (product && product.id !== prevProductId) {
+    setPrevProductId(product.id)
     setName(product.name)
     setDescription(product.description ?? '')
     setBasePrice(String(product.basePrice))
@@ -40,21 +54,32 @@ export default function EditProductPage() {
     setIsActive(product.isActive)
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  const [prevRelatedId, setPrevRelatedId] = useState<string | null>(null)
+  if (relatedProducts && productId !== prevRelatedId) {
+    setPrevRelatedId(productId)
+    setRelatedPicks(relatedProducts)
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     const price = parseFloat(basePrice)
     const parsedSalePrice = parseFloat(salePrice)
-    updateProduct(
-      {
-        name: name.trim() || null,
-        description: description.trim() || null,
-        basePrice: isNaN(price) ? null : price,
-        salePrice: salePrice.trim() ? (isNaN(parsedSalePrice) ? null : parsedSalePrice) : null,
-        categoryId: categoryId || null,
-        isActive,
-      },
-      { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
-    )
+    try {
+      await Promise.all([
+        updateProduct({
+          name: name.trim() || null,
+          description: description.trim() || null,
+          basePrice: isNaN(price) ? null : price,
+          salePrice: salePrice.trim() ? (isNaN(parsedSalePrice) ? null : parsedSalePrice) : null,
+          categoryId: categoryId || null,
+          isActive,
+        }),
+        setRelated({ productIds: relatedPicks.map(p => p.id) }),
+      ])
+      showToast('success', 'Changes saved')
+    } catch {
+      showToast('error', 'Failed to save changes')
+    }
   }
 
   if (isLoading) {
@@ -184,24 +209,41 @@ export default function EditProductPage() {
               Failed to save changes.
             </div>
           )}
-          {saved && (
-            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
-              Saved successfully
-            </div>
-          )}
 
         </form>
       </div>
 
-      <FloatingFormButton anchorRef={contentRef} formId="product-form" disabled={isPending || !name.trim() || !basePrice}>
-        {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Save Changes'}
+      <FloatingFormButton anchorRef={contentRef} formId="product-form" disabled={isPending || isSavingRelated || !name.trim() || !basePrice}>
+        {isPending || isSavingRelated ? <span className="loading loading-spinner loading-sm" /> : 'Save Changes'}
       </FloatingFormButton>
 
       <ProductImagesManager productId={productId} images={product.images} />
       <ProductVideoManager productId={productId} videoUrl={product.videoUrl} />
       <ProductOptionsManager productId={productId} options={product.options} />
       <ProductVariantsManager productId={productId} options={product.options} variants={product.variants} />
-      <RelatedProductsManager productId={productId} />
+      <RelatedProductsManager productId={productId} picks={relatedPicks} onChange={setRelatedPicks} isLoading={relatedLoading} />
+
+      {toast && (
+        <div className="toast toast-end toast-bottom z-50">
+          <div className={[
+            'alert shadow-lg rounded-2xl text-sm gap-2 px-4 py-3',
+            toast.type === 'success'
+              ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-300'
+              : 'bg-error/15 border border-error/30 text-error',
+          ].join(' ')}>
+            {toast.type === 'success' ? (
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+                <path d="M2.5 7l3 3 6-6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            ) : (
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+                <path d="M3.5 3.5l7 7M10.5 3.5l-7 7" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/>
+              </svg>
+            )}
+            <span>{toast.message}</span>
+          </div>
+        </div>
+      )}
 
     </div>
   )

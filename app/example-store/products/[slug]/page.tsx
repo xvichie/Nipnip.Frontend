@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { getProductBySlug, PRODUCTS, getCategoryName } from '@/lib/store/products'
 import { useCart } from '@/lib/store/cart-context'
+import { CImg } from '@/components/ui/CImg'
 
 function badgeClass(badge: string) {
   if (badge === 'ფასდაკლება') return 'bg-[#c8102e] text-white'
@@ -85,14 +86,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   className={['w-16 h-16 overflow-hidden border-2 transition-colors bg-[#f7f7f7]',
                     activeImage === i ? 'border-[#111]' : 'border-[#e5e5e5] hover:border-[#999]'].join(' ')}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <CImg src={img} alt="" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
             <div className="flex-1 aspect-square bg-[#f7f7f7] overflow-hidden relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={product.images[activeImage]} alt={product.name} className="w-full h-full object-cover" />
+              <CImg src={product.images[activeImage]} alt={product.name} className="w-full h-full object-cover" />
               {product.badge && (
                 <span className={`absolute top-4 left-4 text-xs font-bold px-3 py-1 uppercase tracking-wider ${badgeClass(product.badge)}`}>
                   {product.badge}
@@ -237,8 +236,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 <Link key={p.id} href={`/example-store/products/${p.slug}`} className="group block">
                   <div className="bg-white border border-[#e5e5e5] hover:shadow-md transition-shadow">
                     <div className="aspect-square bg-[#f7f7f7] overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={p.images[0]} alt={p.name}
+                      <CImg src={p.images[0]} alt={p.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
                     <div className="p-3.5">

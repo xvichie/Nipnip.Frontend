@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { QuickAddButton } from '@/components/storefront/shared/QuickAddButton'
 import type { ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
+import { CImg } from '@/components/ui/CImg'
 
 export function ProductCard({
   slug,
@@ -24,9 +25,9 @@ export function ProductCard({
           )}
           {product.thumbnailUrl ? (
             <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <CImg
                 src={product.thumbnailUrl}
+                cldWidth={600}
                 alt={product.name}
                 className={[
                   'absolute inset-0 w-full h-full object-cover transition-all duration-300 ease-out group-hover:scale-[1.03]',
@@ -34,9 +35,9 @@ export function ProductCard({
                 ].join(' ')}
               />
               {product.secondImageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <CImg
                   src={product.secondImageUrl}
+                  cldWidth={600}
                   alt=""
                   className="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-[1.03]"
                 />

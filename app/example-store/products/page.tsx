@@ -5,6 +5,7 @@ import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { PRODUCTS, CATEGORIES, getCategoryName } from '@/lib/store/products'
 import { useCart } from '@/lib/store/cart-context'
+import { CImg } from '@/components/ui/CImg'
 
 function badgeClass(badge: string) {
   if (badge === 'ფასდაკლება') return 'bg-[#c8102e] text-white'
@@ -57,8 +58,7 @@ function ProductCard({ product }: { product: (typeof PRODUCTS)[0] }) {
     <Link href={`/example-store/products/${product.slug}`} className="group block">
       <div className="bg-white border border-[#e5e5e5] hover:shadow-md transition-shadow duration-200">
         <div className="relative aspect-square bg-[#f7f7f7] overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <CImg
             src={product.images[0]}
             alt={product.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

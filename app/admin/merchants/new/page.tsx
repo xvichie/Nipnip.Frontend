@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useAdminCreateMerchant } from '@/lib/queries/admin'
 import { uploadImage, cloudinaryConfigured } from '@/lib/uploadImage'
+import { CImg } from '@/components/ui/CImg'
 
 function genPassword() {
   const rand = Math.floor(1000 + Math.random() * 9000)
@@ -405,8 +406,7 @@ export default function AdminNewMerchantPage() {
           {logoPreview ? (
             <div className="flex items-center gap-4">
               <div className="relative w-20 h-20 rounded-2xl overflow-hidden border border-white/[0.1] shrink-0">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={logoPreview} alt="Logo preview" className="w-full h-full object-cover" />
+                <CImg src={logoPreview} alt="Logo preview" className="w-full h-full object-cover" />
                 {logoUploading && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                     <span className="loading loading-spinner loading-sm text-white" />

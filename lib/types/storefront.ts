@@ -27,6 +27,12 @@ export type HeroMobileImagePosition = 'inherit' | 'top' | 'bottom'
 
 export type HeroMobileTextAlign = 'inherit' | 'left' | 'center' | 'right'
 
+export type HeroImageFit = 'contain' | 'cover'
+
+export type HeroImagePosition = 'center' | 'top' | 'bottom' | 'left' | 'right'
+
+export type HeroTextSize = 'sm' | 'md' | 'lg' | 'xl'
+
 export type CategoryMenuMode = 'flat' | 'dropdown'
 
 export type CategoryMenuScope = 'all' | 'selected'
@@ -41,6 +47,8 @@ export interface ThemeConfig {
   logoUrl?: string
   showStoreName?: boolean
   heroImageUrl?: string
+  heroImageFit?: HeroImageFit
+  heroImagePosition?: HeroImagePosition
   bannerType?: BannerType
   bannerUrl?: string
   bannerColor?: string
@@ -53,8 +61,11 @@ export interface ThemeConfig {
   heroMobileImagePosition?: HeroMobileImagePosition
   heroMobileTextAlign?: HeroMobileTextAlign
   heroEyebrow?: string
+  heroEyebrowSize?: HeroTextSize
   heroHeadline?: string
+  heroHeadlineSize?: HeroTextSize
   heroSubheadline?: string
+  heroSubheadlineSize?: HeroTextSize
   seoTagline?: string
   seoDescription?: string
   contactEmail?: string
@@ -108,6 +119,10 @@ export interface StoreResponse {
   affiliateEnabled: boolean
   createdAt: string
   customDomain: string | null
+  /** Admin-authored JSON overlay layered on top of the theme — see AdminThemeOverride. Null if none set. */
+  themeOverride: string | null
+  /** Merchant-controlled — whether the admin's overlay (if any) is currently applied. */
+  themeOverrideEnabled: boolean
 }
 
 export interface UpdateStoreRequest {
@@ -116,6 +131,14 @@ export interface UpdateStoreRequest {
   themeConfig?: string | null
   isActive?: boolean | null
   affiliateEnabled?: boolean | null
+  themeOverrideEnabled?: boolean | null
+}
+
+/** Shape of StoreResponse.themeOverride once parsed — admin-only, set via the admin panel. */
+export interface AdminThemeOverride {
+  customCss?: string
+  announcementHtml?: string
+  footerExtraHtml?: string
 }
 
 export interface DomainDnsRecordResponse {

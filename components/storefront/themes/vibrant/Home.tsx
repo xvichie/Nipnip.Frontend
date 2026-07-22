@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import { ProductCard } from './ProductCard'
 import { CategoryIcon } from '@/components/storefront/shared/CategoryIcon'
-import { getBannerBackgroundStyle, getHeroTextAlignClass, hasBanner, HERO_HEIGHT_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
+import { getBannerBackgroundStyle, getHeroImageClass, getHeroTextAlignClass, hasBanner, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
 import { getLandingCategories } from '@/lib/store/landing-categories'
 import type { CategoryResponse, ProductSummaryResponse, StoreResponse, ThemeConfig } from '@/lib/types/storefront'
+import { CImg } from '@/components/ui/CImg'
 
 export function Home({
   slug,
@@ -49,17 +50,17 @@ export function Home({
     <div className={`w-full max-w-xl ${textAlignClass}`}>
       {tokens.heroEyebrow && (
         <p
-          className="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-4"
+          className={`inline-block ${HERO_EYEBROW_SIZE_CLASS[tokens.heroEyebrowSize]} font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-4`}
           style={{ backgroundColor: `${tokens.accentColor}18`, color: tokens.accentColor }}
         >
           {tokens.heroEyebrow}
         </p>
       )}
-      <h1 className={`font-black text-[#1a1a1a] tracking-tight mb-5 leading-[1.05] ${isSplitHero ? 'text-3xl sm:text-4xl' : 'text-4xl sm:text-6xl'}`}>
+      <h1 className={`font-black text-[#1a1a1a] tracking-tight mb-5 leading-[1.05] ${HERO_HEADLINE_SIZE_CLASS[tokens.heroHeadlineSize]}`}>
         {tokens.heroHeadline || store.name}
       </h1>
       {tokens.heroSubheadline && (
-        <p className="text-[#6b6058] text-base mb-8">{tokens.heroSubheadline}</p>
+        <p className={`text-[#6b6058] ${HERO_SUBHEADLINE_SIZE_CLASS[tokens.heroSubheadlineSize]} mb-8`}>{tokens.heroSubheadline}</p>
       )}
       <Link
         href={`/products`}
@@ -78,8 +79,7 @@ export function Home({
         className={`relative h-full flex items-center justify-center overflow-hidden rounded-[2rem] ${imageBanner || sectionBanner ? '' : 'bg-white'}`}
         style={{ boxShadow: `0 24px 60px -20px ${tokens.accentColor}40` }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={tokens.heroImageUrl} alt={tokens.heroHeadline || store.name} className="max-w-full max-h-full object-contain" />
+        <CImg src={tokens.heroImageUrl} cldWidth={1400} alt={tokens.heroHeadline || store.name} className={getHeroImageClass(tokens)} />
       </div>
     </div>
   )

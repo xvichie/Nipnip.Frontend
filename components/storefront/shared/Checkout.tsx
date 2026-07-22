@@ -8,6 +8,7 @@ import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { getThemeDefinition, RADIUS_CLASS, SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { LocationPicker } from './LocationPicker'
 import type { PaymentMethod, ThemeConfig, ThemeId } from '@/lib/types/storefront'
+import { CImg } from '@/components/ui/CImg'
 
 const PAYMENT_OPTIONS: { id: PaymentMethod; label: string; icon: React.ReactNode }[] = [
   {
@@ -381,8 +382,7 @@ export function Checkout({
                   <div key={item.id} className="flex items-center gap-3 py-3">
                     <div className={`w-11 h-11 shrink-0 overflow-hidden ${radius} ${surface.border} border`}>
                       {item.imageUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={item.imageUrl} alt={item.productName} className="w-full h-full object-cover" />
+                        <CImg src={item.imageUrl} alt={item.productName} className="w-full h-full object-cover" />
                       ) : (
                         <div className={`w-full h-full flex items-center justify-center text-[8px] ${surface.muted}`}>—</div>
                       )}

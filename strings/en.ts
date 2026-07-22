@@ -23,6 +23,7 @@ export const en: Strings = {
     contact: 'Contact',
     signUp: 'Sign up',
     merchants: 'Merchants',
+    creators: 'Creators',
     creatorDashboard: 'Creator dashboard',
     joinAsMerchant: 'Join as merchant',
     merchantDashboard: 'Merchant dashboard',
