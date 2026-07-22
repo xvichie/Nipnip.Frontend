@@ -242,6 +242,17 @@ function OrderDetailsModal({
                 <img src="/tbc-logo.jpg" alt="" className="w-3.5 h-3.5 rounded object-cover" />
                 TBC
               </a>
+            ) : order.paymentMethod === 'Bog' ? (
+              <a
+                href="https://businessmanager.bog.ge"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#FF6A2B]/30 bg-[#FF6A2B]/15 px-2.5 py-1 text-xs font-medium text-[#FF6A2B] hover:bg-[#FF6A2B]/25 transition-colors"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/bog-logo.jpg" alt="" className="w-3.5 h-3.5 rounded object-cover" />
+                BOG
+              </a>
             ) : (
               <span className="inline-flex items-center rounded-lg border border-white/10 bg-white/4 px-2.5 py-1 text-xs font-medium text-white/70">
                 {PAYMENT_LABELS[order.paymentMethod] ?? order.paymentMethod}

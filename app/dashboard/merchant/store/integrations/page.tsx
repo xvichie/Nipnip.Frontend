@@ -19,7 +19,24 @@ import { useConnectExtra, useDisconnectExtra, useExtraStatus } from '@/lib/queri
 import { useDisconnectTikTok, useTikTokConnectUrl, useTikTokStatus } from '@/lib/queries/tiktok'
 import { FacebookPagePickerModal } from '@/components/dashboard/store/FacebookPagePickerModal'
 import { BetaBadge } from '@/components/dashboard/store/BetaBadge'
+import { SoonBadge } from '@/components/dashboard/store/SoonBadge'
 import { PickupLocationPicker } from '@/components/dashboard/store/PickupLocationPicker'
+
+function HowToConnect({ children }: { children: React.ReactNode }) {
+  return (
+    <details className="group rounded-lg border border-white/8">
+      <summary className="flex items-center gap-1.5 px-3 py-2 cursor-pointer list-none select-none text-xs font-medium text-white/40 hover:text-white/60 transition-colors">
+        <svg width="8" height="8" viewBox="0 0 10 10" fill="none" aria-hidden className="shrink-0 transition-transform group-open:rotate-90">
+          <path d="M3 1.5l4 3.5-4 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        How to get this
+      </summary>
+      <div className="px-3 pb-2.5 pt-0.5 text-white/40 text-xs leading-relaxed">
+        {children}
+      </div>
+    </details>
+  )
+}
 
 export default function IntegrationsPage() {
   return (
@@ -208,6 +225,7 @@ function IntegrationsPageContent() {
       <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2 mt-2">Payment Providers</p>
       <FlittCard />
       <TbcCard />
+      <BogCard />
 
       <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2 mt-2">Marketplaces</p>
       <MyMarketCard />
@@ -370,6 +388,12 @@ function FlittCard() {
           </button>
         </div>
       )}
+      {!isLoading && !connected && (
+        <HowToConnect>
+          Find your Merchant ID and Secret key in the Flitt merchant portal at{' '}
+          <span className="text-white/60">portal.flitt.com</span>, under your shop&apos;s settings.
+        </HowToConnect>
+      )}
       {connectError && <p className="text-error text-xs">{connectError.message}</p>}
     </div>
   )
@@ -455,7 +479,38 @@ function TbcCard() {
           </button>
         </div>
       )}
+      {!isLoading && !connected && (
+        <HowToConnect>
+          Get your Client ID and Client secret from the merchant dashboard at{' '}
+          <span className="text-white/60">ecom.tbcpayments.ge</span>, under your shop&apos;s API/integration settings.
+        </HowToConnect>
+      )}
       {connectError && <p className="text-error text-xs">{connectError.message}</p>}
+    </div>
+  )
+}
+
+function BogCard() {
+  return (
+    <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex flex-col gap-4 opacity-60">
+      <div className="flex items-center gap-4">
+        <div className="w-11 h-11 rounded-xl overflow-hidden border border-white/10 shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/bog-logo.jpg" alt="" className="w-full h-full object-cover" />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-white flex items-center gap-2">
+            Bank of Georgia
+            <SoonBadge />
+          </p>
+          <p className="text-white/30 text-xs mt-0.5">Card payments via BOG Payment by Link — coming soon.</p>
+        </div>
+
+        <button type="button" disabled className="btn btn-sm bg-white/4 border-white/8 text-white/30 disabled:opacity-40 shrink-0">
+          Connect
+        </button>
+      </div>
     </div>
   )
 }
@@ -528,6 +583,12 @@ function MyMarketCard() {
             {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Save'}
           </button>
         </div>
+      )}
+      {!isLoading && !connected && (
+        <HowToConnect>
+          Open your shop page on MyMarket.ge and copy its URL — or just the number at the end, e.g.{' '}
+          <span className="text-white/60">mymarket.ge/shops/15915</span> → <span className="text-white/60">15915</span>.
+        </HowToConnect>
       )}
       {connectError && <p className="text-error text-xs">{connectError.message}</p>}
     </div>
@@ -603,6 +664,12 @@ function PhubberCard() {
           </button>
         </div>
       )}
+      {!isLoading && !connected && (
+        <HowToConnect>
+          Open your seller page on Phubber and copy its URL — or just the ID at the end, e.g.{' '}
+          <span className="text-white/60">beta.phubber.ge/seller-page/5fae60d4...</span>
+        </HowToConnect>
+      )}
       {connectError && <p className="text-error text-xs">{connectError.message}</p>}
     </div>
   )
@@ -676,6 +743,12 @@ function ExtraCard() {
             {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Save'}
           </button>
         </div>
+      )}
+      {!isLoading && !connected && (
+        <HowToConnect>
+          Open your seller page on Extra.ge and copy its URL — or just the number at the end, e.g.{' '}
+          <span className="text-white/60">extra.ge/seller/algorithmalgoritmi/228</span> → <span className="text-white/60">228</span>.
+        </HowToConnect>
       )}
       {connectError && <p className="text-error text-xs">{connectError.message}</p>}
     </div>
@@ -792,6 +865,11 @@ function QuickShipperCard() {
             {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Connect'}
           </button>
         </div>
+      )}
+      {!isLoading && !connected && (
+        <HowToConnect>
+          Use the same username and password you log into your own QuickShipper account with — no separate API credentials needed.
+        </HowToConnect>
       )}
       {connectError && <p className="text-error text-xs">{connectError.message}</p>}
 
