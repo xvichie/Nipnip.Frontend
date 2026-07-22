@@ -14,6 +14,7 @@ import {
 import { useConnectFlitt, useDisconnectFlitt, useFlittStatus } from '@/lib/queries/flitt'
 import { useConnectMyMarket, useDisconnectMyMarket, useMyMarketStatus } from '@/lib/queries/mymarket'
 import { useConnectPhubber, useDisconnectPhubber, usePhubberStatus } from '@/lib/queries/phubber'
+import { useConnectExtra, useDisconnectExtra, useExtraStatus } from '@/lib/queries/extra'
 import { useDisconnectTikTok, useTikTokConnectUrl, useTikTokStatus } from '@/lib/queries/tiktok'
 import { FacebookPagePickerModal } from '@/components/dashboard/store/FacebookPagePickerModal'
 import { BetaBadge } from '@/components/dashboard/store/BetaBadge'
@@ -209,6 +210,7 @@ function IntegrationsPageContent() {
       <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2 mt-2">Marketplaces</p>
       <MyMarketCard />
       <PhubberCard />
+      <ExtraCard />
     </div>
   )
 }
@@ -509,6 +511,80 @@ function PhubberCard() {
             onClick={handleConnect}
             disabled={connecting || !sellerIdInput.trim()}
             className="btn btn-sm bg-[#EAC7C5]/20 border-[#EAC7C5]/40 text-[#EAC7C5] hover:bg-[#EAC7C5]/30 disabled:opacity-40 shrink-0"
+          >
+            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Save'}
+          </button>
+        </div>
+      )}
+      {connectError && <p className="text-error text-xs">{connectError.message}</p>}
+    </div>
+  )
+}
+
+function ExtraCard() {
+  const { data: status, isLoading } = useExtraStatus()
+  const { mutate: connect, isPending: connecting, error: connectError } = useConnectExtra()
+  const { mutate: disconnect, isPending: disconnecting } = useDisconnectExtra()
+
+  const [sellerIdInput, setSellerIdInput] = useState('')
+
+  const connected = status?.isConnected ?? false
+
+  function handleConnect() {
+    if (!sellerIdInput.trim()) return
+    connect({ sellerId: sellerIdInput.trim() }, { onSuccess: () => setSellerIdInput('') })
+  }
+
+  function handleDisconnect() {
+    if (!confirm('Disconnect Extra.ge? You can reconnect it any time.')) return
+    disconnect()
+  }
+
+  return (
+    <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex flex-col gap-4">
+      <div className="flex items-center gap-4">
+        <div className="h-11 px-2.5 rounded-xl bg-white flex items-center justify-center shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/extra-logo.svg" alt="" className="h-4 w-auto" />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-white">Extra.ge</p>
+          {isLoading ? (
+            <p className="text-white/30 text-xs mt-0.5">Checking connection...</p>
+          ) : connected ? (
+            <p className="text-emerald-400 text-xs mt-0.5">Connected — Seller ID {status?.sellerId}</p>
+          ) : (
+            <p className="text-white/30 text-xs mt-0.5">Save your seller ID to import products by pasting an Extra.ge product link.</p>
+          )}
+        </div>
+
+        {!isLoading && connected && (
+          <button
+            type="button"
+            onClick={handleDisconnect}
+            disabled={disconnecting}
+            className="btn btn-sm bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40 shrink-0"
+          >
+            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'Disconnect'}
+          </button>
+        )}
+      </div>
+
+      {!isLoading && !connected && (
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+          <input
+            type="text"
+            value={sellerIdInput}
+            onChange={e => setSellerIdInput(e.target.value)}
+            placeholder="https://extra.ge/seller/algorithmalgoritmi/228 or just the ID"
+            className="input input-sm bg-white/4 border-white/10 focus:border-[#7A1DFF]/60 flex-1"
+          />
+          <button
+            type="button"
+            onClick={handleConnect}
+            disabled={connecting || !sellerIdInput.trim()}
+            className="btn btn-sm bg-[#7A1DFF]/20 border-[#7A1DFF]/40 text-[#c299ff] hover:bg-[#7A1DFF]/30 disabled:opacity-40 shrink-0"
           >
             {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Save'}
           </button>

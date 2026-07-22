@@ -10,13 +10,24 @@ import { useMyMarketStatus } from '@/lib/queries/mymarket'
 import { MyMarketProductPicker } from './MyMarketProductPicker'
 import { usePhubberStatus } from '@/lib/queries/phubber'
 import { PhubberProductPicker } from './PhubberProductPicker'
+import { useExtraStatus } from '@/lib/queries/extra'
+import { ExtraProductPicker } from './ExtraProductPicker'
 import { uploadImage, uploadVideo } from '@/lib/uploadImage'
 import { viewTransitionNameFor, withViewTransition } from '@/lib/viewTransition'
 import { PRODUCT_IMPORT_STORAGE_KEY, type ProductImportData } from '@/lib/productImport'
+import type { ExtraProductSummary } from '@/lib/types'
 import { BetaBadge } from './BetaBadge'
 
-type Platform = 'choose' | 'facebook' | 'instagram' | 'mymarket' | 'phubber'
+type Platform = 'choose' | 'facebook' | 'instagram' | 'mymarket' | 'phubber' | 'extra'
 type Mode = 'choose' | 'post' | 'manual'
+
+const PLATFORM_LABELS: Record<Exclude<Platform, 'choose'>, string> = {
+  facebook: 'Facebook',
+  instagram: 'Instagram',
+  mymarket: 'MyMarket',
+  phubber: 'Phubber',
+  extra: 'Extra.ge',
+}
 
 interface PickableItem {
   id: string
@@ -38,6 +49,8 @@ export function ImportProductModal() {
   const [mymarketManual, setMymarketManual] = useState(false)
   const [phubberUrl, setPhubberUrl] = useState('')
   const [phubberManual, setPhubberManual] = useState(false)
+  const [extraUrl, setExtraUrl] = useState('')
+  const [extraManual, setExtraManual] = useState(false)
   const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingVideo, setUploadingVideo] = useState(false)
@@ -59,6 +72,9 @@ export function ImportProductModal() {
 
   const { data: phStatus } = usePhubberStatus()
   const phConnected = phStatus?.isConnected ?? false
+
+  const { data: exStatus } = useExtraStatus()
+  const exConnected = exStatus?.isConnected ?? false
 
   const [pickedId, setPickedId] = useState<string | null>(null)
   const dragIndex = useRef<number | null>(null)
@@ -85,6 +101,8 @@ export function ImportProductModal() {
     setMymarketManual(false)
     setPhubberUrl('')
     setPhubberManual(false)
+    setExtraUrl('')
+    setExtraManual(false)
     setError(null)
   }
 
@@ -316,6 +334,53 @@ export function ImportProductModal() {
     setPickedId(null)
   }
 
+  // Extra.ge's own list endpoint already returns the slug/productSecondaryId/offerSecondaryId
+  // trio the detail endpoint needs — picking a grid item skips URL-parsing entirely.
+  async function runExtraImport(
+    body: { productUrl?: string } | { slug: string; productSecondaryId: string; offerSecondaryId: string }
+  ): Promise<boolean> {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/import/extra', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error ?? 'Failed to import that product.')
+        return false
+      }
+      sessionStorage.setItem(PRODUCT_IMPORT_STORAGE_KEY, JSON.stringify(data as ProductImportData))
+      router.push('/dashboard/merchant/store/products/new?imported=extra')
+      return true
+    } catch {
+      setError('Failed to import that product.')
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function handleExtraImport(e: React.FormEvent) {
+    e.preventDefault()
+    if (!extraUrl.trim()) return
+    void runExtraImport({ productUrl: extraUrl })
+  }
+
+  async function handleExtraPick(product: ExtraProductSummary) {
+    const id = String(product.offerSecondaryId)
+    setPickedId(id)
+    setError(null)
+    await runExtraImport({
+      slug: product.slug,
+      productSecondaryId: String(product.productSecondaryId),
+      offerSecondaryId: id,
+    })
+    setPickedId(null)
+  }
+
   const busy = loading || uploadingImage || uploadingVideo || !!pickedId
 
   return (
@@ -338,17 +403,7 @@ export function ImportProductModal() {
           <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#14141c] flex flex-col overflow-hidden max-h-[90vh]">
             <div className="flex items-center justify-between px-5 pt-5">
               <h3 className="text-sm font-semibold text-white">
-                {platform === 'choose'
-                  ? 'Import a product'
-                  : `Import from ${
-                      platform === 'facebook'
-                        ? 'Facebook'
-                        : platform === 'instagram'
-                          ? 'Instagram'
-                          : platform === 'mymarket'
-                            ? 'MyMarket'
-                            : 'Phubber'
-                    }`}
+                {platform === 'choose' ? 'Import a product' : `Import from ${PLATFORM_LABELS[platform]}`}
               </h3>
               <button
                 type="button"
@@ -416,6 +471,18 @@ export function ImportProductModal() {
                     <img src="/phubber-logo.jpg" alt="" className="w-full h-full object-cover" />
                   </span>
                   Phubber
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPlatform('extra')}
+                  className="btn w-full justify-start gap-3 bg-[#7A1DFF]/15 border-[#7A1DFF]/30 text-[#c299ff] hover:bg-[#7A1DFF]/25"
+                >
+                  <span className="w-4 h-4 rounded-sm bg-white flex items-center justify-center shrink-0 overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/extra-logo.svg" alt="" className="w-full h-auto" />
+                  </span>
+                  Extra.ge
                 </button>
               </div>
             ) : platform === 'mymarket' ? (
@@ -624,6 +691,110 @@ export function ImportProductModal() {
                       type="submit"
                       disabled={loading || !phubberUrl.trim()}
                       className="btn w-full gap-2 bg-[#EAC7C5] hover:brightness-95 border-[#EAC7C5] text-black font-semibold disabled:opacity-40"
+                    >
+                      {loading ? <span className="loading loading-spinner loading-sm" /> : 'Import'}
+                    </button>
+                  </form>
+                )}
+              </div>
+            ) : platform === 'extra' ? (
+              <div className="flex flex-col gap-4 px-5 pt-4 pb-5">
+                <button
+                  type="button"
+                  onClick={backFromMode}
+                  className="text-white/30 hover:text-white/60 text-xs self-start flex items-center gap-1"
+                >
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
+                    <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Back
+                </button>
+
+                {exStatus === undefined ? (
+                  <div className="skeleton h-40 rounded-2xl" />
+                ) : exConnected && !extraManual ? (
+                  <>
+                    <p className="text-white/40 text-xs leading-relaxed">
+                      Pick a product from your connected Extra.ge seller account — everything below is pulled in
+                      automatically. Review it before saving.
+                    </p>
+                    <ExtraProductPicker
+                      sellerId={exStatus!.sellerId!}
+                      onPick={handleExtraPick}
+                      pickingId={pickedId}
+                      disabled={busy}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setExtraManual(true)}
+                      className="text-white/30 hover:text-white/60 text-xs self-start"
+                    >
+                      Or paste a product link instead
+                    </button>
+                    {error && (
+                      <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
+                        {error}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <form onSubmit={handleExtraImport} className="flex flex-col gap-4">
+                    {exConnected && (
+                      <button
+                        type="button"
+                        onClick={() => setExtraManual(false)}
+                        className="text-white/30 hover:text-white/60 text-xs self-start flex items-center gap-1"
+                      >
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
+                          <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Browse my products instead
+                      </button>
+                    )}
+
+                    <p className="text-white/40 text-xs leading-relaxed">
+                      Paste the product page link from Extra.ge — the title, photos, price, and attributes are
+                      pulled in automatically. Review everything before saving.
+                    </p>
+
+                    <div className="fieldset gap-2">
+                      <label htmlFor="extra-url" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                        Product link <span className="text-error">*</span>
+                      </label>
+                      <input
+                        id="extra-url"
+                        type="url"
+                        inputMode="url"
+                        autoFocus
+                        value={extraUrl}
+                        onChange={e => setExtraUrl(e.target.value)}
+                        placeholder="https://extra.ge/product/tristar-at-5468-kolonuri-konditsioneri/99231/229483"
+                        disabled={loading}
+                        className="input w-full bg-white/4 border-white/10 focus:border-[#7A1DFF]/60"
+                        required
+                      />
+                    </div>
+
+                    {!exConnected && (
+                      <p className="text-white/25 text-xs leading-relaxed">
+                        Connect your seller account in{' '}
+                        <Link href="/dashboard/merchant/store/integrations" className="text-[#c299ff] hover:brightness-110">
+                          Integrations
+                        </Link>{' '}
+                        to browse your products directly.
+                      </p>
+                    )}
+
+                    {error && (
+                      <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
+                        {error}
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={loading || !extraUrl.trim()}
+                      className="btn w-full gap-2 bg-[#7A1DFF] hover:brightness-110 border-[#7A1DFF] text-white font-semibold disabled:opacity-40"
                     >
                       {loading ? <span className="loading loading-spinner loading-sm" /> : 'Import'}
                     </button>
