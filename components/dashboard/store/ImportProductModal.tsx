@@ -12,16 +12,17 @@ import { usePhubberStatus } from '@/lib/queries/phubber'
 import { PhubberProductPicker } from './PhubberProductPicker'
 import { useExtraStatus } from '@/lib/queries/extra'
 import { ExtraProductPicker } from './ExtraProductPicker'
+import { BulkImportFromFacebookSection } from './BulkImportFromFacebookSection'
 import { uploadImage, uploadVideo } from '@/lib/uploadImage'
 import { viewTransitionNameFor, withViewTransition } from '@/lib/viewTransition'
 import { PRODUCT_IMPORT_STORAGE_KEY, type ProductImportData } from '@/lib/productImport'
 import type { ExtraProductSummary } from '@/lib/types'
 import { BetaBadge } from './BetaBadge'
 
-type Platform = 'choose' | 'facebook' | 'instagram' | 'mymarket' | 'phubber' | 'extra'
+type Platform = 'choose' | 'facebook' | 'instagram' | 'mymarket' | 'phubber' | 'extra' | 'facebook-bulk'
 type Mode = 'choose' | 'post' | 'manual'
 
-const PLATFORM_LABELS: Record<Exclude<Platform, 'choose'>, string> = {
+const PLATFORM_LABELS: Record<Exclude<Platform, 'choose' | 'facebook-bulk'>, string> = {
   facebook: 'Facebook',
   instagram: 'Instagram',
   mymarket: 'MyMarket',
@@ -51,6 +52,7 @@ export function ImportProductModal() {
   const [phubberManual, setPhubberManual] = useState(false)
   const [extraUrl, setExtraUrl] = useState('')
   const [extraManual, setExtraManual] = useState(false)
+  const [bulkImporting, setBulkImporting] = useState(false)
   const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingVideo, setUploadingVideo] = useState(false)
@@ -88,7 +90,7 @@ export function ImportProductModal() {
       : (igMedia ?? []).map(m => ({ id: m.id, thumbnailUrl: m.thumbnailUrl, text: m.caption }))
 
   function close() {
-    if (loading || uploadingImage || uploadingVideo || pickedId) return
+    if (loading || uploadingImage || uploadingVideo || pickedId || bulkImporting) return
     setOpen(false)
     setPlatform('choose')
     setMode('choose')
@@ -107,6 +109,7 @@ export function ImportProductModal() {
   }
 
   function backFromMode() {
+    if (bulkImporting) return
     setPlatform('choose')
     setError(null)
   }
@@ -400,10 +403,19 @@ export function ImportProductModal() {
       {open && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60" onClick={close} />
-          <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#14141c] flex flex-col overflow-hidden max-h-[90vh]">
+          <div
+            className={[
+              'relative w-full rounded-2xl border border-white/10 bg-[#14141c] flex flex-col overflow-hidden max-h-[90vh]',
+              platform === 'facebook-bulk' ? 'max-w-lg' : 'max-w-md',
+            ].join(' ')}
+          >
             <div className="flex items-center justify-between px-5 pt-5">
               <h3 className="text-sm font-semibold text-white">
-                {platform === 'choose' ? 'Import a product' : `Import from ${PLATFORM_LABELS[platform]}`}
+                {platform === 'choose'
+                  ? 'Import a product'
+                  : platform === 'facebook-bulk'
+                    ? 'Bulk import from Facebook'
+                    : `Import from ${PLATFORM_LABELS[platform]}`}
               </h3>
               <button
                 type="button"
@@ -478,11 +490,25 @@ export function ImportProductModal() {
                   onClick={() => setPlatform('extra')}
                   className="btn w-full justify-start gap-3 bg-[#7A1DFF]/15 border-[#7A1DFF]/30 text-[#c299ff] hover:bg-[#7A1DFF]/25"
                 >
-                  <span className="w-4 h-4 rounded-sm bg-white flex items-center justify-center shrink-0 overflow-hidden">
+                  <span className="w-4 h-4 rounded-sm overflow-hidden shrink-0">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/extra-logo.svg" alt="" className="w-full h-auto" />
+                    <img src="/extra-logo.jpg" alt="" className="w-full h-full object-cover" />
                   </span>
                   Extra.ge
+                </button>
+
+                <div className="h-px bg-white/7 my-1" />
+
+                <button
+                  type="button"
+                  onClick={() => setPlatform('facebook-bulk')}
+                  className="btn w-full justify-start gap-3 bg-white/4 border-white/10 text-white/70 hover:text-white hover:border-white/20"
+                >
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <rect x="1.5" y="2.5" width="9" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+                    <rect x="5.5" y="6.5" width="9" height="9" rx="1.5" fill="#14141c" stroke="currentColor" strokeWidth="1.3"/>
+                  </svg>
+                  Bulk Import from Facebook
                 </button>
               </div>
             ) : platform === 'mymarket' ? (
@@ -800,6 +826,22 @@ export function ImportProductModal() {
                     </button>
                   </form>
                 )}
+              </div>
+            ) : platform === 'facebook-bulk' ? (
+              <div className="flex flex-col gap-4 px-5 pt-4 pb-5 overflow-y-auto">
+                <button
+                  type="button"
+                  onClick={backFromMode}
+                  disabled={bulkImporting}
+                  className="text-white/30 hover:text-white/60 text-xs self-start flex items-center gap-1 disabled:opacity-30"
+                >
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
+                    <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Back
+                </button>
+
+                <BulkImportFromFacebookSection onImportingChange={setBulkImporting} onDone={close} />
               </div>
             ) : mode === 'choose' ? (
               <div className="flex flex-col gap-4 px-5 pt-4 pb-5">
