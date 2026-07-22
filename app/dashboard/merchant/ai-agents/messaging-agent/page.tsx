@@ -27,11 +27,15 @@ export default function MessagingAgentPage() {
   const [instructions, setInstructions] = useState('')
   const [saved, setSaved] = useState(false)
 
-  // Adjust state during render instead of an effect — settings arrive async, so there's
-  // no lazy-initializer moment to hook them into.
-  const [prevSettings, setPrevSettings] = useState(settings)
-  if (settings && settings !== prevSettings) {
-    setPrevSettings(settings)
+  // Adjust state during render instead of an effect — settings arrive async, so there's no
+  // lazy-initializer moment to hook them into. Tracked via a plain "have we hydrated this
+  // mount" flag rather than comparing against the previous value by reference — the settings
+  // query is cached across navigations, so on a revisit `settings` can already be populated
+  // on the very first render, making it identical to itself and never triggering a
+  // reference-inequality check.
+  const [hydrated, setHydrated] = useState(false)
+  if (settings && !hydrated) {
+    setHydrated(true)
     setEnabledFacebook(settings.enabledFacebook)
     setEnabledInstagram(settings.enabledInstagram)
     setInstructions(settings.instructions ?? '')

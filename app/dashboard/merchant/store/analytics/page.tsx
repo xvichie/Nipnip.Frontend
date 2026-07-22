@@ -46,18 +46,18 @@ export default function StoreAnalyticsPage() {
         ))}
       </div>
 
-      {isLoading ? (
+      {isLoading || (!isError && !data) ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[0, 1, 2, 3].map(i => <div key={i} className="skeleton h-32 rounded-2xl" />)}
         </div>
-      ) : isError ? (
+      ) : isError || !data ? (
         <div className="alert alert-error text-sm rounded-2xl">{t.storeAnalytics.statsError}</div>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
               label={t.storeAnalytics.visits}
-              value={data!.visits.toLocaleString()}
+              value={data.visits.toLocaleString()}
               color="text-sky-400 bg-sky-400/10"
               icon={
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
@@ -68,7 +68,7 @@ export default function StoreAnalyticsPage() {
             />
             <StatCard
               label={t.storeAnalytics.pageViews}
-              value={data!.pageViews.toLocaleString()}
+              value={data.pageViews.toLocaleString()}
               color="text-violet-400 bg-violet-400/10"
               icon={
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
@@ -79,7 +79,7 @@ export default function StoreAnalyticsPage() {
             />
             <StatCard
               label={t.storeAnalytics.productViews}
-              value={data!.productViews.toLocaleString()}
+              value={data.productViews.toLocaleString()}
               color="text-amber-400 bg-amber-400/10"
               icon={
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
@@ -90,7 +90,7 @@ export default function StoreAnalyticsPage() {
             />
             <StatCard
               label={t.storeAnalytics.orders}
-              value={data!.orders.toLocaleString()}
+              value={data.orders.toLocaleString()}
               color="text-emerald-400 bg-emerald-400/10"
               icon={
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
@@ -104,11 +104,11 @@ export default function StoreAnalyticsPage() {
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">{t.storeAnalytics.funnelTitle}</h2>
             <div className="flex flex-col sm:flex-row items-stretch gap-3">
-              <FunnelStage label={t.storeAnalytics.funnelVisits} value={data!.visits} of={data!.visits} />
-              <FunnelArrow rate={pct(data!.productViews, data!.visits)} />
-              <FunnelStage label={t.storeAnalytics.funnelProductViews} value={data!.productViews} of={data!.visits} />
-              <FunnelArrow rate={pct(data!.orders, data!.productViews)} />
-              <FunnelStage label={t.storeAnalytics.funnelOrders} value={data!.orders} of={data!.visits} />
+              <FunnelStage label={t.storeAnalytics.funnelVisits} value={data.visits} of={data.visits} />
+              <FunnelArrow rate={pct(data.productViews, data.visits)} />
+              <FunnelStage label={t.storeAnalytics.funnelProductViews} value={data.productViews} of={data.visits} />
+              <FunnelArrow rate={pct(data.orders, data.productViews)} />
+              <FunnelStage label={t.storeAnalytics.funnelOrders} value={data.orders} of={data.visits} />
             </div>
           </div>
 
@@ -117,7 +117,7 @@ export default function StoreAnalyticsPage() {
               <div className="px-6 py-4 border-b border-white/6">
                 <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">{t.storeAnalytics.topPagesTitle}</h2>
               </div>
-              {data!.topPages.length === 0 ? (
+              {!data.topPages || data.topPages.length === 0 ? (
                 <div className="px-6 py-12 text-center">
                   <p className="text-white/20 text-sm">{t.storeAnalytics.noTopPages}</p>
                 </div>
@@ -130,7 +130,7 @@ export default function StoreAnalyticsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data!.topPages.map(p => (
+                    {data.topPages.map(p => (
                       <tr key={p.path} className="border-b border-white/4 last:border-0">
                         <td className="px-6 py-3.5 text-white/70 text-sm font-mono truncate max-w-0">{p.path}</td>
                         <td className="px-6 py-3.5 text-right text-white/60 text-sm tabular-nums">{p.views.toLocaleString()}</td>
@@ -145,7 +145,7 @@ export default function StoreAnalyticsPage() {
               <div className="px-6 py-4 border-b border-white/6">
                 <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">{t.storeAnalytics.sourcesTitle}</h2>
               </div>
-              {data!.sources.length === 0 ? (
+              {!data.sources || data.sources.length === 0 ? (
                 <div className="px-6 py-12 text-center">
                   <p className="text-white/20 text-sm">{t.storeAnalytics.noSources}</p>
                 </div>
@@ -158,7 +158,7 @@ export default function StoreAnalyticsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data!.sources.map(s => (
+                    {data.sources.map(s => (
                       <tr key={s.source} className="border-b border-white/4 last:border-0">
                         <td className="px-6 py-3.5 text-white/70 text-sm">{s.source === 'Direct' ? t.storeAnalytics.direct : s.source}</td>
                         <td className="px-6 py-3.5 text-right text-white/60 text-sm tabular-nums">{s.visits.toLocaleString()}</td>

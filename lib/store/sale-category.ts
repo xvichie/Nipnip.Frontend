@@ -10,6 +10,7 @@ export const SALE_CATEGORY: CategoryResponse = {
   iconUrl: null,
   iconKey: null,
   iconEmoji: '🏷️',
+  defaultOptions: '[]',
 }
 
 export function withSaleCategory(categories: CategoryResponse[], enabled: boolean, showIcon = true): CategoryResponse[] {

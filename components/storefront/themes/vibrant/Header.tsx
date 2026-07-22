@@ -89,7 +89,7 @@ export function Header({
                           key={category.id}
                           href={`/products/category/${category.slug}`}
                           onClick={() => setCategoriesOpen(false)}
-                          className="rounded-xl px-3.5 py-2 text-sm font-medium text-[#1a1a1a]/70 hover:text-[#1a1a1a] hover:bg-[#fff2ec] transition-colors whitespace-nowrap"
+                          className={`rounded-xl py-2 text-sm font-medium text-[#1a1a1a]/70 hover:text-[#1a1a1a] hover:bg-[#fff2ec] transition-colors whitespace-nowrap ${category.isChild ? 'pl-7 pr-3.5' : 'px-3.5'}`}
                         >
                           {category.name}
                         </Link>
@@ -102,9 +102,9 @@ export function Header({
                   <Link
                     key={category.id}
                     href={`/products/category/${category.slug}`}
-                    className="rounded-full px-4 py-2 text-sm font-semibold text-[#1a1a1a]/70 hover:text-[#1a1a1a] hover:bg-[#fff2ec] transition-colors whitespace-nowrap"
+                    className={`rounded-full px-4 py-2 text-sm font-semibold text-[#1a1a1a]/70 hover:text-[#1a1a1a] hover:bg-[#fff2ec] transition-colors whitespace-nowrap ${category.isChild ? 'pl-3' : ''}`}
                   >
-                    {category.name}
+                    {category.isChild && '– '}{category.name}
                   </Link>
                 ))
               )
@@ -193,7 +193,7 @@ export function Header({
                 key={category.id}
                 href={`/products/category/${category.slug}`}
                 onClick={() => setMobileOpen(false)}
-                className="rounded-xl px-3 py-2.5 text-sm font-medium text-[#1a1a1a]/70 hover:bg-[#fff2ec]"
+                className={`rounded-xl py-2.5 text-sm font-medium text-[#1a1a1a]/70 hover:bg-[#fff2ec] ${category.isChild ? 'pl-6' : 'px-3'}`}
               >
                 {category.name}
               </Link>

@@ -146,7 +146,7 @@ export function Header({
                           key={category.id}
                           href={`/products/category/${category.slug}`}
                           onClick={() => setCategoriesOpen(false)}
-                          className="px-4 py-1.5 text-xs uppercase tracking-widest text-[#111111] hover:underline underline-offset-4 whitespace-nowrap"
+                          className={`py-1.5 text-xs uppercase tracking-widest text-[#111111] hover:underline underline-offset-4 whitespace-nowrap ${category.isChild ? 'pl-8 pr-4' : 'px-4'}`}
                         >
                           {category.name}
                         </Link>
@@ -157,12 +157,12 @@ export function Header({
               ) : (
                 navCategories.map((category, i) => (
                   <span key={category.id} className="flex items-center gap-4">
-                    {i > 0 && <Divider />}
+                    {i > 0 && !category.isChild && <Divider />}
                     <Link
                       href={`/products/category/${category.slug}`}
                       className="text-xs uppercase tracking-widest text-[#111111] hover:underline underline-offset-4 whitespace-nowrap"
                     >
-                      {category.name}
+                      {category.isChild && '– '}{category.name}
                     </Link>
                   </span>
                 ))
@@ -222,7 +222,7 @@ export function Header({
                 key={category.id}
                 href={`/products/category/${category.slug}`}
                 onClick={() => setMobileOpen(false)}
-                className="text-xs uppercase tracking-widest text-[#767676] py-2.5 border-b border-black/10"
+                className={`text-xs uppercase tracking-widest text-[#767676] py-2.5 border-b border-black/10 ${category.isChild ? 'pl-4' : ''}`}
               >
                 {category.name}
               </Link>

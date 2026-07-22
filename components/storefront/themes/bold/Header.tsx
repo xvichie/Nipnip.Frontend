@@ -90,7 +90,7 @@ export function Header({
                           key={category.id}
                           href={`/products/category/${category.slug}`}
                           onClick={() => setCategoriesOpen(false)}
-                          className="px-4 py-2 text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors whitespace-nowrap"
+                          className={`py-2 text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors whitespace-nowrap ${category.isChild ? 'pl-8 pr-4' : 'px-4'}`}
                         >
                           {category.name}
                         </Link>
@@ -103,9 +103,9 @@ export function Header({
                   <Link
                     key={category.id}
                     href={`/products/category/${category.slug}`}
-                    className="text-sm font-medium text-white/60 hover:text-white transition-colors whitespace-nowrap"
+                    className={`text-sm font-medium text-white/60 hover:text-white transition-colors whitespace-nowrap ${category.isChild ? 'pl-3' : ''}`}
                   >
-                    {category.name}
+                    {category.isChild && '– '}{category.name}
                   </Link>
                 ))
               )
@@ -196,7 +196,7 @@ export function Header({
                 key={category.id}
                 href={`/products/category/${category.slug}`}
                 onClick={() => setMobileOpen(false)}
-                className="text-sm font-medium text-white/60 py-2.5 border-b border-white/10"
+                className={`text-sm font-medium text-white/60 py-2.5 border-b border-white/10 ${category.isChild ? 'pl-4' : ''}`}
               >
                 {category.name}
               </Link>

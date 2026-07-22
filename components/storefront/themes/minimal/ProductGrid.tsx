@@ -7,7 +7,7 @@ import { PriceRangeFilter } from '@/components/storefront/shared/PriceRangeFilte
 import { Pagination } from '@/components/storefront/shared/Pagination'
 import { useProductPriceRange, useProducts } from '@/lib/queries/storefront'
 import { padPriceBounds, SORT_OPTIONS, sortOptionToQuery, type ProductSortOption } from '@/lib/store/product-search'
-import { withSaleCategory } from '@/lib/store/sale-category'
+import { getSidebarCategories } from '@/lib/store/nav-menu'
 import type { CategoryResponse, ThemeConfig } from '@/lib/types/storefront'
 
 const PAGE_SIZE = 20
@@ -24,7 +24,7 @@ export function ProductGrid({
   tokens: Required<ThemeConfig>
 }) {
   const categoryNames = new Map(categories.map(c => [c.id, c.name]))
-  const displayCategories = withSaleCategory(categories, tokens.showSaleCategory)
+  const displayCategories = getSidebarCategories(categories, tokens)
   const activeCategoryName = activeCategorySlug ? displayCategories.find(c => c.slug === activeCategorySlug)?.name : undefined
 
   const [search, setSearch] = useState('')
@@ -98,6 +98,7 @@ export function ProductGrid({
                       className={[
                         'flex items-center py-1.5 text-sm transition-colors border-b border-[#f0f0f0]',
                         activeCategorySlug === category.slug ? 'text-[#111] font-semibold' : 'text-[#666] hover:text-[#111]',
+                        category.isChild ? 'pl-4' : '',
                       ].join(' ')}
                     >
                       {category.name}

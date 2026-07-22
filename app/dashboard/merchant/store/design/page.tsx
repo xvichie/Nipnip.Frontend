@@ -217,11 +217,15 @@ export default function StoreDesignPage() {
   const [bannerUploading, setBannerUploading] = useState(false)
   const [saved, setSaved] = useState(false)
 
-  // "Adjust state during render" instead of an effect — hydrates once from the
-  // fetched store, which arrives async, so there's no lazy-initializer moment to hook into.
-  const [prevStore, setPrevStore] = useState(store)
-  if (store && store !== prevStore) {
-    setPrevStore(store)
+  // "Adjust state during render" instead of an effect — hydrates once from the fetched
+  // store, which arrives async, so there's no lazy-initializer moment to hook into. Tracked
+  // via a plain "have we hydrated this mount" flag rather than comparing against the previous
+  // store by reference — the store query is cached across navigations, so on a revisit `store`
+  // can already be populated on the very first render, making it identical to itself and never
+  // triggering a reference-inequality check.
+  const [hydrated, setHydrated] = useState(false)
+  if (store && !hydrated) {
+    setHydrated(true)
     const parsed = parseThemeConfig(store.themeConfig)
     setThemeId(isThemeId(store.themeId) ? store.themeId : 'minimal')
     setAccentColor(parsed.accentColor)

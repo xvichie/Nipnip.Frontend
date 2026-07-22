@@ -5,10 +5,11 @@ import { useAuth } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
-import { useCreateProduct, useMyCategories, useMyProduct, useUpdateProduct } from '@/lib/queries/storefront-admin'
+import { useCreateProduct, useMyCategories, useMyProduct, useRelatedProducts, useSetRelatedProducts, useUpdateProduct } from '@/lib/queries/storefront-admin'
 import { apiFetch } from '@/lib/api'
-import type { ProductDetailResponse, ProductOptionResponse } from '@/lib/types/storefront'
+import type { ProductDetailResponse, ProductOptionResponse, ProductSummaryResponse } from '@/lib/types/storefront'
 import { PRODUCT_IMPORT_STORAGE_KEY, type ProductImportData } from '@/lib/productImport'
+import { defaultOptionsToStaged } from '@/lib/store/category-default-options'
 import { StagedImagesEditor } from '@/components/dashboard/store/StagedImagesEditor'
 import { StagedVideoEditor } from '@/components/dashboard/store/StagedVideoEditor'
 import { StagedOptionsEditor, type StagedOption } from '@/components/dashboard/store/StagedOptionsEditor'
@@ -16,6 +17,8 @@ import { ProductImagesManager } from '@/components/dashboard/store/ProductImages
 import { ProductVideoManager } from '@/components/dashboard/store/ProductVideoManager'
 import { ProductOptionsManager } from '@/components/dashboard/store/ProductOptionsManager'
 import { ProductVariantsManager } from '@/components/dashboard/store/ProductVariantsManager'
+import { RelatedProductsManager } from '@/components/dashboard/store/RelatedProductsManager'
+import { ImportFromListingModal, type ImportFields } from '@/components/dashboard/store/ImportFromListingModal'
 import { useFacebookPublish, useFacebookStatus } from '@/lib/queries/facebook'
 import { useInstagramPublish, useInstagramStatus } from '@/lib/queries/instagram'
 import { useTikTokPublish, useTikTokStatus } from '@/lib/queries/tiktok'
@@ -36,6 +39,8 @@ export default function NewProductPage() {
   const [productId, setProductId] = useState<string | null>(null)
   const { data: product } = useMyProduct(productId ?? '')
   const { mutate: updateProduct, isPending: isSaving, error: updateError } = useUpdateProduct(productId ?? '')
+  const { data: serverRelatedProducts } = useRelatedProducts(productId ?? '')
+  const { mutateAsync: setRelated } = useSetRelatedProducts(productId ?? '')
 
   // Read once on mount via lazy initializers — hydrating several fields from a single
   // parsed payload doesn't fit react-hooks/set-state-in-effect's "sync external system"
@@ -67,9 +72,20 @@ export default function NewProductPage() {
       values: group.values.map(value => ({ id: newId(), value })),
     }))
   )
+  const [relatedPicks, setRelatedPicks] = useState<ProductSummaryResponse[]>([])
   const [wasImported] = useState(() => importedData !== null)
   const [attaching, setAttaching] = useState(false)
+  const [importingOptions, setImportingOptions] = useState(false)
   const [saved, setSaved] = useState(false)
+
+  // Once the product exists, keep relatedPicks in sync with whatever's actually saved server-side
+  // (only relevant if this page is revisited before creation "settles" — normal single-session
+  // creation never has a mismatch here since relatedPicks is the source of truth pre-save).
+  const [prevServerRelatedId, setPrevServerRelatedId] = useState<string | null>(null)
+  if (serverRelatedProducts && productId && productId !== prevServerRelatedId) {
+    setPrevServerRelatedId(productId)
+    setRelatedPicks(serverRelatedProducts)
+  }
   const [shareToFacebook, setShareToFacebook] = useState(false)
   const [shareToInstagram, setShareToInstagram] = useState(false)
   const [shareToTiktok, setShareToTiktok] = useState(false)
@@ -86,6 +102,73 @@ export default function NewProductPage() {
   const { data: ttStatus } = useTikTokStatus()
   const ttConnected = ttStatus?.connected ?? false
   const { mutate: publishToTiktok } = useTikTokPublish()
+
+  function handleCategoryChange(nextCategoryId: string) {
+    setCategoryId(nextCategoryId)
+    // Only pre-fill from the category's defaults when options are still empty — never clobber
+    // options the merchant already imported or typed in themselves.
+    if (stagedOptions.length > 0) return
+    const category = categories?.find(c => c.id === nextCategoryId)
+    if (!category) return
+    const defaults = defaultOptionsToStaged(category.defaultOptions)
+    if (defaults.length > 0) setStagedOptions(defaults)
+  }
+
+  async function handleImport(source: ProductDetailResponse, fields: ImportFields) {
+    if (fields.name) setName(source.name)
+    if (fields.description) setDescription(source.description ?? '')
+    if (fields.price) {
+      setBasePrice(String(source.basePrice))
+      setSalePrice(source.salePrice !== null ? String(source.salePrice) : '')
+    }
+    if (fields.categoryId && source.categoryId) setCategoryId(source.categoryId)
+
+    if (fields.relatedProducts && source.relatedProducts.length > 0) {
+      setRelatedPicks(prev => {
+        const existingIds = new Set([...(productId ? [productId] : []), ...prev.map(p => p.id)])
+        return [...prev, ...source.relatedProducts.filter(p => !existingIds.has(p.id))]
+      })
+    }
+
+    if (fields.options && source.options.length > 0) {
+      const importedGroups: StagedOption[] = source.options.map(option => ({
+        id: newId(),
+        name: option.name,
+        values: option.values.map(v => ({ id: newId(), value: v.value })),
+      }))
+
+      if (!isCreated) {
+        // Not saved yet — options are still just local staged state, same as everything else here.
+        setStagedOptions(prev => [...prev, ...importedGroups])
+      } else {
+        // Already saved — options are live sub-resources (each one saves itself as it's added),
+        // so importing means replaying create-option/create-value calls, then refetching so
+        // ProductOptionsManager picks up the result.
+        setImportingOptions(true)
+        const token = await getToken()
+        for (const option of source.options) {
+          try {
+            const createdOption = await apiFetch<ProductOptionResponse>(`/api/products/${productId}/options`, token, {
+              method: 'POST',
+              body: JSON.stringify({ name: option.name }),
+            })
+            await Promise.allSettled(
+              option.values.map(v =>
+                apiFetch(`/api/products/${productId}/options/${createdOption.id}/values`, token, {
+                  method: 'POST',
+                  body: JSON.stringify({ value: v.value }),
+                })
+              )
+            )
+          } catch {
+            // best effort — other option groups still get imported
+          }
+        }
+        await queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'product', productId] })
+        setImportingOptions(false)
+      }
+    }
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -108,6 +191,7 @@ export default function NewProductPage() {
         },
         { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
       )
+      setRelated({ productIds: relatedPicks.map(p => p.id) }).catch(() => {})
       return
     }
 
@@ -124,9 +208,20 @@ export default function NewProductPage() {
         onSuccess: async created => {
           let finalProduct: ProductDetailResponse = created
 
-          if (stagedImages.length > 0 || stagedOptions.length > 0) {
+          if (stagedImages.length > 0 || stagedOptions.length > 0 || relatedPicks.length > 0) {
             setAttaching(true)
             const token = await getToken()
+
+            if (relatedPicks.length > 0) {
+              try {
+                await apiFetch(`/api/products/${created.id}/related`, token, {
+                  method: 'PUT',
+                  body: JSON.stringify({ productIds: relatedPicks.map(p => p.id) }),
+                })
+              } catch {
+                // product was created fine; similar products can be re-added manually below
+              }
+            }
 
             for (const url of stagedImages) {
               try {
@@ -190,7 +285,7 @@ export default function NewProductPage() {
   }
 
   const isCreated = !!productId
-  const busy = isCreating || isSaving || attaching
+  const busy = isCreating || isSaving || attaching || importingOptions
   const contentRef = useRef<HTMLDivElement>(null)
 
   return (
@@ -202,7 +297,8 @@ export default function NewProductPage() {
             <path d="M10 13L5 8l5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </Link>
-        <h1 className="text-2xl font-black tracking-tight">{product?.name || 'New Product'}</h1>
+        <h1 className="text-2xl font-black tracking-tight flex-1">{product?.name || 'New Product'}</h1>
+        <ImportFromListingModal excludeProductId={productId ?? undefined} onImport={handleImport} />
       </div>
 
       {wasImported && (
@@ -284,7 +380,7 @@ export default function NewProductPage() {
               <select
                 id="p-category"
                 value={categoryId}
-                onChange={e => setCategoryId(e.target.value)}
+                onChange={e => handleCategoryChange(e.target.value)}
                 className="select w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
               >
                 <option value="">Uncategorized</option>
@@ -331,6 +427,7 @@ export default function NewProductPage() {
           <ProductVideoManager productId={productId} videoUrl={product.videoUrl} />
           <ProductOptionsManager productId={productId} options={product.options} />
           <ProductVariantsManager productId={productId} options={product.options} variants={product.variants} />
+          <RelatedProductsManager productId={productId} picks={relatedPicks} onChange={setRelatedPicks} isLoading={false} />
         </>
       ) : isCreated ? (
         <div className="skeleton h-32 rounded-2xl" />
@@ -339,6 +436,7 @@ export default function NewProductPage() {
           <StagedImagesEditor images={stagedImages} onChange={setStagedImages} />
           <StagedVideoEditor videoUrl={stagedVideoUrl} onChange={setStagedVideoUrl} />
           <StagedOptionsEditor options={stagedOptions} onChange={setStagedOptions} />
+          <RelatedProductsManager productId="" picks={relatedPicks} onChange={setRelatedPicks} isLoading={false} />
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-2">
             <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Variants</h2>
             <p className="text-white/30 text-sm">

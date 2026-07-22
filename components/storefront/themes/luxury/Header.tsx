@@ -86,7 +86,7 @@ export function Header({
                           key={category.id}
                           href={`/products/category/${category.slug}`}
                           onClick={() => setCategoriesOpen(false)}
-                          className="px-5 py-2 text-xs uppercase tracking-widest text-[#1c1a17]/60 hover:text-[#1c1a17] hover:bg-[#1c1a17]/[0.03] transition-colors whitespace-nowrap"
+                          className={`py-2 text-xs uppercase tracking-widest text-[#1c1a17]/60 hover:text-[#1c1a17] hover:bg-[#1c1a17]/[0.03] transition-colors whitespace-nowrap ${category.isChild ? 'pl-9 pr-5' : 'px-5'}`}
                         >
                           {category.name}
                         </Link>
@@ -99,9 +99,9 @@ export function Header({
                   <Link
                     key={category.id}
                     href={`/products/category/${category.slug}`}
-                    className="text-xs uppercase tracking-widest text-[#1c1a17]/50 hover:text-[#1c1a17] transition-colors whitespace-nowrap"
+                    className={`text-xs uppercase tracking-widest text-[#1c1a17]/50 hover:text-[#1c1a17] transition-colors whitespace-nowrap ${category.isChild ? 'pl-3' : ''}`}
                   >
-                    {category.name}
+                    {category.isChild && '– '}{category.name}
                   </Link>
                 ))
               )
@@ -192,7 +192,7 @@ export function Header({
                 key={category.id}
                 href={`/products/category/${category.slug}`}
                 onClick={() => setMobileOpen(false)}
-                className="text-xs uppercase tracking-widest text-[#1c1a17]/60 py-3 border-b border-[#1c1a17]/10"
+                className={`text-xs uppercase tracking-widest text-[#1c1a17]/60 py-3 border-b border-[#1c1a17]/10 ${category.isChild ? 'pl-4' : ''}`}
               >
                 {category.name}
               </Link>

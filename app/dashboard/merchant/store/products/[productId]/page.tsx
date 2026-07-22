@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import { useAuth } from '@clerk/nextjs'
+import { useQueryClient } from '@tanstack/react-query'
+import { apiFetch } from '@/lib/api'
 import { useMyCategories, useMyProduct, useRelatedProducts, useSetRelatedProducts, useUpdateProduct } from '@/lib/queries/storefront-admin'
 import { ProductImagesManager } from '@/components/dashboard/store/ProductImagesManager'
 import { ProductVideoManager } from '@/components/dashboard/store/ProductVideoManager'
@@ -10,16 +13,20 @@ import { ProductOptionsManager } from '@/components/dashboard/store/ProductOptio
 import { ProductVariantsManager } from '@/components/dashboard/store/ProductVariantsManager'
 import { RelatedProductsManager } from '@/components/dashboard/store/RelatedProductsManager'
 import { ExportProductButton } from '@/components/dashboard/store/ExportProductButton'
+import { ImportFromListingModal, type ImportFields } from '@/components/dashboard/store/ImportFromListingModal'
 import { FloatingFormButton } from '@/components/dashboard/FloatingFormButton'
-import type { ProductSummaryResponse } from '@/lib/types'
+import type { ProductDetailResponse, ProductOptionResponse, ProductSummaryResponse } from '@/lib/types'
 
 export default function EditProductPage() {
   const { productId } = useParams<{ productId: string }>()
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
   const { data: product, isLoading, isError } = useMyProduct(productId)
   const { data: categories } = useMyCategories()
   const { mutateAsync: updateProduct, isPending, error } = useUpdateProduct(productId)
   const { data: relatedProducts, isLoading: relatedLoading } = useRelatedProducts(productId)
   const { mutateAsync: setRelated, isPending: isSavingRelated } = useSetRelatedProducts(productId)
+  const [importingOptions, setImportingOptions] = useState(false)
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -82,6 +89,55 @@ export default function EditProductPage() {
     }
   }
 
+  async function handleImport(source: ProductDetailResponse, fields: ImportFields) {
+    if (fields.name) setName(source.name)
+    if (fields.description) setDescription(source.description ?? '')
+    if (fields.price) {
+      setBasePrice(String(source.basePrice))
+      setSalePrice(source.salePrice !== null ? String(source.salePrice) : '')
+    }
+    if (fields.categoryId && source.categoryId) setCategoryId(source.categoryId)
+
+    if (fields.relatedProducts && source.relatedProducts.length > 0) {
+      setRelatedPicks(prev => {
+        const existingIds = new Set([productId, ...prev.map(p => p.id)])
+        return [...prev, ...source.relatedProducts.filter(p => !existingIds.has(p.id))]
+      })
+    }
+
+    // Options are live sub-resources on the edit page (each already saves itself as it's
+    // added), unlike the other fields above which just update local form state — so importing
+    // them means replaying create-option/create-value calls against this product, then
+    // refetching so ProductOptionsManager picks up the result. Adds alongside any existing
+    // options rather than replacing them.
+    if (fields.options && source.options.length > 0) {
+      setImportingOptions(true)
+      const token = await getToken()
+      for (const option of source.options) {
+        try {
+          const createdOption = await apiFetch<ProductOptionResponse>(`/api/products/${productId}/options`, token, {
+            method: 'POST',
+            body: JSON.stringify({ name: option.name }),
+          })
+          await Promise.allSettled(
+            option.values.map(v =>
+              apiFetch(`/api/products/${productId}/options/${createdOption.id}/values`, token, {
+                method: 'POST',
+                body: JSON.stringify({ value: v.value }),
+              })
+            )
+          )
+        } catch {
+          // best effort — other option groups still get imported
+        }
+      }
+      await queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'product', productId] })
+      setImportingOptions(false)
+    }
+
+    showToast('success', 'Imported — review below, then save')
+  }
+
   if (isLoading) {
     return (
       <div className="flex flex-col gap-6 max-w-2xl">
@@ -109,6 +165,7 @@ export default function EditProductPage() {
           </svg>
         </Link>
         <h1 className="text-2xl font-black tracking-tight flex-1">{product.name}</h1>
+        <ImportFromListingModal excludeProductId={productId} onImport={handleImport} />
         <ExportProductButton productId={productId} />
       </div>
 
@@ -213,7 +270,7 @@ export default function EditProductPage() {
         </form>
       </div>
 
-      <FloatingFormButton anchorRef={contentRef} formId="product-form" disabled={isPending || isSavingRelated || !name.trim() || !basePrice}>
+      <FloatingFormButton anchorRef={contentRef} formId="product-form" disabled={isPending || isSavingRelated || importingOptions || !name.trim() || !basePrice}>
         {isPending || isSavingRelated ? <span className="loading loading-spinner loading-sm" /> : 'Save Changes'}
       </FloatingFormButton>
 

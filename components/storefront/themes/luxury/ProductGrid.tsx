@@ -7,7 +7,7 @@ import { PriceRangeFilter } from '@/components/storefront/shared/PriceRangeFilte
 import { Pagination } from '@/components/storefront/shared/Pagination'
 import { useProductPriceRange, useProducts } from '@/lib/queries/storefront'
 import { padPriceBounds, SORT_OPTIONS, sortOptionToQuery, type ProductSortOption } from '@/lib/store/product-search'
-import { withSaleCategory } from '@/lib/store/sale-category'
+import { getSidebarCategories } from '@/lib/store/nav-menu'
 import type { CategoryResponse, ThemeConfig } from '@/lib/types/storefront'
 
 const PAGE_SIZE = 20
@@ -24,7 +24,7 @@ export function ProductGrid({
   tokens: Required<ThemeConfig>
 }) {
   const categoryNames = new Map(categories.map(c => [c.id, c.name]))
-  const displayCategories = withSaleCategory(categories, tokens.showSaleCategory)
+  const displayCategories = getSidebarCategories(categories, tokens)
   const activeCategoryName = activeCategorySlug ? displayCategories.find(c => c.slug === activeCategorySlug)?.name : undefined
 
   const [search, setSearch] = useState('')
@@ -94,8 +94,9 @@ export function ProductGrid({
                     key={category.id}
                     href={`/products/category/${category.slug}`}
                     className={[
-                      'px-3 py-2 text-xs uppercase tracking-widest transition-colors',
+                      'py-2 text-xs uppercase tracking-widest transition-colors',
                       activeCategorySlug === category.slug ? 'text-[#1c1a17] font-medium' : 'text-[#9c8f7e] hover:text-[#1c1a17]',
+                      category.isChild ? 'pl-6' : 'px-3',
                     ].join(' ')}
                   >
                     {category.name}

@@ -166,6 +166,8 @@ export interface CategoryResponse {
   iconUrl: string | null
   iconKey: string | null
   iconEmoji: string | null
+  /** JSON array of {name, values[]} — option groups pre-filled onto new products created in this category. */
+  defaultOptions: string
 }
 
 export interface CreateCategoryRequest {
@@ -174,6 +176,7 @@ export interface CreateCategoryRequest {
   iconUrl?: string | null
   iconKey?: string | null
   iconEmoji?: string | null
+  defaultOptions?: string | null
 }
 
 export interface UpdateCategoryRequest {
@@ -182,6 +185,7 @@ export interface UpdateCategoryRequest {
   iconUrl?: string | null
   iconKey?: string | null
   iconEmoji?: string | null
+  defaultOptions?: string | null
 }
 
 export interface StorePageResponse {
