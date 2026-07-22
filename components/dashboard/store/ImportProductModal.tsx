@@ -8,12 +8,14 @@ import { useFacebookPostDetail, useFacebookPosts, useFacebookStatus } from '@/li
 import { useInstagramMedia, useInstagramMediaDetail, useInstagramStatus } from '@/lib/queries/instagram'
 import { useMyMarketStatus } from '@/lib/queries/mymarket'
 import { MyMarketProductPicker } from './MyMarketProductPicker'
+import { usePhubberStatus } from '@/lib/queries/phubber'
+import { PhubberProductPicker } from './PhubberProductPicker'
 import { uploadImage, uploadVideo } from '@/lib/uploadImage'
 import { viewTransitionNameFor, withViewTransition } from '@/lib/viewTransition'
 import { PRODUCT_IMPORT_STORAGE_KEY, type ProductImportData } from '@/lib/productImport'
 import { BetaBadge } from './BetaBadge'
 
-type Platform = 'choose' | 'facebook' | 'instagram' | 'mymarket'
+type Platform = 'choose' | 'facebook' | 'instagram' | 'mymarket' | 'phubber'
 type Mode = 'choose' | 'post' | 'manual'
 
 interface PickableItem {
@@ -34,6 +36,8 @@ export function ImportProductModal() {
   const [videoUrl, setVideoUrl] = useState('')
   const [mymarketUrl, setMymarketUrl] = useState('')
   const [mymarketManual, setMymarketManual] = useState(false)
+  const [phubberUrl, setPhubberUrl] = useState('')
+  const [phubberManual, setPhubberManual] = useState(false)
   const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingVideo, setUploadingVideo] = useState(false)
@@ -52,6 +56,9 @@ export function ImportProductModal() {
 
   const { data: mmStatus } = useMyMarketStatus()
   const mmConnected = mmStatus?.isConnected ?? false
+
+  const { data: phStatus } = usePhubberStatus()
+  const phConnected = phStatus?.isConnected ?? false
 
   const [pickedId, setPickedId] = useState<string | null>(null)
   const dragIndex = useRef<number | null>(null)
@@ -76,6 +83,8 @@ export function ImportProductModal() {
     setUploadedVideoUrl(null)
     setMymarketUrl('')
     setMymarketManual(false)
+    setPhubberUrl('')
+    setPhubberManual(false)
     setError(null)
   }
 
@@ -267,6 +276,46 @@ export function ImportProductModal() {
     setPickedId(null)
   }
 
+  // Phubber's own list/detail endpoints already return clean structured data (no caption
+  // text to run through an AI extractor) — same shape of resolution as MyMarket above.
+  async function runPhubberImport(body: { productUrl?: string; productId?: string }): Promise<boolean> {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/import/phubber', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error ?? 'Failed to import that product.')
+        return false
+      }
+      sessionStorage.setItem(PRODUCT_IMPORT_STORAGE_KEY, JSON.stringify(data as ProductImportData))
+      router.push('/dashboard/merchant/store/products/new?imported=phubber')
+      return true
+    } catch {
+      setError('Failed to import that product.')
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function handlePhubberImport(e: React.FormEvent) {
+    e.preventDefault()
+    if (!phubberUrl.trim()) return
+    void runPhubberImport({ productUrl: phubberUrl })
+  }
+
+  async function handlePhubberPick(productId: string) {
+    setPickedId(productId)
+    setError(null)
+    await runPhubberImport({ productId })
+    setPickedId(null)
+  }
+
   const busy = loading || uploadingImage || uploadingVideo || !!pickedId
 
   return (
@@ -291,7 +340,15 @@ export function ImportProductModal() {
               <h3 className="text-sm font-semibold text-white">
                 {platform === 'choose'
                   ? 'Import a product'
-                  : `Import from ${platform === 'facebook' ? 'Facebook' : platform === 'instagram' ? 'Instagram' : 'MyMarket'}`}
+                  : `Import from ${
+                      platform === 'facebook'
+                        ? 'Facebook'
+                        : platform === 'instagram'
+                          ? 'Instagram'
+                          : platform === 'mymarket'
+                            ? 'MyMarket'
+                            : 'Phubber'
+                    }`}
               </h3>
               <button
                 type="button"
@@ -347,6 +404,18 @@ export function ImportProductModal() {
                     <img src="/mymarket-logo.jpg" alt="" className="w-full h-full object-cover" />
                   </span>
                   MyMarket
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPlatform('phubber')}
+                  className="btn w-full justify-start gap-3 bg-[#EAC7C5]/20 border-[#EAC7C5]/40 text-[#EAC7C5] hover:bg-[#EAC7C5]/30"
+                >
+                  <span className="w-4 h-4 rounded-sm overflow-hidden shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/phubber-logo.jpg" alt="" className="w-full h-full object-cover" />
+                  </span>
+                  Phubber
                 </button>
               </div>
             ) : platform === 'mymarket' ? (
@@ -451,6 +520,110 @@ export function ImportProductModal() {
                       type="submit"
                       disabled={loading || !mymarketUrl.trim()}
                       className="btn w-full gap-2 bg-amber-500 hover:bg-amber-400 border-amber-500 hover:border-amber-400 text-black font-semibold disabled:opacity-40"
+                    >
+                      {loading ? <span className="loading loading-spinner loading-sm" /> : 'Import'}
+                    </button>
+                  </form>
+                )}
+              </div>
+            ) : platform === 'phubber' ? (
+              <div className="flex flex-col gap-4 px-5 pt-4 pb-5">
+                <button
+                  type="button"
+                  onClick={backFromMode}
+                  className="text-white/30 hover:text-white/60 text-xs self-start flex items-center gap-1"
+                >
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
+                    <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Back
+                </button>
+
+                {phStatus === undefined ? (
+                  <div className="skeleton h-40 rounded-2xl" />
+                ) : phConnected && !phubberManual ? (
+                  <>
+                    <p className="text-white/40 text-xs leading-relaxed">
+                      Pick a product from your connected Phubber seller account — everything below is pulled in
+                      automatically. Review it before saving.
+                    </p>
+                    <PhubberProductPicker
+                      sellerId={phStatus!.sellerId!}
+                      onPick={handlePhubberPick}
+                      pickingId={pickedId}
+                      disabled={busy}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPhubberManual(true)}
+                      className="text-white/30 hover:text-white/60 text-xs self-start"
+                    >
+                      Or paste a product link instead
+                    </button>
+                    {error && (
+                      <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
+                        {error}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <form onSubmit={handlePhubberImport} className="flex flex-col gap-4">
+                    {phConnected && (
+                      <button
+                        type="button"
+                        onClick={() => setPhubberManual(false)}
+                        className="text-white/30 hover:text-white/60 text-xs self-start flex items-center gap-1"
+                      >
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
+                          <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Browse my products instead
+                      </button>
+                    )}
+
+                    <p className="text-white/40 text-xs leading-relaxed">
+                      Paste the product page link from Phubber — the title, photos, price, and attributes are
+                      pulled in automatically. Review everything before saving.
+                    </p>
+
+                    <div className="fieldset gap-2">
+                      <label htmlFor="phubber-url" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                        Product link <span className="text-error">*</span>
+                      </label>
+                      <input
+                        id="phubber-url"
+                        type="url"
+                        inputMode="url"
+                        autoFocus
+                        value={phubberUrl}
+                        onChange={e => setPhubberUrl(e.target.value)}
+                        placeholder="https://beta.phubber.ge/product/6a15f08b2723b12bf4ddd92b"
+                        disabled={loading}
+                        className="input w-full bg-white/4 border-white/10 focus:border-[#EAC7C5]/60"
+                        required
+                      />
+                    </div>
+
+                    {!phConnected && (
+                      <p className="text-white/25 text-xs leading-relaxed">
+                        Connect your seller account in{' '}
+                        <Link href="/dashboard/merchant/store/integrations" className="text-[#EAC7C5] hover:brightness-110">
+                          Integrations
+                        </Link>{' '}
+                        to browse your products directly.
+                      </p>
+                    )}
+
+                    {error && (
+                      <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
+                        {error}
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={loading || !phubberUrl.trim()}
+                      className="btn w-full gap-2 bg-[#EAC7C5] hover:brightness-95 border-[#EAC7C5] text-black font-semibold disabled:opacity-40"
                     >
                       {loading ? <span className="loading loading-spinner loading-sm" /> : 'Import'}
                     </button>

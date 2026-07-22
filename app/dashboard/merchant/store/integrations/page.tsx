@@ -13,6 +13,7 @@ import {
 } from '@/lib/queries/quickshipper'
 import { useConnectFlitt, useDisconnectFlitt, useFlittStatus } from '@/lib/queries/flitt'
 import { useConnectMyMarket, useDisconnectMyMarket, useMyMarketStatus } from '@/lib/queries/mymarket'
+import { useConnectPhubber, useDisconnectPhubber, usePhubberStatus } from '@/lib/queries/phubber'
 import { useDisconnectTikTok, useTikTokConnectUrl, useTikTokStatus } from '@/lib/queries/tiktok'
 import { FacebookPagePickerModal } from '@/components/dashboard/store/FacebookPagePickerModal'
 import { BetaBadge } from '@/components/dashboard/store/BetaBadge'
@@ -207,6 +208,7 @@ function IntegrationsPageContent() {
 
       <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2 mt-2">Marketplaces</p>
       <MyMarketCard />
+      <PhubberCard />
     </div>
   )
 }
@@ -433,6 +435,80 @@ function MyMarketCard() {
             onClick={handleConnect}
             disabled={connecting || !shopIdInput.trim()}
             className="btn btn-sm bg-amber-500/15 border-amber-500/30 text-amber-300 hover:bg-amber-500/25 disabled:opacity-40 shrink-0"
+          >
+            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Save'}
+          </button>
+        </div>
+      )}
+      {connectError && <p className="text-error text-xs">{connectError.message}</p>}
+    </div>
+  )
+}
+
+function PhubberCard() {
+  const { data: status, isLoading } = usePhubberStatus()
+  const { mutate: connect, isPending: connecting, error: connectError } = useConnectPhubber()
+  const { mutate: disconnect, isPending: disconnecting } = useDisconnectPhubber()
+
+  const [sellerIdInput, setSellerIdInput] = useState('')
+
+  const connected = status?.isConnected ?? false
+
+  function handleConnect() {
+    if (!sellerIdInput.trim()) return
+    connect({ sellerId: sellerIdInput.trim() }, { onSuccess: () => setSellerIdInput('') })
+  }
+
+  function handleDisconnect() {
+    if (!confirm('Disconnect Phubber? You can reconnect it any time.')) return
+    disconnect()
+  }
+
+  return (
+    <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex flex-col gap-4">
+      <div className="flex items-center gap-4">
+        <div className="w-11 h-11 rounded-xl overflow-hidden border border-white/10 shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/phubber-logo.jpg" alt="" className="w-full h-full object-cover" />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-white">Phubber</p>
+          {isLoading ? (
+            <p className="text-white/30 text-xs mt-0.5">Checking connection...</p>
+          ) : connected ? (
+            <p className="text-emerald-400 text-xs mt-0.5">Connected — Seller ID {status?.sellerId}</p>
+          ) : (
+            <p className="text-white/30 text-xs mt-0.5">Save your seller ID to import products by pasting a Phubber product link.</p>
+          )}
+        </div>
+
+        {!isLoading && connected && (
+          <button
+            type="button"
+            onClick={handleDisconnect}
+            disabled={disconnecting}
+            className="btn btn-sm bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40 shrink-0"
+          >
+            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'Disconnect'}
+          </button>
+        )}
+      </div>
+
+      {!isLoading && !connected && (
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+          <input
+            type="text"
+            value={sellerIdInput}
+            onChange={e => setSellerIdInput(e.target.value)}
+            placeholder="https://beta.phubber.ge/seller-page/5fae60d4... or just the ID"
+            className="input input-sm bg-white/4 border-white/10 focus:border-[#EAC7C5]/60 flex-1"
+          />
+          <button
+            type="button"
+            onClick={handleConnect}
+            disabled={connecting || !sellerIdInput.trim()}
+            className="btn btn-sm bg-[#EAC7C5]/20 border-[#EAC7C5]/40 text-[#EAC7C5] hover:bg-[#EAC7C5]/30 disabled:opacity-40 shrink-0"
           >
             {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Save'}
           </button>
