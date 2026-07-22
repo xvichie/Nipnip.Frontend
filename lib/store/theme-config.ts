@@ -53,6 +53,7 @@ export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   flittEnabled: false,
   tbcEnabled: false,
   bogEnabled: false,
+  cityPayEnabled: false,
   shippingZones: [],
   freeShippingThreshold: null,
 }

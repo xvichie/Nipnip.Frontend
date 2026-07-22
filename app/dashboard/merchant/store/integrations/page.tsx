@@ -13,6 +13,7 @@ import {
 } from '@/lib/queries/quickshipper'
 import { useConnectFlitt, useDisconnectFlitt, useFlittStatus } from '@/lib/queries/flitt'
 import { useConnectTbc, useDisconnectTbc, useTbcStatus } from '@/lib/queries/tbc'
+import { useConnectCityPay, useDisconnectCityPay, useCityPayStatus } from '@/lib/queries/citypay'
 import { useConnectMyMarket, useDisconnectMyMarket, useMyMarketStatus } from '@/lib/queries/mymarket'
 import { useConnectPhubber, useDisconnectPhubber, usePhubberStatus } from '@/lib/queries/phubber'
 import { useConnectExtra, useDisconnectExtra, useExtraStatus } from '@/lib/queries/extra'
@@ -226,6 +227,7 @@ function IntegrationsPageContent() {
       <FlittCard />
       <TbcCard />
       <BogCard />
+      <CityPayCard />
 
       <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2 mt-2">Marketplaces</p>
       <MyMarketCard />
@@ -511,6 +513,101 @@ function BogCard() {
           Connect
         </button>
       </div>
+    </div>
+  )
+}
+
+function CityPayCard() {
+  const { data: status, isLoading } = useCityPayStatus()
+  const { mutate: connect, isPending: connecting, error: connectError } = useConnectCityPay()
+  const { mutate: disconnect, isPending: disconnecting } = useDisconnectCityPay()
+
+  const [customerId, setCustomerId] = useState('')
+  const [accessToken, setAccessToken] = useState('')
+
+  const connected = status?.isConnected ?? false
+
+  function handleConnect() {
+    if (!customerId.trim() || !accessToken.trim()) return
+    connect(
+      { customerId: customerId.trim(), accessToken },
+      { onSuccess: () => setAccessToken('') }
+    )
+  }
+
+  function handleDisconnect() {
+    if (!confirm('Disconnect CityPay? Crypto payments will stop working at checkout until you reconnect.')) return
+    disconnect()
+  }
+
+  return (
+    <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex flex-col gap-4">
+      <div className="flex items-center gap-4">
+        <div className="w-11 h-11 rounded-xl overflow-hidden border border-white/10 shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/citypay-logo.png" alt="" className="w-full h-full object-cover" />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-white flex items-center gap-2">
+            CityPay
+            <BetaBadge />
+          </p>
+          {isLoading ? (
+            <p className="text-white/30 text-xs mt-0.5">Checking connection...</p>
+          ) : connected ? (
+            <p className="text-emerald-400 text-xs mt-0.5">Connected — Customer ID {status?.customerId}</p>
+          ) : (
+            <p className="text-white/30 text-xs mt-0.5">Connect your CityPay account to accept Bitcoin and other crypto payments at checkout.</p>
+          )}
+        </div>
+
+        {!isLoading && connected && (
+          <button
+            type="button"
+            onClick={handleDisconnect}
+            disabled={disconnecting}
+            className="btn btn-sm bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40 shrink-0"
+          >
+            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'Disconnect'}
+          </button>
+        )}
+      </div>
+
+      {!isLoading && !connected && (
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+          <input
+            type="text"
+            value={customerId}
+            onChange={e => setCustomerId(e.target.value)}
+            placeholder="Customer ID"
+            className="input input-sm bg-white/4 border-white/10 focus:border-[#E63946]/60 flex-1"
+          />
+          <input
+            type="password"
+            value={accessToken}
+            onChange={e => setAccessToken(e.target.value)}
+            placeholder="Access token"
+            className="input input-sm bg-white/4 border-white/10 focus:border-[#E63946]/60 flex-1"
+          />
+          <button
+            type="button"
+            onClick={handleConnect}
+            disabled={connecting || !customerId.trim() || !accessToken.trim()}
+            className="btn btn-sm bg-[#E63946]/15 border-[#E63946]/30 text-[#E63946] hover:bg-[#E63946]/25 disabled:opacity-40 shrink-0"
+          >
+            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Connect'}
+          </button>
+        </div>
+      )}
+      {!isLoading && !connected && (
+        <HowToConnect>
+          Your Customer ID is shown in your CityPay customer cabinet under your company name. Create an Access token from{' '}
+          <span className="text-white/60">Products → Order</span> in the sidebar — add a callback URL there too, since CityPay
+          needs one configured for your token, not sent per order.
+        </HowToConnect>
+      )}
+      {connectError && <p className="text-error text-xs">{connectError.message}</p>}
     </div>
   )
 }

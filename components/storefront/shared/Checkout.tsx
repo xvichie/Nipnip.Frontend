@@ -66,6 +66,16 @@ const PAYMENT_OPTIONS: { id: PaymentMethod; label: string; icon: React.ReactNode
       </svg>
     ),
   },
+  {
+    id: 'CityPay',
+    label: 'გადახდა კრიპტოვალუტით',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="1.6"/>
+        <path d="M12 6.5v11M14.7 9c0-1.1-1.2-2-2.7-2s-2.7.9-2.7 2c0 1.1 1.2 1.6 2.7 2s2.7.9 2.7 2c0 1.1-1.2 2-2.7 2s-2.7-.9-2.7-2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
 ]
 
 function Section({
@@ -108,7 +118,7 @@ export function Checkout({
   const [address, setAddress] = useState('')
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
 
-  // Flitt/TBC/BOG have no buyer-facing notes — all three are automatic hosted-checkout
+  // Flitt/TBC/BOG/CityPay have no buyer-facing notes — all are automatic hosted-checkout
   // redirects, unlike COD/bank transfer which need manual instructions (courier cash, IBAN, etc).
   const paymentNotes: Partial<Record<PaymentMethod, string>> = {
     CashOnDelivery: tokens.codNotes,
@@ -120,6 +130,7 @@ export function Checkout({
     Flitt: tokens.flittEnabled,
     Tbc: tokens.tbcEnabled,
     Bog: tokens.bogEnabled,
+    CityPay: tokens.cityPayEnabled,
   }
   const enabledPaymentOptions = PAYMENT_OPTIONS.filter(opt => paymentEnabled[opt.id])
 

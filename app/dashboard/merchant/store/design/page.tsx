@@ -171,6 +171,7 @@ export default function StoreDesignPage() {
   const [flittEnabled, setFlittEnabled] = useState(DEFAULT_THEME_CONFIG.flittEnabled)
   const [tbcEnabled, setTbcEnabled] = useState(DEFAULT_THEME_CONFIG.tbcEnabled)
   const [bogEnabled, setBogEnabled] = useState(DEFAULT_THEME_CONFIG.bogEnabled)
+  const [cityPayEnabled, setCityPayEnabled] = useState(DEFAULT_THEME_CONFIG.cityPayEnabled)
   const [shippingZones, setShippingZones] = useState(DEFAULT_THEME_CONFIG.shippingZones)
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(DEFAULT_THEME_CONFIG.freeShippingThreshold)
   const [logoUploading, setLogoUploading] = useState(false)
@@ -236,6 +237,7 @@ export default function StoreDesignPage() {
     setFlittEnabled(parsed.flittEnabled)
     setTbcEnabled(parsed.tbcEnabled)
     setBogEnabled(parsed.bogEnabled)
+    setCityPayEnabled(parsed.cityPayEnabled)
     setShippingZones(parsed.shippingZones)
     setFreeShippingThreshold(parsed.freeShippingThreshold)
   }
@@ -360,6 +362,7 @@ export default function StoreDesignPage() {
           flittEnabled,
           tbcEnabled,
           bogEnabled,
+          cityPayEnabled,
           shippingZones,
           freeShippingThreshold,
         }),
@@ -429,6 +432,7 @@ export default function StoreDesignPage() {
     flittEnabled,
     tbcEnabled,
     bogEnabled,
+    cityPayEnabled,
     shippingZones,
     freeShippingThreshold,
   }

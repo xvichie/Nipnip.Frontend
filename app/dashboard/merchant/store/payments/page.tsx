@@ -5,7 +5,9 @@ import Link from 'next/link'
 import { useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { useFlittStatus } from '@/lib/queries/flitt'
 import { useTbcStatus } from '@/lib/queries/tbc'
+import { useCityPayStatus } from '@/lib/queries/citypay'
 import { SoonBadge } from '@/components/dashboard/store/SoonBadge'
+import { BetaBadge } from '@/components/dashboard/store/BetaBadge'
 import { parseThemeConfig } from '@/lib/store/theme-config'
 
 export default function MerchantStorePaymentsPage() {
@@ -18,6 +20,9 @@ export default function MerchantStorePaymentsPage() {
   const { data: tbcStatus } = useTbcStatus()
   const tbcConnected = tbcStatus?.isConnected ?? false
 
+  const { data: cityPayStatus } = useCityPayStatus()
+  const cityPayConnected = cityPayStatus?.isConnected ?? false
+
   const [codEnabled, setCodEnabled] = useState(true)
   const [codNotes, setCodNotes] = useState('')
   const [bankTransferEnabled, setBankTransferEnabled] = useState(true)
@@ -25,6 +30,7 @@ export default function MerchantStorePaymentsPage() {
   const [flittEnabled, setFlittEnabled] = useState(false)
   const [tbcEnabled, setTbcEnabled] = useState(false)
   const [bogEnabled, setBogEnabled] = useState(false)
+  const [cityPayEnabled, setCityPayEnabled] = useState(false)
   const [saved, setSaved] = useState(false)
 
   // "Adjust state during render" instead of an effect — hydrates once from the
@@ -40,9 +46,10 @@ export default function MerchantStorePaymentsPage() {
     setFlittEnabled(parsed.flittEnabled)
     setTbcEnabled(parsed.tbcEnabled)
     setBogEnabled(parsed.bogEnabled)
+    setCityPayEnabled(parsed.cityPayEnabled)
   }
 
-  const enabledCount = [codEnabled, bankTransferEnabled, flittEnabled, tbcEnabled, bogEnabled].filter(Boolean).length
+  const enabledCount = [codEnabled, bankTransferEnabled, flittEnabled, tbcEnabled, bogEnabled, cityPayEnabled].filter(Boolean).length
   const isLastEnabled = enabledCount <= 1
 
   function handleSave() {
@@ -59,6 +66,7 @@ export default function MerchantStorePaymentsPage() {
           flittEnabled,
           tbcEnabled,
           bogEnabled,
+          cityPayEnabled,
         }),
       },
       { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
@@ -207,6 +215,37 @@ export default function MerchantStorePaymentsPage() {
           </div>
           <input type="checkbox" checked={false} disabled className="toggle toggle-sm toggle-error" />
         </div>
+      </div>
+
+      <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+              Crypto payments (CityPay)
+              <BetaBadge />
+            </h2>
+            <p className="text-white/40 text-xs mt-0.5">Buyer pays with Bitcoin or other cryptocurrencies on a secure hosted checkout page.</p>
+          </div>
+          <input
+            type="checkbox"
+            checked={cityPayEnabled}
+            disabled={!cityPayConnected || (cityPayEnabled && isLastEnabled)}
+            onChange={e => setCityPayEnabled(e.target.checked)}
+            className={`toggle toggle-sm ${cityPayEnabled ? 'toggle-success' : 'toggle-error'}`}
+          />
+        </div>
+        {cityPayEnabled && isLastEnabled && (
+          <p className="text-white/30 text-xs -mt-2">At least one payment method must stay enabled.</p>
+        )}
+        {!cityPayConnected && (
+          <p className="text-white/30 text-xs -mt-2">
+            Connect your CityPay account under{' '}
+            <Link href="/dashboard/merchant/store/integrations" className="underline underline-offset-2 hover:text-white/60">
+              Integrations
+            </Link>{' '}
+            to enable this.
+          </p>
+        )}
       </div>
     </div>
 

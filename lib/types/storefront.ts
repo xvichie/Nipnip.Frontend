@@ -1,4 +1,4 @@
-export type PaymentMethod = 'CashOnDelivery' | 'BankTransfer' | 'Flitt' | 'Tbc' | 'Bog'
+export type PaymentMethod = 'CashOnDelivery' | 'BankTransfer' | 'Flitt' | 'Tbc' | 'Bog' | 'CityPay'
 
 export type OrderStatus = 'Pending' | 'Confirmed' | 'Shipped' | 'Delivered' | 'Cancelled'
 
@@ -87,6 +87,7 @@ export interface ThemeConfig {
   flittEnabled?: boolean
   tbcEnabled?: boolean
   bogEnabled?: boolean
+  cityPayEnabled?: boolean
   shippingZones?: ShippingZone[]
   freeShippingThreshold?: number | null
 }
