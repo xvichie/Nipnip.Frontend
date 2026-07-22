@@ -543,9 +543,9 @@ function ExtraCard() {
   return (
     <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex flex-col gap-4">
       <div className="flex items-center gap-4">
-        <div className="h-11 px-2.5 rounded-xl bg-white flex items-center justify-center shrink-0">
+        <div className="w-11 h-11 rounded-xl overflow-hidden border border-white/10 shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/extra-logo.svg" alt="" className="h-4 w-auto" />
+          <img src="/extra-logo.jpg" alt="" className="w-full h-full object-cover" />
         </div>
 
         <div className="flex-1 min-w-0">
