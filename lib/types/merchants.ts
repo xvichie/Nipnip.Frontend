@@ -35,6 +35,7 @@ export interface MerchantResponse {
   isHighlighted: boolean
   isTest: boolean
   isPublic: boolean
+  isProspect: boolean
   isApprovedForViewer: boolean
   createdAt: string
 }

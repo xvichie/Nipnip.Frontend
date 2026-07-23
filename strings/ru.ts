@@ -145,6 +145,7 @@ export const ru: Strings = {
     creators: 'Авторы',
     conversions: 'Конверсии',
     payouts: 'Выплаты',
+    prospects: 'Проспекты',
     demoLogin: 'Демо вход',
     notAuthorized: 'У вас нет доступа к этой странице.',
     goHome: 'На главную',

@@ -44,6 +44,18 @@ async function resolveStoreSlug(req: NextRequest): Promise<string | null> {
 }
 
 export default clerkMiddleware(async (auth, req) => {
+  // Admin-only "show a prospect what their store could look like" link — see the /admin
+  // Prospects panel. Rewrites to the same storefront route tree real stores use; the actual
+  // admin-only enforcement (checking the store is a prospect and the signed-in user is an
+  // admin) happens in app/store/[slug]/layout.tsx, since that's what's authoritative for both
+  // this path and a prospect's real slug/subdomain being hit directly.
+  if (req.nextUrl.pathname === '/preview' || req.nextUrl.pathname.startsWith('/preview/')) {
+    await auth.protect()
+    const url = req.nextUrl.clone()
+    url.pathname = req.nextUrl.pathname.replace(/^\/preview/, '/store') || '/store'
+    return NextResponse.rewrite(url)
+  }
+
   const slug = await resolveStoreSlug(req)
 
   if (slug) {

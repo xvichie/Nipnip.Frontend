@@ -9,11 +9,24 @@ import type {
   AdminCreateStoreRequest,
   AdminPayoutSummaryResponse,
   AdminStatsResponse,
+  CategoryResponse,
+  CreateCategoryRequest,
+  CreateProductImageRequest,
+  CreateProductRequest,
+  CreateProspectRequest,
   CreatorResponse,
   MerchantResponse,
   PaginatedResult,
+  ProductDetailResponse,
+  ProductImageResponse,
+  ProductSummaryResponse,
+  PromoteProspectRequest,
+  ProspectResponse,
   StoreResponse,
+  UpdateCategoryRequest,
   UpdateMerchantRequest,
+  UpdateProductRequest,
+  UpdateStoreRequest,
 } from '@/lib/types'
 
 export function useAdminStats() {
@@ -260,5 +273,212 @@ export function useAdminConversions({
       return apiFetch<PaginatedResult<AdminConversionEntry>>(`/api/admin/conversions?${params}`, token)
     },
     placeholderData: prev => prev,
+  })
+}
+
+// --- Prospects (admin-built sales-demo stores) ---
+
+export function useAdminProspects(page = 1, pageSize = 50) {
+  const { getToken } = useAuth()
+  return useQuery({
+    queryKey: ['admin', 'prospects', page, pageSize],
+    queryFn: async () => {
+      const token = await getToken()
+      const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
+      return apiFetch<PaginatedResult<MerchantResponse>>(`/api/admin/prospects?${params}`, token)
+    },
+    placeholderData: prev => prev,
+  })
+}
+
+export function useAdminCreateProspect() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (body: CreateProspectRequest) => {
+      const token = await getToken()
+      return apiFetch<ProspectResponse>('/api/admin/prospects', token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'prospects'] }),
+  })
+}
+
+export function useAdminPromoteProspect(id: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (body: PromoteProspectRequest) => {
+      const token = await getToken()
+      return apiFetch<MerchantResponse>(`/api/admin/merchants/${id}/promote`, token, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'prospects'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'merchant', id] })
+    },
+  })
+}
+
+export function useAdminUpdateMerchantStore(merchantId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (body: UpdateStoreRequest) => {
+      const token = await getToken()
+      return apiFetch<StoreResponse>(`/api/admin/merchants/${merchantId}/store`, token, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: store => {
+      queryClient.setQueryData(['admin', 'merchant', merchantId, 'store'], store)
+    },
+  })
+}
+
+// --- Prospect products/categories (admin manages these on the prospect's behalf) ---
+
+export function useAdminMerchantProducts(merchantId: string, page = 1, pageSize = 50) {
+  const { getToken } = useAuth()
+  return useQuery({
+    queryKey: ['admin', 'merchant', merchantId, 'products', page, pageSize],
+    queryFn: async () => {
+      const token = await getToken()
+      const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
+      return apiFetch<PaginatedResult<ProductSummaryResponse>>(`/api/admin/merchants/${merchantId}/products?${params}`, token)
+    },
+    enabled: !!merchantId,
+    placeholderData: prev => prev,
+  })
+}
+
+export function useAdminCreateMerchantProduct(merchantId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (body: CreateProductRequest) => {
+      const token = await getToken()
+      return apiFetch<ProductDetailResponse>(`/api/admin/merchants/${merchantId}/products`, token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'merchant', merchantId, 'products'] }),
+  })
+}
+
+export function useAdminUpdateMerchantProduct(merchantId: string, productId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (body: UpdateProductRequest) => {
+      const token = await getToken()
+      return apiFetch<ProductDetailResponse>(`/api/admin/merchants/${merchantId}/products/${productId}`, token, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'merchant', merchantId, 'products'] }),
+  })
+}
+
+export function useAdminDeleteMerchantProduct(merchantId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (productId: string) => {
+      const token = await getToken()
+      await apiFetch<void>(`/api/admin/merchants/${merchantId}/products/${productId}`, token, { method: 'DELETE' })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'merchant', merchantId, 'products'] }),
+  })
+}
+
+// productId is passed per-call (not bound via the hook, like the merchantId is) because this
+// is most often used right after creating a product in the same interaction — a hook-level
+// productId would close over a stale value from before that product existed.
+export function useAdminCreateMerchantProductImage(merchantId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ productId, body }: { productId: string; body: CreateProductImageRequest }) => {
+      const token = await getToken()
+      return apiFetch<ProductImageResponse>(`/api/admin/merchants/${merchantId}/products/${productId}/images`, token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'merchant', merchantId, 'products'] }),
+  })
+}
+
+export function useAdminDeleteMerchantProductImage(merchantId: string, productId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (imageId: string) => {
+      const token = await getToken()
+      await apiFetch<void>(`/api/admin/merchants/${merchantId}/products/${productId}/images/${imageId}`, token, { method: 'DELETE' })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'merchant', merchantId, 'products'] }),
+  })
+}
+
+export function useAdminMerchantCategories(merchantId: string) {
+  const { getToken } = useAuth()
+  return useQuery({
+    queryKey: ['admin', 'merchant', merchantId, 'categories'],
+    queryFn: async () => {
+      const token = await getToken()
+      return apiFetch<CategoryResponse[]>(`/api/admin/merchants/${merchantId}/categories`, token)
+    },
+    enabled: !!merchantId,
+  })
+}
+
+export function useAdminCreateMerchantCategory(merchantId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (body: CreateCategoryRequest) => {
+      const token = await getToken()
+      return apiFetch<CategoryResponse>(`/api/admin/merchants/${merchantId}/categories`, token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'merchant', merchantId, 'categories'] }),
+  })
+}
+
+export function useAdminUpdateMerchantCategory(merchantId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, body }: { id: string; body: UpdateCategoryRequest }) => {
+      const token = await getToken()
+      return apiFetch<CategoryResponse>(`/api/admin/merchants/${merchantId}/categories/${id}`, token, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'merchant', merchantId, 'categories'] }),
+  })
+}
+
+export function useAdminDeleteMerchantCategory(merchantId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const token = await getToken()
+      await apiFetch<void>(`/api/admin/merchants/${merchantId}/categories/${id}`, token, { method: 'DELETE' })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'merchant', merchantId, 'categories'] }),
   })
 }

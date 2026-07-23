@@ -145,6 +145,7 @@ export const en: Strings = {
     creators: 'Creators',
     conversions: 'Conversions',
     payouts: 'Payouts',
+    prospects: 'Prospects',
     demoLogin: 'Demo Login',
     notAuthorized: "You're not authorized to view this page.",
     goHome: 'Go home',

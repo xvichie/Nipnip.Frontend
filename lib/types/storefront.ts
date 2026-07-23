@@ -162,6 +162,8 @@ export interface StoreResponse {
   themeOverride: string | null
   /** Merchant-controlled — whether the admin's overlay (if any) is currently applied. */
   themeOverrideEnabled: boolean
+  /** Admin sales-demo store, not a real customer yet — see /preview/{slug} and the admin Prospects panel. */
+  isProspect: boolean
 }
 
 export interface UpdateStoreRequest {

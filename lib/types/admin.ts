@@ -1,3 +1,6 @@
+import type { MerchantResponse } from './merchants'
+import type { StoreResponse } from './storefront'
+
 export interface AdminStatsResponse {
   totalMerchants: number
   totalCreators: number
@@ -37,4 +40,19 @@ export interface CreatorPayoutEntry {
 export interface AdminPayoutSummaryResponse {
   totalOwedToCreators: number
   creators: CreatorPayoutEntry[]
+}
+
+export interface CreateProspectRequest {
+  name: string
+  slug: string
+}
+
+export interface ProspectResponse {
+  merchant: MerchantResponse
+  store: StoreResponse
+}
+
+/** Omit clerkUserId to just unflag the prospect; pass it to also hand ownership to the real customer's Clerk account. */
+export interface PromoteProspectRequest {
+  clerkUserId?: string | null
 }

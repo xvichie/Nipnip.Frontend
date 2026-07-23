@@ -143,6 +143,7 @@ export const ka = {
     creators: 'კრეატორები',
     conversions: 'კონვერსიები',
     payouts: 'გადახდები',
+    prospects: 'პროსპექტები',
     demoLogin: 'დემო შესვლა',
     notAuthorized: 'თქვენ არ გაქვთ ამ გვერდზე წვდომა.',
     goHome: 'მთავარ გვერდზე დაბრუნება',

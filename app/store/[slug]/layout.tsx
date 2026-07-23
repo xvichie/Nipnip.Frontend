@@ -24,6 +24,7 @@ import { Header as EditorialHeader } from '@/components/storefront/themes/editor
 import { Footer as EditorialFooter } from '@/components/storefront/themes/editorial/Footer'
 import { SocialBar } from '@/components/storefront/shared/SocialBar'
 import { AnnouncementBar } from '@/components/storefront/shared/AnnouncementBar'
+import { isCurrentUserAdmin } from '@/lib/server/is-admin'
 import type { CategoryResponse, StorePageResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
 const HEADERS = { minimal: MinimalHeader, bold: BoldHeader, classic: ClassicHeader, luxury: LuxuryHeader, vibrant: VibrantHeader, commerce: CommerceHeader, editorial: EditorialHeader }
@@ -39,6 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     return {}
   }
   if (!store.isActive) return {}
+  if (store.isProspect && !(await isCurrentUserAdmin())) return {}
 
   const tokens = parseThemeConfig(store.themeConfig)
   const url = getStoreOrigin(slug, store.customDomain)
@@ -85,6 +87,11 @@ export default async function StoreLayout({
   }
 
   if (!store.isActive) notFound()
+
+  // Admin sales-demo store — not a real customer yet, so it must never be reachable on its
+  // real slug/subdomain (or the /preview alias, which rewrites here) by anyone but a signed-in
+  // admin. This is the single authoritative check for both access paths.
+  if (store.isProspect && !(await isCurrentUserAdmin())) notFound()
 
   const [categories, pages] = await Promise.all([
     apiFetch<CategoryResponse[]>(`/api/stores/${slug}/categories`, null),

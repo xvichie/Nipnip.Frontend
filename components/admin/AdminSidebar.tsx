@@ -42,6 +42,11 @@ const NAV_ICONS: Record<string, React.ReactNode> = {
       <path d="M4 2h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
     </svg>
   ),
+  '/admin/prospects': (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <path d="M8 1.5l1.6 3.6 3.9.4-2.9 2.7.8 3.9L8 10.2l-3.4 2 .8-3.9-2.9-2.7 3.9-.4L8 1.5Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+    </svg>
+  ),
   '/demo-login': (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
       <path d="M6 2H3.5a1.5 1.5 0 0 0-1.5 1.5v9A1.5 1.5 0 0 0 3.5 14H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -60,6 +65,7 @@ export function AdminSidebar() {
     { href: '/admin/creators', label: t.admin.creators, exact: false },
     { href: '/admin/conversions', label: t.admin.conversions, exact: false },
     { href: '/admin/payouts', label: t.admin.payouts, exact: false },
+    { href: '/admin/prospects', label: t.admin.prospects, exact: false },
     { href: '/demo-login', label: t.admin.demoLogin, exact: false },
   ]
 
