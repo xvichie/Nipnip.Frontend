@@ -326,6 +326,18 @@ export function useAdminPromoteProspect(id: string) {
   })
 }
 
+export function useAdminDeleteProspect() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const token = await getToken()
+      return apiFetch<void>(`/api/admin/prospects/${id}`, token, { method: 'DELETE' })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'prospects'] }),
+  })
+}
+
 export function useAdminImportFacebook() {
   const { getToken } = useAuth()
   return useMutation({

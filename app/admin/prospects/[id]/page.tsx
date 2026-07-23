@@ -20,7 +20,7 @@ import { DEFAULT_THEME_CONFIG, parseThemeConfig } from '@/lib/store/theme-config
 import { THEMES } from '@/lib/storefront-themes'
 import { uploadImage, dataUriToFile, cloudinaryConfigured } from '@/lib/uploadImage'
 import { CImg } from '@/components/ui/CImg'
-import type { ThemeId } from '@/lib/types/storefront'
+import type { HeroLayout, ThemeId } from '@/lib/types/storefront'
 
 function priceLabel(price: number, salePrice: number | null) {
   return salePrice != null ? `${salePrice} ₾ (was ${price} ₾)` : `${price} ₾`
@@ -40,6 +40,7 @@ export default function AdminProspectStudioPage({ params }: { params: Promise<{ 
   const [heroHeadline, setHeroHeadline] = useState('')
   const [heroSubheadline, setHeroSubheadline] = useState('')
   const [heroImageUrl, setHeroImageUrl] = useState('')
+  const [heroLayout, setHeroLayout] = useState<HeroLayout>(DEFAULT_THEME_CONFIG.heroLayout)
   const [logoUploading, setLogoUploading] = useState(false)
   const [heroUploading, setHeroUploading] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -55,6 +56,7 @@ export default function AdminProspectStudioPage({ params }: { params: Promise<{ 
     setHeroHeadline(parsed.heroHeadline)
     setHeroSubheadline(parsed.heroSubheadline)
     setHeroImageUrl(parsed.heroImageUrl)
+    setHeroLayout(parsed.heroLayout)
   }
 
   async function handleLogoFile(file: File) {
@@ -65,7 +67,10 @@ export default function AdminProspectStudioPage({ params }: { params: Promise<{ 
 
   async function handleHeroFile(file: File) {
     setHeroUploading(true)
-    try { setHeroImageUrl(await uploadImage(file)) }
+    try {
+      setHeroImageUrl(await uploadImage(file))
+      setHeroLayout(prev => (prev === 'center' ? 'imageLeft' : prev))
+    }
     finally { setHeroUploading(false) }
   }
 
@@ -101,6 +106,7 @@ export default function AdminProspectStudioPage({ params }: { params: Promise<{ 
         const url = await uploadImage(file)
         setLogoUrl(url)
         setHeroImageUrl(url)
+        setHeroLayout(prev => (prev === 'center' ? 'imageLeft' : prev))
         applied.push('logo', 'hero image')
       }
 
@@ -116,7 +122,7 @@ export default function AdminProspectStudioPage({ params }: { params: Promise<{ 
     updateStore(
       {
         themeId,
-        themeConfig: JSON.stringify({ ...parsed, accentColor, logoUrl, heroHeadline, heroSubheadline, heroImageUrl }),
+        themeConfig: JSON.stringify({ ...parsed, accentColor, logoUrl, heroHeadline, heroSubheadline, heroImageUrl, heroLayout }),
       },
       { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
     )
@@ -438,6 +444,38 @@ export default function AdminProspectStudioPage({ params }: { params: Promise<{ 
               />
             </label>
           </div>
+        </div>
+
+        <div className="fieldset gap-2">
+          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Hero Layout</label>
+          <div className="grid grid-cols-2 gap-2">
+            {([
+              { value: 'center', label: '🎯 Centered' },
+              { value: 'imageLeft', label: '⬅️ Image left' },
+              { value: 'imageRight', label: '➡️ Image right' },
+              { value: 'background', label: '🖼️ Background photo' },
+            ] as { value: HeroLayout; label: string }[]).map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setHeroLayout(opt.value)}
+                className={[
+                  'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                  heroLayout === opt.value
+                    ? 'border-amber-500 bg-amber-500/10 text-white'
+                    : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                ].join(' ')}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          {heroLayout !== 'center' && !heroImageUrl && (
+            <p className="text-amber-400/80 text-xs mt-1">Add a Hero Image above — this layout falls back to centered without one.</p>
+          )}
+          {heroLayout === 'center' && heroImageUrl && (
+            <p className="text-amber-400/80 text-xs mt-1">Centered layout doesn&apos;t show a hero image — pick Image left/right/background to display it.</p>
+          )}
         </div>
 
         {saveError && (

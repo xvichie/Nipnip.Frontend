@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useAdminCreateProspect, useAdminProspects } from '@/lib/queries/admin'
+import { useAdminCreateProspect, useAdminDeleteProspect, useAdminProspects } from '@/lib/queries/admin'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -19,6 +19,7 @@ export default function AdminProspectsPage() {
   const [page, setPage] = useState(1)
   const { data, isLoading, isError } = useAdminProspects(page)
   const { mutate: createProspect, isPending, error } = useAdminCreateProspect()
+  const { mutate: deleteProspect, isPending: isDeleting, variables: deletingId } = useAdminDeleteProspect()
 
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
@@ -34,6 +35,11 @@ export default function AdminProspectsPage() {
   function handleNameChange(v: string) {
     setName(v)
     setSlug(prev => (prev === slugify(name) || prev === '' ? slugify(v) : prev))
+  }
+
+  function handleDelete(id: string, name: string) {
+    if (!confirm(`Delete prospect "${name}"? This permanently removes its demo store and cannot be undone.`)) return
+    deleteProspect(id)
   }
 
   function handleCreate(e: React.FormEvent) {
@@ -116,6 +122,13 @@ export default function AdminProspectsPage() {
                         >
                           Edit
                         </Link>
+                        <button
+                          onClick={() => handleDelete(m.id, m.name)}
+                          disabled={isDeleting && deletingId === m.id}
+                          className="btn btn-xs bg-error/10 border-error/20 text-error/70 hover:bg-error/20 hover:text-error disabled:opacity-40"
+                        >
+                          {isDeleting && deletingId === m.id ? <span className="loading loading-spinner loading-xs" /> : 'Delete'}
+                        </button>
                       </div>
                     </td>
                   </tr>
