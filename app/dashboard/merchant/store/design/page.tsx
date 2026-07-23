@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 import { useMyCategories, useMyPages, useMyProducts, useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { uploadImage } from '@/lib/uploadImage'
 import { BANNER_PATTERNS, DEFAULT_THEME_CONFIG, HERO_TEXT_POSITIONS, parseThemeConfig } from '@/lib/store/theme-config'
-import { withSaleCategory } from '@/lib/store/sale-category'
 import { getThemeDefinition, isThemeId, SURFACE_CLASSES, THEMES } from '@/lib/storefront-themes'
 import { StorefrontCartProvider } from '@/lib/store/storefront-cart-context'
 import { PreviewFrame, type PreviewMode } from '@/components/dashboard/store/PreviewFrame'
@@ -37,6 +36,7 @@ import type {
   CategoryMenuMode,
   CategoryMenuScope,
   FooterContactFormPosition,
+  HeroCtaLinkType,
   HeroHeight,
   HeroImageFit,
   HeroImagePosition,
@@ -46,6 +46,7 @@ import type {
   HeroMobileTextAlign,
   HeroTextPosition,
   HeroTextSize,
+  HeroTextTheme,
   LandingCategoryColumns,
   ProductSummaryResponse,
   SocialsPosition,
@@ -177,6 +178,13 @@ export default function StoreDesignPage() {
   const [heroHeadlineSize, setHeroHeadlineSize] = useState<HeroTextSize>(DEFAULT_THEME_CONFIG.heroHeadlineSize)
   const [heroSubheadline, setHeroSubheadline] = useState('')
   const [heroSubheadlineSize, setHeroSubheadlineSize] = useState<HeroTextSize>(DEFAULT_THEME_CONFIG.heroSubheadlineSize)
+  const [heroOverlayOpacity, setHeroOverlayOpacity] = useState(DEFAULT_THEME_CONFIG.heroOverlayOpacity)
+  const [heroTextTheme, setHeroTextTheme] = useState<HeroTextTheme>(DEFAULT_THEME_CONFIG.heroTextTheme)
+  const [heroCtaEnabled, setHeroCtaEnabled] = useState(DEFAULT_THEME_CONFIG.heroCtaEnabled)
+  const [heroCtaText, setHeroCtaText] = useState('')
+  const [heroCtaLinkType, setHeroCtaLinkType] = useState<HeroCtaLinkType>(DEFAULT_THEME_CONFIG.heroCtaLinkType)
+  const [heroCtaCategoryId, setHeroCtaCategoryId] = useState('')
+  const [heroCtaCustomUrl, setHeroCtaCustomUrl] = useState('')
   const [seoTagline, setSeoTagline] = useState('')
   const [seoDescription, setSeoDescription] = useState('')
   const [contactEmail, setContactEmail] = useState('')
@@ -202,6 +210,9 @@ export default function StoreDesignPage() {
   const [footerContactForm, setFooterContactForm] = useState<FooterContactFormPosition>(DEFAULT_THEME_CONFIG.footerContactForm)
   const [showContactInNav, setShowContactInNav] = useState(DEFAULT_THEME_CONFIG.showContactInNav)
   const [contactLabel, setContactLabel] = useState(DEFAULT_THEME_CONFIG.contactLabel)
+  // Edited on the Layout tab, not here — kept in sync so this page's own preview/save still
+  // reflects it accurately.
+  const [homeSectionOrder, setHomeSectionOrder] = useState(DEFAULT_THEME_CONFIG.homeSectionOrder)
   const [codEnabled, setCodEnabled] = useState(DEFAULT_THEME_CONFIG.codEnabled)
   const [codNotes, setCodNotes] = useState(DEFAULT_THEME_CONFIG.codNotes)
   const [bankTransferEnabled, setBankTransferEnabled] = useState(DEFAULT_THEME_CONFIG.bankTransferEnabled)
@@ -252,6 +263,13 @@ export default function StoreDesignPage() {
     setHeroHeadlineSize(parsed.heroHeadlineSize)
     setHeroSubheadline(parsed.heroSubheadline)
     setHeroSubheadlineSize(parsed.heroSubheadlineSize)
+    setHeroOverlayOpacity(parsed.heroOverlayOpacity)
+    setHeroTextTheme(parsed.heroTextTheme)
+    setHeroCtaEnabled(parsed.heroCtaEnabled)
+    setHeroCtaText(parsed.heroCtaText)
+    setHeroCtaLinkType(parsed.heroCtaLinkType)
+    setHeroCtaCategoryId(parsed.heroCtaCategoryId)
+    setHeroCtaCustomUrl(parsed.heroCtaCustomUrl)
     setSeoTagline(parsed.seoTagline)
     setSeoDescription(parsed.seoDescription)
     setContactEmail(parsed.contactEmail)
@@ -277,6 +295,7 @@ export default function StoreDesignPage() {
     setFooterContactForm(parsed.footerContactForm)
     setShowContactInNav(parsed.showContactInNav)
     setContactLabel(parsed.contactLabel)
+    setHomeSectionOrder(parsed.homeSectionOrder)
     setCodEnabled(parsed.codEnabled)
     setCodNotes(parsed.codNotes)
     setBankTransferEnabled(parsed.bankTransferEnabled)
@@ -307,18 +326,6 @@ export default function StoreDesignPage() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [previewFullscreen])
-
-  function toggleNavPage(id: string) {
-    setNavPageIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
-  }
-
-  function toggleCategorySelected(id: string) {
-    setCategoryMenuSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
-  }
-
-  function toggleLandingCategorySelected(id: string) {
-    setLandingCategorySelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
-  }
 
   async function handleLogoFile(file: File) {
     setLogoUploading(true)
@@ -382,6 +389,13 @@ export default function StoreDesignPage() {
           heroHeadlineSize,
           heroSubheadline,
           heroSubheadlineSize,
+          heroOverlayOpacity,
+          heroTextTheme,
+          heroCtaEnabled,
+          heroCtaText,
+          heroCtaLinkType,
+          heroCtaCategoryId,
+          heroCtaCustomUrl: heroCtaCustomUrl.trim() || undefined,
           seoTagline: seoTagline.trim() || undefined,
           seoDescription: seoDescription.trim() || undefined,
           contactEmail,
@@ -407,6 +421,7 @@ export default function StoreDesignPage() {
           footerContactForm,
           showContactInNav,
           contactLabel: contactLabel.trim() || undefined,
+          homeSectionOrder,
           codEnabled,
           codNotes,
           bankTransferEnabled,
@@ -457,6 +472,13 @@ export default function StoreDesignPage() {
     heroHeadlineSize,
     heroSubheadline,
     heroSubheadlineSize,
+    heroOverlayOpacity,
+    heroTextTheme,
+    heroCtaEnabled,
+    heroCtaText,
+    heroCtaLinkType,
+    heroCtaCategoryId,
+    heroCtaCustomUrl,
     seoTagline,
     seoDescription,
     contactEmail,
@@ -482,6 +504,7 @@ export default function StoreDesignPage() {
     footerContactForm,
     showContactInNav,
     contactLabel,
+    homeSectionOrder,
     codEnabled,
     codNotes,
     bankTransferEnabled,
@@ -493,7 +516,6 @@ export default function StoreDesignPage() {
     shippingZones,
     freeShippingThreshold,
   }
-  const selectableCategories = withSaleCategory((categories ?? []).filter(c => !c.parentCategoryId), showSaleCategory)
   const previewProducts = productsPage?.items.length
     ? productsPage.items
     : productsLoading ? [] : PLACEHOLDER_PRODUCTS
@@ -890,11 +912,12 @@ export default function StoreDesignPage() {
 
             <div className="fieldset gap-2">
               <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Layout</label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {([
-                  { value: 'center', label: 'Centered' },
-                  { value: 'imageLeft', label: 'Image left' },
-                  { value: 'imageRight', label: 'Image right' },
+                  { value: 'center', label: '🎯 Centered' },
+                  { value: 'imageLeft', label: '⬅️ Image left' },
+                  { value: 'imageRight', label: '➡️ Image right' },
+                  { value: 'background', label: '🖼️ Background photo' },
                 ] as { value: HeroLayout; label: string }[]).map(opt => (
                   <button
                     key={opt.value}
@@ -914,6 +937,53 @@ export default function StoreDesignPage() {
               {heroLayout !== 'center' && !heroImageUrl && (
                 <p className="text-amber-400/80 text-xs mt-1">Add a Hero Image above — this layout falls back to centered without one.</p>
               )}
+              {heroLayout === 'background' && heroImageUrl && (
+                <p className="text-white/30 text-xs mt-1">Your hero photo fills the whole section — use Text Color below to keep the headline readable.</p>
+              )}
+            </div>
+
+            {heroLayout === 'background' && heroImageUrl && (
+              <div className="fieldset gap-2">
+                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                  Photo darkness — {heroOverlayOpacity}%
+                </label>
+                <input
+                  type="range"
+                  min={0}
+                  max={80}
+                  step={5}
+                  value={heroOverlayOpacity}
+                  onChange={e => setHeroOverlayOpacity(Number(e.target.value))}
+                  className="range range-xs accent-fuchsia-500"
+                />
+                <p className="text-white/30 text-xs">Dims the photo so your text stands out. 0% keeps it fully bright.</p>
+              </div>
+            )}
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Text Color</label>
+              <div className="grid grid-cols-3 gap-2">
+                {([
+                  { value: 'auto', label: 'Auto' },
+                  { value: 'light', label: 'Light' },
+                  { value: 'dark', label: 'Dark' },
+                ] as { value: HeroTextTheme; label: string }[]).map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setHeroTextTheme(opt.value)}
+                    className={[
+                      'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                      heroTextTheme === opt.value
+                        ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                        : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                    ].join(' ')}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-white/30 text-xs mt-1">Auto uses this theme&apos;s usual colors. Switch to Light or Dark when a photo makes the default text hard to read.</p>
             </div>
 
             <div className="fieldset gap-2">
@@ -1090,148 +1160,45 @@ export default function StoreDesignPage() {
           </div>
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-            <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Navigation Menu</h2>
-              <p className="text-white/30 text-xs mt-1">Controls what appears in your storefront&apos;s header and mobile menu.</p>
-            </div>
-
-            <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Categories display</label>
-              <div className="grid grid-cols-2 gap-2">
-                {([
-                  { value: 'flat', label: 'Individual links' },
-                  { value: 'dropdown', label: 'Single dropdown' },
-                ] as { value: CategoryMenuMode; label: string }[]).map(opt => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setCategoryMenuMode(opt.value)}
-                    className={[
-                      'rounded-lg border px-3 py-2 text-xs font-medium text-left transition-colors',
-                      categoryMenuMode === opt.value
-                        ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
-                        : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
-                    ].join(' ')}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Which categories</label>
-              <div className="grid grid-cols-2 gap-2">
-                {([
-                  { value: 'all', label: 'All categories' },
-                  { value: 'selected', label: 'Choose categories' },
-                ] as { value: CategoryMenuScope; label: string }[]).map(opt => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setCategoryMenuScope(opt.value)}
-                    className={[
-                      'rounded-lg border px-3 py-2 text-xs font-medium text-left transition-colors',
-                      categoryMenuScope === opt.value
-                        ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
-                        : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
-                    ].join(' ')}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {categoryMenuScope === 'selected' && (
-              <div className="flex flex-col gap-1.5">
-                {selectableCategories.length === 0 ? (
-                  <p className="text-white/30 text-xs">No categories yet.</p>
-                ) : (
-                  selectableCategories.map(category => (
-                    <label
-                      key={category.id}
-                      className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer"
-                    >
-                      <span className="text-sm text-white/70">{category.name}</span>
-                      <input
-                        type="checkbox"
-                        checked={categoryMenuSelectedIds.includes(category.id)}
-                        onChange={() => toggleCategorySelected(category.id)}
-                        className="toggle toggle-sm"
-                      />
-                    </label>
-                  ))
-                )}
-              </div>
-            )}
-
-            <div className="fieldset gap-2 pt-2 border-t border-white/5">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Pages in menu</label>
-              <p className="text-white/30 text-xs -mt-1 mb-1">Choose which of your custom pages show in the header and mobile menu.</p>
-              {(!pages || pages.length === 0) ? (
-                <p className="text-white/30 text-xs">No pages yet — add some in the Pages section.</p>
-              ) : (
-                <div className="flex flex-col gap-1.5">
-                  {pages.map(page => (
-                    <label
-                      key={page.id}
-                      className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer"
-                    >
-                      <span className="text-sm text-white/70">{page.title}</span>
-                      <input
-                        type="checkbox"
-                        checked={navPageIds.includes(page.id)}
-                        onChange={() => toggleNavPage(page.id)}
-                        className="toggle toggle-sm"
-                      />
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <label className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer">
-              <span className="text-sm text-white/70">Contact page in menu</span>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Hero Button</h2>
               <input
                 type="checkbox"
-                checked={showContactInNav}
-                onChange={e => setShowContactInNav(e.target.checked)}
-                className={`toggle toggle-sm ${showContactInNav ? 'toggle-success' : 'toggle-error'}`}
+                checked={heroCtaEnabled}
+                onChange={e => setHeroCtaEnabled(e.target.checked)}
+                className={`toggle toggle-sm ${heroCtaEnabled ? 'toggle-success' : 'toggle-error'}`}
               />
-            </label>
-          </div>
+            </div>
 
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-            <label className="flex items-center justify-between gap-3 cursor-pointer">
-              <div>
-                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Categories Section</h2>
-                <p className="text-white/30 text-xs mt-1">A category grid shown on your storefront&apos;s home page, below the hero.</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={showLandingCategories}
-                onChange={e => setShowLandingCategories(e.target.checked)}
-                className={`toggle toggle-sm shrink-0 ${showLandingCategories ? 'toggle-success' : 'toggle-error'}`}
-              />
-            </label>
-
-            {showLandingCategories && (
+            {heroCtaEnabled && (
               <>
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Which categories</label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Button Text</label>
+                  <input
+                    type="text"
+                    value={heroCtaText}
+                    onChange={e => setHeroCtaText(e.target.value)}
+                    placeholder="ყველა პროდუქტის ნახვა"
+                    className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                  />
+                  <p className="text-white/30 text-xs">Leave blank to use the default text.</p>
+                </div>
+
+                <div className="fieldset gap-2">
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Sends visitors to</label>
+                  <div className="grid grid-cols-3 gap-2">
                     {([
-                      { value: 'all', label: 'All categories' },
-                      { value: 'selected', label: 'Choose categories' },
-                    ] as { value: CategoryMenuScope; label: string }[]).map(opt => (
+                      { value: 'products', label: 'All products' },
+                      { value: 'category', label: 'A category' },
+                      { value: 'custom', label: 'Custom link' },
+                    ] as { value: HeroCtaLinkType; label: string }[]).map(opt => (
                       <button
                         key={opt.value}
                         type="button"
-                        onClick={() => setLandingCategoryScope(opt.value)}
+                        onClick={() => setHeroCtaLinkType(opt.value)}
                         className={[
-                          'rounded-lg border px-3 py-2 text-xs font-medium text-left transition-colors',
-                          landingCategoryScope === opt.value
+                          'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                          heroCtaLinkType === opt.value
                             ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
                             : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
                         ].join(' ')}
@@ -1240,104 +1207,32 @@ export default function StoreDesignPage() {
                       </button>
                     ))}
                   </div>
-                </div>
 
-                {landingCategoryScope === 'selected' && (
-                  <div className="flex flex-col gap-1.5">
-                    {selectableCategories.length === 0 ? (
-                      <p className="text-white/30 text-xs">No categories yet.</p>
-                    ) : (
-                      selectableCategories.map(category => (
-                        <label
-                          key={category.id}
-                          className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer"
-                        >
-                          <span className="text-sm text-white/70">{category.name}</span>
-                          <input
-                            type="checkbox"
-                            checked={landingCategorySelectedIds.includes(category.id)}
-                            onChange={() => toggleLandingCategorySelected(category.id)}
-                            className="toggle toggle-sm"
-                          />
-                        </label>
-                      ))
-                    )}
-                  </div>
-                )}
+                  {heroCtaLinkType === 'category' && (
+                    <select
+                      value={heroCtaCategoryId}
+                      onChange={e => setHeroCtaCategoryId(e.target.value)}
+                      className="select w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 mt-1"
+                    >
+                      <option value="">Choose a category…</option>
+                      {(categories ?? []).map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
+                  )}
 
-                <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Grid layout</label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {([
-                      { value: 2, label: '2 per row', gridClass: 'grid-cols-2' },
-                      { value: 3, label: '3 per row', gridClass: 'grid-cols-3' },
-                      { value: 4, label: '4 per row', gridClass: 'grid-cols-4' },
-                      { value: 6, label: '6 per row', gridClass: 'grid-cols-6' },
-                    ] as { value: LandingCategoryColumns; label: string; gridClass: string }[]).map(opt => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => setLandingCategoryColumns(opt.value)}
-                        className={[
-                          'flex flex-col items-center gap-2 rounded-lg border px-2 py-2.5 transition-colors',
-                          landingCategoryColumns === opt.value
-                            ? 'border-fuchsia-500 bg-fuchsia-500/10'
-                            : 'border-white/10 bg-white/4 hover:border-white/25',
-                        ].join(' ')}
-                      >
-                        <div className={`grid ${opt.gridClass} gap-0.5 w-full`}>
-                          {Array.from({ length: opt.value }).map((_, i) => (
-                            <div
-                              key={i}
-                              className={`aspect-square rounded-sm ${landingCategoryColumns === opt.value ? 'bg-fuchsia-400' : 'bg-white/20'}`}
-                            />
-                          ))}
-                        </div>
-                        <span className={`text-[10px] font-medium ${landingCategoryColumns === opt.value ? 'text-white' : 'text-white/40'}`}>
-                          {opt.value}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                  <p className="text-white/30 text-xs mt-1">Columns per row on desktop — rows wrap automatically. Mobile always shows fewer, scaled down.</p>
+                  {heroCtaLinkType === 'custom' && (
+                    <input
+                      type="text"
+                      value={heroCtaCustomUrl}
+                      onChange={e => setHeroCtaCustomUrl(e.target.value)}
+                      placeholder="/products/category/shoes or https://…"
+                      className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 mt-1"
+                    />
+                  )}
                 </div>
               </>
             )}
-          </div>
-
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-            <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Contact Form</h2>
-              <p className="text-white/30 text-xs mt-1">
-                Let customers send you a message (name + message, plus email or phone) right from the footer, without visiting a separate page.
-                Messages appear under the &quot;Messages&quot; tab of your store admin.
-              </p>
-            </div>
-
-            <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Footer placement</label>
-              <div className="grid grid-cols-3 gap-2">
-                {([
-                  { value: 'off', label: 'Off' },
-                  { value: 'above', label: 'Above footer' },
-                  { value: 'below', label: 'Below footer' },
-                ] as { value: FooterContactFormPosition; label: string }[]).map(opt => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setFooterContactForm(opt.value)}
-                    className={[
-                      'rounded-lg border px-3 py-2 text-xs font-medium text-left transition-colors',
-                      footerContactForm === opt.value
-                        ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
-                        : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
-                    ].join(' ')}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
 
         </div>

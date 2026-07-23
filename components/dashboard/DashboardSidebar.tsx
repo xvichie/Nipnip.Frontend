@@ -128,6 +128,13 @@ const PALETTE_ICON = (
     <circle cx="5" cy="10" r="0.9" fill="currentColor"/>
   </svg>
 )
+const LAYOUT_ICON = (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+    <rect x="1.5" y="1.5" width="13" height="4" rx="1" stroke="currentColor" strokeWidth="1.4"/>
+    <rect x="1.5" y="8" width="5.5" height="6.5" rx="1" stroke="currentColor" strokeWidth="1.4"/>
+    <rect x="9" y="8" width="5.5" height="6.5" rx="1" stroke="currentColor" strokeWidth="1.4"/>
+  </svg>
+)
 const BOX_ICON = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
     <path d="M1.5 4.8 8 1.5l6.5 3.3v6.4L8 14.5l-6.5-3.3V4.8Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
@@ -239,6 +246,7 @@ const STORE_NAV_ICONS: Record<string, React.ReactNode> = {
   '/dashboard/merchant/store': STORE_ICON,
   '/dashboard/merchant/store/analytics': ANALYTICS_ICON,
   '/dashboard/merchant/store/design': PALETTE_ICON,
+  '/dashboard/merchant/store/layout': LAYOUT_ICON,
   '/dashboard/merchant/store/categories': TAG_ICON,
   '/dashboard/merchant/store/products': BOX_ICON,
   '/dashboard/merchant/store/orders': BAG_ICON,

@@ -6,7 +6,7 @@ export type ThemeId = 'minimal' | 'bold' | 'classic' | 'luxury' | 'vibrant' | 'c
 
 export type SocialsPosition = 'top' | 'bottom' | 'both' | 'footer'
 
-export type HeroLayout = 'center' | 'imageLeft' | 'imageRight'
+export type HeroLayout = 'center' | 'imageLeft' | 'imageRight' | 'background'
 
 export type HeroHeight = 'small' | 'medium' | 'large'
 
@@ -33,6 +33,10 @@ export type HeroImagePosition = 'center' | 'top' | 'bottom' | 'left' | 'right'
 
 export type HeroTextSize = 'sm' | 'md' | 'lg' | 'xl'
 
+export type HeroTextTheme = 'auto' | 'light' | 'dark'
+
+export type HeroCtaLinkType = 'products' | 'category' | 'custom'
+
 export type CategoryMenuMode = 'flat' | 'dropdown'
 
 export type CategoryMenuScope = 'all' | 'selected'
@@ -40,6 +44,8 @@ export type CategoryMenuScope = 'all' | 'selected'
 export type FooterContactFormPosition = 'off' | 'above' | 'below'
 
 export type LandingCategoryColumns = 2 | 3 | 4 | 6
+
+export type HomeSectionKey = 'hero' | 'categories' | 'products'
 
 export interface ThemeConfig {
   accentColor?: string
@@ -66,6 +72,13 @@ export interface ThemeConfig {
   heroHeadlineSize?: HeroTextSize
   heroSubheadline?: string
   heroSubheadlineSize?: HeroTextSize
+  heroOverlayOpacity?: number
+  heroTextTheme?: HeroTextTheme
+  heroCtaEnabled?: boolean
+  heroCtaText?: string
+  heroCtaLinkType?: HeroCtaLinkType
+  heroCtaCategoryId?: string
+  heroCtaCustomUrl?: string
   seoTagline?: string
   seoDescription?: string
   contactEmail?: string
@@ -91,6 +104,8 @@ export interface ThemeConfig {
   footerContactForm?: FooterContactFormPosition
   showContactInNav?: boolean
   contactLabel?: string
+  /** Which home-page sections show and in what order — sections not listed are hidden. */
+  homeSectionOrder?: HomeSectionKey[]
   codEnabled?: boolean
   codNotes?: string
   bankTransferEnabled?: boolean

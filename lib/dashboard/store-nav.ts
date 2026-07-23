@@ -13,6 +13,7 @@ export const STORE_NAV_ITEMS: StoreNavItem[] = [
   { href: '/dashboard/merchant/store', exact: true, labelKey: 'storeOverview' },
   { href: '/dashboard/merchant/store/analytics', exact: false, labelKey: 'storeAnalytics' },
   { href: '/dashboard/merchant/store/design', exact: false, labelKey: 'storeDesign' },
+  { href: '/dashboard/merchant/store/layout', exact: false, labelKey: 'storeLayout' },
   { href: '/dashboard/merchant/store/categories', exact: false, labelKey: 'storeCategories' },
   { href: '/dashboard/merchant/store/products', exact: false, labelKey: 'storeProducts' },
   { href: '/dashboard/merchant/store/orders', exact: false, labelKey: 'storeOrders' },

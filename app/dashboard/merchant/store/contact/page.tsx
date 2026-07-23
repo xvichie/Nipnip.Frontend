@@ -1,10 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { parseThemeConfig } from '@/lib/store/theme-config'
 import { LocationPicker } from '@/components/storefront/shared/LocationPicker'
-import type { SocialsPosition } from '@/lib/types/storefront'
 
 const DASHBOARD_SURFACE = { border: 'border-white/10', text: 'text-white', muted: 'text-white/40' }
 
@@ -22,11 +21,17 @@ export default function MerchantStoreContactPage() {
   const [socialFacebook, setSocialFacebook] = useState('')
   const [socialTiktok, setSocialTiktok] = useState('')
   const [socialYoutube, setSocialYoutube] = useState('')
-  const [socialsPosition, setSocialsPosition] = useState<SocialsPosition>('footer')
   const [saved, setSaved] = useState(false)
 
-  useEffect(() => {
-    if (!store) return
+  // "Adjust state during render" instead of an effect — hydrates once from the fetched
+  // store, which arrives async, so there's no lazy-initializer moment to hook into. Tracked
+  // via a plain "have we hydrated this mount" flag rather than comparing against the previous
+  // store by reference — the store query is cached across navigations, so on a revisit `store`
+  // can already be populated on the very first render, making it identical to itself and never
+  // triggering a reference-inequality check.
+  const [hydrated, setHydrated] = useState(false)
+  if (store && !hydrated) {
+    setHydrated(true)
     const parsed = parseThemeConfig(store.themeConfig)
     setContactLabel(parsed.contactLabel)
     setContactEmail(parsed.contactEmail)
@@ -38,8 +43,7 @@ export default function MerchantStoreContactPage() {
     setSocialFacebook(parsed.socialFacebook)
     setSocialTiktok(parsed.socialTiktok)
     setSocialYoutube(parsed.socialYoutube)
-    setSocialsPosition(parsed.socialsPosition)
-  }, [store])
+  }
 
   function handleSave() {
     if (!store) return
@@ -58,7 +62,6 @@ export default function MerchantStoreContactPage() {
           socialFacebook,
           socialTiktok,
           socialYoutube,
-          socialsPosition,
         }),
       },
       { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
@@ -198,32 +201,6 @@ export default function MerchantStoreContactPage() {
             placeholder="https://youtube.com/@yourstore"
             className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
           />
-        </div>
-
-        <div className="fieldset gap-2">
-          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Show socials</label>
-          <div className="grid grid-cols-2 gap-2">
-            {([
-              { value: 'top', label: 'Top of page' },
-              { value: 'bottom', label: 'Bottom of page' },
-              { value: 'both', label: 'Top & bottom' },
-              { value: 'footer', label: 'Inside footer' },
-            ] as { value: SocialsPosition; label: string }[]).map(opt => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setSocialsPosition(opt.value)}
-                className={[
-                  'rounded-lg border px-3 py-2 text-xs font-medium text-left transition-colors',
-                  socialsPosition === opt.value
-                    ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
-                    : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
-                ].join(' ')}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
     </div>

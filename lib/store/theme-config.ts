@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import type { AdminThemeOverride, ThemeConfig } from '@/lib/types/storefront'
+import type { AdminThemeOverride, CategoryResponse, ThemeConfig } from '@/lib/types/storefront'
 
 export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   accentColor: '#111111',
@@ -26,6 +26,13 @@ export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   heroHeadlineSize: 'md',
   heroSubheadline: '',
   heroSubheadlineSize: 'md',
+  heroOverlayOpacity: 0,
+  heroTextTheme: 'auto',
+  heroCtaEnabled: true,
+  heroCtaText: '',
+  heroCtaLinkType: 'products',
+  heroCtaCategoryId: '',
+  heroCtaCustomUrl: '',
   seoTagline: '',
   seoDescription: '',
   contactEmail: '',
@@ -51,6 +58,7 @@ export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   footerContactForm: 'off',
   showContactInNav: false,
   contactLabel: 'კონტაქტი',
+  homeSectionOrder: ['hero', 'categories', 'products'],
   codEnabled: true,
   codNotes: '',
   bankTransferEnabled: true,
@@ -70,6 +78,20 @@ export function parseThemeConfig(raw: string): Required<ThemeConfig> {
   } catch {
     return DEFAULT_THEME_CONFIG
   }
+}
+
+export const HOME_SECTION_KEYS: Required<ThemeConfig>['homeSectionOrder'] = ['hero', 'categories', 'products']
+
+// Sanitizes tokens.homeSectionOrder against unknown/duplicate entries (e.g. hand-edited JSON).
+// Deliberately does NOT re-add sections missing from the array — a section absent from the
+// saved order means the merchant turned it off, which must stick.
+export function getHomeSectionOrder(tokens: Required<ThemeConfig>): Required<ThemeConfig>['homeSectionOrder'] {
+  const seen = new Set<string>()
+  return tokens.homeSectionOrder.filter(key => {
+    if (!HOME_SECTION_KEYS.includes(key) || seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
 }
 
 // Admin-only overlay (customCss / announcementHtml / footerExtraHtml) — see AdminThemeOverride.
@@ -165,6 +187,55 @@ export const HERO_EYEBROW_SIZE_CLASS: Record<Required<ThemeConfig>['heroEyebrowS
   md: 'text-xs',
   lg: 'text-sm',
   xl: 'text-base',
+}
+
+export function getHeroBackgroundImageClass(tokens: Required<ThemeConfig>): string {
+  return `w-full h-full object-cover ${HERO_IMAGE_POSITION_CLASS[tokens.heroImagePosition]}`
+}
+
+// Merchant-facing "light/dark/auto" text color override — used instead of a raw color
+// picker so choosing readable text over a photo stays a one-click, non-technical decision.
+export const HERO_TEXT_THEME_CLASS: Record<'light' | 'dark', { headline: string; subheadline: string; eyebrow: string }> = {
+  light: {
+    headline: 'text-white',
+    subheadline: 'text-white/80',
+    eyebrow: 'text-white/70',
+  },
+  dark: {
+    headline: 'text-[#111111]',
+    subheadline: 'text-[#111111]/70',
+    eyebrow: 'text-[#111111]/60',
+  },
+}
+
+export function getHeroTextColorClass(
+  tokens: Required<ThemeConfig>,
+  element: 'headline' | 'subheadline' | 'eyebrow',
+  fallbackClass: string
+): string {
+  if (tokens.heroTextTheme === 'auto') return fallbackClass
+  return HERO_TEXT_THEME_CLASS[tokens.heroTextTheme][element]
+}
+
+// Black scrim over a hero photo so custom text stays legible regardless of the image's own contrast.
+export function getHeroOverlayStyle(tokens: Required<ThemeConfig>): CSSProperties | undefined {
+  if (!tokens.heroImageUrl || tokens.heroOverlayOpacity <= 0) return undefined
+  return { backgroundColor: `rgba(0,0,0,${Math.min(tokens.heroOverlayOpacity, 80) / 100})` }
+}
+
+export function getHeroCtaLabel(tokens: Required<ThemeConfig>, fallback: string): string {
+  return tokens.heroCtaText.trim() || fallback
+}
+
+export function getHeroCtaHref(tokens: Required<ThemeConfig>, categories: CategoryResponse[]): string {
+  if (tokens.heroCtaLinkType === 'category' && tokens.heroCtaCategoryId) {
+    const category = categories.find(c => c.id === tokens.heroCtaCategoryId)
+    if (category) return `/products/category/${category.slug}`
+  }
+  if (tokens.heroCtaLinkType === 'custom' && tokens.heroCtaCustomUrl.trim()) {
+    return tokens.heroCtaCustomUrl.trim()
+  }
+  return '/products'
 }
 
 export const HERO_TEXT_POSITIONS: Required<ThemeConfig>['heroTextPosition'][] = [

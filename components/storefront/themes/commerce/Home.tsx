@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import { ProductCard } from './ProductCard'
 import { CategoryIcon } from '@/components/storefront/shared/CategoryIcon'
-import { getBannerBackgroundStyle, getHeroImageClass, getHeroTextAlignClass, hasBanner, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
+import { getBannerBackgroundStyle, getHeroBackgroundImageClass, getHeroCtaHref, getHeroCtaLabel, getHeroImageClass, getHeroOverlayStyle, getHeroTextAlignClass, getHeroTextColorClass, getHomeSectionOrder, hasBanner, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
 import { getLandingCategories } from '@/lib/store/landing-categories'
-import type { CategoryResponse, ProductSummaryResponse, StoreResponse, ThemeConfig } from '@/lib/types/storefront'
+import type { CategoryResponse, HomeSectionKey, ProductSummaryResponse, StoreResponse, ThemeConfig } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
 
 export function Home({
@@ -21,12 +21,14 @@ export function Home({
 }) {
   const categoryNames = new Map(categories.map(c => [c.id, c.name]))
   const landingCategories = getLandingCategories(categories, tokens)
-  const isSplitHero = tokens.heroLayout !== 'center' && !!tokens.heroImageUrl
+  const isSplitHero = (tokens.heroLayout === 'imageLeft' || tokens.heroLayout === 'imageRight') && !!tokens.heroImageUrl
+  const isBackgroundHero = tokens.heroLayout === 'background' && !!tokens.heroImageUrl
   const heightClass = HERO_HEIGHT_CLASS[tokens.heroHeight]
   const bannerActive = hasBanner(tokens)
   const bannerStyle = getBannerBackgroundStyle(tokens)
-  const sectionBanner = bannerActive && (!isSplitHero || tokens.bannerPlacement === 'section')
+  const sectionBanner = bannerActive && !isBackgroundHero && (!isSplitHero || tokens.bannerPlacement === 'section')
   const imageBanner = bannerActive && isSplitHero && tokens.bannerPlacement === 'behindImage'
+  const overlayStyle = getHeroOverlayStyle(tokens)
   const sectionStyle = sectionBanner
     ? tokens.bannerType === 'image'
       ? {
@@ -49,24 +51,26 @@ export function Home({
   const heroText = (
     <div className={`w-full max-w-xl ${textAlignClass}`}>
       {tokens.heroEyebrow && (
-        <p className={`flex items-center gap-2 ${HERO_EYEBROW_SIZE_CLASS[tokens.heroEyebrowSize]} font-semibold uppercase tracking-widest text-slate-500 mb-3`}>
+        <p className={`flex items-center gap-2 ${HERO_EYEBROW_SIZE_CLASS[tokens.heroEyebrowSize]} font-semibold uppercase tracking-widest ${getHeroTextColorClass(tokens, 'eyebrow', 'text-slate-500')} mb-3`}>
           <span className="inline-block w-1.5 h-1.5 shrink-0" style={{ backgroundColor: tokens.accentColor }} aria-hidden />
           {tokens.heroEyebrow}
         </p>
       )}
-      <h1 className={`font-black text-slate-900 tracking-tight mb-5 ${HERO_HEADLINE_SIZE_CLASS[tokens.heroHeadlineSize]}`}>
+      <h1 className={`font-black tracking-tight mb-5 ${getHeroTextColorClass(tokens, 'headline', 'text-slate-900')} ${HERO_HEADLINE_SIZE_CLASS[tokens.heroHeadlineSize]}`}>
         {tokens.heroHeadline || store.name}
       </h1>
       {tokens.heroSubheadline && (
-        <p className={`text-slate-500 ${HERO_SUBHEADLINE_SIZE_CLASS[tokens.heroSubheadlineSize]} mb-8`}>{tokens.heroSubheadline}</p>
+        <p className={`${getHeroTextColorClass(tokens, 'subheadline', 'text-slate-500')} ${HERO_SUBHEADLINE_SIZE_CLASS[tokens.heroSubheadlineSize]} mb-8`}>{tokens.heroSubheadline}</p>
       )}
-      <Link
-        href={`/products`}
-        className="inline-flex items-center gap-2 rounded-md text-white text-sm font-semibold px-7 py-3 shadow-sm hover:shadow-md transition-shadow"
-        style={{ backgroundColor: tokens.accentColor }}
-      >
-        ყველა პროდუქტის ნახვა
-      </Link>
+      {tokens.heroCtaEnabled && (
+        <Link
+          href={getHeroCtaHref(tokens, categories)}
+          className="inline-flex items-center gap-2 rounded-md text-white text-sm font-semibold px-7 py-3 shadow-sm hover:shadow-md transition-shadow"
+          style={{ backgroundColor: tokens.accentColor }}
+        >
+          {getHeroCtaLabel(tokens, 'ყველა პროდუქტის ნახვა')}
+        </Link>
+      )}
     </div>
   )
 
@@ -79,71 +83,91 @@ export function Home({
     </div>
   )
 
-  return (
-    <div className="bg-white min-h-screen">
-
-      <section className="bg-white relative overflow-hidden" style={sectionStyle}>
-        {isSplitHero ? (
-          <div className={`relative max-w-6xl mx-auto px-4 sm:px-6 grid md:grid-cols-2 gap-10 md:gap-14 ${heightClass}`}>
-            {heroImage}
-            <div className={`h-full flex flex-col ${pos.wrapper} ${textOrderClass}`}>{heroText}</div>
+  const heroSection = (
+    <section key="hero" className="bg-white relative overflow-hidden" style={sectionStyle}>
+      {isBackgroundHero ? (
+        <div className={`relative ${heightClass}`}>
+          <div className="absolute inset-0">
+            <CImg src={tokens.heroImageUrl} cldWidth={1800} alt={tokens.heroHeadline || store.name} className={getHeroBackgroundImageClass(tokens)} />
+            {overlayStyle && <div className="absolute inset-0" style={overlayStyle} />}
           </div>
-        ) : (
-          <div className={`relative max-w-6xl mx-auto px-4 sm:px-6 flex flex-col ${pos.wrapper} ${heightClass}`}>
+          <div className={`relative max-w-6xl mx-auto px-4 sm:px-6 h-full flex flex-col ${pos.wrapper}`}>
             {heroText}
           </div>
-        )}
-      </section>
-
-      {landingCategories.length > 0 && (
-        <section className="border-t border-slate-200">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-            <div className={`grid ${LANDING_CATEGORY_GRID_CLASS[tokens.landingCategoryColumns]} gap-3`}>
-              {landingCategories.map(category => (
-                <Link
-                  key={category.id}
-                  href={`/products/category/${category.slug}`}
-                  className="flex flex-col items-center justify-center gap-2 rounded-md border border-slate-200 bg-white hover:border-slate-900 transition-colors px-4 py-6 text-center uppercase text-xs font-semibold tracking-wide text-slate-700"
-                >
-                  <CategoryIcon iconUrl={category.iconUrl} iconKey={category.iconKey} iconEmoji={category.iconEmoji} className="w-5 h-5" style={{ color: tokens.accentColor }} />
-                  {category.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      <section>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14">
-          <div className="flex items-end justify-between mb-6">
-            <h2 className="flex items-center gap-2 font-bold text-2xl text-slate-900">
-              <span className="inline-block w-1.5 h-1.5 shrink-0" style={{ backgroundColor: tokens.accentColor }} aria-hidden />
-              ყველა პროდუქტი
-            </h2>
-            <Link href={`/products`} className="text-sm font-semibold hover:underline" style={{ color: tokens.accentColor }}>
-              ყველას ნახვა →
-            </Link>
-          </div>
-
-          {products.length === 0 ? (
-            <p className="text-slate-400 text-sm py-20 text-center">პროდუქტები ჯერ არ არის.</p>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {products.slice(0, 8).map(product => (
-                <ProductCard
-                  key={product.id}
-                  slug={slug}
-                  product={product}
-                  categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
-                  tokens={tokens}
-                />
-              ))}
-            </div>
-          )}
         </div>
-      </section>
+      ) : isSplitHero ? (
+        <div className={`relative max-w-6xl mx-auto px-4 sm:px-6 grid md:grid-cols-2 gap-10 md:gap-14 ${heightClass}`}>
+          {heroImage}
+          <div className={`h-full flex flex-col ${pos.wrapper} ${textOrderClass}`}>{heroText}</div>
+        </div>
+      ) : (
+        <div className={`relative max-w-6xl mx-auto px-4 sm:px-6 flex flex-col ${pos.wrapper} ${heightClass}`}>
+          {heroText}
+        </div>
+      )}
+    </section>
+  )
 
+  const categoriesSection = landingCategories.length > 0 && (
+    <section key="categories" className="border-t border-slate-200">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        <div className={`grid ${LANDING_CATEGORY_GRID_CLASS[tokens.landingCategoryColumns]} gap-3`}>
+          {landingCategories.map(category => (
+            <Link
+              key={category.id}
+              href={`/products/category/${category.slug}`}
+              className="flex flex-col items-center justify-center gap-2 rounded-md border border-slate-200 bg-white hover:border-slate-900 transition-colors px-4 py-6 text-center uppercase text-xs font-semibold tracking-wide text-slate-700"
+            >
+              <CategoryIcon iconUrl={category.iconUrl} iconKey={category.iconKey} iconEmoji={category.iconEmoji} className="w-5 h-5" style={{ color: tokens.accentColor }} />
+              {category.name}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+
+  const productsSection = (
+    <section key="products">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14">
+        <div className="flex items-end justify-between mb-6">
+          <h2 className="flex items-center gap-2 font-bold text-2xl text-slate-900">
+            <span className="inline-block w-1.5 h-1.5 shrink-0" style={{ backgroundColor: tokens.accentColor }} aria-hidden />
+            ყველა პროდუქტი
+          </h2>
+          <Link href={`/products`} className="text-sm font-semibold hover:underline" style={{ color: tokens.accentColor }}>
+            ყველას ნახვა →
+          </Link>
+        </div>
+
+        {products.length === 0 ? (
+          <p className="text-slate-400 text-sm py-20 text-center">პროდუქტები ჯერ არ არის.</p>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {products.slice(0, 8).map(product => (
+              <ProductCard
+                key={product.id}
+                slug={slug}
+                product={product}
+                categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
+                tokens={tokens}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  )
+
+  const sections: Record<HomeSectionKey, React.ReactNode> = {
+    hero: heroSection,
+    categories: categoriesSection,
+    products: productsSection,
+  }
+
+  return (
+    <div className="bg-white min-h-screen">
+      {getHomeSectionOrder(tokens).map(key => sections[key])}
     </div>
   )
 }
