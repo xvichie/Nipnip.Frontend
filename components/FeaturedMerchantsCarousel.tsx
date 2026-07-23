@@ -110,9 +110,15 @@ export function FeaturedMerchantsCarousel() {
   }, [items.length, overflowing])
 
   useEffect(() => {
-    if (!trackRef.current || items.length === 0) return
-    const card = trackRef.current.children[activeIndex] as HTMLElement
-    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+    const track = trackRef.current
+    if (!track || items.length === 0) return
+    const card = track.children[activeIndex] as HTMLElement
+    if (!card) return
+    // Scrolls only the track's own horizontal axis — scrollIntoView(), even with block:
+    // 'nearest', can still nudge the page's vertical scroll on any ancestor, which is what
+    // caused the whole site to jump down slightly whenever this carousel first mounted.
+    const target = card.offsetLeft - (track.clientWidth - card.clientWidth) / 2
+    track.scrollTo({ left: target, behavior: 'smooth' })
   }, [activeIndex, items.length])
 
   function openProfile(merchant: MerchantResponse) {
