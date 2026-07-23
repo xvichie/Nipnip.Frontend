@@ -45,7 +45,11 @@ export type FooterContactFormPosition = 'off' | 'above' | 'below'
 
 export type LandingCategoryColumns = 2 | 3 | 4 | 6
 
-export type HomeSectionKey = 'hero' | 'categories' | 'products'
+export type HomeSectionKey = 'hero' | 'categories' | 'products' | 'content'
+
+export type FeaturedProductsMode = 'latest' | 'curated'
+
+export type ContentImagePosition = 'left' | 'right'
 
 export interface ThemeConfig {
   accentColor?: string
@@ -106,6 +110,26 @@ export interface ThemeConfig {
   contactLabel?: string
   /** Which home-page sections show and in what order — sections not listed are hidden. */
   homeSectionOrder?: HomeSectionKey[]
+  featuredProductsMode?: FeaturedProductsMode
+  featuredProductIds?: string[]
+  contentHeading?: string
+  contentBody?: string
+  contentImageUrl?: string
+  contentImagePosition?: ContentImagePosition
+  contentButtonText?: string
+  contentButtonLink?: string
+  announcementEnabled?: boolean
+  announcementText?: string
+  announcementColor?: string
+  announcementLink?: string
+  announcementDismissible?: boolean
+  badgeSaleEnabled?: boolean
+  badgeSaleText?: string
+  badgeSaleColor?: string
+  badgeNewEnabled?: boolean
+  badgeNewText?: string
+  badgeNewColor?: string
+  badgeNewDays?: number
   codEnabled?: boolean
   codNotes?: string
   bankTransferEnabled?: boolean
@@ -252,6 +276,7 @@ export interface ProductSummaryResponse {
   isActive: boolean
   thumbnailUrl: string | null
   secondImageUrl?: string | null
+  createdAt: string
 }
 
 export interface ProductPriceRangeResponse {

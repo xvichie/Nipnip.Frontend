@@ -204,7 +204,7 @@ export function ProductDetail({
           <h2 className="font-black text-2xl text-[#111] tracking-tight mb-6">მსგავსი პროდუქტები</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
             {product.relatedProducts.map(related => (
-              <ProductCard key={related.id} slug={slug} product={related} />
+              <ProductCard key={related.id} slug={slug} product={related} tokens={tokens} />
             ))}
           </div>
         </div>

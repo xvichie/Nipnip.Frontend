@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { getProductBadge } from '@/lib/store/theme-config'
 import { QuickAddButton } from '@/components/storefront/shared/QuickAddButton'
 import type { ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
@@ -16,6 +17,7 @@ export function ProductCard({
   categoryName?: string
   tokens: Required<ThemeConfig>
 }) {
+  const badge = getProductBadge(tokens, product)
   return (
     <Link href={`/products/${product.slug}`} className="group block h-full">
       <div
@@ -25,6 +27,14 @@ export function ProductCard({
         onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 10px -4px rgba(0,0,0,0.08)' }}
       >
         <div className="relative aspect-square bg-[#fff2ec] overflow-hidden">
+          {badge && (
+            <span
+              className="absolute top-2 left-2 z-10 rounded-full text-white text-[10px] font-bold uppercase tracking-wide px-2.5 py-1"
+              style={{ backgroundColor: badge.color }}
+            >
+              {badge.text}
+            </span>
+          )}
           {product.thumbnailUrl ? (
             <>
               <CImg

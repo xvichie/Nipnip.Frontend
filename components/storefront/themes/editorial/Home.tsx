@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import { ProductCard } from './ProductCard'
 import { CategoryIcon } from '@/components/storefront/shared/CategoryIcon'
-import { getBannerBackgroundStyle, getHeroBackgroundImageClass, getHeroCtaHref, getHeroCtaLabel, getHeroImageClass, getHeroOverlayStyle, getHeroTextAlignClass, getHeroTextColorClass, getHomeSectionOrder, hasBanner, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
+import { getBannerBackgroundStyle, getHeroBackgroundImageClass, getHeroCtaHref, getHeroCtaLabel, getHeroImageClass, getHeroOverlayStyle, getHeroTextAlignClass, getHeroTextColorClass, getHomeSectionOrder, hasBanner, hasContentBlock, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
 import { getLandingCategories } from '@/lib/store/landing-categories'
+import { ContentBlock } from '@/components/storefront/shared/ContentBlock'
 import type { CategoryResponse, HomeSectionKey, ProductSummaryResponse, StoreResponse, ThemeConfig } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
 
@@ -164,10 +165,24 @@ export function Home({
     </section>
   )
 
+  const contentSection = hasContentBlock(tokens) && (
+    <section key="content" className="border-t border-black/10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+        <ContentBlock
+          tokens={tokens}
+          headingClassName="font-serif italic text-2xl sm:text-3xl text-[#111111] mb-5"
+          bodyClassName="text-[#767676] text-sm sm:text-base leading-relaxed mb-8"
+          buttonClassName="inline-flex items-center gap-2 border-2 border-black text-[#111111] text-xs uppercase tracking-widest font-medium px-8 py-3.5 hover:bg-black hover:text-white transition-colors"
+        />
+      </div>
+    </section>
+  )
+
   const sections: Record<HomeSectionKey, React.ReactNode> = {
     hero: heroSection,
     categories: categoriesSection,
     products: productsSection,
+    content: contentSection,
   }
 
   return (

@@ -1,21 +1,33 @@
 import Link from 'next/link'
+import { getProductBadge } from '@/lib/store/theme-config'
 import { QuickAddButton } from '@/components/storefront/shared/QuickAddButton'
-import type { ProductSummaryResponse } from '@/lib/types/storefront'
+import type { ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
 
 export function ProductCard({
   slug,
   product,
   categoryName,
+  tokens,
 }: {
   slug: string
   product: ProductSummaryResponse
   categoryName?: string
+  tokens: Required<ThemeConfig>
 }) {
+  const badge = getProductBadge(tokens, product)
   return (
     <Link href={`/products/${product.slug}`} className="group block h-full">
       <div className="bg-white border border-[#e5e5e5] hover:shadow-md transition-shadow duration-200 h-full flex flex-col">
         <div className="relative aspect-square bg-[#f7f7f7] overflow-hidden">
+          {badge && (
+            <span
+              className="absolute top-2 left-2 z-10 rounded text-white text-[10px] font-bold uppercase tracking-wide px-2 py-1"
+              style={{ backgroundColor: badge.color }}
+            >
+              {badge.text}
+            </span>
+          )}
           {product.thumbnailUrl ? (
             <>
               <CImg

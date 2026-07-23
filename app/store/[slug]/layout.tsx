@@ -23,6 +23,7 @@ import { Footer as CommerceFooter } from '@/components/storefront/themes/commerc
 import { Header as EditorialHeader } from '@/components/storefront/themes/editorial/Header'
 import { Footer as EditorialFooter } from '@/components/storefront/themes/editorial/Footer'
 import { SocialBar } from '@/components/storefront/shared/SocialBar'
+import { AnnouncementBar } from '@/components/storefront/shared/AnnouncementBar'
 import type { CategoryResponse, StorePageResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
 const HEADERS = { minimal: MinimalHeader, bold: BoldHeader, classic: ClassicHeader, luxury: LuxuryHeader, vibrant: VibrantHeader, commerce: CommerceHeader, editorial: EditorialHeader }
@@ -106,6 +107,7 @@ export default async function StoreLayout({
       <PageViewTracker slug={slug} />
       {override.customCss && <style dangerouslySetInnerHTML={{ __html: override.customCss }} />}
       {override.announcementHtml && <div dangerouslySetInnerHTML={{ __html: override.announcementHtml }} />}
+      <AnnouncementBar slug={slug} tokens={tokens} />
       <StorefrontToastProvider>
         <StorefrontCartProvider slug={slug}>
           {showTopBar && <SocialBar themeId={themeId} tokens={tokens} edge="top" />}

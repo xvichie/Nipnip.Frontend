@@ -7,6 +7,7 @@ import { BANNER_PATTERNS, DEFAULT_THEME_CONFIG, HERO_TEXT_POSITIONS, parseThemeC
 import { getThemeDefinition, isThemeId, SURFACE_CLASSES, THEMES } from '@/lib/storefront-themes'
 import { StorefrontCartProvider } from '@/lib/store/storefront-cart-context'
 import { PreviewFrame, type PreviewMode } from '@/components/dashboard/store/PreviewFrame'
+import { AnnouncementBar } from '@/components/storefront/shared/AnnouncementBar'
 import { Header as MinimalHeader } from '@/components/storefront/themes/minimal/Header'
 import { Footer as MinimalFooter } from '@/components/storefront/themes/minimal/Footer'
 import { Home as MinimalHome } from '@/components/storefront/themes/minimal/Home'
@@ -59,10 +60,10 @@ const FOOTERS = { minimal: MinimalFooter, bold: BoldFooter, classic: ClassicFoot
 const HOMES = { minimal: MinimalHome, bold: BoldHome, classic: ClassicHome, luxury: LuxuryHome, vibrant: VibrantHome, commerce: CommerceHome, editorial: EditorialHome }
 
 const PLACEHOLDER_PRODUCTS: ProductSummaryResponse[] = [
-  { id: 'preview-1', slug: 'preview-1', categoryId: null, name: 'Sample Product', basePrice: 49.99, salePrice: null, isActive: true, thumbnailUrl: null },
-  { id: 'preview-2', slug: 'preview-2', categoryId: null, name: 'Another Item', basePrice: 89, salePrice: null, isActive: true, thumbnailUrl: null },
-  { id: 'preview-3', slug: 'preview-3', categoryId: null, name: 'Best Seller', basePrice: 129.5, salePrice: 99.5, isActive: true, thumbnailUrl: null },
-  { id: 'preview-4', slug: 'preview-4', categoryId: null, name: 'New Arrival', basePrice: 34, salePrice: null, isActive: true, thumbnailUrl: null },
+  { id: 'preview-1', slug: 'preview-1', categoryId: null, name: 'Sample Product', basePrice: 49.99, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString() },
+  { id: 'preview-2', slug: 'preview-2', categoryId: null, name: 'Another Item', basePrice: 89, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString() },
+  { id: 'preview-3', slug: 'preview-3', categoryId: null, name: 'Best Seller', basePrice: 129.5, salePrice: 99.5, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString() },
+  { id: 'preview-4', slug: 'preview-4', categoryId: null, name: 'New Arrival', basePrice: 34, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString() },
 ]
 
 function ImageField({
@@ -213,6 +214,27 @@ export default function StoreDesignPage() {
   // Edited on the Layout tab, not here — kept in sync so this page's own preview/save still
   // reflects it accurately.
   const [homeSectionOrder, setHomeSectionOrder] = useState(DEFAULT_THEME_CONFIG.homeSectionOrder)
+  const [featuredProductsMode, setFeaturedProductsMode] = useState(DEFAULT_THEME_CONFIG.featuredProductsMode)
+  const [featuredProductIds, setFeaturedProductIds] = useState(DEFAULT_THEME_CONFIG.featuredProductIds)
+  const [contentHeading, setContentHeading] = useState('')
+  const [contentBody, setContentBody] = useState('')
+  const [contentImageUrl, setContentImageUrl] = useState('')
+  const [contentImagePosition, setContentImagePosition] = useState(DEFAULT_THEME_CONFIG.contentImagePosition)
+  const [contentButtonText, setContentButtonText] = useState('')
+  const [contentButtonLink, setContentButtonLink] = useState('')
+  const [announcementEnabled, setAnnouncementEnabled] = useState(DEFAULT_THEME_CONFIG.announcementEnabled)
+  const [announcementText, setAnnouncementText] = useState('')
+  const [announcementColor, setAnnouncementColor] = useState(DEFAULT_THEME_CONFIG.announcementColor)
+  const [announcementLink, setAnnouncementLink] = useState('')
+  const [announcementDismissible, setAnnouncementDismissible] = useState(DEFAULT_THEME_CONFIG.announcementDismissible)
+  // Owned here — badge styling is a visual/branding concern like the rest of this page.
+  const [badgeSaleEnabled, setBadgeSaleEnabled] = useState(DEFAULT_THEME_CONFIG.badgeSaleEnabled)
+  const [badgeSaleText, setBadgeSaleText] = useState('')
+  const [badgeSaleColor, setBadgeSaleColor] = useState(DEFAULT_THEME_CONFIG.badgeSaleColor)
+  const [badgeNewEnabled, setBadgeNewEnabled] = useState(DEFAULT_THEME_CONFIG.badgeNewEnabled)
+  const [badgeNewText, setBadgeNewText] = useState('')
+  const [badgeNewColor, setBadgeNewColor] = useState('')
+  const [badgeNewDays, setBadgeNewDays] = useState(DEFAULT_THEME_CONFIG.badgeNewDays)
   const [codEnabled, setCodEnabled] = useState(DEFAULT_THEME_CONFIG.codEnabled)
   const [codNotes, setCodNotes] = useState(DEFAULT_THEME_CONFIG.codNotes)
   const [bankTransferEnabled, setBankTransferEnabled] = useState(DEFAULT_THEME_CONFIG.bankTransferEnabled)
@@ -296,6 +318,26 @@ export default function StoreDesignPage() {
     setShowContactInNav(parsed.showContactInNav)
     setContactLabel(parsed.contactLabel)
     setHomeSectionOrder(parsed.homeSectionOrder)
+    setFeaturedProductsMode(parsed.featuredProductsMode)
+    setFeaturedProductIds(parsed.featuredProductIds)
+    setContentHeading(parsed.contentHeading)
+    setContentBody(parsed.contentBody)
+    setContentImageUrl(parsed.contentImageUrl)
+    setContentImagePosition(parsed.contentImagePosition)
+    setContentButtonText(parsed.contentButtonText)
+    setContentButtonLink(parsed.contentButtonLink)
+    setAnnouncementEnabled(parsed.announcementEnabled)
+    setAnnouncementText(parsed.announcementText)
+    setAnnouncementColor(parsed.announcementColor)
+    setAnnouncementLink(parsed.announcementLink)
+    setAnnouncementDismissible(parsed.announcementDismissible)
+    setBadgeSaleEnabled(parsed.badgeSaleEnabled)
+    setBadgeSaleText(parsed.badgeSaleText)
+    setBadgeSaleColor(parsed.badgeSaleColor)
+    setBadgeNewEnabled(parsed.badgeNewEnabled)
+    setBadgeNewText(parsed.badgeNewText)
+    setBadgeNewColor(parsed.badgeNewColor)
+    setBadgeNewDays(parsed.badgeNewDays)
     setCodEnabled(parsed.codEnabled)
     setCodNotes(parsed.codNotes)
     setBankTransferEnabled(parsed.bankTransferEnabled)
@@ -422,6 +464,26 @@ export default function StoreDesignPage() {
           showContactInNav,
           contactLabel: contactLabel.trim() || undefined,
           homeSectionOrder,
+          featuredProductsMode,
+          featuredProductIds,
+          contentHeading: contentHeading.trim() || undefined,
+          contentBody: contentBody.trim() || undefined,
+          contentImageUrl,
+          contentImagePosition,
+          contentButtonText: contentButtonText.trim() || undefined,
+          contentButtonLink: contentButtonLink.trim() || undefined,
+          announcementEnabled,
+          announcementText: announcementText.trim() || undefined,
+          announcementColor,
+          announcementLink: announcementLink.trim() || undefined,
+          announcementDismissible,
+          badgeSaleEnabled,
+          badgeSaleText: badgeSaleText.trim() || undefined,
+          badgeSaleColor,
+          badgeNewEnabled,
+          badgeNewText: badgeNewText.trim() || undefined,
+          badgeNewColor,
+          badgeNewDays,
           codEnabled,
           codNotes,
           bankTransferEnabled,
@@ -505,6 +567,26 @@ export default function StoreDesignPage() {
     showContactInNav,
     contactLabel,
     homeSectionOrder,
+    featuredProductsMode,
+    featuredProductIds,
+    contentHeading,
+    contentBody,
+    contentImageUrl,
+    contentImagePosition,
+    contentButtonText,
+    contentButtonLink,
+    announcementEnabled,
+    announcementText,
+    announcementColor,
+    announcementLink,
+    announcementDismissible,
+    badgeSaleEnabled,
+    badgeSaleText,
+    badgeSaleColor,
+    badgeNewEnabled,
+    badgeNewText,
+    badgeNewColor,
+    badgeNewDays,
     codEnabled,
     codNotes,
     bankTransferEnabled,
@@ -525,6 +607,7 @@ export default function StoreDesignPage() {
 
   const previewContent = (
     <StorefrontCartProvider slug={store.slug} preview>
+      <AnnouncementBar slug={store.slug} tokens={tokens} />
       <HeaderPreview slug={store.slug} storeName={store.name} categories={categories ?? []} pages={pages ?? []} tokens={tokens} />
       <HomePreview
         slug={store.slug}
@@ -1233,6 +1316,89 @@ export default function StoreDesignPage() {
                 </div>
               </>
             )}
+          </div>
+
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+            <div>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Product Badges</h2>
+              <p className="text-white/30 text-xs mt-1">Little labels shown on top of product photos in your grid.</p>
+            </div>
+
+            <div className="flex flex-col gap-3 pb-4 border-b border-white/5">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-white">Sale badge</p>
+                <input
+                  type="checkbox"
+                  checked={badgeSaleEnabled}
+                  onChange={e => setBadgeSaleEnabled(e.target.checked)}
+                  className={`toggle toggle-sm ${badgeSaleEnabled ? 'toggle-success' : 'toggle-error'}`}
+                />
+              </div>
+              {badgeSaleEnabled && (
+                <div className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    value={badgeSaleText}
+                    onChange={e => setBadgeSaleText(e.target.value)}
+                    placeholder="ფასდაკლება"
+                    className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                  />
+                  <input
+                    type="color"
+                    value={badgeSaleColor}
+                    onChange={e => setBadgeSaleColor(e.target.value)}
+                    className="w-9 h-9 rounded-lg border border-white/10 bg-transparent cursor-pointer shrink-0"
+                  />
+                </div>
+              )}
+              <p className="text-white/30 text-xs">Shown automatically on any product with a sale price.</p>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-white">&quot;New&quot; badge</p>
+                <input
+                  type="checkbox"
+                  checked={badgeNewEnabled}
+                  onChange={e => setBadgeNewEnabled(e.target.checked)}
+                  className={`toggle toggle-sm ${badgeNewEnabled ? 'toggle-success' : 'toggle-error'}`}
+                />
+              </div>
+              {badgeNewEnabled && (
+                <>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="text"
+                      value={badgeNewText}
+                      onChange={e => setBadgeNewText(e.target.value)}
+                      placeholder="ახალი"
+                      className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                    />
+                    <input
+                      type="color"
+                      value={badgeNewColor || accentColor}
+                      onChange={e => setBadgeNewColor(e.target.value)}
+                      className="w-9 h-9 rounded-lg border border-white/10 bg-transparent cursor-pointer shrink-0"
+                    />
+                  </div>
+                  <div className="fieldset gap-2">
+                    <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                      Counts as new for — {badgeNewDays} days
+                    </label>
+                    <input
+                      type="range"
+                      min={1}
+                      max={60}
+                      step={1}
+                      value={badgeNewDays}
+                      onChange={e => setBadgeNewDays(Number(e.target.value))}
+                      className="range range-xs accent-fuchsia-500"
+                    />
+                  </div>
+                </>
+              )}
+              <p className="text-white/30 text-xs">Shown on products added within the chosen window, as long as they&apos;re not already showing the Sale badge.</p>
+            </div>
           </div>
 
         </div>

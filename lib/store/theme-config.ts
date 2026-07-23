@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import type { AdminThemeOverride, CategoryResponse, ThemeConfig } from '@/lib/types/storefront'
+import type { AdminThemeOverride, CategoryResponse, ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
 
 export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   accentColor: '#111111',
@@ -59,6 +59,26 @@ export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   showContactInNav: false,
   contactLabel: 'კონტაქტი',
   homeSectionOrder: ['hero', 'categories', 'products'],
+  featuredProductsMode: 'latest',
+  featuredProductIds: [],
+  contentHeading: '',
+  contentBody: '',
+  contentImageUrl: '',
+  contentImagePosition: 'left',
+  contentButtonText: '',
+  contentButtonLink: '',
+  announcementEnabled: false,
+  announcementText: '',
+  announcementColor: '#111111',
+  announcementLink: '',
+  announcementDismissible: true,
+  badgeSaleEnabled: true,
+  badgeSaleText: '',
+  badgeSaleColor: '#dc2626',
+  badgeNewEnabled: false,
+  badgeNewText: '',
+  badgeNewColor: '',
+  badgeNewDays: 14,
   codEnabled: true,
   codNotes: '',
   bankTransferEnabled: true,
@@ -80,7 +100,7 @@ export function parseThemeConfig(raw: string): Required<ThemeConfig> {
   }
 }
 
-export const HOME_SECTION_KEYS: Required<ThemeConfig>['homeSectionOrder'] = ['hero', 'categories', 'products']
+export const HOME_SECTION_KEYS: Required<ThemeConfig>['homeSectionOrder'] = ['hero', 'categories', 'products', 'content']
 
 // Sanitizes tokens.homeSectionOrder against unknown/duplicate entries (e.g. hand-edited JSON).
 // Deliberately does NOT re-add sections missing from the array — a section absent from the
@@ -313,6 +333,33 @@ export const FONT_STACKS: Record<Required<ThemeConfig>['font'], string> = {
   mono: 'ui-monospace, SFMono-Regular, Menlo, monospace',
 }
 
+export interface ProductBadge {
+  text: string
+  color: string
+}
+
+// A single badge per card — sale takes priority over "new" so the two never stack and clutter the image.
+export function getProductBadge(
+  tokens: Required<ThemeConfig>,
+  product: Pick<ProductSummaryResponse, 'salePrice' | 'createdAt'>
+): ProductBadge | null {
+  if (product.salePrice !== null && tokens.badgeSaleEnabled) {
+    return { text: tokens.badgeSaleText.trim() || 'ფასდაკლება', color: tokens.badgeSaleColor }
+  }
+  if (tokens.badgeNewEnabled) {
+    const ageMs = Date.now() - new Date(product.createdAt).getTime()
+    const thresholdMs = tokens.badgeNewDays * 24 * 60 * 60 * 1000
+    if (ageMs >= 0 && ageMs <= thresholdMs) {
+      return { text: tokens.badgeNewText.trim() || 'ახალი', color: tokens.badgeNewColor || tokens.accentColor }
+    }
+  }
+  return null
+}
+
+export function hasContentBlock(tokens: Required<ThemeConfig>): boolean {
+  return !!(tokens.contentHeading.trim() || tokens.contentBody.trim() || tokens.contentImageUrl)
+}
+
 export function shadeColor(hex: string, percent: number): string {
   const clean = hex.replace('#', '')
   if (!/^[0-9a-fA-F]{6}$/.test(clean)) return hex
@@ -323,6 +370,18 @@ export function shadeColor(hex: string, percent: number): string {
   const g = clamp(((num >> 8) & 0x00ff) + amt)
   const b = clamp((num & 0x0000ff) + amt)
   return '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1)
+}
+
+// Picks readable black/white text for an arbitrary merchant-chosen background color
+// (e.g. the announcement bar) so there's no separate text-color decision to make.
+export function getContrastTextColor(hex: string): string {
+  const clean = hex.replace('#', '')
+  if (!/^[0-9a-fA-F]{6}$/.test(clean)) return '#ffffff'
+  const r = parseInt(clean.slice(0, 2), 16)
+  const g = parseInt(clean.slice(2, 4), 16)
+  const b = parseInt(clean.slice(4, 6), 16)
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+  return luminance > 0.6 ? '#111111' : '#ffffff'
 }
 
 export function glowShadow(hex: string, alphaHex = '55'): string {

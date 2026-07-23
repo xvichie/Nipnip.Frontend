@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { getProductBadge } from '@/lib/store/theme-config'
 import { QuickAddButton } from '@/components/storefront/shared/QuickAddButton'
 import type { ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
@@ -20,9 +21,18 @@ export function ProductCard({
   /** Renders a larger caption treatment for the featured (first) tile in the asymmetric grid. */
   featured?: boolean
 }) {
+  const badge = getProductBadge(tokens, product)
   return (
     <Link href={`/products/${product.slug}`} className={`group h-full flex flex-col ${className}`}>
       <div className="relative aspect-[4/5] bg-[#f2f2f2] overflow-hidden">
+        {badge && (
+          <span
+            className="absolute top-2 left-2 z-10 text-white text-[9px] uppercase tracking-widest px-2 py-1"
+            style={{ backgroundColor: badge.color }}
+          >
+            {badge.text}
+          </span>
+        )}
         {product.thumbnailUrl ? (
           <>
             <CImg

@@ -24,15 +24,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function StoreHomePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
 
-  const [store, categories, productsPage] = await Promise.all([
+  const [store, categories] = await Promise.all([
     apiFetch<StoreResponse>(`/api/stores/${slug}`, null),
     apiFetch<CategoryResponse[]>(`/api/stores/${slug}/categories`, null),
-    apiFetch<PaginatedResult<ProductSummaryResponse>>(`/api/stores/${slug}/products?pageSize=8`, null),
   ])
-  const products = productsPage.items
+  const tokens = parseThemeConfig(store.themeConfig)
+
+  let products: ProductSummaryResponse[]
+  if (tokens.featuredProductsMode === 'curated' && tokens.featuredProductIds.length > 0) {
+    // No backend "fetch by ids" endpoint — pull a generous page and filter/reorder here instead.
+    const productsPage = await apiFetch<PaginatedResult<ProductSummaryResponse>>(`/api/stores/${slug}/products?pageSize=200`, null)
+    const byId = new Map(productsPage.items.map(p => [p.id, p]))
+    products = tokens.featuredProductIds.map(id => byId.get(id)).filter((p): p is ProductSummaryResponse => !!p)
+  } else {
+    const productsPage = await apiFetch<PaginatedResult<ProductSummaryResponse>>(`/api/stores/${slug}/products?pageSize=8`, null)
+    products = productsPage.items
+  }
 
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
-  const tokens = parseThemeConfig(store.themeConfig)
   const HomeComponent = HOME_COMPONENTS[themeId]
 
   return <HomeComponent slug={slug} store={store} categories={categories} products={products} tokens={tokens} />

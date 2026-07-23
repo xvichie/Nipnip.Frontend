@@ -6,7 +6,11 @@ import { DEFAULT_THEME_CONFIG, getHomeSectionOrder, HOME_SECTION_KEYS, parseThem
 import { withSaleCategory } from '@/lib/store/sale-category'
 import { isThemeId, SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { StorefrontCartProvider } from '@/lib/store/storefront-cart-context'
+import { uploadImage } from '@/lib/uploadImage'
 import { PreviewFrame, type PreviewMode } from '@/components/dashboard/store/PreviewFrame'
+import { AnnouncementBar } from '@/components/storefront/shared/AnnouncementBar'
+import { FeaturedProductsPicker } from '@/components/dashboard/store/FeaturedProductsPicker'
+import { CImg } from '@/components/ui/CImg'
 import { Header as MinimalHeader } from '@/components/storefront/themes/minimal/Header'
 import { Footer as MinimalFooter } from '@/components/storefront/themes/minimal/Footer'
 import { Home as MinimalHome } from '@/components/storefront/themes/minimal/Home'
@@ -31,6 +35,8 @@ import { Home as EditorialHome } from '@/components/storefront/themes/editorial/
 import type {
   CategoryMenuMode,
   CategoryMenuScope,
+  ContentImagePosition,
+  FeaturedProductsMode,
   FooterContactFormPosition,
   HomeSectionKey,
   LandingCategoryColumns,
@@ -45,16 +51,17 @@ const FOOTERS = { minimal: MinimalFooter, bold: BoldFooter, classic: ClassicFoot
 const HOMES = { minimal: MinimalHome, bold: BoldHome, classic: ClassicHome, luxury: LuxuryHome, vibrant: VibrantHome, commerce: CommerceHome, editorial: EditorialHome }
 
 const PLACEHOLDER_PRODUCTS: ProductSummaryResponse[] = [
-  { id: 'preview-1', slug: 'preview-1', categoryId: null, name: 'Sample Product', basePrice: 49.99, salePrice: null, isActive: true, thumbnailUrl: null },
-  { id: 'preview-2', slug: 'preview-2', categoryId: null, name: 'Another Item', basePrice: 89, salePrice: null, isActive: true, thumbnailUrl: null },
-  { id: 'preview-3', slug: 'preview-3', categoryId: null, name: 'Best Seller', basePrice: 129.5, salePrice: 99.5, isActive: true, thumbnailUrl: null },
-  { id: 'preview-4', slug: 'preview-4', categoryId: null, name: 'New Arrival', basePrice: 34, salePrice: null, isActive: true, thumbnailUrl: null },
+  { id: 'preview-1', slug: 'preview-1', categoryId: null, name: 'Sample Product', basePrice: 49.99, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString() },
+  { id: 'preview-2', slug: 'preview-2', categoryId: null, name: 'Another Item', basePrice: 89, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString() },
+  { id: 'preview-3', slug: 'preview-3', categoryId: null, name: 'Best Seller', basePrice: 129.5, salePrice: 99.5, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString() },
+  { id: 'preview-4', slug: 'preview-4', categoryId: null, name: 'New Arrival', basePrice: 34, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString() },
 ]
 
 const SECTION_META: Record<HomeSectionKey, { label: string; description: string }> = {
   hero: { label: 'Hero', description: 'Top banner with headline, image, and call to action.' },
   categories: { label: 'Categories Grid', description: 'A grid of category tiles below the hero.' },
   products: { label: 'Product Grid', description: 'Your full product listing.' },
+  content: { label: 'Content Block', description: 'An "About us" style section with a heading, text, image, and button — configured below.' },
 }
 
 const SOCIALS_POSITION_OPTIONS: { value: SocialsPosition; label: string }[] = [
@@ -108,6 +115,7 @@ export default function StoreLayoutPage() {
   const { data: categories } = useMyCategories()
   const { data: pages } = useMyPages()
   const { data: productsPage, isLoading: productsLoading } = useMyProducts({ page: 1, pageSize: 8 })
+  const { data: allProductsPage } = useMyProducts({ page: 1, pageSize: 200 })
   const { mutate: updateStore, isPending, error } = useUpdateMyStore()
 
   const [previewMode, setPreviewMode] = useState<PreviewMode>('desktop')
@@ -126,6 +134,20 @@ export default function StoreLayoutPage() {
   const [landingCategoryColumns, setLandingCategoryColumns] = useState<LandingCategoryColumns>(DEFAULT_THEME_CONFIG.landingCategoryColumns)
   const [footerContactForm, setFooterContactForm] = useState<FooterContactFormPosition>(DEFAULT_THEME_CONFIG.footerContactForm)
   const [socialsPosition, setSocialsPosition] = useState<SocialsPosition>(DEFAULT_THEME_CONFIG.socialsPosition)
+  const [featuredProductsMode, setFeaturedProductsMode] = useState<FeaturedProductsMode>(DEFAULT_THEME_CONFIG.featuredProductsMode)
+  const [featuredProductIds, setFeaturedProductIds] = useState<string[]>(DEFAULT_THEME_CONFIG.featuredProductIds)
+  const [contentHeading, setContentHeading] = useState('')
+  const [contentBody, setContentBody] = useState('')
+  const [contentImageUrl, setContentImageUrl] = useState('')
+  const [contentImagePosition, setContentImagePosition] = useState<ContentImagePosition>(DEFAULT_THEME_CONFIG.contentImagePosition)
+  const [contentButtonText, setContentButtonText] = useState('')
+  const [contentButtonLink, setContentButtonLink] = useState('')
+  const [contentImageUploading, setContentImageUploading] = useState(false)
+  const [announcementEnabled, setAnnouncementEnabled] = useState(DEFAULT_THEME_CONFIG.announcementEnabled)
+  const [announcementText, setAnnouncementText] = useState('')
+  const [announcementColor, setAnnouncementColor] = useState(DEFAULT_THEME_CONFIG.announcementColor)
+  const [announcementLink, setAnnouncementLink] = useState('')
+  const [announcementDismissible, setAnnouncementDismissible] = useState(DEFAULT_THEME_CONFIG.announcementDismissible)
   const [saved, setSaved] = useState(false)
 
   // "Adjust state during render" instead of an effect — hydrates once from the fetched
@@ -151,6 +173,19 @@ export default function StoreLayoutPage() {
     setLandingCategoryColumns(parsed.landingCategoryColumns)
     setFooterContactForm(parsed.footerContactForm)
     setSocialsPosition(parsed.socialsPosition)
+    setFeaturedProductsMode(parsed.featuredProductsMode)
+    setFeaturedProductIds(parsed.featuredProductIds)
+    setContentHeading(parsed.contentHeading)
+    setContentBody(parsed.contentBody)
+    setContentImageUrl(parsed.contentImageUrl)
+    setContentImagePosition(parsed.contentImagePosition)
+    setContentButtonText(parsed.contentButtonText)
+    setContentButtonLink(parsed.contentButtonLink)
+    setAnnouncementEnabled(parsed.announcementEnabled)
+    setAnnouncementText(parsed.announcementText)
+    setAnnouncementColor(parsed.announcementColor)
+    setAnnouncementLink(parsed.announcementLink)
+    setAnnouncementDismissible(parsed.announcementDismissible)
   }
 
   useEffect(() => {
@@ -210,6 +245,19 @@ export default function StoreLayoutPage() {
           landingCategoryColumns,
           footerContactForm,
           socialsPosition,
+          featuredProductsMode,
+          featuredProductIds,
+          contentHeading: contentHeading.trim() || undefined,
+          contentBody: contentBody.trim() || undefined,
+          contentImageUrl,
+          contentImagePosition,
+          contentButtonText: contentButtonText.trim() || undefined,
+          contentButtonLink: contentButtonLink.trim() || undefined,
+          announcementEnabled,
+          announcementText: announcementText.trim() || undefined,
+          announcementColor,
+          announcementLink: announcementLink.trim() || undefined,
+          announcementDismissible,
         }),
       },
       { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
@@ -241,19 +289,39 @@ export default function StoreLayoutPage() {
     landingCategoryColumns,
     footerContactForm,
     socialsPosition,
+    featuredProductsMode,
+    featuredProductIds,
+    contentHeading,
+    contentBody,
+    contentImageUrl,
+    contentImagePosition,
+    contentButtonText,
+    contentButtonLink,
+    announcementEnabled,
+    announcementText,
+    announcementColor,
+    announcementLink,
+    announcementDismissible,
   }
 
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
   const selectableCategories = withSaleCategory((categories ?? []).filter(c => !c.parentCategoryId), tokens.showSaleCategory)
-  const previewProducts = productsPage?.items.length
-    ? productsPage.items
-    : productsLoading ? [] : PLACEHOLDER_PRODUCTS
+  const allProductsById = new Map((allProductsPage?.items ?? []).map(p => [p.id, p]))
+  const curatedPreviewProducts = featuredProductIds
+    .map(id => allProductsById.get(id))
+    .filter((p): p is ProductSummaryResponse => !!p)
+  const previewProducts = featuredProductsMode === 'curated'
+    ? curatedPreviewProducts
+    : productsPage?.items.length
+      ? productsPage.items
+      : productsLoading ? [] : PLACEHOLDER_PRODUCTS
   const HeaderPreview = HEADERS[themeId]
   const FooterPreview = FOOTERS[themeId]
   const HomePreview = HOMES[themeId]
 
   const previewContent = (
     <StorefrontCartProvider slug={store.slug} preview>
+      <AnnouncementBar slug={store.slug} tokens={tokens} />
       <HeaderPreview slug={store.slug} storeName={store.name} categories={categories ?? []} pages={pages ?? []} tokens={tokens} />
       <HomePreview
         slug={store.slug}
@@ -363,6 +431,234 @@ export default function StoreLayoutPage() {
                   </div>
                 )
               })}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Announcement Bar</h2>
+                <p className="text-white/30 text-xs mt-1">A thin strip above your header, shown on every page.</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={announcementEnabled}
+                onChange={e => setAnnouncementEnabled(e.target.checked)}
+                className={`toggle toggle-sm shrink-0 ${announcementEnabled ? 'toggle-success' : ''}`}
+              />
+            </div>
+
+            {announcementEnabled && (
+              <>
+                <div className="fieldset gap-2">
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Message</label>
+                  <input
+                    type="text"
+                    value={announcementText}
+                    onChange={e => setAnnouncementText(e.target.value)}
+                    placeholder="🚚 Free shipping on orders over 100₾"
+                    className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                  />
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="fieldset gap-2 flex-1">
+                    <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Background color</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={announcementColor}
+                        onChange={e => setAnnouncementColor(e.target.value)}
+                        className="w-9 h-9 rounded-lg border border-white/10 bg-transparent cursor-pointer shrink-0"
+                      />
+                      <input
+                        type="text"
+                        value={announcementColor}
+                        onChange={e => setAnnouncementColor(e.target.value)}
+                        className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                      />
+                    </div>
+                    <p className="text-white/30 text-xs">Text color is picked automatically for readability.</p>
+                  </div>
+                </div>
+
+                <div className="fieldset gap-2">
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Link (optional)</label>
+                  <input
+                    type="text"
+                    value={announcementLink}
+                    onChange={e => setAnnouncementLink(e.target.value)}
+                    placeholder="/products/category/sale"
+                    className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                  />
+                </div>
+
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={announcementDismissible}
+                    onChange={e => setAnnouncementDismissible(e.target.checked)}
+                    className={`toggle toggle-sm ${announcementDismissible ? 'toggle-success' : ''}`}
+                  />
+                  <span className="text-sm text-white/70">Visitors can close it</span>
+                </label>
+              </>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+            <div>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Product Grid Content</h2>
+              <p className="text-white/30 text-xs mt-1">What shows in the homepage Product Grid section.</p>
+            </div>
+            <div className="fieldset gap-2">
+              <div className="grid grid-cols-2 gap-2">
+                {([
+                  { value: 'latest', label: 'Newest products' },
+                  { value: 'curated', label: 'Hand-picked' },
+                ] as { value: FeaturedProductsMode; label: string }[]).map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setFeaturedProductsMode(opt.value)}
+                    className={[
+                      'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                      featuredProductsMode === opt.value
+                        ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                        : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                    ].join(' ')}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {featuredProductsMode === 'curated' && (
+            <FeaturedProductsPicker
+              pickedIds={featuredProductIds}
+              onChange={setFeaturedProductIds}
+              resolveMap={allProductsById}
+            />
+          )}
+
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+            <div>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Content Block</h2>
+              <p className="text-white/30 text-xs mt-1">
+                An optional &quot;About us&quot; style section — enable it above under Home Page Sections once it has a heading or text.
+              </p>
+            </div>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Heading</label>
+              <input
+                type="text"
+                value={contentHeading}
+                onChange={e => setContentHeading(e.target.value)}
+                placeholder="Why shop with us"
+                className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+              />
+            </div>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Text</label>
+              <textarea
+                value={contentBody}
+                onChange={e => setContentBody(e.target.value)}
+                rows={4}
+                className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 resize-none"
+              />
+            </div>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Image (optional)</label>
+              <div className="flex items-center gap-4">
+                <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 bg-white/4 shrink-0 flex items-center justify-center">
+                  {contentImageUploading ? (
+                    <span className="loading loading-spinner loading-sm text-fuchsia-400" />
+                  ) : contentImageUrl ? (
+                    <CImg src={contentImageUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-white/20 text-[10px]">None</span>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="btn btn-xs bg-white/4 border-white/8 text-white/60 hover:text-white cursor-pointer w-fit">
+                    Upload
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async e => {
+                        const f = e.target.files?.[0]
+                        if (!f) return
+                        setContentImageUploading(true)
+                        try {
+                          setContentImageUrl(await uploadImage(f))
+                        } finally {
+                          setContentImageUploading(false)
+                        }
+                      }}
+                    />
+                  </label>
+                  {contentImageUrl && (
+                    <button type="button" onClick={() => setContentImageUrl('')} className="text-xs text-white/30 hover:text-red-400 text-left">
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {contentImageUrl && (
+              <div className="fieldset gap-2">
+                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Image position</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    { value: 'left', label: 'Left' },
+                    { value: 'right', label: 'Right' },
+                  ] as { value: ContentImagePosition; label: string }[]).map(opt => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setContentImagePosition(opt.value)}
+                      className={[
+                        'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                        contentImagePosition === opt.value
+                          ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                          : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                      ].join(' ')}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-white/5">
+              <div className="fieldset gap-2">
+                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Button text</label>
+                <input
+                  type="text"
+                  value={contentButtonText}
+                  onChange={e => setContentButtonText(e.target.value)}
+                  placeholder="Learn more"
+                  className="input input-sm w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                />
+              </div>
+              <div className="fieldset gap-2">
+                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Button link</label>
+                <input
+                  type="text"
+                  value={contentButtonLink}
+                  onChange={e => setContentButtonLink(e.target.value)}
+                  placeholder="/pages/about"
+                  className="input input-sm w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                />
+              </div>
             </div>
           </div>
 
