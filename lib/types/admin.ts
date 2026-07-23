@@ -56,3 +56,16 @@ export interface ProspectResponse {
 export interface PromoteProspectRequest {
   clerkUserId?: string | null
 }
+
+/** Provide exactly one of url or html. */
+export interface ImportFacebookRequest {
+  url?: string | null
+  html?: string | null
+}
+
+export interface ImportFacebookResponse {
+  name: string | null
+  description: string | null
+  /** A data: URI ready to convert to a File and upload — not a Facebook-hosted link. */
+  imageDataUri: string | null
+}

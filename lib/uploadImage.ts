@@ -41,3 +41,11 @@ export async function uploadVideo(file: File): Promise<string> {
 
 export const cloudinaryConfigured =
   !!CLOUD_NAME && !!UPLOAD_PRESET
+
+// Converts a data: URI (e.g. one returned by the admin Facebook-import endpoint) into a File
+// so it can go through the normal uploadImage() flow — the browser's fetch() natively supports
+// data: URIs, no manual base64 decoding needed.
+export async function dataUriToFile(dataUri: string, filename = 'import.jpg'): Promise<File> {
+  const blob = await (await fetch(dataUri)).blob()
+  return new File([blob], filename, { type: blob.type })
+}

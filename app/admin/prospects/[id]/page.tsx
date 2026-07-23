@@ -8,6 +8,7 @@ import {
   useAdminCreateMerchantProductImage,
   useAdminDeleteMerchantCategory,
   useAdminDeleteMerchantProduct,
+  useAdminImportFacebook,
   useAdminMerchant,
   useAdminMerchantCategories,
   useAdminMerchantProducts,
@@ -17,7 +18,7 @@ import {
 } from '@/lib/queries/admin'
 import { DEFAULT_THEME_CONFIG, parseThemeConfig } from '@/lib/store/theme-config'
 import { THEMES } from '@/lib/storefront-themes'
-import { uploadImage, cloudinaryConfigured } from '@/lib/uploadImage'
+import { uploadImage, dataUriToFile, cloudinaryConfigured } from '@/lib/uploadImage'
 import { CImg } from '@/components/ui/CImg'
 import type { ThemeId } from '@/lib/types/storefront'
 
@@ -66,6 +67,47 @@ export default function AdminProspectStudioPage({ params }: { params: Promise<{ 
     setHeroUploading(true)
     try { setHeroImageUrl(await uploadImage(file)) }
     finally { setHeroUploading(false) }
+  }
+
+  // --- Import from Facebook ---
+  const [fbMode, setFbMode] = useState<'url' | 'html'>('url')
+  const [fbUrl, setFbUrl] = useState('')
+  const [fbHtml, setFbHtml] = useState('')
+  const [fbImporting, setFbImporting] = useState(false)
+  const [fbImportedFields, setFbImportedFields] = useState<string[]>([])
+  const { mutateAsync: importFacebook, error: fbError, reset: resetFbError } = useAdminImportFacebook()
+
+  async function handleImportFacebook(e: React.FormEvent) {
+    e.preventDefault()
+    resetFbError()
+    setFbImporting(true)
+    setFbImportedFields([])
+    try {
+      const result = await importFacebook(
+        fbMode === 'url' ? { url: fbUrl.trim() } : { html: fbHtml }
+      )
+      const applied: string[] = []
+
+      if (result.name && !heroHeadline.trim()) {
+        setHeroHeadline(result.name)
+        applied.push('headline')
+      }
+      if (result.description && !heroSubheadline.trim()) {
+        setHeroSubheadline(result.description)
+        applied.push('subheadline')
+      }
+      if (result.imageDataUri) {
+        const file = await dataUriToFile(result.imageDataUri, 'facebook-import.jpg')
+        const url = await uploadImage(file)
+        setLogoUrl(url)
+        setHeroImageUrl(url)
+        applied.push('logo', 'hero image')
+      }
+
+      setFbImportedFields(applied)
+    } finally {
+      setFbImporting(false)
+    }
   }
 
   function handleSaveBranding() {
@@ -202,6 +244,80 @@ export default function AdminProspectStudioPage({ params }: { params: Promise<{ 
           </button>
         </div>
       </div>
+
+      {/* Facebook import */}
+      <section className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6 flex flex-col gap-4">
+        <div>
+          <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Import from Facebook</h2>
+          <p className="text-white/30 text-xs mt-1">
+            Pulls a name, description, and photo into the fields below. If pasting a link doesn&apos;t work
+            (Facebook often blocks automated requests), open the page yourself, right-click → View Page
+            Source, copy all, and paste the HTML instead.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/4 p-1 w-fit">
+          <button
+            type="button"
+            onClick={() => setFbMode('url')}
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${fbMode === 'url' ? 'bg-amber-500/20 text-amber-300' : 'text-white/40 hover:text-white'}`}
+          >
+            Paste link
+          </button>
+          <button
+            type="button"
+            onClick={() => setFbMode('html')}
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${fbMode === 'html' ? 'bg-amber-500/20 text-amber-300' : 'text-white/40 hover:text-white'}`}
+          >
+            Paste HTML
+          </button>
+        </div>
+
+        <form onSubmit={handleImportFacebook} className="flex flex-col gap-3">
+          {fbMode === 'url' ? (
+            <input
+              type="url"
+              value={fbUrl}
+              onChange={e => setFbUrl(e.target.value)}
+              placeholder="https://www.facebook.com/theirpage"
+              className="input input-sm w-full bg-white/4 border-white/10 focus:border-amber-500/60"
+              required
+            />
+          ) : (
+            <textarea
+              value={fbHtml}
+              onChange={e => setFbHtml(e.target.value)}
+              placeholder="Paste the page's HTML here…"
+              rows={4}
+              className="textarea w-full bg-white/4 border-white/10 focus:border-amber-500/60 font-mono text-xs resize-none"
+              required
+            />
+          )}
+
+          {fbError && (
+            <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
+              {fbError instanceof Error ? fbError.message : 'Something went wrong'}
+            </div>
+          )}
+
+          {fbImportedFields.length > 0 && (
+            <p className="text-emerald-400 text-xs flex items-center gap-1">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
+                <path d="M2 6.5l2.5 2.5 5.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Filled in {fbImportedFields.join(', ')} below — review and save when ready.
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={fbImporting || (fbMode === 'url' ? !fbUrl.trim() : !fbHtml.trim())}
+            className="btn btn-sm self-start gap-2 bg-white/4 border-white/8 text-white/60 hover:text-white disabled:opacity-40"
+          >
+            {fbImporting ? <span className="loading loading-spinner loading-xs" /> : 'Import'}
+          </button>
+        </form>
+      </section>
 
       {/* Branding */}
       <section className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6 flex flex-col gap-5">

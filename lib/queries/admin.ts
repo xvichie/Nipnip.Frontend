@@ -15,6 +15,8 @@ import type {
   CreateProductRequest,
   CreateProspectRequest,
   CreatorResponse,
+  ImportFacebookRequest,
+  ImportFacebookResponse,
   MerchantResponse,
   PaginatedResult,
   ProductDetailResponse,
@@ -320,6 +322,19 @@ export function useAdminPromoteProspect(id: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'prospects'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'merchant', id] })
+    },
+  })
+}
+
+export function useAdminImportFacebook() {
+  const { getToken } = useAuth()
+  return useMutation({
+    mutationFn: async (body: ImportFacebookRequest) => {
+      const token = await getToken()
+      return apiFetch<ImportFacebookResponse>('/api/admin/prospects/import-facebook', token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      })
     },
   })
 }
