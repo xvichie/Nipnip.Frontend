@@ -251,8 +251,9 @@ export default function AdminProspectStudioPage({ params }: { params: Promise<{ 
           <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Import from Facebook</h2>
           <p className="text-white/30 text-xs mt-1">
             Pulls a name, description, and photo into the fields below. If pasting a link doesn&apos;t work
-            (Facebook often blocks automated requests), open the page yourself, right-click → View Page
-            Source, copy all, and paste the HTML instead.
+            (Facebook often blocks automated requests), open the page in an <strong>Incognito/Private
+            window</strong> (Facebook only includes page details when you&apos;re logged out), right-click →
+            View Page Source, copy all, and paste the HTML instead.
           </p>
         </div>
 
