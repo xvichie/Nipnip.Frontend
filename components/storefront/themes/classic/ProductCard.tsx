@@ -15,8 +15,8 @@ export function ProductCard({
   tokens: Required<ThemeConfig>
 }) {
   return (
-    <Link href={`/products/${product.slug}`} className="group block">
-      <div className="rounded-md bg-white shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+    <Link href={`/products/${product.slug}`} className="group block h-full">
+      <div className="rounded-md bg-white shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden h-full flex flex-col">
         <div className="relative aspect-square bg-gray-100 overflow-hidden">
           {product.thumbnailUrl ? (
             <>
@@ -47,21 +47,23 @@ export function ProductCard({
             className="absolute inset-x-0 bottom-0 z-10 w-full py-2.5 flex items-center justify-center gap-1.5 bg-gray-900 text-white text-xs font-medium opacity-100 translate-y-0 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:translate-y-full [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 transition-all duration-200 hover:bg-gray-800 disabled:opacity-60"
           />
         </div>
-        <div className="p-3.5">
+        <div className="p-3.5 flex flex-col flex-1">
           {categoryName && <p className="text-gray-400 text-[11px] mb-1">{categoryName}</p>}
           <h3 className="text-gray-900 font-medium text-sm leading-snug mb-2">{product.name}</h3>
-          {product.salePrice !== null ? (
-            <div className="flex items-center gap-2">
+          <div className="mt-auto">
+            {product.salePrice !== null ? (
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-sm" style={{ color: tokens.accentColor }}>
+                  ₾{product.salePrice.toFixed(2)}
+                </span>
+                <span className="text-gray-400 text-xs line-through">₾{product.basePrice.toFixed(2)}</span>
+              </div>
+            ) : (
               <span className="font-semibold text-sm" style={{ color: tokens.accentColor }}>
-                ₾{product.salePrice.toFixed(2)}
+                ₾{product.basePrice.toFixed(2)}
               </span>
-              <span className="text-gray-400 text-xs line-through">₾{product.basePrice.toFixed(2)}</span>
-            </div>
-          ) : (
-            <span className="font-semibold text-sm" style={{ color: tokens.accentColor }}>
-              ₾{product.basePrice.toFixed(2)}
-            </span>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </Link>

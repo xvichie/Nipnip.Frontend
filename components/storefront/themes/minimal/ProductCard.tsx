@@ -13,8 +13,8 @@ export function ProductCard({
   categoryName?: string
 }) {
   return (
-    <Link href={`/products/${product.slug}`} className="group block">
-      <div className="bg-white border border-[#e5e5e5] hover:shadow-md transition-shadow duration-200">
+    <Link href={`/products/${product.slug}`} className="group block h-full">
+      <div className="bg-white border border-[#e5e5e5] hover:shadow-md transition-shadow duration-200 h-full flex flex-col">
         <div className="relative aspect-square bg-[#f7f7f7] overflow-hidden">
           {product.thumbnailUrl ? (
             <>
@@ -47,21 +47,23 @@ export function ProductCard({
             className="absolute inset-x-0 bottom-0 z-10 w-full py-2.5 flex items-center justify-center gap-1.5 bg-[#111] text-white text-xs font-semibold uppercase tracking-wider opacity-100 translate-y-0 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:translate-y-full [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 transition-all duration-200 hover:bg-black disabled:opacity-60"
           />
         </div>
-        <div className="p-3.5">
+        <div className="p-3.5 flex flex-col flex-1">
           {categoryName && (
             <p className="text-[#999] text-[10px] uppercase tracking-wider mb-1">{categoryName}</p>
           )}
           <h3 className="text-[#111] font-semibold text-sm leading-snug mb-2 group-hover:underline underline-offset-2">
             {product.name}
           </h3>
-          {product.salePrice !== null ? (
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-[#111] text-sm">₾{product.salePrice.toFixed(2)}</span>
-              <span className="text-[#999] text-xs line-through">₾{product.basePrice.toFixed(2)}</span>
-            </div>
-          ) : (
-            <span className="font-bold text-[#111] text-sm">₾{product.basePrice.toFixed(2)}</span>
-          )}
+          <div className="mt-auto">
+            {product.salePrice !== null ? (
+              <div className="flex items-center gap-1.5">
+                <span className="font-bold text-[#111] text-sm">₾{product.salePrice.toFixed(2)}</span>
+                <span className="text-[#999] text-xs line-through">₾{product.basePrice.toFixed(2)}</span>
+              </div>
+            ) : (
+              <span className="font-bold text-[#111] text-sm">₾{product.basePrice.toFixed(2)}</span>
+            )}
+          </div>
         </div>
       </div>
     </Link>

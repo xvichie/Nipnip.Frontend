@@ -21,7 +21,7 @@ export function ProductCard({
   featured?: boolean
 }) {
   return (
-    <Link href={`/products/${product.slug}`} className={`group block ${className}`}>
+    <Link href={`/products/${product.slug}`} className={`group h-full flex flex-col ${className}`}>
       <div className="relative aspect-[4/5] bg-[#f2f2f2] overflow-hidden">
         {product.thumbnailUrl ? (
           <>
@@ -52,7 +52,7 @@ export function ProductCard({
           className="absolute inset-x-0 bottom-0 z-10 w-full py-2.5 flex items-center justify-center gap-1.5 bg-[#111111] text-white text-[11px] uppercase tracking-widest opacity-100 translate-y-0 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:translate-y-full [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 transition-all duration-300 disabled:opacity-60"
         />
       </div>
-      <div className="pt-3">
+      <div className="pt-3 mt-auto">
         {categoryName && (
           <p className="text-[#767676] text-[10px] uppercase tracking-widest mb-1">{categoryName}</p>
         )}

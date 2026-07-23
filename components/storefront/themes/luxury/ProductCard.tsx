@@ -15,8 +15,8 @@ export function ProductCard({
   tokens: Required<ThemeConfig>
 }) {
   return (
-    <Link href={`/products/${product.slug}`} className="group block">
-      <div className="bg-white border border-[#1c1a17]/10 group-hover:border-[#1c1a17]/25 transition-colors overflow-hidden">
+    <Link href={`/products/${product.slug}`} className="group block h-full">
+      <div className="bg-white border border-[#1c1a17]/10 group-hover:border-[#1c1a17]/25 transition-colors overflow-hidden h-full flex flex-col">
         <div className="relative aspect-[4/5] bg-[#f4efe7] overflow-hidden">
           {product.thumbnailUrl ? (
             <>
@@ -47,19 +47,21 @@ export function ProductCard({
             className="absolute inset-x-0 bottom-0 z-10 w-full py-3 flex items-center justify-center gap-1.5 bg-white text-[#1c1a17] text-[11px] uppercase tracking-widest opacity-100 translate-y-0 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:translate-y-full [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 transition-all duration-300 disabled:opacity-60"
           />
         </div>
-        <div className="p-4">
+        <div className="p-4 flex flex-col flex-1">
           {categoryName && (
             <p className="text-[#9c8f7e] text-[10px] uppercase tracking-widest mb-1.5">{categoryName}</p>
           )}
           <h3 className="text-[#1c1a17] font-serif text-base leading-snug mb-2">{product.name}</h3>
-          {product.salePrice !== null ? (
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium" style={{ color: tokens.accentColor }}>₾{product.salePrice.toFixed(2)}</span>
-              <span className="text-[#9c8f7e] text-xs line-through">₾{product.basePrice.toFixed(2)}</span>
-            </div>
-          ) : (
-            <span className="text-sm font-medium" style={{ color: tokens.accentColor }}>₾{product.basePrice.toFixed(2)}</span>
-          )}
+          <div className="mt-auto">
+            {product.salePrice !== null ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium" style={{ color: tokens.accentColor }}>₾{product.salePrice.toFixed(2)}</span>
+                <span className="text-[#9c8f7e] text-xs line-through">₾{product.basePrice.toFixed(2)}</span>
+              </div>
+            ) : (
+              <span className="text-sm font-medium" style={{ color: tokens.accentColor }}>₾{product.basePrice.toFixed(2)}</span>
+            )}
+          </div>
         </div>
       </div>
     </Link>
