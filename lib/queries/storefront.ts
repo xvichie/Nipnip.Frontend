@@ -11,8 +11,10 @@ import type {
   CheckoutRequest,
   ContactMessageResponse,
   CreateContactMessageRequest,
+  OptionFilterInput,
   OrderResponse,
   ProductDetailResponse,
+  ProductFacetResponse,
   ProductPriceRangeResponse,
   ProductSummaryResponse,
   StoreResponse,
@@ -44,13 +46,16 @@ export interface ProductListParams {
   maxPrice?: number
   sortBy?: string
   sortDir?: string
+  /** Selected option-value filters — values within a group are OR'd, separate groups are AND'd. */
+  optionFilters?: OptionFilterInput[]
 }
 
 export function useProducts(slug: string, params: ProductListParams = {}) {
-  const { categorySlug, page = 1, pageSize = 20, search, minPrice, maxPrice, sortBy, sortDir } = params
+  const { categorySlug, page = 1, pageSize = 20, search, minPrice, maxPrice, sortBy, sortDir, optionFilters } = params
+  const activeFilters = (optionFilters ?? []).filter(f => f.values.length > 0)
 
   return useQuery({
-    queryKey: ['storefront', slug, 'products', categorySlug, page, pageSize, search, minPrice, maxPrice, sortBy, sortDir],
+    queryKey: ['storefront', slug, 'products', categorySlug, page, pageSize, search, minPrice, maxPrice, sortBy, sortDir, activeFilters],
     queryFn: () => {
       const qs = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
       if (categorySlug) qs.set('categorySlug', categorySlug)
@@ -59,6 +64,7 @@ export function useProducts(slug: string, params: ProductListParams = {}) {
       if (maxPrice != null) qs.set('maxPrice', String(maxPrice))
       if (sortBy) qs.set('sortBy', sortBy)
       if (sortDir) qs.set('sortDir', sortDir)
+      if (activeFilters.length > 0) qs.set('optionFilters', JSON.stringify(activeFilters))
       return apiFetch<PaginatedResult<ProductSummaryResponse>>(`/api/stores/${slug}/products?${qs}`, null)
     },
     placeholderData: prev => prev,
@@ -71,6 +77,17 @@ export function useProductPriceRange(slug: string, categorySlug?: string) {
     queryFn: () => {
       const qs = categorySlug ? `?categorySlug=${categorySlug}` : ''
       return apiFetch<ProductPriceRangeResponse>(`/api/stores/${slug}/products/price-range${qs}`, null)
+    },
+    staleTime: 60 * 1000,
+  })
+}
+
+export function useProductFacets(slug: string, categorySlug?: string) {
+  return useQuery({
+    queryKey: ['storefront', slug, 'products', 'facets', categorySlug],
+    queryFn: () => {
+      const qs = categorySlug ? `?categorySlug=${categorySlug}` : ''
+      return apiFetch<ProductFacetResponse[]>(`/api/stores/${slug}/products/facets${qs}`, null)
     },
     staleTime: 60 * 1000,
   })

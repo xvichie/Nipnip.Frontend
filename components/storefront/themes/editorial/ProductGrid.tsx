@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ProductCard } from './ProductCard'
 import { PriceRangeFilter } from '@/components/storefront/shared/PriceRangeFilter'
+import { OptionFiltersPanel } from '@/components/storefront/shared/OptionFiltersPanel'
 import { Pagination } from '@/components/storefront/shared/Pagination'
-import { useProductPriceRange, useProducts } from '@/lib/queries/storefront'
+import { useProductFacets, useProductPriceRange, useProducts } from '@/lib/queries/storefront'
 import { padPriceBounds, SORT_OPTIONS, sortOptionToQuery, type ProductSortOption } from '@/lib/store/product-search'
 import { getSidebarCategories } from '@/lib/store/nav-menu'
-import type { CategoryResponse, ThemeConfig } from '@/lib/types/storefront'
+import type { CategoryResponse, OptionFilterInput, ThemeConfig } from '@/lib/types/storefront'
 
 const PAGE_SIZE = 20
 
@@ -31,11 +32,13 @@ export function ProductGrid({
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [sortBy, setSortBy] = useState<ProductSortOption>('featured')
   const [priceRange, setPriceRange] = useState<[number, number] | null>(null)
+  const [optionFilters, setOptionFilters] = useState<OptionFilterInput[]>([])
   const [page, setPage] = useState(1)
 
   const { data: rawBounds } = useProductPriceRange(slug, activeCategorySlug)
   const bounds = rawBounds ? padPriceBounds(rawBounds.min, rawBounds.max) : null
   const effectiveRange = priceRange ?? bounds
+  const { data: facets } = useProductFacets(slug, activeCategorySlug)
 
   useEffect(() => {
     const t = setTimeout(() => { setDebouncedSearch(search); setPage(1) }, 300)
@@ -49,6 +52,7 @@ export function ProductGrid({
     search: debouncedSearch || undefined,
     minPrice: effectiveRange?.[0],
     maxPrice: effectiveRange?.[1],
+    optionFilters,
     ...sortOptionToQuery(sortBy),
   })
 
@@ -63,6 +67,11 @@ export function ProductGrid({
 
   function handlePriceChange(range: [number, number]) {
     setPriceRange(range)
+    setPage(1)
+  }
+
+  function handleOptionFiltersChange(next: OptionFilterInput[]) {
+    setOptionFilters(next)
     setPage(1)
   }
 
@@ -105,6 +114,19 @@ export function ProductGrid({
               trackColorClassName="bg-black/10"
               labelClassName="text-[#767676]"
               valueClassName="text-[#111111]"
+            />
+          </div>
+        )}
+
+        {(facets ?? []).length > 0 && (
+          <div className="max-w-2xl mx-auto mb-10 flex flex-col items-center gap-6">
+            <OptionFiltersPanel
+              facets={facets ?? []}
+              selected={optionFilters}
+              onChange={handleOptionFiltersChange}
+              accentColor={tokens.accentColor}
+              labelClassName="text-[#767676] text-center"
+              chipClassName="border-black/15 bg-transparent text-[#111111]/70 hover:border-black/40"
             />
           </div>
         )}

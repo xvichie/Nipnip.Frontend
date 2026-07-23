@@ -284,6 +284,17 @@ export interface ProductPriceRangeResponse {
   max: number
 }
 
+export interface ProductFacetResponse {
+  name: string
+  values: string[]
+}
+
+/** One filter group sent to the listing endpoint — values within a group are OR'd, groups are AND'd. */
+export interface OptionFilterInput {
+  name: string
+  values: string[]
+}
+
 export interface ProductImageResponse {
   id: string
   url: string

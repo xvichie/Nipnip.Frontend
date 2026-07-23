@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ProductCard } from './ProductCard'
 import { PriceRangeFilter } from '@/components/storefront/shared/PriceRangeFilter'
+import { OptionFiltersPanel } from '@/components/storefront/shared/OptionFiltersPanel'
 import { Pagination } from '@/components/storefront/shared/Pagination'
-import { useProductPriceRange, useProducts } from '@/lib/queries/storefront'
+import { useProductFacets, useProductPriceRange, useProducts } from '@/lib/queries/storefront'
 import { padPriceBounds, SORT_OPTIONS, sortOptionToQuery, type ProductSortOption } from '@/lib/store/product-search'
 import { getSidebarCategories } from '@/lib/store/nav-menu'
-import type { CategoryResponse, ThemeConfig } from '@/lib/types/storefront'
+import type { CategoryResponse, OptionFilterInput, ThemeConfig } from '@/lib/types/storefront'
 
 const PAGE_SIZE = 20
 
@@ -31,11 +32,13 @@ export function ProductGrid({
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [sortBy, setSortBy] = useState<ProductSortOption>('featured')
   const [priceRange, setPriceRange] = useState<[number, number] | null>(null)
+  const [optionFilters, setOptionFilters] = useState<OptionFilterInput[]>([])
   const [page, setPage] = useState(1)
 
   const { data: rawBounds } = useProductPriceRange(slug, activeCategorySlug)
   const bounds = rawBounds ? padPriceBounds(rawBounds.min, rawBounds.max) : null
   const effectiveRange = priceRange ?? bounds
+  const { data: facets } = useProductFacets(slug, activeCategorySlug)
 
   useEffect(() => {
     const t = setTimeout(() => { setDebouncedSearch(search); setPage(1) }, 300)
@@ -49,6 +52,7 @@ export function ProductGrid({
     search: debouncedSearch || undefined,
     minPrice: effectiveRange?.[0],
     maxPrice: effectiveRange?.[1],
+    optionFilters,
     ...sortOptionToQuery(sortBy),
   })
 
@@ -66,6 +70,11 @@ export function ProductGrid({
     setPage(1)
   }
 
+  function handleOptionFiltersChange(next: OptionFilterInput[]) {
+    setOptionFilters(next)
+    setPage(1)
+  }
+
   return (
     <div className="bg-[#fafafa] min-h-screen">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 pb-24">
@@ -76,7 +85,7 @@ export function ProductGrid({
 
         <div className="flex flex-col md:flex-row gap-8">
 
-          <aside className="w-full md:w-52 shrink-0 flex flex-col gap-4">
+          <aside className="w-full md:w-52 shrink-0 flex flex-col gap-4 md:sticky md:top-16 md:self-start md:max-h-[calc(100vh-5rem)] md:overflow-y-auto md:pb-6">
             {displayCategories.length > 0 && (
               <div className="rounded-md bg-white shadow-sm p-4 flex flex-col gap-1">
                 <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">კატეგორიები</p>
@@ -116,6 +125,19 @@ export function ProductGrid({
                   trackColorClassName="bg-gray-200"
                   labelClassName="text-gray-400"
                   valueClassName="text-gray-900"
+                />
+              </div>
+            )}
+
+            {(facets ?? []).length > 0 && (
+              <div className="rounded-md bg-white shadow-sm p-4 flex flex-col gap-4">
+                <OptionFiltersPanel
+                  facets={facets ?? []}
+                  selected={optionFilters}
+                  onChange={handleOptionFiltersChange}
+                  accentColor={tokens.accentColor}
+                  labelClassName="text-gray-400"
+                  chipClassName="border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
                 />
               </div>
             )}
