@@ -81,12 +81,12 @@ export function Home({
       {sectionBanner && tokens.bannerType === 'image' && <div className="absolute inset-0 bg-white/80" />}
 
       {isBackgroundHero ? (
-        <div className={`relative ${heightClass}`}>
+        <div className={`relative flex flex-col ${pos.wrapper} ${heightClass}`}>
           <div className="absolute inset-0">
             <CImg src={tokens.heroImageUrl} cldWidth={1800} alt={tokens.heroHeadline || store.name} className={getHeroBackgroundImageClass(tokens)} />
             {overlayStyle && <div className="absolute inset-0" style={overlayStyle} />}
           </div>
-          <div className={`relative max-w-7xl mx-auto px-4 sm:px-6 h-full flex flex-col ${pos.wrapper}`}>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 w-full">
             {heroText}
           </div>
         </div>
