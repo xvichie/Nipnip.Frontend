@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ProductCard } from './ProductCard'
 import { PriceRangeFilter } from '@/components/storefront/shared/PriceRangeFilter'
@@ -8,8 +7,9 @@ import { OptionFiltersPanel } from '@/components/storefront/shared/OptionFilters
 import { Pagination } from '@/components/storefront/shared/Pagination'
 import { useProductFacets, useProductPriceRange, useProducts } from '@/lib/queries/storefront'
 import { padPriceBounds, SORT_OPTIONS, sortOptionToQuery, type ProductSortOption } from '@/lib/store/product-search'
+import { useProductListUrlState } from '@/lib/store/use-product-list-url-state'
 import { getSidebarCategories } from '@/lib/store/nav-menu'
-import type { CategoryResponse, OptionFilterInput, ThemeConfig } from '@/lib/types/storefront'
+import type { CategoryResponse, ThemeConfig } from '@/lib/types/storefront'
 
 const PAGE_SIZE = 20
 
@@ -28,22 +28,24 @@ export function ProductGrid({
   const displayCategories = getSidebarCategories(categories, tokens)
   const activeCategoryName = activeCategorySlug ? displayCategories.find(c => c.slug === activeCategorySlug)?.name : undefined
 
-  const [search, setSearch] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [sortBy, setSortBy] = useState<ProductSortOption>('featured')
-  const [priceRange, setPriceRange] = useState<[number, number] | null>(null)
-  const [optionFilters, setOptionFilters] = useState<OptionFilterInput[]>([])
-  const [page, setPage] = useState(1)
+  const {
+    searchInput,
+    setSearchInput,
+    debouncedSearch,
+    page,
+    setPage,
+    sortBy,
+    setSortBy,
+    priceRange,
+    setPriceRange,
+    optionFilters,
+    setOptionFilters,
+  } = useProductListUrlState()
 
   const { data: rawBounds } = useProductPriceRange(slug, activeCategorySlug)
   const bounds = rawBounds ? padPriceBounds(rawBounds.min, rawBounds.max) : null
   const effectiveRange = priceRange ?? bounds
   const { data: facets } = useProductFacets(slug, activeCategorySlug)
-
-  useEffect(() => {
-    const t = setTimeout(() => { setDebouncedSearch(search); setPage(1) }, 300)
-    return () => clearTimeout(t)
-  }, [search])
 
   const { data, isLoading } = useProducts(slug, {
     categorySlug: activeCategorySlug,
@@ -59,21 +61,6 @@ export function ProductGrid({
   const products = data?.items ?? []
   const totalPages = data?.totalPages ?? 1
   const totalCount = data?.totalCount ?? 0
-
-  function handleSortChange(next: ProductSortOption) {
-    setSortBy(next)
-    setPage(1)
-  }
-
-  function handlePriceChange(range: [number, number]) {
-    setPriceRange(range)
-    setPage(1)
-  }
-
-  function handleOptionFiltersChange(next: OptionFilterInput[]) {
-    setOptionFilters(next)
-    setPage(1)
-  }
 
   return (
     <div className="bg-white min-h-screen">
@@ -123,7 +110,7 @@ export function ProductGrid({
                   min={bounds[0]}
                   max={bounds[1]}
                   value={effectiveRange ?? bounds}
-                  onChange={handlePriceChange}
+                  onChange={setPriceRange}
                   accentColor={tokens.accentColor}
                   trackColorClassName="bg-slate-200"
                   labelClassName="text-slate-400"
@@ -137,7 +124,7 @@ export function ProductGrid({
                 <OptionFiltersPanel
                   facets={facets ?? []}
                   selected={optionFilters}
-                  onChange={handleOptionFiltersChange}
+                  onChange={setOptionFilters}
                   accentColor={tokens.accentColor}
                   labelClassName="text-slate-400"
                   chipClassName="border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
@@ -154,14 +141,14 @@ export function ProductGrid({
               <div className="flex items-center gap-3">
                 <input
                   type="text"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
+                  value={searchInput}
+                  onChange={e => setSearchInput(e.target.value)}
                   placeholder="ძიება..."
                   className="w-full sm:w-56 rounded-md bg-white border border-slate-200 text-sm px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-400 transition-colors"
                 />
                 <select
                   value={sortBy}
-                  onChange={e => handleSortChange(e.target.value as ProductSortOption)}
+                  onChange={e => setSortBy(e.target.value as ProductSortOption)}
                   className="rounded-md bg-white border border-slate-200 text-sm px-3 py-2 text-slate-900 focus:outline-none focus:border-slate-400 transition-colors"
                 >
                   {SORT_OPTIONS.map(opt => (
