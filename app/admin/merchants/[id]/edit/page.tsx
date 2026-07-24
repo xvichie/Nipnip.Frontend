@@ -1,15 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { useAdminMerchant, useAdminUpdateMerchant } from '@/lib/queries/admin'
+import { useAdminMerchant, useAdminMerchantOwner, useAdminMerchantStore, useAdminUpdateMerchant } from '@/lib/queries/admin'
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+}
 
 export default function AdminEditMerchantPage() {
   const { id } = useParams<{ id: string }>()
-  const router = useRouter()
 
   const { data: merchant, isLoading, isError } = useAdminMerchant(id)
+  const { data: store } = useAdminMerchantStore(id)
+  const { data: ownerData, isLoading: ownerLoading } = useAdminMerchantOwner(id)
   const { mutate, isPending, error } = useAdminUpdateMerchant(id)
 
   const [name, setName] = useState('')
@@ -20,15 +25,18 @@ export default function AdminEditMerchantPage() {
   const [logoUrl, setLogoUrl] = useState('')
   const [saved, setSaved] = useState(false)
 
-  useEffect(() => {
-    if (!merchant) return
+  // "Adjust state during render" instead of an effect — hydrates the form once the merchant
+  // query resolves (matches the pattern used by the admin store/prospect pages).
+  const [hydratedId, setHydratedId] = useState<string | null>(null)
+  if (merchant && hydratedId !== merchant.id) {
+    setHydratedId(merchant.id)
     setName(merchant.name)
     setCommissionPercent(String(merchant.commissionPercent))
     setWebsiteUrl(merchant.websiteUrl ?? '')
     setInstagram(merchant.instagramHandle ?? '')
     setDescription(merchant.description ?? '')
     setLogoUrl(merchant.logoUrl ?? '')
-  }, [merchant])
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -189,9 +197,34 @@ export default function AdminEditMerchantPage() {
 
           {/* Read-only info */}
           <div className="rounded-xl bg-white/[0.02] border border-white/[0.05] px-4 py-3 flex flex-col gap-2">
+            <div className="flex justify-between items-center gap-3">
+              <span className="text-white/30 text-xs uppercase tracking-wider shrink-0">Owner</span>
+              <span className="text-white/50 text-xs truncate text-right">
+                {ownerLoading
+                  ? <span className="loading loading-spinner loading-xs align-middle" />
+                  : ownerData?.owner
+                    ? (() => {
+                        const fullName = [ownerData.owner.firstName, ownerData.owner.lastName].filter(Boolean).join(' ')
+                        return (
+                          <>
+                            {fullName && <span className="text-white/60">{fullName}</span>}
+                            {ownerData.owner.email && <span className="text-white/35">{fullName ? ` · ${ownerData.owner.email}` : ownerData.owner.email}</span>}
+                            {!fullName && !ownerData.owner.email && <span className="text-white/20">—</span>}
+                          </>
+                        )
+                      })()
+                    : <span className="text-white/20">No linked account</span>}
+              </span>
+            </div>
             <div className="flex justify-between items-center">
               <span className="text-white/30 text-xs uppercase tracking-wider">Slug</span>
               <span className="font-mono text-white/40 text-xs">{merchant.slug}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-white/30 text-xs uppercase tracking-wider">Store Created</span>
+              <span className="text-white/40 text-xs tabular-nums">
+                {store ? formatDate(store.createdAt) : <span className="text-white/20">No store yet</span>}
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-white/30 text-xs uppercase tracking-wider">API Key</span>

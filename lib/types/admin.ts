@@ -75,3 +75,11 @@ export interface ImpersonationInfoResponse {
   clerkUserId: string
   name: string
 }
+
+export interface AdminMerchantOwnerResponse {
+  owner: {
+    email: string | null
+    firstName: string | null
+    lastName: string | null
+  } | null
+}

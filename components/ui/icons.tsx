@@ -132,6 +132,41 @@ export function SlidersIcon({ className }: IconProps) {
   )
 }
 
+export function LoginIcon({ className }: IconProps) {
+  return (
+    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <path d="M5.5 1.5H3A1.5 1.5 0 0 0 1.5 3v8A1.5 1.5 0 0 0 3 12.5h2.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M8.5 4.5L12 7l-3.5 2.5M5.5 7H12" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function StoreIcon({ className }: IconProps) {
+  return (
+    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <path d="M1.5 5l1-3h9l1 3M1.5 5v6.5h11V5M1.5 5a1.75 1.75 0 0 0 3.5 0 1.75 1.75 0 0 0 3.5 0 1.75 1.75 0 0 0 3.5 0" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function PowerIcon({ className }: IconProps) {
+  return (
+    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <path d="M7 1.5V6.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+      <path d="M4 3.2a4.5 4.5 0 1 0 6 0" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+export function FlaskIcon({ className }: IconProps) {
+  return (
+    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <path d="M5.5 1.5h3M5.75 1.5v3.8L2.7 10.4a1 1 0 0 0 .87 1.5h6.86a1 1 0 0 0 .87-1.5L8.25 5.3V1.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M4.3 8.3h5.4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
 export function ExternalLinkIcon({ className }: IconProps) {
   return (
     <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>

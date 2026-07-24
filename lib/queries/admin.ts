@@ -7,6 +7,7 @@ import type {
   AdminConversionEntry,
   AdminCreateMerchantRequest,
   AdminCreateStoreRequest,
+  AdminMerchantOwnerResponse,
   AdminPayoutSummaryResponse,
   AdminStatsResponse,
   CategoryResponse,
@@ -62,6 +63,20 @@ export function useAdminMerchant(id: string) {
     queryFn: async () => {
       const token = await getToken()
       return apiFetch<MerchantResponse>(`/api/admin/merchants/${id}`, token)
+    },
+    enabled: !!id,
+  })
+}
+
+export function useAdminMerchantOwner(id: string) {
+  return useQuery({
+    queryKey: ['admin', 'merchant', id, 'owner'],
+    queryFn: async () => {
+      // Hits our own Next.js route (not the .NET backend) — it needs the Clerk secret key to
+      // look up the owner's profile, so plain same-origin fetch, not apiFetch.
+      const res = await fetch(`/api/admin/merchants/${id}/owner`)
+      if (!res.ok) throw new Error('Failed to load owner')
+      return res.json() as Promise<AdminMerchantOwnerResponse>
     },
     enabled: !!id,
   })

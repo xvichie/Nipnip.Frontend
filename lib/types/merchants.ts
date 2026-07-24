@@ -38,6 +38,8 @@ export interface MerchantResponse {
   isProspect: boolean
   isApprovedForViewer: boolean
   createdAt: string
+  /** When their Store was created — null if they haven't set one up yet. Only populated by the admin listing. */
+  storeCreatedAt: string | null
 }
 
 export type AccessRequestStatus = 'Pending' | 'Approved' | 'Rejected'
