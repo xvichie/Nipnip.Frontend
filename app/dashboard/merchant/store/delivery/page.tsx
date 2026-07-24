@@ -62,19 +62,19 @@ export default function MerchantStoreDeliveryPage() {
     <>
     <div className="flex flex-col gap-8 max-w-2xl pb-24">
       <div>
-        <h1 className="text-2xl font-black tracking-tight">Delivery</h1>
-        <p className="text-white/40 text-sm mt-1">Define where you deliver and how much you charge. Leave empty to skip shipping fees entirely.</p>
+        <h1 className="text-2xl font-black tracking-tight">მიწოდება</h1>
+        <p className="text-white/40 text-sm mt-1">განსაზღვრეთ, სად ჩააბარებთ და რამდენს ჩამოართმევთ. ცარიელი დატოვების შემთხვევაში მიწოდების საფასური საერთოდ არ დაერიცხება.</p>
       </div>
 
       <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
         <div>
-          <h2 className="text-sm font-semibold text-white">Delivery areas</h2>
-          <p className="text-white/40 text-xs mt-0.5">Buyers pick one of these at checkout.</p>
+          <h2 className="text-sm font-semibold text-white">მიწოდების ზონები</h2>
+          <p className="text-white/40 text-xs mt-0.5">მყიდველები ერთ-ერთს ირჩევენ შეკვეთისას.</p>
         </div>
 
         <div className="flex flex-col gap-2">
           {shippingZones.length === 0 ? (
-            <p className="text-white/25 text-xs">No delivery areas yet — buyers won&apos;t be charged for shipping.</p>
+            <p className="text-white/25 text-xs">მიწოდების ზონები ჯერ არ არის — მყიდველებს მიწოდების საფასური არ დაერიცხებათ.</p>
           ) : (
             shippingZones.map(zone => (
               <div key={zone.id} className="flex items-center gap-2">
@@ -82,7 +82,7 @@ export default function MerchantStoreDeliveryPage() {
                   type="text"
                   value={zone.name}
                   onChange={e => updateZone(zone.id, { name: e.target.value })}
-                  placeholder="e.g. Tbilisi"
+                  placeholder="მაგ. თბილისი"
                   className="input flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
                 <div className="relative shrink-0 w-32">
@@ -99,7 +99,7 @@ export default function MerchantStoreDeliveryPage() {
                 <button
                   type="button"
                   onClick={() => removeZone(zone.id)}
-                  aria-label="Remove delivery area"
+                  aria-label="მიწოდების ზონის წაშლა"
                   className="btn btn-sm btn-square bg-white/4 border-white/8 text-white/40 hover:text-red-400 shrink-0"
                 >
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
@@ -114,18 +114,18 @@ export default function MerchantStoreDeliveryPage() {
             onClick={addZone}
             className="btn btn-sm self-start gap-1.5 bg-white/4 border-white/8 text-white/60 hover:text-white"
           >
-            + Add delivery area
+            + მიწოდების ზონის დამატება
           </button>
         </div>
       </div>
 
       <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
         <div>
-          <h2 className="text-sm font-semibold text-white">Free shipping</h2>
-          <p className="text-white/40 text-xs mt-0.5">Waive the delivery fee once a buyer&apos;s order reaches this amount.</p>
+          <h2 className="text-sm font-semibold text-white">უფასო მიწოდება</h2>
+          <p className="text-white/40 text-xs mt-0.5">გააუქმეთ მიწოდების საფასური, როცა მყიდველის შეკვეთა ამ თანხას მიაღწევს.</p>
         </div>
         <div className="fieldset gap-2">
-          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Free shipping over</label>
+          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">უფასო მიწოდება ამ თანხაზე მეტისთვის</label>
           <div className="relative max-w-48">
             <input
               type="number"
@@ -133,12 +133,12 @@ export default function MerchantStoreDeliveryPage() {
               step="0.01"
               value={freeShippingThreshold ?? ''}
               onChange={e => setFreeShippingThreshold(e.target.value === '' ? null : Math.max(0, Number(e.target.value)))}
-              placeholder="No free shipping"
+              placeholder="უფასო მიწოდება არ არის"
               className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 pr-8"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 text-xs pointer-events-none">₾</span>
           </div>
-          <p className="text-white/30 text-xs">Orders at or above this subtotal get free delivery, regardless of area. Leave empty to always charge the delivery fee.</p>
+          <p className="text-white/30 text-xs">ამ ან მეტი ჯამის შეკვეთები იღებენ უფასო მიწოდებას, ზონის მიუხედავად. ცარიელი დატოვების შემთხვევაში მიწოდების საფასური ყოველთვის დაერიცხება.</p>
         </div>
       </div>
     </div>
@@ -147,12 +147,12 @@ export default function MerchantStoreDeliveryPage() {
       <div className="max-w-6xl mx-auto flex items-center gap-4">
         {error && (
           <div className="flex-1 rounded-xl border border-error/30 bg-error/10 px-4 py-2.5 text-sm text-error">
-            Failed to save changes.
+            ცვლილებების შენახვა ვერ მოხერხდა.
           </div>
         )}
         {saved && (
           <div className="flex-1 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-400">
-            Saved successfully
+            წარმატებით შეინახა
           </div>
         )}
         <button
@@ -161,7 +161,7 @@ export default function MerchantStoreDeliveryPage() {
           disabled={isPending}
           className={`btn gap-2 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40 ${error || saved ? '' : 'w-full'}`}
         >
-          {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Save'}
+          {isPending ? <span className="loading loading-spinner loading-sm" /> : 'შენახვა'}
         </button>
       </div>
     </div>

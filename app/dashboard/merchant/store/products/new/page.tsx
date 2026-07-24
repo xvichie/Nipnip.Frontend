@@ -297,14 +297,14 @@ export default function NewProductPage() {
             <path d="M10 13L5 8l5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </Link>
-        <h1 className="text-2xl font-black tracking-tight flex-1">{product?.name || 'New Product'}</h1>
+        <h1 className="text-2xl font-black tracking-tight flex-1">{product?.name || 'ახალი პროდუქტი'}</h1>
         <ImportFromListingModal excludeProductId={productId ?? undefined} onImport={handleImport} />
       </div>
 
       {wasImported && (
         <div className="rounded-2xl border border-fuchsia-500/20 bg-fuchsia-500/5 px-4 py-3">
           <p className="text-fuchsia-300 text-xs leading-relaxed">
-            Imported — everything below is pre-filled and editable. Double-check it, then save.
+            იმპორტირებულია — ქვემოთ ყველაფერი წინასწარ შევსებულია და რედაქტირებადია. გადაამოწმეთ და შემდეგ შეინახეთ.
           </p>
         </div>
       )}
@@ -313,7 +313,7 @@ export default function NewProductPage() {
         <form id="product-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="fieldset gap-2">
             <label htmlFor="p-name" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-              Name <span className="text-error">*</span>
+              სახელი <span className="text-error">*</span>
             </label>
             <input
               id="p-name"
@@ -327,7 +327,7 @@ export default function NewProductPage() {
 
           <div className="fieldset gap-2">
             <label htmlFor="p-description" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-              Description
+              აღწერა
             </label>
             <textarea
               id="p-description"
@@ -341,7 +341,7 @@ export default function NewProductPage() {
           <div className="flex gap-3">
             <div className="fieldset gap-2 flex-1">
               <label htmlFor="p-price" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                Base Price <span className="text-error">*</span>
+                საბაზისო ფასი <span className="text-error">*</span>
               </label>
               <input
                 id="p-price"
@@ -357,7 +357,7 @@ export default function NewProductPage() {
 
             <div className="fieldset gap-2 flex-1">
               <label htmlFor="p-sale-price" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                Sale Price
+                ფასდაკლებული ფასი
               </label>
               <input
                 id="p-sale-price"
@@ -366,7 +366,7 @@ export default function NewProductPage() {
                 min="0"
                 value={salePrice}
                 onChange={e => setSalePrice(e.target.value)}
-                placeholder="Optional"
+                placeholder="სურვილისამებრ"
                 className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
               />
             </div>
@@ -375,7 +375,7 @@ export default function NewProductPage() {
           {categories && categories.length > 0 && (
             <div className="fieldset gap-2">
               <label htmlFor="p-category" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                Category
+                კატეგორია
               </label>
               <select
                 id="p-category"
@@ -383,7 +383,7 @@ export default function NewProductPage() {
                 onChange={e => handleCategoryChange(e.target.value)}
                 className="select w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
               >
-                <option value="">Uncategorized</option>
+                <option value="">კატეგორიის გარეშე</option>
                 {categories.map(category => (
                   <option key={category.id} value={category.id}>{category.name}</option>
                 ))}
@@ -399,18 +399,18 @@ export default function NewProductPage() {
                 onChange={e => setIsActive(e.target.checked)}
                 className={`toggle toggle-sm ${isActive ? 'toggle-success' : 'toggle-error'}`}
               />
-              <span className="text-sm text-white/70">Visible in store</span>
+              <span className="text-sm text-white/70">გამოჩენილია მაღაზიაში</span>
             </label>
           )}
 
           {(createError || updateError) && (
             <div className="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
-              {isCreated ? 'Failed to save changes.' : 'Failed to create product.'}
+              {isCreated ? 'ცვლილებების შენახვა ვერ მოხერხდა.' : 'პროდუქტის შექმნა ვერ მოხერხდა.'}
             </div>
           )}
           {saved && (
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
-              Saved successfully
+              წარმატებით შეინახა
             </div>
           )}
 
@@ -418,7 +418,7 @@ export default function NewProductPage() {
       </div>
 
       <FloatingFormButton anchorRef={contentRef} formId="product-form" disabled={busy || !name.trim() || !basePrice}>
-        {busy ? <span className="loading loading-spinner loading-sm" /> : isCreated ? 'Save Changes' : 'Create Product'}
+        {busy ? <span className="loading loading-spinner loading-sm" /> : isCreated ? 'ცვლილებების შენახვა' : 'პროდუქტის შექმნა'}
       </FloatingFormButton>
 
       {isCreated && product ? (
@@ -438,16 +438,16 @@ export default function NewProductPage() {
           <StagedOptionsEditor options={stagedOptions} onChange={setStagedOptions} />
           <RelatedProductsManager productId="" picks={relatedPicks} onChange={setRelatedPicks} isLoading={false} />
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-2">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Variants</h2>
+            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ვარიაციები</h2>
             <p className="text-white/30 text-sm">
-              Every option combination above sells at the base price with unlimited stock by default. Save the
-              product to set specific price or stock overrides for individual combinations (e.g. size 43 = 5 units
-              at 165 GEL) — variants reference real option values, which only exist once this product is saved.
+              ზემოთ მითითებული ყველა კომბინაცია ნაგულისხმევად იყიდება საბაზისო ფასად და შეუზღუდავი მარაგით. შეინახეთ
+              პროდუქტი კონკრეტული კომბინაციებისთვის ფასის ან მარაგის დასაყენებლად (მაგ. ზომა 43 = 5 ერთეული
+              165 ლარად) — ვარიაციები ეყრდნობა რეალურ პარამეტრის მნიშვნელობებს, რომლებიც არსებობს მხოლოდ ამ პროდუქტის შენახვის შემდეგ.
             </p>
           </div>
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Automatic sharing</h2>
+            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ავტომატური გაზიარება</h2>
 
             <div className="flex flex-col gap-2">
               <label className="flex items-center gap-3 cursor-pointer">
@@ -458,18 +458,18 @@ export default function NewProductPage() {
                   disabled={!fbConnected}
                   className={`toggle toggle-sm ${shareToFacebook ? 'toggle-success' : 'toggle-error'} disabled:opacity-30`}
                 />
-                <span className="text-sm text-white/70">Share to Facebook</span>
+                <span className="text-sm text-white/70">გაზიარება Facebook-ზე</span>
               </label>
               <p className="text-white/30 text-xs leading-relaxed">
                 {fbConnected
-                  ? 'Automatically posts this product to your connected Facebook Page as soon as you create it below.'
+                  ? 'ავტომატურად გამოაქვეყნებს ამ პროდუქტს თქვენს დაკავშირებულ Facebook გვერდზე, როგორც კი ქვემოთ შექმნით.'
                   : (
                     <>
-                      Connect your Facebook Page in{' '}
+                      დააკავშირეთ თქვენი Facebook გვერდი{' '}
                       <Link href="/dashboard/merchant/store/integrations" className="text-fuchsia-400 hover:text-fuchsia-300">
-                        Integrations
+                        ინტეგრაციებში
                       </Link>{' '}
-                      to enable this.
+                      ამის ჩასართავად.
                     </>
                   )}
               </p>
@@ -485,23 +485,23 @@ export default function NewProductPage() {
                   className={`toggle toggle-sm ${shareToInstagram ? 'toggle-success' : 'toggle-error'} disabled:opacity-30`}
                 />
                 <span className="text-sm text-white/70 flex items-center gap-2">
-                  Share to Instagram
+                  გაზიარება Instagram-ზე
                   <BetaBadge />
                 </span>
               </label>
               <p className="text-white/30 text-xs leading-relaxed">
                 {!igConnected ? (
                   <>
-                    Connect Instagram in{' '}
+                    დააკავშირეთ Instagram{' '}
                     <Link href="/dashboard/merchant/store/integrations" className="text-fuchsia-400 hover:text-fuchsia-300">
-                      Integrations
+                      ინტეგრაციებში
                     </Link>{' '}
-                    to enable this.
+                    ამის ჩასართავად.
                   </>
                 ) : stagedImages.length === 0 ? (
-                  'Add at least one photo above — Instagram posts require one.'
+                  'დაამატეთ მინიმუმ ერთი ფოტო ზემოთ — Instagram-ის პოსტს ესაჭიროება მინიმუმ ერთი.'
                 ) : (
-                  'Automatically posts this product to your connected Instagram account as soon as you create it below.'
+                  'ავტომატურად გამოაქვეყნებს ამ პროდუქტს თქვენს დაკავშირებულ Instagram ანგარიშზე, როგორც კი ქვემოთ შექმნით.'
                 )}
               </p>
             </div>
@@ -516,30 +516,30 @@ export default function NewProductPage() {
                   className={`toggle toggle-sm ${shareToTiktok ? 'toggle-success' : 'toggle-error'} disabled:opacity-30`}
                 />
                 <span className="text-sm text-white/70 flex items-center gap-2">
-                  Share to TikTok
+                  გაზიარება TikTok-ზე
                   <BetaBadge />
                 </span>
               </label>
               <p className="text-white/30 text-xs leading-relaxed">
                 {!ttConnected ? (
                   <>
-                    Connect TikTok in{' '}
+                    დააკავშირეთ TikTok{' '}
                     <Link href="/dashboard/merchant/store/integrations" className="text-fuchsia-400 hover:text-fuchsia-300">
-                      Integrations
+                      ინტეგრაციებში
                     </Link>{' '}
-                    to enable this.
+                    ამის ჩასართავად.
                   </>
                 ) : stagedImages.length === 0 ? (
-                  'Add at least one photo above — TikTok posts require one.'
+                  'დაამატეთ მინიმუმ ერთი ფოტო ზემოთ — TikTok-ის პოსტს ესაჭიროება მინიმუმ ერთი.'
                 ) : (
-                  'Automatically posts this product to your connected TikTok account as soon as you create it below.'
+                  'ავტომატურად გამოაქვეყნებს ამ პროდუქტს თქვენს დაკავშირებულ TikTok ანგარიშზე, როგორც კი ქვემოთ შექმნით.'
                 )}
               </p>
 
               {shareToTiktok && ttConnected && (
                 <div className="fieldset gap-1.5 mt-1">
                   <label htmlFor="tiktok-hashtags" className="fieldset-legend text-white/50 text-xs uppercase tracking-wider">
-                    Hashtags
+                    ჰეშთეგები
                   </label>
                   <input
                     id="tiktok-hashtags"
@@ -549,7 +549,7 @@ export default function NewProductPage() {
                     placeholder="#shoes #newarrival #georgia"
                     className="input input-sm w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                   />
-                  <p className="text-white/20 text-[11px]">Added to the end of the TikTok post&apos;s description.</p>
+                  <p className="text-white/20 text-[11px]">დაემატება TikTok პოსტის აღწერის ბოლოში.</p>
                 </div>
               )}
             </div>

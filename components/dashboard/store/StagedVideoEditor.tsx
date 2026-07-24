@@ -15,7 +15,7 @@ export function StagedVideoEditor({ videoUrl, onChange }: { videoUrl: string | n
       const url = await uploadVideo(file)
       onChange(url)
     } catch {
-      setError('Upload failed. Check Cloudinary config and try again.')
+      setError('ატვირთვა ვერ მოხერხდა. შეამოწმეთ Cloudinary-ის კონფიგურაცია და სცადეთ თავიდან.')
     } finally {
       setUploading(false)
     }
@@ -23,7 +23,7 @@ export function StagedVideoEditor({ videoUrl, onChange }: { videoUrl: string | n
 
   return (
     <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
-      <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Video</h2>
+      <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ვიდეო</h2>
 
       {videoUrl ? (
         <div className="flex flex-col gap-3">
@@ -35,7 +35,7 @@ export function StagedVideoEditor({ videoUrl, onChange }: { videoUrl: string | n
               disabled={uploading}
               className="btn btn-xs bg-white/4 border-white/10 text-white/70 hover:text-white disabled:opacity-40"
             >
-              {uploading ? <span className="loading loading-spinner loading-xs" /> : 'Replace'}
+              {uploading ? <span className="loading loading-spinner loading-xs" /> : 'შეცვლა'}
             </button>
             <button
               type="button"
@@ -43,7 +43,7 @@ export function StagedVideoEditor({ videoUrl, onChange }: { videoUrl: string | n
               disabled={uploading}
               className="btn btn-xs bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40"
             >
-              Remove
+              წაშლა
             </button>
           </div>
         </div>
@@ -54,7 +54,7 @@ export function StagedVideoEditor({ videoUrl, onChange }: { videoUrl: string | n
           disabled={uploading}
           className="w-full h-24 rounded-xl border border-dashed border-white/12 bg-white/2 hover:border-fuchsia-500/40 hover:bg-fuchsia-500/5 flex items-center justify-center text-white/30 text-sm disabled:opacity-40"
         >
-          {uploading ? <span className="loading loading-spinner loading-sm text-fuchsia-400" /> : '+ Upload a product video'}
+          {uploading ? <span className="loading loading-spinner loading-sm text-fuchsia-400" /> : '+ პროდუქტის ვიდეოს ატვირთვა'}
         </button>
       )}
 

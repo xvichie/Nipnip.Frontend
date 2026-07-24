@@ -63,10 +63,10 @@ const FOOTERS = { minimal: MinimalFooter, bold: BoldFooter, classic: ClassicFoot
 const HOMES = { minimal: MinimalHome, bold: BoldHome, classic: ClassicHome, luxury: LuxuryHome, vibrant: VibrantHome, commerce: CommerceHome, editorial: EditorialHome }
 
 const PLACEHOLDER_PRODUCTS: ProductSummaryResponse[] = [
-  { id: 'preview-1', slug: 'preview-1', categoryId: null, name: 'Sample Product', basePrice: 49.99, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
-  { id: 'preview-2', slug: 'preview-2', categoryId: null, name: 'Another Item', basePrice: 89, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
-  { id: 'preview-3', slug: 'preview-3', categoryId: null, name: 'Best Seller', basePrice: 129.5, salePrice: 99.5, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
-  { id: 'preview-4', slug: 'preview-4', categoryId: null, name: 'New Arrival', basePrice: 34, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
+  { id: 'preview-1', slug: 'preview-1', categoryId: null, name: 'ნიმუშის პროდუქტი', basePrice: 49.99, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
+  { id: 'preview-2', slug: 'preview-2', categoryId: null, name: 'სხვა ნივთი', basePrice: 89, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
+  { id: 'preview-3', slug: 'preview-3', categoryId: null, name: 'ბესთსელერი', basePrice: 129.5, salePrice: 99.5, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
+  { id: 'preview-4', slug: 'preview-4', categoryId: null, name: 'ახალი ჩამოსვლა', basePrice: 34, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
 ]
 
 function ImageField({
@@ -92,12 +92,12 @@ function ImageField({
           ) : value ? (
             <CImg src={value} alt={label} className="w-full h-full object-cover" />
           ) : (
-            <span className="text-white/20 text-[10px]">None</span>
+            <span className="text-white/20 text-[10px]">არცერთი</span>
           )}
         </div>
         <div className="flex flex-col gap-2">
           <label className="btn btn-xs bg-white/4 border-white/8 text-white/60 hover:text-white cursor-pointer w-fit">
-            Upload
+            ატვირთვა
             <input
               type="file"
               accept="image/*"
@@ -107,7 +107,7 @@ function ImageField({
           </label>
           {value && (
             <button type="button" onClick={onClear} className="text-xs text-white/30 hover:text-red-400 text-left">
-              Remove
+              წაშლა
             </button>
           )}
         </div>
@@ -139,12 +139,12 @@ function VideoField({
           ) : value ? (
             <video src={value} muted loop autoPlay playsInline className="w-full h-full object-cover" />
           ) : (
-            <span className="text-white/20 text-[10px]">None</span>
+            <span className="text-white/20 text-[10px]">არცერთი</span>
           )}
         </div>
         <div className="flex flex-col gap-2">
           <label className="btn btn-xs bg-white/4 border-white/8 text-white/60 hover:text-white cursor-pointer w-fit">
-            Upload
+            ატვირთვა
             <input
               type="file"
               accept="video/*"
@@ -154,7 +154,7 @@ function VideoField({
           </label>
           {value && (
             <button type="button" onClick={onClear} className="text-xs text-white/30 hover:text-red-400 text-left">
-              Remove
+              წაშლა
             </button>
           )}
         </div>
@@ -164,9 +164,9 @@ function VideoField({
 }
 
 const FONT_CATEGORY_LABELS: { category: FontCategory; title: string }[] = [
-  { category: 'default', title: 'Default' },
+  { category: 'default', title: 'ნაგულისხმევი' },
   { category: 'georgian', title: 'ქართული' },
-  { category: 'latin', title: 'Latin' },
+  { category: 'latin', title: 'ლათინური' },
 ]
 
 function FontPicker({ value, onChange }: { value: string; onChange: (key: string) => void }) {
@@ -177,14 +177,14 @@ function FontPicker({ value, onChange }: { value: string; onChange: (key: string
   return (
     <div className={`flex flex-col gap-2 ${ALL_FONT_VARIABLE_CLASSES}`}>
       <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/4">
-        <span className="text-white/40 text-xs uppercase tracking-wider shrink-0">Selected</span>
+        <span className="text-white/40 text-xs uppercase tracking-wider shrink-0">არჩეული</span>
         <span style={{ fontFamily: current.fontFamily }} className="text-white text-sm truncate">{current.label}</span>
       </div>
       <input
         type="text"
         value={search}
         onChange={e => setSearch(e.target.value)}
-        placeholder="Search fonts…"
+        placeholder="ფონტების ძიება…"
         className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
       />
       <div className="max-h-72 overflow-y-auto rounded-xl border border-white/10 bg-white/2 divide-y divide-white/5">
@@ -213,7 +213,7 @@ function FontPicker({ value, onChange }: { value: string; onChange: (key: string
             </div>
           )
         })}
-        {filtered.length === 0 && <p className="px-3 py-4 text-white/30 text-xs text-center">No fonts match.</p>}
+        {filtered.length === 0 && <p className="px-3 py-4 text-white/30 text-xs text-center">ფონტები ვერ მოიძებნა.</p>}
       </div>
     </div>
   )
@@ -276,7 +276,7 @@ function HeroSlideFields({
   return (
     <div className="rounded-xl border border-white/7 bg-white/2 p-4 flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-white/40 uppercase tracking-wider">Slide {index + 1}</span>
+        <span className="text-xs font-semibold text-white/40 uppercase tracking-wider">სლაიდი {index + 1}</span>
         <div className="flex items-center gap-1">
           <button type="button" onClick={() => onMove(-1)} disabled={index === 0} className="btn btn-xs btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white disabled:opacity-20">↑</button>
           <button type="button" onClick={() => onMove(1)} disabled={index === total - 1} className="btn btn-xs btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white disabled:opacity-20">↓</button>
@@ -284,27 +284,27 @@ function HeroSlideFields({
         </div>
       </div>
 
-      <ImageField label="Image" value={slide.imageUrl} uploading={uploading} onFile={onFile} onClear={() => onChange('imageUrl', '')} />
+      <ImageField label="სურათი" value={slide.imageUrl} uploading={uploading} onFile={onFile} onClear={() => onChange('imageUrl', '')} />
 
-      <VideoField label="Video (optional, background layout only)" value={slide.videoUrl} uploading={videoUploading} onFile={onVideoFile} onClear={() => onChange('videoUrl', '')} />
+      <VideoField label="ვიდეო (სურვილისამებრ, მხოლოდ ფონის განლაგებისთვის)" value={slide.videoUrl} uploading={videoUploading} onFile={onVideoFile} onClear={() => onChange('videoUrl', '')} />
 
       <div className="fieldset gap-2">
-        <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Eyebrow</label>
+        <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ზედწერილი</label>
         <input type="text" value={slide.eyebrow} onChange={e => onChange('eyebrow', e.target.value)} className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60" />
       </div>
 
       <div className="fieldset gap-2">
-        <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Headline</label>
+        <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სათაური</label>
         <input type="text" value={slide.headline} onChange={e => onChange('headline', e.target.value)} className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60" />
       </div>
 
       <div className="fieldset gap-2">
-        <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Subheadline</label>
+        <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ქვესათაური</label>
         <textarea value={slide.subheadline} onChange={e => onChange('subheadline', e.target.value)} rows={2} className="textarea textarea-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 resize-none" />
       </div>
 
       <label className="flex items-center justify-between gap-3 cursor-pointer">
-        <span className="text-sm text-white/70">Show button</span>
+        <span className="text-sm text-white/70">ღილაკის ჩვენება</span>
         <input
           type="checkbox"
           checked={slide.ctaEnabled}
@@ -316,17 +316,17 @@ function HeroSlideFields({
       {slide.ctaEnabled && (
         <>
           <div className="fieldset gap-2">
-            <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Button text</label>
+            <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ღილაკის ტექსტი</label>
             <input type="text" value={slide.ctaText} onChange={e => onChange('ctaText', e.target.value)} placeholder="ყველა პროდუქტის ნახვა" className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60" />
           </div>
 
           <div className="fieldset gap-2">
-            <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Sends visitors to</label>
+            <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მიმართავს ვიზიტორებს</label>
             <div className="grid grid-cols-3 gap-2">
               {([
-                { value: 'products', label: 'All products' },
-                { value: 'category', label: 'A category' },
-                { value: 'custom', label: 'Custom link' },
+                { value: 'products', label: 'ყველა პროდუქტი' },
+                { value: 'category', label: 'კატეგორია' },
+                { value: 'custom', label: 'საკუთარი ბმული' },
               ] as { value: HeroCtaLinkType; label: string }[]).map(opt => (
                 <button
                   key={opt.value}
@@ -350,7 +350,7 @@ function HeroSlideFields({
                 onChange={e => onChange('ctaCategoryId', e.target.value)}
                 className="select select-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 mt-1"
               >
-                <option value="">Choose a category…</option>
+                <option value="">აირჩიეთ კატეგორია…</option>
                 {categories.map(c => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
@@ -362,7 +362,7 @@ function HeroSlideFields({
                 type="text"
                 value={slide.ctaCustomUrl}
                 onChange={e => onChange('ctaCustomUrl', e.target.value)}
-                placeholder="/products/category/shoes or https://…"
+                placeholder="/products/category/shoes ან https://…"
                 className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 mt-1"
               />
             )}
@@ -371,7 +371,7 @@ function HeroSlideFields({
       )}
 
       <label className="flex items-center justify-between gap-3 cursor-pointer">
-        <span className="text-sm text-white/70">Show secondary button</span>
+        <span className="text-sm text-white/70">მეორადი ღილაკის ჩვენება</span>
         <input
           type="checkbox"
           checked={slide.secondaryCtaEnabled}
@@ -383,17 +383,17 @@ function HeroSlideFields({
       {slide.secondaryCtaEnabled && (
         <>
           <div className="fieldset gap-2">
-            <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Secondary button text</label>
+            <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მეორადი ღილაკის ტექსტი</label>
             <input type="text" value={slide.secondaryCtaText} onChange={e => onChange('secondaryCtaText', e.target.value)} placeholder="მეტის ნახვა" className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60" />
           </div>
 
           <div className="fieldset gap-2">
-            <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Sends visitors to</label>
+            <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მიმართავს ვიზიტორებს</label>
             <div className="grid grid-cols-3 gap-2">
               {([
-                { value: 'products', label: 'All products' },
-                { value: 'category', label: 'A category' },
-                { value: 'custom', label: 'Custom link' },
+                { value: 'products', label: 'ყველა პროდუქტი' },
+                { value: 'category', label: 'კატეგორია' },
+                { value: 'custom', label: 'საკუთარი ბმული' },
               ] as { value: HeroCtaLinkType; label: string }[]).map(opt => (
                 <button
                   key={opt.value}
@@ -417,7 +417,7 @@ function HeroSlideFields({
                 onChange={e => onChange('secondaryCtaCategoryId', e.target.value)}
                 className="select select-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 mt-1"
               >
-                <option value="">Choose a category…</option>
+                <option value="">აირჩიეთ კატეგორია…</option>
                 {categories.map(c => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
@@ -429,7 +429,7 @@ function HeroSlideFields({
                 type="text"
                 value={slide.secondaryCtaCustomUrl}
                 onChange={e => onChange('secondaryCtaCustomUrl', e.target.value)}
-                placeholder="/products/category/shoes or https://…"
+                placeholder="/products/category/shoes ან https://…"
                 className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 mt-1"
               />
             )}
@@ -1296,7 +1296,7 @@ export default function StoreDesignPage() {
         <button
           type="button"
           onClick={() => setPreviewMode('desktop')}
-          aria-label="Desktop preview"
+          aria-label="დესქტოპის გადახედვა"
           className={`flex items-center justify-center w-7 h-7 rounded-md transition-colors ${previewMode === 'desktop' ? 'bg-fuchsia-500/20 text-white' : 'text-white/40 hover:text-white'}`}
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -1307,7 +1307,7 @@ export default function StoreDesignPage() {
         <button
           type="button"
           onClick={() => setPreviewMode('mobile')}
-          aria-label="Mobile preview"
+          aria-label="მობილურის გადახედვა"
           className={`flex items-center justify-center w-7 h-7 rounded-md transition-colors ${previewMode === 'mobile' ? 'bg-fuchsia-500/20 text-white' : 'text-white/40 hover:text-white'}`}
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -1319,7 +1319,7 @@ export default function StoreDesignPage() {
       <button
         type="button"
         onClick={() => setPreviewFullscreen(v => !v)}
-        aria-label={previewFullscreen ? 'Exit fullscreen' : 'Fullscreen preview'}
+        aria-label={previewFullscreen ? 'სრულეკრანიდან გამოსვლა' : 'სრულეკრანიანი გადახედვა'}
         className="flex items-center justify-center w-7 h-7 rounded-md border border-white/10 bg-white/4 text-white/50 hover:text-white transition-colors"
       >
         {previewFullscreen ? (
@@ -1339,19 +1339,19 @@ export default function StoreDesignPage() {
     <>
     <div className="flex flex-col gap-8 max-w-6xl pb-24">
       <div>
-        <h1 className="text-2xl font-black tracking-tight">Design &amp; Theme</h1>
-        <p className="text-white/40 text-sm mt-1">Changes update the preview instantly — nothing goes live until you save.</p>
+        <h1 className="text-2xl font-black tracking-tight">დიზაინი და თემა</h1>
+        <p className="text-white/40 text-sm mt-1">ცვლილებები მყისიერად ახლდება გადახედვაში — არაფერი გამოქვეყნდება, სანამ არ შეინახავთ.</p>
       </div>
 
       {store.themeOverride && (
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-amber-500/25 bg-amber-500/8 px-5 py-4">
           <div>
-            <p className="text-sm font-semibold text-amber-300">✦ Custom theme set by NipNip</p>
-            <p className="text-white/40 text-xs mt-0.5">NipNip has applied extra styling to your store on top of your theme below. Turn it off if you don&apos;t want it.</p>
+            <p className="text-sm font-semibold text-amber-300">✦ NipNip-ის მიერ დაყენებული საკუთარი თემა</p>
+            <p className="text-white/40 text-xs mt-0.5">NipNip-მა თქვენს მაღაზიას დაუმატა დამატებითი სტილიზაცია ქვემოთ მოცემულ თემაზე. გამორთეთ, თუ არ გსურთ.</p>
           </div>
           <input
             type="checkbox"
-            aria-label="Custom theme set by NipNip"
+            aria-label="NipNip-ის მიერ დაყენებული საკუთარი თემა"
             className={`toggle shrink-0 ${store.themeOverrideEnabled ? 'toggle-success' : ''}`}
             checked={store.themeOverrideEnabled}
             disabled={isTogglingOverride}
@@ -1365,7 +1365,7 @@ export default function StoreDesignPage() {
         <div className="flex flex-col gap-6">
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Theme</h2>
+            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">თემა</h2>
 
             <div className="relative" ref={themePickerRef}>
               <button
@@ -1424,10 +1424,10 @@ export default function StoreDesignPage() {
           </div>
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Colors &amp; Font</h2>
+            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ფერები და ფონტი</h2>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Accent Color</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">აქცენტის ფერი</label>
               <div className="flex items-center gap-3">
                 <input
                   type="color"
@@ -1445,18 +1445,18 @@ export default function StoreDesignPage() {
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Font</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ფონტი</label>
               <FontPicker value={font} onChange={setFont} />
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Corner Radius</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">კუთხის მრგვალობა</label>
               <div className="grid grid-cols-4 gap-2">
                 {([
-                  { value: 'theme', label: 'Theme' },
-                  { value: 'none', label: 'Sharp' },
-                  { value: 'md', label: 'Soft' },
-                  { value: '2xl', label: 'Round' },
+                  { value: 'theme', label: 'თემის' },
+                  { value: 'none', label: 'მკვეთრი' },
+                  { value: 'md', label: 'რბილი' },
+                  { value: '2xl', label: 'მრგვალი' },
                 ] as { value: Required<ThemeConfig>['cornerRadius']; label: string }[]).map(opt => (
                   <button
                     key={opt.value}
@@ -1474,14 +1474,14 @@ export default function StoreDesignPage() {
                 ))}
               </div>
               <p className="text-white/30 text-xs mt-1">
-                Only affects the Cart, Checkout, Bundles, and Contact pages — the rest of the storefront keeps this theme&apos;s own look.
+                გავლენას ახდენს მხოლოდ კალათის, გადახდის, ბანდლების და კონტაქტის გვერდებზე — მაღაზიის დანარჩენი ნაწილი ინარჩუნებს ამ თემის საკუთარ იერსახეს.
               </p>
             </div>
           </div>
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Branding</h2>
-            <ImageField label="Logo" value={logoUrl} uploading={logoUploading} onFile={handleLogoFile} onClear={() => setLogoUrl('')} />
+            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ბრენდინგი</h2>
+            <ImageField label="ლოგო" value={logoUrl} uploading={logoUploading} onFile={handleLogoFile} onClear={() => setLogoUrl('')} />
             {logoUrl && (
               <label className="flex items-center gap-3 cursor-pointer -mt-2">
                 <input
@@ -1490,24 +1490,24 @@ export default function StoreDesignPage() {
                   onChange={e => setShowStoreName(e.target.checked)}
                   className={`toggle toggle-sm ${showStoreName ? 'toggle-success' : 'toggle-error'}`}
                 />
-                <span className="text-sm text-white/70">Show store name next to logo</span>
+                <span className="text-sm text-white/70">მაღაზიის სახელის ჩვენება ლოგოსთან</span>
               </label>
             )}
-            <ImageField label="Favicon" value={faviconUrl} uploading={faviconUploading} onFile={handleFaviconFile} onClear={() => setFaviconUrl('')} />
-            <p className="text-white/30 text-xs -mt-3">Browser-tab icon. Use a square image — falls back to your logo if left empty.</p>
-            <ImageField label="Social Share Image" value={socialImageUrl} uploading={socialImageUploading} onFile={handleSocialImageFile} onClear={() => setSocialImageUrl('')} />
-            <p className="text-white/30 text-xs -mt-3">Shown when your store link is shared on social media or messaging apps. Falls back to your hero image or logo if left empty.</p>
-            <ImageField label="Hero Image" value={heroImageUrl} uploading={heroImageUploading} onFile={handleHeroImageFile} onClear={() => setHeroImageUrl('')} />
-            <p className="text-white/30 text-xs -mt-3">Shown next to your hero text when Layout below is set to Image left/right.</p>
+            <ImageField label="ფავიკონი" value={faviconUrl} uploading={faviconUploading} onFile={handleFaviconFile} onClear={() => setFaviconUrl('')} />
+            <p className="text-white/30 text-xs -mt-3">ბრაუზერის ჩანართის ხატულა. გამოიყენეთ კვადრატული სურათი — ცარიელი დატოვების შემთხვევაში დაბრუნდება თქვენს ლოგოზე.</p>
+            <ImageField label="სოც. ქსელის გაზიარების სურათი" value={socialImageUrl} uploading={socialImageUploading} onFile={handleSocialImageFile} onClear={() => setSocialImageUrl('')} />
+            <p className="text-white/30 text-xs -mt-3">ჩნდება თქვენი მაღაზიის ბმულის სოციალურ ქსელებში ან მესენჯერებში გაზიარებისას. ცარიელი დატოვების შემთხვევაში დაბრუნდება თქვენს ჰერო სურათზე ან ლოგოზე.</p>
+            <ImageField label="ჰერო სურათი" value={heroImageUrl} uploading={heroImageUploading} onFile={handleHeroImageFile} onClear={() => setHeroImageUrl('')} />
+            <p className="text-white/30 text-xs -mt-3">ჩნდება თქვენი ჰერო ტექსტის გვერდით, როცა ქვემოთ განლაგება დაყენებულია „სურათი მარცხნივ/მარჯვნივ“-ზე.</p>
 
             {heroImageUrl && (
               <>
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Image fit</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სურათის მორგება</label>
                   <div className="grid grid-cols-2 gap-2">
                     {([
-                      { value: 'contain', label: 'Fit whole image', desc: 'Nothing gets cropped' },
-                      { value: 'cover', label: 'Fill the space', desc: 'Crops to fill, edge to edge' },
+                      { value: 'contain', label: 'მთლიანი სურათის მორგება', desc: 'არაფერი იჭრება' },
+                      { value: 'cover', label: 'სივრცის შევსება', desc: 'იჭრება კიდემდე შესავსებად' },
                     ] as { value: HeroImageFit; label: string; desc: string }[]).map(opt => (
                       <button
                         key={opt.value}
@@ -1529,14 +1529,14 @@ export default function StoreDesignPage() {
 
                 {heroImageFit === 'cover' && (
                   <div className="fieldset gap-2">
-                    <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Focus position</label>
+                    <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ფოკუსის პოზიცია</label>
                     <div className="grid grid-cols-5 gap-2">
                       {([
-                        { value: 'left', label: 'Left' },
-                        { value: 'top', label: 'Top' },
-                        { value: 'center', label: 'Center' },
-                        { value: 'bottom', label: 'Bottom' },
-                        { value: 'right', label: 'Right' },
+                        { value: 'left', label: 'მარცხნივ' },
+                        { value: 'top', label: 'ზემოთ' },
+                        { value: 'center', label: 'ცენტრში' },
+                        { value: 'bottom', label: 'ქვემოთ' },
+                        { value: 'right', label: 'მარჯვნივ' },
                       ] as { value: HeroImagePosition; label: string }[]).map(opt => (
                         <button
                           key={opt.value}
@@ -1553,7 +1553,7 @@ export default function StoreDesignPage() {
                         </button>
                       ))}
                     </div>
-                    <p className="text-white/30 text-xs mt-1">Which part of the image stays visible when it&apos;s cropped to fill the space.</p>
+                    <p className="text-white/30 text-xs mt-1">სურათის რომელი ნაწილი დარჩება ხილვადი, როცა ის იჭრება სივრცის შესავსებად.</p>
                   </div>
                 )}
               </>
@@ -1561,10 +1561,10 @@ export default function StoreDesignPage() {
           </div>
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Header</h2>
+            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰედერი</h2>
 
             <label className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer">
-              <span className="text-sm text-white/70">Sticky header (stays visible while scrolling)</span>
+              <span className="text-sm text-white/70">მიმაგრებული ჰედერი (რჩება ხილვადი სქროლისას)</span>
               <input
                 type="checkbox"
                 checked={headerSticky}
@@ -1574,7 +1574,7 @@ export default function StoreDesignPage() {
             </label>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Header background color</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ჰედერის ფონის ფერი</label>
               <div className="flex items-center gap-2">
                 <input
                   type="color"
@@ -1586,7 +1586,7 @@ export default function StoreDesignPage() {
                   type="text"
                   value={headerBackgroundColor}
                   onChange={e => setHeaderBackgroundColor(e.target.value)}
-                  placeholder="Leave empty for the theme default"
+                  placeholder="ცარიელი დატოვება თემის ნაგულისხმევისთვის"
                   className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
                 {headerBackgroundColor && (
@@ -1603,16 +1603,16 @@ export default function StoreDesignPage() {
           </div>
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Banner</h2>
-            <p className="text-white/30 text-xs -mt-3">A backdrop shown behind the hero section, or just behind the hero image.</p>
+            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ბანერი</h2>
+            <p className="text-white/30 text-xs -mt-3">ფონი, რომელიც ჩნდება ჰერო სექციის უკან, ან მხოლოდ ჰერო სურათის უკან.</p>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Type</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ტიპი</label>
               <div className="grid grid-cols-3 gap-2">
                 {([
-                  { value: 'image', label: 'Image' },
-                  { value: 'color', label: 'Color' },
-                  { value: 'pattern', label: 'Pattern' },
+                  { value: 'image', label: 'სურათი' },
+                  { value: 'color', label: 'ფერი' },
+                  { value: 'pattern', label: 'ნიმუში' },
                 ] as { value: BannerType; label: string }[]).map(opt => (
                   <button
                     key={opt.value}
@@ -1632,12 +1632,12 @@ export default function StoreDesignPage() {
             </div>
 
             {bannerType === 'image' && (
-              <ImageField label="Banner Image" value={bannerUrl} uploading={bannerUploading} onFile={handleBannerFile} onClear={() => setBannerUrl('')} />
+              <ImageField label="ბანერის სურათი" value={bannerUrl} uploading={bannerUploading} onFile={handleBannerFile} onClear={() => setBannerUrl('')} />
             )}
 
             {bannerType === 'color' && (
               <div className="fieldset gap-2">
-                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Color</label>
+                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ფერი</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="color"
@@ -1659,7 +1659,7 @@ export default function StoreDesignPage() {
             {bannerType === 'pattern' && (
               <>
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Pattern</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ნიმუში</label>
                   <div className="grid grid-cols-4 gap-2">
                     {BANNER_PATTERNS.map(opt => (
                       <button
@@ -1679,7 +1679,7 @@ export default function StoreDesignPage() {
                   </div>
                 </div>
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Tint Color</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ტონის ფერი</label>
                   <div className="flex items-center gap-3">
                     <input
                       type="color"
@@ -1700,11 +1700,11 @@ export default function StoreDesignPage() {
             )}
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Placement</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">განთავსება</label>
               <div className="grid grid-cols-2 gap-2">
                 {([
-                  { value: 'section', label: 'Behind entire section' },
-                  { value: 'behindImage', label: 'Behind hero image only' },
+                  { value: 'section', label: 'მთელი სექციის უკან' },
+                  { value: 'behindImage', label: 'მხოლოდ ჰერო სურათის უკან' },
                 ] as { value: BannerPlacement; label: string }[]).map(opt => (
                   <button
                     key={opt.value}
@@ -1722,22 +1722,22 @@ export default function StoreDesignPage() {
                 ))}
               </div>
               {bannerPlacement === 'behindImage' && heroLayout === 'center' && (
-                <p className="text-amber-400/80 text-xs mt-1">Set Layout to Image left/right below — centered hero has no image to place it behind.</p>
+                <p className="text-amber-400/80 text-xs mt-1">დააყენეთ ქვემოთ განლაგება „სურათი მარცხნივ/მარჯვნივ“-ზე — ცენტრირებულ ჰეროს არ აქვს სურათი, რომლის უკანაც განთავსდება.</p>
               )}
             </div>
           </div>
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Hero</h2>
+            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰერო სექცია</h2>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Layout</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">განლაგება</label>
               <div className="grid grid-cols-2 gap-2">
                 {([
-                  { value: 'center', label: '🎯 Centered' },
-                  { value: 'imageLeft', label: '⬅️ Image left' },
-                  { value: 'imageRight', label: '➡️ Image right' },
-                  { value: 'background', label: '🖼️ Background photo' },
+                  { value: 'center', label: '🎯 ცენტრირებული' },
+                  { value: 'imageLeft', label: '⬅️ სურათი მარცხნივ' },
+                  { value: 'imageRight', label: '➡️ სურათი მარჯვნივ' },
+                  { value: 'background', label: '🖼️ ფონის ფოტო' },
                 ] as { value: HeroLayout; label: string }[]).map(opt => (
                   <button
                     key={opt.value}
@@ -1755,17 +1755,17 @@ export default function StoreDesignPage() {
                 ))}
               </div>
               {heroLayout !== 'center' && !heroImageUrl && (
-                <p className="text-amber-400/80 text-xs mt-1">Add a Hero Image above — this layout falls back to centered without one.</p>
+                <p className="text-amber-400/80 text-xs mt-1">დაამატეთ ჰერო სურათი ზემოთ — ამის გარეშე ეს განლაგება ცენტრირებულზე დაბრუნდება.</p>
               )}
               {heroLayout === 'background' && heroImageUrl && (
-                <p className="text-white/30 text-xs mt-1">Your hero photo fills the whole section — use Text Color below to keep the headline readable.</p>
+                <p className="text-white/30 text-xs mt-1">თქვენი ჰერო ფოტო ავსებს მთელ სექციას — გამოიყენეთ ტექსტის ფერი ქვემოთ, რომ სათაური იკითხებოდეს.</p>
               )}
             </div>
 
             {heroLayout === 'background' && heroImageUrl && (
               <div className="fieldset gap-2">
                 <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                  Photo darkness — {heroOverlayOpacity}%
+                  ფოტოს დაბნელება — {heroOverlayOpacity}%
                 </label>
                 <input
                   type="range"
@@ -1776,20 +1776,20 @@ export default function StoreDesignPage() {
                   onChange={e => setHeroOverlayOpacity(Number(e.target.value))}
                   className="range range-xs accent-fuchsia-500"
                 />
-                <p className="text-white/30 text-xs">Dims the photo so your text stands out. 0% keeps it fully bright.</p>
+                <p className="text-white/30 text-xs">ფოტოს ჩამუქება, რომ ტექსტი გამოირჩეოდეს. 0% ინარჩუნებს სრულ სიკაშკაშეს.</p>
               </div>
             )}
 
             {heroLayout === 'background' && heroImageUrl && (
               <div className="rounded-xl border border-white/7 bg-white/2 p-4 flex flex-col gap-3">
                 <div>
-                  <p className="text-sm font-medium text-white">Hero video background</p>
-                  <p className="text-white/30 text-xs mt-0.5">Plays muted and looped in place of the photo. The photo above still serves as the poster frame and the mobile fallback.</p>
+                  <p className="text-sm font-medium text-white">ჰერო ვიდეო ფონი</p>
+                  <p className="text-white/30 text-xs mt-0.5">უკრავს დადუმებულად და მარყუჟში ფოტოს ნაცვლად. ზემოთ მოცემული ფოტო კვლავ ემსახურება საწყის კადრს და მობილურის სათადარიგოს.</p>
                 </div>
-                <VideoField label="Video" value={heroVideoUrl} uploading={heroVideoUploading} onFile={handleHeroVideoFile} onClear={() => setHeroVideoUrl('')} />
+                <VideoField label="ვიდეო" value={heroVideoUrl} uploading={heroVideoUploading} onFile={handleHeroVideoFile} onClear={() => setHeroVideoUrl('')} />
                 {heroVideoUrl && (
                   <label className="flex items-center justify-between gap-3 cursor-pointer">
-                    <span className="text-sm text-white/70">Also autoplay on mobile</span>
+                    <span className="text-sm text-white/70">ავტომატური დაკვრა მობილურზეც</span>
                     <input
                       type="checkbox"
                       checked={heroVideoMobileEnabled}
@@ -1800,7 +1800,7 @@ export default function StoreDesignPage() {
                 )}
                 {!heroVideoUrl && (
                   <label className="flex items-center justify-between gap-3 cursor-pointer">
-                    <span className="text-sm text-white/70">Slow zoom effect (Ken Burns)</span>
+                    <span className="text-sm text-white/70">ნელი გადიდების ეფექტი (Ken Burns)</span>
                     <input
                       type="checkbox"
                       checked={heroKenBurnsEnabled}
@@ -1815,8 +1815,8 @@ export default function StoreDesignPage() {
             {heroLayout === 'background' && heroImageUrl && (
               <label className="flex items-center justify-between gap-3 cursor-pointer">
                 <div>
-                  <p className="text-sm text-white/70">Scroll-down indicator</p>
-                  <p className="text-white/30 text-xs mt-0.5">A small animated chevron at the bottom of the hero.</p>
+                  <p className="text-sm text-white/70">ჩამოსქროლვის ინდიკატორი</p>
+                  <p className="text-white/30 text-xs mt-0.5">პატარა ანიმირებული ისარი ჰეროს ბოლოში.</p>
                 </div>
                 <input
                   type="checkbox"
@@ -1828,12 +1828,12 @@ export default function StoreDesignPage() {
             )}
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Text Color</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ტექსტის ფერი</label>
               <div className="grid grid-cols-3 gap-2">
                 {([
-                  { value: 'auto', label: 'Auto' },
-                  { value: 'light', label: 'Light' },
-                  { value: 'dark', label: 'Dark' },
+                  { value: 'auto', label: 'ავტომატური' },
+                  { value: 'light', label: 'ღია' },
+                  { value: 'dark', label: 'მუქი' },
                 ] as { value: HeroTextTheme; label: string }[]).map(opt => (
                   <button
                     key={opt.value}
@@ -1850,16 +1850,16 @@ export default function StoreDesignPage() {
                   </button>
                 ))}
               </div>
-              <p className="text-white/30 text-xs mt-1">Auto uses this theme&apos;s usual colors. Switch to Light or Dark when a photo makes the default text hard to read.</p>
+              <p className="text-white/30 text-xs mt-1">ავტომატური იყენებს ამ თემის ჩვეულ ფერებს. გადართეთ ღიაზე ან მუქზე, როცა ფოტო ართულებს ნაგულისხმევი ტექსტის წაკითხვას.</p>
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Height</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სიმაღლე</label>
               <div className="grid grid-cols-3 gap-2">
                 {([
-                  { value: 'small', label: 'Small' },
-                  { value: 'medium', label: 'Medium' },
-                  { value: 'large', label: 'Large' },
+                  { value: 'small', label: 'პატარა' },
+                  { value: 'medium', label: 'საშუალო' },
+                  { value: 'large', label: 'დიდი' },
                 ] as { value: HeroHeight; label: string }[]).map(opt => (
                   <button
                     key={opt.value}
@@ -1879,7 +1879,7 @@ export default function StoreDesignPage() {
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Text Position</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ტექსტის პოზიცია</label>
               <div className="grid grid-cols-3 gap-1.5 w-32">
                 {HERO_TEXT_POSITIONS.map(pos => {
                   const [v, h] = pos.split('-') as ['top' | 'middle' | 'bottom', 'left' | 'center' | 'right']
@@ -1904,18 +1904,18 @@ export default function StoreDesignPage() {
                   )
                 })}
               </div>
-              <p className="text-white/30 text-xs mt-1">Where the headline/text sits within the hero — also sets text alignment.</p>
+              <p className="text-white/30 text-xs mt-1">სად მდებარეობს სათაური/ტექსტი ჰეროში — ასევე განსაზღვრავს ტექსტის სწორებას.</p>
             </div>
 
             <div className="fieldset gap-3 pt-3 border-t border-white/5">
-              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Mobile overrides</p>
+              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">მობილურის გადაფარვები</p>
 
               <div className="fieldset gap-2">
-                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Hero image on mobile</label>
+                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ჰერო სურათი მობილურზე</label>
                 <div className="grid grid-cols-2 gap-2">
                   {([
-                    { value: 'show', label: 'Show' },
-                    { value: 'hide', label: 'Hide' },
+                    { value: 'show', label: 'ჩვენება' },
+                    { value: 'hide', label: 'დამალვა' },
                   ] as { value: HeroMobileImageVisibility; label: string }[]).map(opt => (
                     <button
                       key={opt.value}
@@ -1936,12 +1936,12 @@ export default function StoreDesignPage() {
 
               {heroLayout !== 'center' && heroMobileImage === 'show' && (
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Image position on mobile</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სურათის პოზიცია მობილურზე</label>
                   <div className="grid grid-cols-3 gap-2">
                     {([
-                      { value: 'inherit', label: 'Auto' },
-                      { value: 'top', label: 'Top' },
-                      { value: 'bottom', label: 'Bottom' },
+                      { value: 'inherit', label: 'ავტომატური' },
+                      { value: 'top', label: 'ზემოთ' },
+                      { value: 'bottom', label: 'ქვემოთ' },
                     ] as { value: HeroMobileImagePosition; label: string }[]).map(opt => (
                       <button
                         key={opt.value}
@@ -1958,18 +1958,18 @@ export default function StoreDesignPage() {
                       </button>
                     ))}
                   </div>
-                  <p className="text-white/30 text-xs mt-1">Stack order on narrow screens — independent of the left/right layout above.</p>
+                  <p className="text-white/30 text-xs mt-1">დალაგების თანმიმდევრობა ვიწრო ეკრანებზე — დამოუკიდებელია ზემოთ მოცემული მარცხნივ/მარჯვნივ განლაგებისგან.</p>
                 </div>
               )}
 
               <div className="fieldset gap-2">
-                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Text alignment on mobile</label>
+                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ტექსტის სწორება მობილურზე</label>
                 <div className="grid grid-cols-4 gap-2">
                   {([
-                    { value: 'inherit', label: 'Auto' },
-                    { value: 'left', label: 'Left' },
-                    { value: 'center', label: 'Center' },
-                    { value: 'right', label: 'Right' },
+                    { value: 'inherit', label: 'ავტომატური' },
+                    { value: 'left', label: 'მარცხნივ' },
+                    { value: 'center', label: 'ცენტრში' },
+                    { value: 'right', label: 'მარჯვნივ' },
                   ] as { value: HeroMobileTextAlign; label: string }[]).map(opt => (
                     <button
                       key={opt.value}
@@ -1990,7 +1990,7 @@ export default function StoreDesignPage() {
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Eyebrow</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ზედწერილი</label>
               <input
                 type="text"
                 value={heroEyebrow}
@@ -1998,12 +1998,12 @@ export default function StoreDesignPage() {
                 placeholder="მოგესალმებით"
                 className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
               />
-              <p className="text-white/30 text-xs">The small label above the headline. Clear it to hide entirely.</p>
+              <p className="text-white/30 text-xs">პატარა ლეიბლი სათაურის ზემოთ. გაასუფთავეთ, რომ საერთოდ დამალოთ.</p>
               <HeroTextSizePicker value={heroEyebrowSize} onChange={setHeroEyebrowSize} />
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Headline</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სათაური</label>
               <input
                 type="text"
                 value={heroHeadline}
@@ -2015,7 +2015,7 @@ export default function StoreDesignPage() {
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Subheadline</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ქვესათაური</label>
               <textarea
                 value={heroSubheadline}
                 onChange={e => setHeroSubheadline(e.target.value)}
@@ -2028,7 +2028,7 @@ export default function StoreDesignPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Hero Button</h2>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰერო ღილაკი</h2>
               <input
                 type="checkbox"
                 checked={heroCtaEnabled}
@@ -2040,7 +2040,7 @@ export default function StoreDesignPage() {
             {heroCtaEnabled && (
               <>
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Button Text</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ღილაკის ტექსტი</label>
                   <input
                     type="text"
                     value={heroCtaText}
@@ -2048,16 +2048,16 @@ export default function StoreDesignPage() {
                     placeholder="ყველა პროდუქტის ნახვა"
                     className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                   />
-                  <p className="text-white/30 text-xs">Leave blank to use the default text.</p>
+                  <p className="text-white/30 text-xs">ცარიელი დატოვება ნაგულისხმევი ტექსტის გამოსაყენებლად.</p>
                 </div>
 
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Sends visitors to</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მიმართავს ვიზიტორებს</label>
                   <div className="grid grid-cols-3 gap-2">
                     {([
-                      { value: 'products', label: 'All products' },
-                      { value: 'category', label: 'A category' },
-                      { value: 'custom', label: 'Custom link' },
+                      { value: 'products', label: 'ყველა პროდუქტი' },
+                      { value: 'category', label: 'კატეგორია' },
+                      { value: 'custom', label: 'საკუთარი ბმული' },
                     ] as { value: HeroCtaLinkType; label: string }[]).map(opt => (
                       <button
                         key={opt.value}
@@ -2081,7 +2081,7 @@ export default function StoreDesignPage() {
                       onChange={e => setHeroCtaCategoryId(e.target.value)}
                       className="select w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 mt-1"
                     >
-                      <option value="">Choose a category…</option>
+                      <option value="">აირჩიეთ კატეგორია…</option>
                       {(categories ?? []).map(c => (
                         <option key={c.id} value={c.id}>{c.name}</option>
                       ))}
@@ -2093,7 +2093,7 @@ export default function StoreDesignPage() {
                       type="text"
                       value={heroCtaCustomUrl}
                       onChange={e => setHeroCtaCustomUrl(e.target.value)}
-                      placeholder="/products/category/shoes or https://…"
+                      placeholder="/products/category/shoes ან https://…"
                       className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 mt-1"
                     />
                   )}
@@ -2104,7 +2104,7 @@ export default function StoreDesignPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Hero Secondary Button</h2>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰერო მეორადი ღილაკი</h2>
               <input
                 type="checkbox"
                 checked={heroSecondaryCtaEnabled}
@@ -2116,7 +2116,7 @@ export default function StoreDesignPage() {
             {heroSecondaryCtaEnabled && (
               <>
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Button Text</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ღილაკის ტექსტი</label>
                   <input
                     type="text"
                     value={heroSecondaryCtaText}
@@ -2124,16 +2124,16 @@ export default function StoreDesignPage() {
                     placeholder="მეტის ნახვა"
                     className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                   />
-                  <p className="text-white/30 text-xs">Leave blank to use the default text.</p>
+                  <p className="text-white/30 text-xs">ცარიელი დატოვება ნაგულისხმევი ტექსტის გამოსაყენებლად.</p>
                 </div>
 
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Sends visitors to</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მიმართავს ვიზიტორებს</label>
                   <div className="grid grid-cols-3 gap-2">
                     {([
-                      { value: 'products', label: 'All products' },
-                      { value: 'category', label: 'A category' },
-                      { value: 'custom', label: 'Custom link' },
+                      { value: 'products', label: 'ყველა პროდუქტი' },
+                      { value: 'category', label: 'კატეგორია' },
+                      { value: 'custom', label: 'საკუთარი ბმული' },
                     ] as { value: HeroCtaLinkType; label: string }[]).map(opt => (
                       <button
                         key={opt.value}
@@ -2157,7 +2157,7 @@ export default function StoreDesignPage() {
                       onChange={e => setHeroSecondaryCtaCategoryId(e.target.value)}
                       className="select w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 mt-1"
                     >
-                      <option value="">Choose a category…</option>
+                      <option value="">აირჩიეთ კატეგორია…</option>
                       {(categories ?? []).map(c => (
                         <option key={c.id} value={c.id}>{c.name}</option>
                       ))}
@@ -2169,7 +2169,7 @@ export default function StoreDesignPage() {
                       type="text"
                       value={heroSecondaryCtaCustomUrl}
                       onChange={e => setHeroSecondaryCtaCustomUrl(e.target.value)}
-                      placeholder="/products/category/shoes or https://…"
+                      placeholder="/products/category/shoes ან https://…"
                       className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 mt-1"
                     />
                   )}
@@ -2180,10 +2180,10 @@ export default function StoreDesignPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Hero Slides</h2>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰერო სლაიდები</h2>
               <p className="text-white/30 text-xs mt-1">
-                Optional — add 2 or more slides to turn the hero above into an auto-advancing carousel. Layout, height, and
-                text position stay as set above; each slide gets its own image, text, and button.
+                სურვილისამებრ — დაამატეთ 2 ან მეტი სლაიდი, რომ ზემოთ მოცემული ჰერო ავტომატურად მოძრავ კარუსელად აქციოთ. განლაგება, სიმაღლე და
+                ტექსტის პოზიცია რჩება ისეთი, როგორც ზემოთ დააყენეთ; თითოეულ სლაიდს აქვს საკუთარი სურათი, ტექსტი და ღილაკი.
               </p>
             </div>
 
@@ -2213,19 +2213,19 @@ export default function StoreDesignPage() {
               onClick={addHeroSlide}
               className="btn btn-sm self-start bg-white/4 border-white/10 text-white/60 hover:text-white"
             >
-              + Slide
+              + სლაიდი
             </button>
           </div>
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Product Badges</h2>
-              <p className="text-white/30 text-xs mt-1">Little labels shown on top of product photos in your grid.</p>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">პროდუქტის ბეჯები</h2>
+              <p className="text-white/30 text-xs mt-1">პატარა ლეიბლები, რომლებიც ჩნდება თქვენი ბადის პროდუქტის ფოტოებზე.</p>
             </div>
 
             <div className="flex flex-col gap-3 pb-4 border-b border-white/5">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-white">Sale badge</p>
+                <p className="text-sm font-medium text-white">ფასდაკლების ბეჯი</p>
                 <input
                   type="checkbox"
                   checked={badgeSaleEnabled}
@@ -2250,12 +2250,12 @@ export default function StoreDesignPage() {
                   />
                 </div>
               )}
-              <p className="text-white/30 text-xs">Shown automatically on any product with a sale price.</p>
+              <p className="text-white/30 text-xs">ავტომატურად ჩნდება ნებისმიერ პროდუქტზე ფასდაკლებული ფასით.</p>
             </div>
 
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-white">&quot;New&quot; badge</p>
+                <p className="text-sm font-medium text-white">„ახალი“ ბეჯი</p>
                 <input
                   type="checkbox"
                   checked={badgeNewEnabled}
@@ -2282,7 +2282,7 @@ export default function StoreDesignPage() {
                   </div>
                   <div className="fieldset gap-2">
                     <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                      Counts as new for — {badgeNewDays} days
+                      ითვლება ახლად — {badgeNewDays} დღის განმავლობაში
                     </label>
                     <input
                       type="range"
@@ -2296,7 +2296,7 @@ export default function StoreDesignPage() {
                   </div>
                 </>
               )}
-              <p className="text-white/30 text-xs">Shown on products added within the chosen window, as long as they&apos;re not already showing the Sale badge.</p>
+              <p className="text-white/30 text-xs">ჩნდება არჩეულ პერიოდში დამატებულ პროდუქტებზე, თუ მათზე უკვე არ ჩანს ფასდაკლების ბეჯი.</p>
             </div>
           </div>
 
@@ -2305,7 +2305,7 @@ export default function StoreDesignPage() {
         {!previewFullscreen && (
           <div className="lg:sticky lg:top-6">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Live Preview</p>
+              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">ცოცხალი გადახედვა</p>
               {previewControls}
             </div>
             <div className={`rounded-2xl border border-white/10 overflow-hidden h-[720px] ${SURFACE_CLASSES[themeId].page} ${SURFACE_CLASSES[themeId].text}`}>
@@ -2317,7 +2317,7 @@ export default function StoreDesignPage() {
         {previewFullscreen && (
           <div className="fixed inset-0 z-[100] bg-[#08080d] flex flex-col p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4 shrink-0">
-              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Live Preview</p>
+              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">ცოცხალი გადახედვა</p>
               {previewControls}
             </div>
             <div className={`flex-1 rounded-2xl border border-white/10 overflow-hidden ${SURFACE_CLASSES[themeId].page} ${SURFACE_CLASSES[themeId].text}`}>
@@ -2332,12 +2332,12 @@ export default function StoreDesignPage() {
       <div className="max-w-6xl mx-auto flex items-center gap-4">
         {error && (
           <div className="flex-1 rounded-xl border border-error/30 bg-error/10 px-4 py-2.5 text-sm text-error">
-            Failed to save changes.
+            ცვლილებების შენახვა ვერ მოხერხდა.
           </div>
         )}
         {saved && (
           <div className="flex-1 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-400">
-            Saved successfully
+            წარმატებით შეინახა
           </div>
         )}
         <button
@@ -2346,7 +2346,7 @@ export default function StoreDesignPage() {
           disabled={isPending}
           className={`btn gap-2 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40 ${error || saved ? '' : 'w-full'}`}
         >
-          {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Save Theme'}
+          {isPending ? <span className="loading loading-spinner loading-sm" /> : 'თემის შენახვა'}
         </button>
       </div>
     </div>

@@ -58,26 +58,26 @@ const FOOTERS = { minimal: MinimalFooter, bold: BoldFooter, classic: ClassicFoot
 const HOMES = { minimal: MinimalHome, bold: BoldHome, classic: ClassicHome, luxury: LuxuryHome, vibrant: VibrantHome, commerce: CommerceHome, editorial: EditorialHome }
 
 const PLACEHOLDER_PRODUCTS: ProductSummaryResponse[] = [
-  { id: 'preview-1', slug: 'preview-1', categoryId: null, name: 'Sample Product', basePrice: 49.99, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
-  { id: 'preview-2', slug: 'preview-2', categoryId: null, name: 'Another Item', basePrice: 89, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
-  { id: 'preview-3', slug: 'preview-3', categoryId: null, name: 'Best Seller', basePrice: 129.5, salePrice: 99.5, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
-  { id: 'preview-4', slug: 'preview-4', categoryId: null, name: 'New Arrival', basePrice: 34, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
+  { id: 'preview-1', slug: 'preview-1', categoryId: null, name: 'ნიმუშის პროდუქტი', basePrice: 49.99, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
+  { id: 'preview-2', slug: 'preview-2', categoryId: null, name: 'სხვა ნივთი', basePrice: 89, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
+  { id: 'preview-3', slug: 'preview-3', categoryId: null, name: 'ბესთსელერი', basePrice: 129.5, salePrice: 99.5, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
+  { id: 'preview-4', slug: 'preview-4', categoryId: null, name: 'ახალი ჩამოსვლა', basePrice: 34, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
 ]
 
 const SECTION_META: Record<HomeSectionKey, { label: string; description: string }> = {
-  hero: { label: 'Hero', description: 'Top banner with headline, image, and call to action.' },
-  categories: { label: 'Categories Grid', description: 'A grid of category tiles below the hero.' },
-  products: { label: 'Product Grid', description: 'Your full product listing.' },
-  collections: { label: 'Collections', description: 'Horizontally-scrolling rows of your curated product collections.' },
-  faq: { label: 'FAQ', description: 'A collapsible list of questions and answers — configured below.' },
-  content: { label: 'Content Block', description: 'An "About us" style section with a heading, text, image, and button — configured below.' },
+  hero: { label: 'ჰერო', description: 'ზედა ბანერი სათაურით, სურათით და მოქმედების ღილაკით.' },
+  categories: { label: 'კატეგორიების ბადე', description: 'კატეგორიების ფილების ბადე ჰეროს ქვემოთ.' },
+  products: { label: 'პროდუქტების ბადე', description: 'თქვენი სრული პროდუქტების სია.' },
+  collections: { label: 'კოლექციები', description: 'თქვენი კურირებული პროდუქტების კოლექციების ჰორიზონტალურად სქროლვადი რიგები.' },
+  faq: { label: 'ხშირად დასმული კითხვები', description: 'კითხვებისა და პასუხების ჩამოშლადი სია — კონფიგურირდება ქვემოთ.' },
+  content: { label: 'კონტენტის ბლოკი', description: '„ჩვენ შესახებ“ სტილის სექცია სათაურით, ტექსტით, სურათით და ღილაკით — კონფიგურირდება ქვემოთ.' },
 }
 
 const SOCIALS_POSITION_OPTIONS: { value: SocialsPosition; label: string }[] = [
-  { value: 'top', label: 'Top of page' },
-  { value: 'bottom', label: 'Bottom of page' },
-  { value: 'both', label: 'Top & bottom' },
-  { value: 'footer', label: 'Inside footer' },
+  { value: 'top', label: 'გვერდის თავში' },
+  { value: 'bottom', label: 'გვერდის ბოლოში' },
+  { value: 'both', label: 'თავში და ბოლოში' },
+  { value: 'footer', label: 'ქვედა კოლონტიტულში' },
 ]
 
 function UpDownButtons({
@@ -97,7 +97,7 @@ function UpDownButtons({
         type="button"
         onClick={onUp}
         disabled={disabledUp}
-        aria-label="Move up"
+        aria-label="ზემოთ გადატანა"
         className="w-6 h-5 flex items-center justify-center rounded text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-20 disabled:hover:text-white/40 disabled:hover:bg-transparent transition-colors"
       >
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
@@ -108,7 +108,7 @@ function UpDownButtons({
         type="button"
         onClick={onDown}
         disabled={disabledDown}
-        aria-label="Move down"
+        aria-label="ქვემოთ გადატანა"
         className="w-6 h-5 flex items-center justify-center rounded text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-20 disabled:hover:text-white/40 disabled:hover:bg-transparent transition-colors"
       >
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
@@ -633,7 +633,7 @@ export default function StoreLayoutPage() {
         <button
           type="button"
           onClick={() => setPreviewMode('desktop')}
-          aria-label="Desktop preview"
+          aria-label="დესქტოპის გადახედვა"
           className={`flex items-center justify-center w-7 h-7 rounded-md transition-colors ${previewMode === 'desktop' ? 'bg-fuchsia-500/20 text-white' : 'text-white/40 hover:text-white'}`}
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -644,7 +644,7 @@ export default function StoreLayoutPage() {
         <button
           type="button"
           onClick={() => setPreviewMode('mobile')}
-          aria-label="Mobile preview"
+          aria-label="მობილურის გადახედვა"
           className={`flex items-center justify-center w-7 h-7 rounded-md transition-colors ${previewMode === 'mobile' ? 'bg-fuchsia-500/20 text-white' : 'text-white/40 hover:text-white'}`}
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -656,7 +656,7 @@ export default function StoreLayoutPage() {
       <button
         type="button"
         onClick={() => setPreviewFullscreen(v => !v)}
-        aria-label={previewFullscreen ? 'Exit fullscreen' : 'Fullscreen preview'}
+        aria-label={previewFullscreen ? 'სრულეკრანიდან გამოსვლა' : 'სრულეკრანიანი გადახედვა'}
         className="flex items-center justify-center w-7 h-7 rounded-md border border-white/10 bg-white/4 text-white/50 hover:text-white transition-colors"
       >
         {previewFullscreen ? (
@@ -679,8 +679,8 @@ export default function StoreLayoutPage() {
     <>
     <div className="flex flex-col gap-8 max-w-6xl pb-24">
       <div>
-        <h1 className="text-2xl font-black tracking-tight">Layout</h1>
-        <p className="text-white/40 text-sm mt-1">Changes update the preview instantly — nothing goes live until you save.</p>
+        <h1 className="text-2xl font-black tracking-tight">განლაგება</h1>
+        <p className="text-white/40 text-sm mt-1">ცვლილებები მყისიერად ახლდება გადახედვაში — არაფერი გამოქვეყნდება, სანამ არ შეინახავთ.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -689,8 +689,8 @@ export default function StoreLayoutPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
             <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Home Page Sections</h2>
-              <p className="text-white/30 text-xs mt-1">Show, hide, and reorder the sections on your storefront&apos;s home page.</p>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">მთავარი გვერდის სექციები</h2>
+              <p className="text-white/30 text-xs mt-1">აჩვენეთ, დამალეთ და გადაალაგეთ სექციები თქვენი მაღაზიის მთავარ გვერდზე.</p>
             </div>
             <div className="flex flex-col gap-2">
               {sectionDisplayOrder.map(key => {
@@ -730,8 +730,8 @@ export default function StoreLayoutPage() {
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Announcement Bar</h2>
-                <p className="text-white/30 text-xs mt-1">A thin strip above your header, shown on every page.</p>
+                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">განცხადების ზოლი</h2>
+                <p className="text-white/30 text-xs mt-1">წვრილი ზოლი თქვენი ჰედერის ზემოთ, ჩნდება ყველა გვერდზე.</p>
               </div>
               <input
                 type="checkbox"
@@ -744,19 +744,19 @@ export default function StoreLayoutPage() {
             {announcementEnabled && (
               <>
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Message</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">შეტყობინება</label>
                   <input
                     type="text"
                     value={announcementText}
                     onChange={e => setAnnouncementText(e.target.value)}
-                    placeholder="🚚 Free shipping on orders over 100₾"
+                    placeholder="🚚 უფასო მიწოდება 100₾-ზე მეტ შეკვეთაზე"
                     className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                   />
                 </div>
 
                 <div className="flex items-center gap-4">
                   <div className="fieldset gap-2 flex-1">
-                    <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Background color</label>
+                    <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ფონის ფერი</label>
                     <div className="flex items-center gap-2">
                       <input
                         type="color"
@@ -771,12 +771,12 @@ export default function StoreLayoutPage() {
                         className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                       />
                     </div>
-                    <p className="text-white/30 text-xs">Text color is picked automatically for readability.</p>
+                    <p className="text-white/30 text-xs">ტექსტის ფერი შეირჩევა ავტომატურად წაკითხვადობისთვის.</p>
                   </div>
                 </div>
 
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Link (optional)</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ბმული (სურვილისამებრ)</label>
                   <input
                     type="text"
                     value={announcementLink}
@@ -793,7 +793,7 @@ export default function StoreLayoutPage() {
                     onChange={e => setAnnouncementDismissible(e.target.checked)}
                     className={`toggle toggle-sm ${announcementDismissible ? 'toggle-success' : ''}`}
                   />
-                  <span className="text-sm text-white/70">Visitors can close it</span>
+                  <span className="text-sm text-white/70">ვიზიტორებს შეუძლიათ დახურვა</span>
                 </label>
               </>
             )}
@@ -801,11 +801,11 @@ export default function StoreLayoutPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Product Grid Content</h2>
-              <p className="text-white/30 text-xs mt-1">What shows in the homepage Product Grid section.</p>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">პროდუქტების ბადის კონტენტი</h2>
+              <p className="text-white/30 text-xs mt-1">რა ჩნდება მთავარი გვერდის პროდუქტების ბადის სექციაში.</p>
             </div>
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Background color</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ფონის ფერი</label>
               <div className="flex items-center gap-2">
                 <input
                   type="color"
@@ -817,19 +817,19 @@ export default function StoreLayoutPage() {
                   type="text"
                   value={sectionBackgroundColors.products ?? ''}
                   onChange={e => updateSectionBackgroundColor('products', e.target.value)}
-                  placeholder="Theme default"
+                  placeholder="თემის ნაგულისხმევი"
                   className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
                 {sectionBackgroundColors.products && (
-                  <button type="button" onClick={() => updateSectionBackgroundColor('products', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">Clear</button>
+                  <button type="button" onClick={() => updateSectionBackgroundColor('products', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">გასუფთავება</button>
                 )}
               </div>
             </div>
             <div className="fieldset gap-2">
               <div className="grid grid-cols-2 gap-2">
                 {([
-                  { value: 'latest', label: 'Newest products' },
-                  { value: 'curated', label: 'Hand-picked' },
+                  { value: 'latest', label: 'უახლესი პროდუქტები' },
+                  { value: 'curated', label: 'ხელით შერჩეული' },
                 ] as { value: FeaturedProductsMode; label: string }[]).map(opt => (
                   <button
                     key={opt.value}
@@ -859,14 +859,14 @@ export default function StoreLayoutPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Content Block</h2>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">კონტენტის ბლოკი</h2>
               <p className="text-white/30 text-xs mt-1">
-                An optional &quot;About us&quot; style section — enable it above under Home Page Sections once it has a heading or text.
+                სურვილისამებრ „ჩვენ შესახებ“ სტილის სექცია — ჩართეთ ზემოთ, მთავარი გვერდის სექციებში, სათაურის ან ტექსტის დამატების შემდეგ.
               </p>
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Background color</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ფონის ფერი</label>
               <div className="flex items-center gap-2">
                 <input
                   type="color"
@@ -878,28 +878,28 @@ export default function StoreLayoutPage() {
                   type="text"
                   value={sectionBackgroundColors.content ?? ''}
                   onChange={e => updateSectionBackgroundColor('content', e.target.value)}
-                  placeholder="Theme default"
+                  placeholder="თემის ნაგულისხმევი"
                   className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
                 {sectionBackgroundColors.content && (
-                  <button type="button" onClick={() => updateSectionBackgroundColor('content', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">Clear</button>
+                  <button type="button" onClick={() => updateSectionBackgroundColor('content', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">გასუფთავება</button>
                 )}
               </div>
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Heading</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სათაური</label>
               <input
                 type="text"
                 value={contentHeading}
                 onChange={e => setContentHeading(e.target.value)}
-                placeholder="Why shop with us"
+                placeholder="რატომ ვირჩევთ ჩვენ"
                 className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
               />
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Text</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ტექსტი</label>
               <textarea
                 value={contentBody}
                 onChange={e => setContentBody(e.target.value)}
@@ -909,7 +909,7 @@ export default function StoreLayoutPage() {
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Image (optional)</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სურათი (სურვილისამებრ)</label>
               <div className="flex items-center gap-4">
                 <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 bg-white/4 shrink-0 flex items-center justify-center">
                   {contentImageUploading ? (
@@ -917,12 +917,12 @@ export default function StoreLayoutPage() {
                   ) : contentImageUrl ? (
                     <CImg src={contentImageUrl} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-white/20 text-[10px]">None</span>
+                    <span className="text-white/20 text-[10px]">არცერთი</span>
                   )}
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="btn btn-xs bg-white/4 border-white/8 text-white/60 hover:text-white cursor-pointer w-fit">
-                    Upload
+                    ატვირთვა
                     <input
                       type="file"
                       accept="image/*"
@@ -941,7 +941,7 @@ export default function StoreLayoutPage() {
                   </label>
                   {contentImageUrl && (
                     <button type="button" onClick={() => setContentImageUrl('')} className="text-xs text-white/30 hover:text-red-400 text-left">
-                      Remove
+                      წაშლა
                     </button>
                   )}
                 </div>
@@ -950,11 +950,11 @@ export default function StoreLayoutPage() {
 
             {contentImageUrl && (
               <div className="fieldset gap-2">
-                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Image position</label>
+                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სურათის პოზიცია</label>
                 <div className="grid grid-cols-2 gap-2">
                   {([
-                    { value: 'left', label: 'Left' },
-                    { value: 'right', label: 'Right' },
+                    { value: 'left', label: 'მარცხნივ' },
+                    { value: 'right', label: 'მარჯვნივ' },
                   ] as { value: ContentImagePosition; label: string }[]).map(opt => (
                     <button
                       key={opt.value}
@@ -976,17 +976,17 @@ export default function StoreLayoutPage() {
 
             <div className="grid grid-cols-2 gap-3 pt-3 border-t border-white/5">
               <div className="fieldset gap-2">
-                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Button text</label>
+                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ღილაკის ტექსტი</label>
                 <input
                   type="text"
                   value={contentButtonText}
                   onChange={e => setContentButtonText(e.target.value)}
-                  placeholder="Learn more"
+                  placeholder="გაიგეთ მეტი"
                   className="input input-sm w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
               </div>
               <div className="fieldset gap-2">
-                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Button link</label>
+                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ღილაკის ბმული</label>
                 <input
                   type="text"
                   value={contentButtonLink}
@@ -1000,16 +1000,16 @@ export default function StoreLayoutPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Navigation Menu</h2>
-              <p className="text-white/30 text-xs mt-1">Controls what appears in your storefront&apos;s header and mobile menu.</p>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ნავიგაციის მენიუ</h2>
+              <p className="text-white/30 text-xs mt-1">აკონტროლებს, რა ჩნდება თქვენი მაღაზიის ჰედერსა და მობილურ მენიუში.</p>
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Categories display</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">კატეგორიების ჩვენება</label>
               <div className="grid grid-cols-2 gap-2">
                 {([
-                  { value: 'flat', label: 'Individual links' },
-                  { value: 'dropdown', label: 'Single dropdown' },
+                  { value: 'flat', label: 'ცალკეული ბმულები' },
+                  { value: 'dropdown', label: 'ერთი ჩამოსაშლელი' },
                 ] as { value: CategoryMenuMode; label: string }[]).map(opt => (
                   <button
                     key={opt.value}
@@ -1029,11 +1029,11 @@ export default function StoreLayoutPage() {
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Which categories</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">რომელი კატეგორიები</label>
               <div className="grid grid-cols-2 gap-2">
                 {([
-                  { value: 'all', label: 'All categories' },
-                  { value: 'selected', label: 'Choose categories' },
+                  { value: 'all', label: 'ყველა კატეგორია' },
+                  { value: 'selected', label: 'კატეგორიების არჩევა' },
                 ] as { value: CategoryMenuScope; label: string }[]).map(opt => (
                   <button
                     key={opt.value}
@@ -1076,10 +1076,10 @@ export default function StoreLayoutPage() {
             )}
 
             <div className="fieldset gap-2 pt-2 border-t border-white/5">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Pages in menu</label>
-              <p className="text-white/30 text-xs -mt-1 mb-1">Choose which of your custom pages show in the header and mobile menu.</p>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">გვერდები მენიუში</label>
+              <p className="text-white/30 text-xs -mt-1 mb-1">აირჩიეთ, თქვენი რომელი საკუთარი გვერდები გამოჩნდეს ჰედერსა და მობილურ მენიუში.</p>
               {(!pages || pages.length === 0) ? (
-                <p className="text-white/30 text-xs">No pages yet — add some in the Pages section.</p>
+                <p className="text-white/30 text-xs">გვერდები ჯერ არ არის — დაამატეთ „გვერდები“ სექციაში.</p>
               ) : (
                 <div className="flex flex-col gap-1.5">
                   {pages.map(page => (
@@ -1101,7 +1101,7 @@ export default function StoreLayoutPage() {
             </div>
 
             <label className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer">
-              <span className="text-sm text-white/70">Contact page in menu</span>
+              <span className="text-sm text-white/70">კონტაქტის გვერდი მენიუში</span>
               <input
                 type="checkbox"
                 checked={showContactInNav}
@@ -1114,8 +1114,8 @@ export default function StoreLayoutPage() {
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <label className="flex items-center justify-between gap-3 cursor-pointer">
               <div>
-                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Categories Section</h2>
-                <p className="text-white/30 text-xs mt-1">A category grid shown on your storefront&apos;s home page, below the hero.</p>
+                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">კატეგორიების სექცია</h2>
+                <p className="text-white/30 text-xs mt-1">კატეგორიების ბადე, ჩნდება მაღაზიის მთავარ გვერდზე, ჰეროს ქვემოთ.</p>
               </div>
               <input
                 type="checkbox"
@@ -1126,7 +1126,7 @@ export default function StoreLayoutPage() {
             </label>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Background color</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ფონის ფერი</label>
               <div className="flex items-center gap-2">
                 <input
                   type="color"
@@ -1138,11 +1138,11 @@ export default function StoreLayoutPage() {
                   type="text"
                   value={sectionBackgroundColors.categories ?? ''}
                   onChange={e => updateSectionBackgroundColor('categories', e.target.value)}
-                  placeholder="Theme default"
+                  placeholder="თემის ნაგულისხმევი"
                   className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
                 {sectionBackgroundColors.categories && (
-                  <button type="button" onClick={() => updateSectionBackgroundColor('categories', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">Clear</button>
+                  <button type="button" onClick={() => updateSectionBackgroundColor('categories', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">გასუფთავება</button>
                 )}
               </div>
             </div>
@@ -1150,7 +1150,7 @@ export default function StoreLayoutPage() {
             {showLandingCategories && (
               <>
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Which categories</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">რომელი კატეგორიები</label>
                   <div className="grid grid-cols-2 gap-2">
                     {([
                       { value: 'all', label: 'All categories' },
@@ -1176,7 +1176,7 @@ export default function StoreLayoutPage() {
                 {landingCategoryScope === 'selected' && (
                   <div className="flex flex-col gap-1.5">
                     {selectableCategories.length === 0 ? (
-                      <p className="text-white/30 text-xs">No categories yet.</p>
+                      <p className="text-white/30 text-xs">კატეგორიები ჯერ არ არის.</p>
                     ) : (
                       selectableCategories.map(category => (
                         <label
@@ -1197,13 +1197,13 @@ export default function StoreLayoutPage() {
                 )}
 
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Grid layout</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ბადის განლაგება</label>
                   <div className="grid grid-cols-4 gap-2">
                     {([
-                      { value: 2, label: '2 per row', gridClass: 'grid-cols-2' },
-                      { value: 3, label: '3 per row', gridClass: 'grid-cols-3' },
-                      { value: 4, label: '4 per row', gridClass: 'grid-cols-4' },
-                      { value: 6, label: '6 per row', gridClass: 'grid-cols-6' },
+                      { value: 2, label: '2 რიგში', gridClass: 'grid-cols-2' },
+                      { value: 3, label: '3 რიგში', gridClass: 'grid-cols-3' },
+                      { value: 4, label: '4 რიგში', gridClass: 'grid-cols-4' },
+                      { value: 6, label: '6 რიგში', gridClass: 'grid-cols-6' },
                     ] as { value: LandingCategoryColumns; label: string; gridClass: string }[]).map(opt => (
                       <button
                         key={opt.value}
@@ -1230,7 +1230,7 @@ export default function StoreLayoutPage() {
                       </button>
                     ))}
                   </div>
-                  <p className="text-white/30 text-xs mt-1">Columns per row on desktop — rows wrap automatically. Mobile always shows fewer, scaled down.</p>
+                  <p className="text-white/30 text-xs mt-1">სვეტების რაოდენობა რიგში დესქტოპზე — რიგები ავტომატურად იშლება. მობილურზე ყოველთვის ნაკლები ჩანს, შემცირებული სახით.</p>
                 </div>
               </>
             )}
@@ -1239,8 +1239,8 @@ export default function StoreLayoutPage() {
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <label className="flex items-center justify-between gap-3 cursor-pointer">
               <div>
-                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Collections Section</h2>
-                <p className="text-white/30 text-xs mt-1">Horizontally-scrolling rows of your product collections, shown on the home page.</p>
+                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">კოლექციების სექცია</h2>
+                <p className="text-white/30 text-xs mt-1">თქვენი პროდუქტების კოლექციების ჰორიზონტალურად სქროლვადი რიგები, ჩნდება მთავარ გვერდზე.</p>
               </div>
               <input
                 type="checkbox"
@@ -1251,7 +1251,7 @@ export default function StoreLayoutPage() {
             </label>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Background color</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ფონის ფერი</label>
               <div className="flex items-center gap-2">
                 <input
                   type="color"
@@ -1263,11 +1263,11 @@ export default function StoreLayoutPage() {
                   type="text"
                   value={sectionBackgroundColors.collections ?? ''}
                   onChange={e => updateSectionBackgroundColor('collections', e.target.value)}
-                  placeholder="Theme default"
+                  placeholder="თემის ნაგულისხმევი"
                   className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
                 {sectionBackgroundColors.collections && (
-                  <button type="button" onClick={() => updateSectionBackgroundColor('collections', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">Clear</button>
+                  <button type="button" onClick={() => updateSectionBackgroundColor('collections', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">გასუფთავება</button>
                 )}
               </div>
             </div>
@@ -1275,11 +1275,11 @@ export default function StoreLayoutPage() {
             {showLandingCollections && (
               <>
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Which collections</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">რომელი კოლექციები</label>
                   <div className="grid grid-cols-2 gap-2">
                     {([
-                      { value: 'all', label: 'All collections' },
-                      { value: 'selected', label: 'Choose collections' },
+                      { value: 'all', label: 'ყველა კოლექცია' },
+                      { value: 'selected', label: 'კოლექციების არჩევა' },
                     ] as { value: CategoryMenuScope; label: string }[]).map(opt => (
                       <button
                         key={opt.value}
@@ -1301,7 +1301,7 @@ export default function StoreLayoutPage() {
                 {landingCollectionScope === 'selected' && (
                   <div className="flex flex-col gap-1.5">
                     {(collections ?? []).length === 0 ? (
-                      <p className="text-white/30 text-xs">No collections yet.</p>
+                      <p className="text-white/30 text-xs">კოლექციები ჯერ არ არის.</p>
                     ) : (
                       (collections ?? []).map(collection => (
                         <label
@@ -1322,9 +1322,9 @@ export default function StoreLayoutPage() {
                 )}
 
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Order &amp; titles</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">თანმიმდევრობა და სათაურები</label>
                   {visibleCollections.length === 0 ? (
-                    <p className="text-white/30 text-xs">No visible collections.</p>
+                    <p className="text-white/30 text-xs">ხილვადი კოლექციები არ არის.</p>
                   ) : (
                     <div className="flex flex-col gap-2">
                       {visibleCollections.map((collection, index) => (
@@ -1346,11 +1346,11 @@ export default function StoreLayoutPage() {
                       ))}
                     </div>
                   )}
-                  <p className="text-white/30 text-xs mt-1">Optional heading override per collection — defaults to the collection&apos;s own name.</p>
+                  <p className="text-white/30 text-xs mt-1">არასავალდებულო სათაურის გადაფარვა თითოეული კოლექციისთვის — ნაგულისხმევად კოლექციის საკუთარი სახელი გამოიყენება.</p>
                 </div>
 
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Products per row</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">პროდუქტები რიგში</label>
                   <div className="grid grid-cols-4 gap-2">
                     {LANDING_COLLECTION_PRODUCT_LIMITS.map(limit => (
                       <button
@@ -1375,8 +1375,8 @@ export default function StoreLayoutPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Socials Position</h2>
-              <p className="text-white/30 text-xs mt-1">Where your social links (set on the Contact tab) appear on the storefront.</p>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">სოც. ბმულების პოზიცია</h2>
+              <p className="text-white/30 text-xs mt-1">სად ჩნდება თქვენი სოციალური ბმულები (დაყენებული კონტაქტის ჩანართში) მაღაზიაში.</p>
             </div>
             <div className="grid grid-cols-2 gap-2">
               {SOCIALS_POSITION_OPTIONS.map(opt => (
@@ -1399,20 +1399,20 @@ export default function StoreLayoutPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Contact Form</h2>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">საკონტაქტო ფორმა</h2>
               <p className="text-white/30 text-xs mt-1">
-                Let customers send you a message (name + message, plus email or phone) right from the footer, without visiting a separate page.
-                Messages appear under the &quot;Messages&quot; tab of your store admin.
+                მიეცით მომხმარებლებს საშუალება, გამოგიგზავნონ შეტყობინება (სახელი + შეტყობინება, პლუს ელფოსტა ან ტელეფონი) პირდაპირ ქვედა კოლონტიტულიდან, ცალკე გვერდზე გადასვლის გარეშე.
+                შეტყობინებები ჩნდება თქვენი მაღაზიის ადმინის „შეტყობინებების“ ჩანართში.
               </p>
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Footer placement</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ქვედა კოლონტიტულში განთავსება</label>
               <div className="grid grid-cols-3 gap-2">
                 {([
-                  { value: 'off', label: 'Off' },
-                  { value: 'above', label: 'Above footer' },
-                  { value: 'below', label: 'Below footer' },
+                  { value: 'off', label: 'გამორთული' },
+                  { value: 'above', label: 'კოლონტიტულის ზემოთ' },
+                  { value: 'below', label: 'კოლონტიტულის ქვემოთ' },
                 ] as { value: FooterContactFormPosition; label: string }[]).map(opt => (
                   <button
                     key={opt.value}
@@ -1434,12 +1434,12 @@ export default function StoreLayoutPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Footer</h2>
-              <p className="text-white/30 text-xs mt-1">Copyright line, branding, payment badges, and custom link columns shown in your storefront&apos;s footer.</p>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ქვედა კოლონტიტული</h2>
+              <p className="text-white/30 text-xs mt-1">საავტორო უფლების ტექსტი, ბრენდინგი, გადახდის ბეჯები და საკუთარი ბმულების სვეტები, ჩნდება თქვენი მაღაზიის ქვედა კოლონტიტულში.</p>
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Copyright text</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">საავტორო უფლების ტექსტი</label>
               <input
                 type="text"
                 value={footerCopyrightText}
@@ -1450,7 +1450,7 @@ export default function StoreLayoutPage() {
             </div>
 
             <label className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer">
-              <span className="text-sm text-white/70">Show store logo in footer</span>
+              <span className="text-sm text-white/70">მაღაზიის ლოგოს ჩვენება ქვედა კოლონტიტულში</span>
               <input
                 type="checkbox"
                 checked={footerShowLogo}
@@ -1460,7 +1460,7 @@ export default function StoreLayoutPage() {
             </label>
 
             <label className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer">
-              <span className="text-sm text-white/70">Show accepted payment methods</span>
+              <span className="text-sm text-white/70">მიღებული გადახდის მეთოდების ჩვენება</span>
               <input
                 type="checkbox"
                 checked={footerShowPaymentIcons}
@@ -1470,7 +1470,7 @@ export default function StoreLayoutPage() {
             </label>
 
             <label className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer">
-              <span className="text-sm text-white/70">Show &quot;Made by NipNip&quot; attribution</span>
+              <span className="text-sm text-white/70">„შექმნილია NipNip-ის მიერ“ წარწერის ჩვენება</span>
               <input
                 type="checkbox"
                 checked={showPlatformAttribution}
@@ -1480,8 +1480,8 @@ export default function StoreLayoutPage() {
             </label>
 
             <div className="fieldset gap-2 pt-2 border-t border-white/5">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Custom link columns</label>
-              <p className="text-white/30 text-xs -mt-1 mb-1">Add grouped links (e.g. &quot;Shop&quot;, &quot;Help&quot;) shown alongside your Pages in the footer.</p>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">საკუთარი ბმულების სვეტები</label>
+              <p className="text-white/30 text-xs -mt-1 mb-1">დაამატეთ დაჯგუფებული ბმულები (მაგ. „მაღაზია“, „დახმარება“), ჩნდება თქვენი გვერდების გვერდით ქვედა კოლონტიტულში.</p>
               <div className="flex flex-col gap-3">
                 {footerLinkColumns.map((column, columnIndex) => (
                   <div key={columnIndex} className="rounded-xl bg-white/2 border border-white/5 p-3 flex flex-col gap-2">
@@ -1490,7 +1490,7 @@ export default function StoreLayoutPage() {
                         type="text"
                         value={column.title}
                         onChange={e => updateFooterLinkColumnTitle(columnIndex, e.target.value)}
-                        placeholder="Column title (e.g. Shop)"
+                        placeholder="სვეტის სათაური (მაგ. მაღაზია)"
                         className="input input-xs flex-1 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
                       />
                       <button
@@ -1507,7 +1507,7 @@ export default function StoreLayoutPage() {
                           type="text"
                           value={link.label}
                           onChange={e => updateFooterLink(columnIndex, linkIndex, 'label', e.target.value)}
-                          placeholder="Label"
+                          placeholder="ლეიბლი"
                           className="input input-xs w-28 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
                         />
                         <input
@@ -1531,7 +1531,7 @@ export default function StoreLayoutPage() {
                       onClick={() => addFooterLink(columnIndex)}
                       className="btn btn-xs self-start bg-white/4 border-white/10 text-white/60 hover:text-white"
                     >
-                      + Link
+                      + ბმული
                     </button>
                   </div>
                 ))}
@@ -1541,31 +1541,31 @@ export default function StoreLayoutPage() {
                 onClick={addFooterLinkColumn}
                 className="btn btn-xs self-start bg-white/4 border-white/10 text-white/60 hover:text-white"
               >
-                + Column
+                + სვეტი
               </button>
             </div>
           </div>
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Product Page</h2>
-              <p className="text-white/30 text-xs mt-1">Low-stock urgency, related products, delivery info, trust badges, and a size guide shown on every product page.</p>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">პროდუქტის გვერდი</h2>
+              <p className="text-white/30 text-xs mt-1">დაბალი მარაგის გაფრთხილება, მსგავსი პროდუქტები, მიწოდების ინფორმაცია, ნდობის ბეჯები და ზომების გზამკვლევი, ჩნდება ყველა პროდუქტის გვერდზე.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="fieldset gap-2">
-                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Low-stock threshold</label>
+                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">დაბალი მარაგის ზღვარი</label>
                 <input
                   type="number"
                   min="0"
                   value={lowStockThreshold ?? ''}
                   onChange={e => setLowStockThreshold(e.target.value === '' ? null : Number(e.target.value))}
-                  placeholder="Off"
+                  placeholder="გამორთული"
                   className="input input-sm w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
               </div>
               <div className="fieldset gap-2">
-                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Message</label>
+                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">შეტყობინება</label>
                 <input
                   type="text"
                   value={lowStockMessage}
@@ -1575,10 +1575,10 @@ export default function StoreLayoutPage() {
                 />
               </div>
             </div>
-            <p className="text-white/30 text-xs -mt-3">Shown once stock drops to or below the threshold. Use {'{n}'} in the message for the actual count.</p>
+            <p className="text-white/30 text-xs -mt-3">ჩნდება, როცა მარაგი ეცემა ზღვარამდე ან ქვემოთ. გამოიყენეთ {'{n}'} შეტყობინებაში რეალური რაოდენობისთვის.</p>
 
             <label className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer">
-              <span className="text-sm text-white/70">Show related products section</span>
+              <span className="text-sm text-white/70">მსგავსი პროდუქტების სექციის ჩვენება</span>
               <input
                 type="checkbox"
                 checked={showRelatedProducts}
@@ -1588,7 +1588,7 @@ export default function StoreLayoutPage() {
             </label>
 
             <label className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer">
-              <span className="text-sm text-white/70">Sticky mobile add-to-cart bar</span>
+              <span className="text-sm text-white/70">მიმაგრებული კალათაში დამატების ზოლი მობილურზე</span>
               <input
                 type="checkbox"
                 checked={showStickyMobileCta}
@@ -1599,7 +1599,7 @@ export default function StoreLayoutPage() {
 
             {showRelatedProducts && (
               <div className="fieldset gap-2">
-                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Related products heading</label>
+                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მსგავსი პროდუქტების სათაური</label>
                 <input
                   type="text"
                   value={relatedProductsHeading}
@@ -1611,7 +1611,7 @@ export default function StoreLayoutPage() {
             )}
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Delivery estimate</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მიწოდების ვადა</label>
               <input
                 type="text"
                 value={deliveryEstimateText}
@@ -1622,7 +1622,7 @@ export default function StoreLayoutPage() {
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Trust badges</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ნდობის ბეჯები</label>
               <div className="flex flex-col gap-2">
                 {trustBadges.map((badge, i) => (
                   <div key={i} className="flex items-center gap-2">
@@ -1648,17 +1648,17 @@ export default function StoreLayoutPage() {
                 onClick={addTrustBadge}
                 className="btn btn-xs self-start bg-white/4 border-white/10 text-white/60 hover:text-white"
               >
-                + Badge
+                + ბეჯი
               </button>
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Size guide</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ზომების გზამკვლევი</label>
               <textarea
                 value={sizeGuideContent}
                 onChange={e => setSizeGuideContent(e.target.value)}
                 rows={4}
-                placeholder="Leave empty to hide the size guide link"
+                placeholder="ცარიელი დატოვება ზომების გზამკვლევის ბმულის დასამალად"
                 className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 resize-none"
               />
             </div>
@@ -1666,26 +1666,26 @@ export default function StoreLayoutPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Checkout</h2>
-              <p className="text-white/30 text-xs mt-1">A buyer note field, a Terms-of-Service checkbox, and the order-confirmation message.</p>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">გადახდა</h2>
+              <p className="text-white/30 text-xs mt-1">მყიდველის შენიშვნის ველი, მომსახურების პირობების ჩექბოქსი და შეკვეთის დადასტურების შეტყობინება.</p>
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Minimum order amount (₾)</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მინიმალური შეკვეთის თანხა (₾)</label>
               <input
                 type="number"
                 min="0"
                 step="0.01"
                 value={minOrderAmount ?? ''}
                 onChange={e => setMinOrderAmount(e.target.value.trim() ? Number(e.target.value) : null)}
-                placeholder="No minimum"
+                placeholder="მინიმუმი არ არის"
                 className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
               />
-              <p className="text-white/30 text-xs">Checkout is blocked below this cart total. Separate from the free-shipping threshold, which only affects the shipping fee.</p>
+              <p className="text-white/30 text-xs">გადახდა დაბლოკილია ამ თანხაზე ნაკლები კალათის ჯამისთვის. განსხვავდება უფასო მიწოდების ზღვარისგან, რომელიც მხოლოდ მიწოდების საფასურზე მოქმედებს.</p>
             </div>
 
             <label className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer">
-              <span className="text-sm text-white/70">Let buyers leave a note at checkout</span>
+              <span className="text-sm text-white/70">მყიდველებს შეუძლიათ შენიშვნის დატოვება გადახდისას</span>
               <input
                 type="checkbox"
                 checked={checkoutNotesEnabled}
@@ -1695,7 +1695,7 @@ export default function StoreLayoutPage() {
             </label>
 
             <label className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer">
-              <span className="text-sm text-white/70">Require Terms of Service acceptance</span>
+              <span className="text-sm text-white/70">მომსახურების პირობებთან თანხმობის მოთხოვნა</span>
               <input
                 type="checkbox"
                 checked={checkoutTosEnabled}
@@ -1706,16 +1706,16 @@ export default function StoreLayoutPage() {
 
             {checkoutTosEnabled && (
               <div className="fieldset gap-2">
-                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Terms of Service page</label>
+                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მომსახურების პირობების გვერდი</label>
                 {(!pages || pages.length === 0) ? (
-                  <p className="text-white/30 text-xs">No pages yet — add one in the Pages section first.</p>
+                  <p className="text-white/30 text-xs">გვერდები ჯერ არ არის — ჯერ დაამატეთ ერთი „გვერდები“ სექციაში.</p>
                 ) : (
                   <select
                     value={checkoutTosPageId}
                     onChange={e => setCheckoutTosPageId(e.target.value)}
                     className="select w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                   >
-                    <option value="">Choose a page…</option>
+                    <option value="">აირჩიეთ გვერდი…</option>
                     {pages.map(page => (
                       <option key={page.id} value={page.id}>{page.title}</option>
                     ))}
@@ -1725,7 +1725,7 @@ export default function StoreLayoutPage() {
             )}
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Thank-you heading</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მადლობის სათაური</label>
               <input
                 type="text"
                 value={checkoutThankYouHeading}
@@ -1736,12 +1736,12 @@ export default function StoreLayoutPage() {
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Thank-you message</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მადლობის შეტყობინება</label>
               <textarea
                 value={checkoutThankYouMessage}
                 onChange={e => setCheckoutThankYouMessage(e.target.value)}
                 rows={2}
-                placeholder="Leave empty to keep the default order-confirmation message"
+                placeholder="ცარიელი დატოვება ნაგულისხმევი შეკვეთის დადასტურების შეტყობინების შესანარჩუნებლად"
                 className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 resize-none"
               />
             </div>
@@ -1750,8 +1750,8 @@ export default function StoreLayoutPage() {
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <label className="flex items-center justify-between gap-3 cursor-pointer">
               <div>
-                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">FAQ Section</h2>
-                <p className="text-white/30 text-xs mt-1">A collapsible list of questions and answers, shown on your home page.</p>
+                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ხშირად დასმული კითხვების სექცია</h2>
+                <p className="text-white/30 text-xs mt-1">კითხვებისა და პასუხების ჩამოშლადი სია, ჩნდება თქვენს მთავარ გვერდზე.</p>
               </div>
               <input
                 type="checkbox"
@@ -1762,7 +1762,7 @@ export default function StoreLayoutPage() {
             </label>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Background color</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ფონის ფერი</label>
               <div className="flex items-center gap-2">
                 <input
                   type="color"
@@ -1774,11 +1774,11 @@ export default function StoreLayoutPage() {
                   type="text"
                   value={sectionBackgroundColors.faq ?? ''}
                   onChange={e => updateSectionBackgroundColor('faq', e.target.value)}
-                  placeholder="Theme default"
+                  placeholder="თემის ნაგულისხმევი"
                   className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
                 {sectionBackgroundColors.faq && (
-                  <button type="button" onClick={() => updateSectionBackgroundColor('faq', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">Clear</button>
+                  <button type="button" onClick={() => updateSectionBackgroundColor('faq', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">გასუფთავება</button>
                 )}
               </div>
             </div>
@@ -1786,7 +1786,7 @@ export default function StoreLayoutPage() {
             {showFaqSection && (
               <>
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Heading</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სათაური</label>
                   <input
                     type="text"
                     value={faqHeading}
@@ -1830,7 +1830,7 @@ export default function StoreLayoutPage() {
                   onClick={addFaqItem}
                   className="btn btn-xs self-start bg-white/4 border-white/10 text-white/60 hover:text-white"
                 >
-                  + Question
+                  + კითხვა
                 </button>
               </>
             )}
@@ -1839,8 +1839,8 @@ export default function StoreLayoutPage() {
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <label className="flex items-center justify-between gap-3 cursor-pointer">
               <div>
-                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Store Hours</h2>
-                <p className="text-white/30 text-xs mt-1">Shows a live &quot;open now&quot; / &quot;opens at&quot; badge in your storefront header.</p>
+                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">სამუშაო საათები</h2>
+                <p className="text-white/30 text-xs mt-1">აჩვენებს ცოცხალ „ღიაა ახლა“ / „იხსნება“ ბეჯს თქვენი მაღაზიის ჰედერში.</p>
               </div>
               <input
                 type="checkbox"
@@ -1888,8 +1888,8 @@ export default function StoreLayoutPage() {
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <label className="flex items-center justify-between gap-3 cursor-pointer">
               <div>
-                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Sale Countdown</h2>
-                <p className="text-white/30 text-xs mt-1">An urgency bar counting down to a set end time — great for flash sales.</p>
+                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ფასდაკლების ათვლა</h2>
+                <p className="text-white/30 text-xs mt-1">გადაუდებლობის ზოლი, რომელიც ითვლის დროს დაყენებულ დასრულების დრომდე — შესანიშნავია ელვისებრი ფასდაკლებებისთვის.</p>
               </div>
               <input
                 type="checkbox"
@@ -1902,23 +1902,23 @@ export default function StoreLayoutPage() {
             {saleCountdownEnabled && (
               <>
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Ends at</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მთავრდება</label>
                   <input
                     type="datetime-local"
                     value={saleCountdownEndsAt ?? ''}
                     onChange={e => setSaleCountdownEndsAt(e.target.value || null)}
                     className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                   />
-                  <p className="text-white/30 text-xs">The bar disappears on its own once this time passes.</p>
+                  <p className="text-white/30 text-xs">ზოლი ავტომატურად ქრება ამ დროის გასვლის შემდეგ.</p>
                 </div>
 
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Message</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">შეტყობინება</label>
                   <input
                     type="text"
                     value={saleCountdownText}
                     onChange={e => setSaleCountdownText(e.target.value)}
-                    placeholder="🔥 Sale ends in"
+                    placeholder="🔥 ფასდაკლება მთავრდება"
                     className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                   />
                 </div>
@@ -1928,8 +1928,8 @@ export default function StoreLayoutPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Marketing &amp; Tracking</h2>
-              <p className="text-white/30 text-xs mt-1">Fires standard page-view and purchase events for your own ad campaigns.</p>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">მარკეტინგი და თრექინგი</h2>
+              <p className="text-white/30 text-xs mt-1">იძახებს სტანდარტულ გვერდის-ნახვისა და შესყიდვის მოვლენებს თქვენი სარეკლამო კამპანიებისთვის.</p>
             </div>
 
             <div className="fieldset gap-2">
@@ -1969,8 +1969,8 @@ export default function StoreLayoutPage() {
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <label className="flex items-center justify-between gap-3 cursor-pointer">
               <div>
-                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Local Pickup</h2>
-                <p className="text-white/30 text-xs mt-1">Lets buyers choose to pick up their order in person instead of delivery, at no shipping fee.</p>
+                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">თვითგატანა</h2>
+                <p className="text-white/30 text-xs mt-1">აძლევს მყიდველებს საშუალებას, პირადად წაიღონ შეკვეთა მიწოდების ნაცვლად, მიწოდების საფასურის გარეშე.</p>
               </div>
               <input
                 type="checkbox"
@@ -1983,22 +1983,22 @@ export default function StoreLayoutPage() {
             {pickupEnabled && (
               <>
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Pickup address</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">გატანის მისამართი</label>
                   <input
                     type="text"
                     value={pickupAddress}
                     onChange={e => setPickupAddress(e.target.value)}
-                    placeholder="Vazha-Pshavela Ave 71, Tbilisi"
+                    placeholder="ვაჟა-ფშაველას გამზ. 71, თბილისი"
                     className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                   />
                 </div>
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Pickup instructions (optional)</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">გატანის ინსტრუქციები (სურვილისამებრ)</label>
                   <textarea
                     value={pickupInstructions}
                     onChange={e => setPickupInstructions(e.target.value)}
                     rows={2}
-                    placeholder="Open 10:00–19:00, ring the bell at the side door"
+                    placeholder="ღიაა 10:00–19:00, დარეკეთ ზარით გვერდით კარზე"
                     className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 resize-none"
                   />
                 </div>
@@ -2008,12 +2008,12 @@ export default function StoreLayoutPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Floating Contact Button</h2>
-              <p className="text-white/30 text-xs mt-1">Shows a floating WhatsApp/Viber chat bubble on every storefront page. Leave both empty to hide it.</p>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">მოცურავე საკონტაქტო ღილაკი</h2>
+              <p className="text-white/30 text-xs mt-1">აჩვენებს მოცურავე WhatsApp/Viber ჩატის ბუშტს მაღაზიის ყველა გვერდზე. ორივეს ცარიელი დატოვება დამალავს მას.</p>
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">WhatsApp number</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">WhatsApp ნომერი</label>
               <input
                 type="text"
                 value={whatsappNumber}
@@ -2024,7 +2024,7 @@ export default function StoreLayoutPage() {
             </div>
 
             <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Viber number</label>
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Viber ნომერი</label>
               <input
                 type="text"
                 value={viberNumber}
@@ -2037,14 +2037,14 @@ export default function StoreLayoutPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Page Width</h2>
-              <p className="text-white/30 text-xs mt-1">Boxed constrains the whole site to a centered column with visible margins on wide screens.</p>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">გვერდის სიგანე</h2>
+              <p className="text-white/30 text-xs mt-1">ჩარჩოიანი ავიწროებს მთელ საიტს ცენტრირებულ სვეტამდე, ხილვადი კიდეებით ფართო ეკრანებზე.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               {([
-                { value: 'full', label: 'Full width' },
-                { value: 'boxed', label: 'Boxed' },
+                { value: 'full', label: 'სრული სიგანე' },
+                { value: 'boxed', label: 'ჩარჩოიანი' },
               ] as { value: Required<ThemeConfig>['layoutWidth']; label: string }[]).map(opt => (
                 <button
                   key={opt.value}
@@ -2065,7 +2065,7 @@ export default function StoreLayoutPage() {
             {layoutWidth === 'boxed' && (
               <>
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Max width — {boxedMaxWidth}px</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მაქსიმალური სიგანე — {boxedMaxWidth}px</label>
                   <input
                     type="range"
                     min={1000}
@@ -2078,7 +2078,7 @@ export default function StoreLayoutPage() {
                 </div>
 
                 <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Margin color</label>
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">კიდის ფერი</label>
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
@@ -2103,7 +2103,7 @@ export default function StoreLayoutPage() {
         {!previewFullscreen && (
           <div className="lg:sticky lg:top-6">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Live Preview</p>
+              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">ცოცხალი გადახედვა</p>
               {previewControls}
             </div>
             <div className={`rounded-2xl border border-white/10 overflow-hidden h-[720px] ${SURFACE_CLASSES[themeId].page} ${SURFACE_CLASSES[themeId].text}`}>
@@ -2115,7 +2115,7 @@ export default function StoreLayoutPage() {
         {previewFullscreen && (
           <div className="fixed inset-0 z-[100] bg-[#08080d] flex flex-col p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4 shrink-0">
-              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Live Preview</p>
+              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">ცოცხალი გადახედვა</p>
               {previewControls}
             </div>
             <div className={`flex-1 rounded-2xl border border-white/10 overflow-hidden ${SURFACE_CLASSES[themeId].page} ${SURFACE_CLASSES[themeId].text}`}>
@@ -2130,12 +2130,12 @@ export default function StoreLayoutPage() {
       <div className="max-w-6xl mx-auto flex items-center gap-4">
         {error && (
           <div className="flex-1 rounded-xl border border-error/30 bg-error/10 px-4 py-2.5 text-sm text-error">
-            Failed to save changes.
+            ცვლილებების შენახვა ვერ მოხერხდა.
           </div>
         )}
         {saved && (
           <div className="flex-1 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-400">
-            Saved successfully
+            წარმატებით შეინახა
           </div>
         )}
         <button
@@ -2144,7 +2144,7 @@ export default function StoreLayoutPage() {
           disabled={isPending}
           className={`btn gap-2 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40 ${error || saved ? '' : 'w-full'}`}
         >
-          {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Save Layout'}
+          {isPending ? <span className="loading loading-spinner loading-sm" /> : 'განლაგების შენახვა'}
         </button>
       </div>
     </div>

@@ -94,9 +94,9 @@ export function BulkVariantGenerator({
   return (
     <div className="rounded-xl bg-white/2 border border-white/5 p-4 flex flex-col gap-4">
       <div>
-        <p className="text-sm font-medium text-white">Bulk-generate variants</p>
+        <p className="text-sm font-medium text-white">ვარიაციების მასობრივი გენერაცია</p>
         <p className="text-white/30 text-xs mt-0.5">
-          Pick values for every option to create all combinations at once (e.g. every Size × Color).
+          აირჩიეთ მნიშვნელობები ყველა პარამეტრისთვის ყველა კომბინაციის ერთდროულად შესაქმნელად (მაგ. ყველა ზომა × ფერი).
         </p>
       </div>
 
@@ -133,7 +133,7 @@ export function BulkVariantGenerator({
           type="text"
           value={skuPrefix}
           onChange={e => setSkuPrefix(e.target.value)}
-          placeholder="SKU prefix (optional)"
+          placeholder="SKU-ს პრეფიქსი (სურვილისამებრ)"
           className="input input-xs flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60 font-mono"
         />
         <input
@@ -141,7 +141,7 @@ export function BulkVariantGenerator({
           step="0.01"
           value={price}
           onChange={e => setPrice(e.target.value)}
-          placeholder="Price"
+          placeholder="ფასი"
           className="input input-xs w-24 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
         />
         <input
@@ -149,23 +149,23 @@ export function BulkVariantGenerator({
           step="0.01"
           value={salePrice}
           onChange={e => setSalePrice(e.target.value)}
-          placeholder="Sale price"
+          placeholder="ფასდაკლებული ფასი"
           className="input input-xs w-24 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
         />
         <input
           type="number"
           value={stock}
           onChange={e => setStock(e.target.value)}
-          placeholder="Stock (∞)"
-          title="Blank = unlimited stock"
+          placeholder="მარაგი (∞)"
+          title="ცარიელი = შეუზღუდავი მარაგი"
           className="input input-xs w-20 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
         />
       </div>
 
       {result && (
         <p className={result.failed > 0 ? 'text-amber-400 text-xs' : 'text-emerald-400 text-xs'}>
-          Created {result.succeeded} variant{result.succeeded === 1 ? '' : 's'}
-          {result.failed > 0 ? `, ${result.failed} failed (likely duplicate SKUs)` : ''}.
+          შეიქმნა {result.succeeded} ვარიაცია
+          {result.failed > 0 ? `, ${result.failed} ვერ შეიქმნა (სავარაუდოდ დუბლირებული SKU)` : ''}.
         </p>
       )}
 
@@ -178,9 +178,9 @@ export function BulkVariantGenerator({
         {isGenerating ? (
           <span className="loading loading-spinner loading-xs" />
         ) : readyOptionCount === configuredOptions.length ? (
-          `Generate ${combinationCount} variant${combinationCount === 1 ? '' : 's'}`
+          `${combinationCount} ვარიაციის გენერაცია`
         ) : (
-          'Select at least one value per option'
+          'აირჩიეთ მინიმუმ ერთი მნიშვნელობა თითოეული პარამეტრისთვის'
         )}
       </button>
     </div>

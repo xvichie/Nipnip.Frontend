@@ -28,10 +28,10 @@ function OptionRow({ productId, option }: { productId: string; option: ProductOp
         <span className="text-sm font-medium text-white">{option.name}</span>
         <button
           type="button"
-          onClick={() => { if (confirm(`Delete option "${option.name}"?`)) deleteOption(option.id) }}
+          onClick={() => { if (confirm(`წავშალო პარამეტრი „${option.name}“?`)) deleteOption(option.id) }}
           className="btn btn-xs bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20"
         >
-          Delete option
+          პარამეტრის წაშლა
         </button>
       </div>
       <div className="flex flex-wrap gap-2">
@@ -50,7 +50,7 @@ function OptionRow({ productId, option }: { productId: string; option: ProductOp
           type="text"
           value={value}
           onChange={e => setValue(e.target.value)}
-          placeholder="New value (e.g. Large)"
+          placeholder="ახალი მნიშვნელობა (მაგ. Large)"
           className="input input-xs flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
         />
         <button
@@ -58,7 +58,7 @@ function OptionRow({ productId, option }: { productId: string; option: ProductOp
           disabled={isPending || !value.trim()}
           className="btn btn-xs bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 text-white disabled:opacity-40"
         >
-          Add
+          დამატება
         </button>
       </form>
     </div>
@@ -77,7 +77,7 @@ export function ProductOptionsManager({ productId, options }: { productId: strin
 
   return (
     <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
-      <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Options</h2>
+      <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">პარამეტრები</h2>
 
       {options.length > 0 ? (
         <div className="flex flex-col gap-3">
@@ -86,7 +86,7 @@ export function ProductOptionsManager({ productId, options }: { productId: strin
           ))}
         </div>
       ) : (
-        <p className="text-white/30 text-sm">No options yet (e.g. Size, Color).</p>
+        <p className="text-white/30 text-sm">პარამეტრები ჯერ არ არის (მაგ. ზომა, ფერი).</p>
       )}
 
       <form onSubmit={handleSubmit} className="flex gap-3 pt-2 border-t border-white/5">
@@ -94,7 +94,7 @@ export function ProductOptionsManager({ productId, options }: { productId: strin
           type="text"
           value={name}
           onChange={e => setName(e.target.value)}
-          placeholder="New option name (e.g. Size)"
+          placeholder="ახალი პარამეტრის სახელი (მაგ. ზომა)"
           className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
         />
         <button
@@ -102,10 +102,10 @@ export function ProductOptionsManager({ productId, options }: { productId: strin
           disabled={isPending || !name.trim()}
           className="btn btn-sm bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 text-white disabled:opacity-40"
         >
-          Add Option
+          პარამეტრის დამატება
         </button>
       </form>
-      {error && <p className="text-error text-xs">Failed to create option.</p>}
+      {error && <p className="text-error text-xs">პარამეტრის შექმნა ვერ მოხერხდა.</p>}
     </div>
   )
 }

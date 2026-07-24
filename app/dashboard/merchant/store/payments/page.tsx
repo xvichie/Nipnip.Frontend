@@ -90,15 +90,15 @@ export default function MerchantStorePaymentsPage() {
     <>
     <div className="flex flex-col gap-8 max-w-2xl pb-24">
       <div>
-        <h1 className="text-2xl font-black tracking-tight">Payments</h1>
-        <p className="text-white/40 text-sm mt-1">Choose which payment methods buyers can pick at checkout.</p>
+        <h1 className="text-2xl font-black tracking-tight">გადახდები</h1>
+        <p className="text-white/40 text-sm mt-1">აირჩიეთ, რომელი გადახდის მეთოდები შეუძლიათ არჩიონ მყიდველებმა შეკვეთისას.</p>
       </div>
 
       <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-sm font-semibold text-white">Cash on delivery</h2>
-            <p className="text-white/40 text-xs mt-0.5">Buyer pays in cash when the order arrives.</p>
+            <h2 className="text-sm font-semibold text-white">გადახდა მიტანისას</h2>
+            <p className="text-white/40 text-xs mt-0.5">მყიდველი იხდის ნაღდი ფულით შეკვეთის მიღებისას.</p>
           </div>
           <input
             type="checkbox"
@@ -109,14 +109,14 @@ export default function MerchantStorePaymentsPage() {
           />
         </div>
         {codEnabled && isLastEnabled && (
-          <p className="text-white/30 text-xs -mt-2">At least one payment method must stay enabled.</p>
+          <p className="text-white/30 text-xs -mt-2">მინიმუმ ერთი გადახდის მეთოდი უნდა დარჩეს ჩართული.</p>
         )}
         <div className="fieldset gap-2">
-          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Notes shown to buyer</label>
+          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მყიდველისთვის ნაჩვენები შენიშვნა</label>
           <textarea
             value={codNotes}
             onChange={e => setCodNotes(e.target.value)}
-            placeholder="e.g. Please have the exact amount ready for the courier."
+            placeholder="მაგ. გთხოვთ, კურიერისთვის მოამზადოთ ზუსტი თანხა."
             rows={3}
             className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
           />
@@ -126,8 +126,8 @@ export default function MerchantStorePaymentsPage() {
       <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-sm font-semibold text-white">Bank transfer</h2>
-            <p className="text-white/40 text-xs mt-0.5">Buyer transfers payment to your bank account.</p>
+            <h2 className="text-sm font-semibold text-white">საბანკო გადარიცხვა</h2>
+            <p className="text-white/40 text-xs mt-0.5">მყიდველი გადარიცხავს თანხას თქვენს საბანკო ანგარიშზე.</p>
           </div>
           <input
             type="checkbox"
@@ -138,14 +138,14 @@ export default function MerchantStorePaymentsPage() {
           />
         </div>
         {bankTransferEnabled && isLastEnabled && (
-          <p className="text-white/30 text-xs -mt-2">At least one payment method must stay enabled.</p>
+          <p className="text-white/30 text-xs -mt-2">მინიმუმ ერთი გადახდის მეთოდი უნდა დარჩეს ჩართული.</p>
         )}
         <div className="fieldset gap-2">
-          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Notes shown to buyer</label>
+          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მყიდველისთვის ნაჩვენები შენიშვნა</label>
           <textarea
             value={bankTransferNotes}
             onChange={e => setBankTransferNotes(e.target.value)}
-            placeholder="e.g. Bank: TBC, Account holder: Your Store LLC, IBAN: GE00TB0000000000000000"
+            placeholder="მაგ. ბანკი: TBC, ანგარიშის მფლობელი: თქვენი მაღაზია შპს, IBAN: GE00TB0000000000000000"
             rows={4}
             className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
           />
@@ -155,8 +155,8 @@ export default function MerchantStorePaymentsPage() {
       <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-sm font-semibold text-white">Card payments (Flitt)</h2>
-            <p className="text-white/40 text-xs mt-0.5">Buyer pays by card on a secure hosted checkout page.</p>
+            <h2 className="text-sm font-semibold text-white">ბარათით გადახდა (Flitt)</h2>
+            <p className="text-white/40 text-xs mt-0.5">მყიდველი იხდის ბარათით უსაფრთხო გადახდის გვერდზე.</p>
           </div>
           <input
             type="checkbox"
@@ -167,15 +167,15 @@ export default function MerchantStorePaymentsPage() {
           />
         </div>
         {flittEnabled && isLastEnabled && (
-          <p className="text-white/30 text-xs -mt-2">At least one payment method must stay enabled.</p>
+          <p className="text-white/30 text-xs -mt-2">მინიმუმ ერთი გადახდის მეთოდი უნდა დარჩეს ჩართული.</p>
         )}
         {!flittConnected && (
           <p className="text-white/30 text-xs -mt-2">
-            Connect your Flitt account under{' '}
+            დააკავშირეთ თქვენი Flitt ანგარიში{' '}
             <Link href="/dashboard/merchant/store/integrations" className="underline underline-offset-2 hover:text-white/60">
-              Integrations
+              ინტეგრაციებში
             </Link>{' '}
-            to enable this.
+            ამის ჩასართავად.
           </p>
         )}
       </div>
@@ -183,8 +183,8 @@ export default function MerchantStorePaymentsPage() {
       <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-sm font-semibold text-white">Card payments (TBC)</h2>
-            <p className="text-white/40 text-xs mt-0.5">Buyer pays by card on a secure TBC-hosted checkout page.</p>
+            <h2 className="text-sm font-semibold text-white">ბარათით გადახდა (TBC)</h2>
+            <p className="text-white/40 text-xs mt-0.5">მყიდველი იხდის ბარათით უსაფრთხო TBC-ის გადახდის გვერდზე.</p>
           </div>
           <input
             type="checkbox"
@@ -195,15 +195,15 @@ export default function MerchantStorePaymentsPage() {
           />
         </div>
         {tbcEnabled && isLastEnabled && (
-          <p className="text-white/30 text-xs -mt-2">At least one payment method must stay enabled.</p>
+          <p className="text-white/30 text-xs -mt-2">მინიმუმ ერთი გადახდის მეთოდი უნდა დარჩეს ჩართული.</p>
         )}
         {!tbcConnected && (
           <p className="text-white/30 text-xs -mt-2">
-            Connect your TBC account under{' '}
+            დააკავშირეთ თქვენი TBC ანგარიში{' '}
             <Link href="/dashboard/merchant/store/integrations" className="underline underline-offset-2 hover:text-white/60">
-              Integrations
+              ინტეგრაციებში
             </Link>{' '}
-            to enable this.
+            ამის ჩასართავად.
           </p>
         )}
       </div>
@@ -212,10 +212,10 @@ export default function MerchantStorePaymentsPage() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-              Card payments (Bank of Georgia)
+              ბარათით გადახდა (საქართველოს ბანკი)
               <SoonBadge />
             </h2>
-            <p className="text-white/40 text-xs mt-0.5">Buyer pays by card on a secure BOG-hosted checkout page — coming soon.</p>
+            <p className="text-white/40 text-xs mt-0.5">მყიდველი იხდის ბარათით უსაფრთხო BOG-ის გადახდის გვერდზე — მალე.</p>
           </div>
           <input type="checkbox" checked={false} disabled className="toggle toggle-sm toggle-error" />
         </div>
@@ -225,10 +225,10 @@ export default function MerchantStorePaymentsPage() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-              Crypto payments (CityPay)
+              გადახდა კრიპტოვალუტით (CityPay)
               <BetaBadge />
             </h2>
-            <p className="text-white/40 text-xs mt-0.5">Buyer pays with Bitcoin or other cryptocurrencies on a secure hosted checkout page.</p>
+            <p className="text-white/40 text-xs mt-0.5">მყიდველი იხდის Bitcoin-ით ან სხვა კრიპტოვალუტით უსაფრთხო გადახდის გვერდზე.</p>
           </div>
           <input
             type="checkbox"
@@ -239,15 +239,15 @@ export default function MerchantStorePaymentsPage() {
           />
         </div>
         {cityPayEnabled && isLastEnabled && (
-          <p className="text-white/30 text-xs -mt-2">At least one payment method must stay enabled.</p>
+          <p className="text-white/30 text-xs -mt-2">მინიმუმ ერთი გადახდის მეთოდი უნდა დარჩეს ჩართული.</p>
         )}
         {!cityPayConnected && (
           <p className="text-white/30 text-xs -mt-2">
-            Connect your CityPay account under{' '}
+            დააკავშირეთ თქვენი CityPay ანგარიში{' '}
             <Link href="/dashboard/merchant/store/integrations" className="underline underline-offset-2 hover:text-white/60">
-              Integrations
+              ინტეგრაციებში
             </Link>{' '}
-            to enable this.
+            ამის ჩასართავად.
           </p>
         )}
       </div>
@@ -257,12 +257,12 @@ export default function MerchantStorePaymentsPage() {
       <div className="max-w-6xl mx-auto flex items-center gap-4">
         {error && (
           <div className="flex-1 rounded-xl border border-error/30 bg-error/10 px-4 py-2.5 text-sm text-error">
-            Failed to save changes.
+            ცვლილებების შენახვა ვერ მოხერხდა.
           </div>
         )}
         {saved && (
           <div className="flex-1 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-400">
-            Saved successfully
+            წარმატებით შეინახა
           </div>
         )}
         <button
@@ -271,7 +271,7 @@ export default function MerchantStorePaymentsPage() {
           disabled={isPending}
           className={`btn gap-2 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40 ${error || saved ? '' : 'w-full'}`}
         >
-          {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Save'}
+          {isPending ? <span className="loading loading-spinner loading-sm" /> : 'შენახვა'}
         </button>
       </div>
     </div>

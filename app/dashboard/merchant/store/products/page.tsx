@@ -9,12 +9,12 @@ import { CsvImportExportModal } from '@/components/dashboard/store/CsvImportExpo
 import { CImg } from '@/components/ui/CImg'
 
 const SORT_OPTIONS = [
-  { value: 'createdAt-desc', label: 'Newest first' },
-  { value: 'createdAt-asc', label: 'Oldest first' },
-  { value: 'name-asc', label: 'Name A–Z' },
-  { value: 'name-desc', label: 'Name Z–A' },
-  { value: 'price-asc', label: 'Price: low to high' },
-  { value: 'price-desc', label: 'Price: high to low' },
+  { value: 'createdAt-desc', label: 'ჯერ ახალი' },
+  { value: 'createdAt-asc', label: 'ჯერ ძველი' },
+  { value: 'name-asc', label: 'სახელი A–Z' },
+  { value: 'name-desc', label: 'სახელი Z–A' },
+  { value: 'price-asc', label: 'ფასი: დაბლიდან მაღლა' },
+  { value: 'price-desc', label: 'ფასი: მაღლიდან დაბლა' },
 ] as const
 
 export default function MerchantProductsPage() {
@@ -49,7 +49,7 @@ export default function MerchantProductsPage() {
   const totalPages = data ? Math.max(1, Math.ceil(data.totalCount / 20)) : 1
 
   function handleDelete(id: string, name: string) {
-    if (!confirm(`Delete product "${name}"? This cannot be undone.`)) return
+    if (!confirm(`წავშალო პროდუქტი „${name}“? ეს ქმედება შეუქცევადია.`)) return
     deleteProduct(id)
   }
 
@@ -64,8 +64,8 @@ export default function MerchantProductsPage() {
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-black tracking-tight">Products</h1>
-          <p className="text-white/40 text-sm mt-1">{data ? `${data.totalCount} total` : ''}</p>
+          <h1 className="text-2xl font-black tracking-tight">პროდუქტები</h1>
+          <p className="text-white/40 text-sm mt-1">{data ? `სულ ${data.totalCount}` : ''}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <ImportProductModal />
@@ -77,7 +77,7 @@ export default function MerchantProductsPage() {
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
               <path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/>
             </svg>
-            New Product
+            ახალი პროდუქტი
           </Link>
         </div>
       </div>
@@ -87,7 +87,7 @@ export default function MerchantProductsPage() {
           type="text"
           value={searchInput}
           onChange={e => setSearchInput(e.target.value)}
-          placeholder="Search products..."
+          placeholder="პროდუქტების ძიება..."
           className="input input-sm w-full sm:flex-1 sm:min-w-40 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
         />
         {categories && categories.length > 0 && (
@@ -96,7 +96,7 @@ export default function MerchantProductsPage() {
             onChange={e => { setCategoryId(e.target.value); setPage(1) }}
             className="select select-sm w-full sm:w-auto bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
           >
-            <option value="">All categories</option>
+            <option value="">ყველა კატეგორია</option>
             {categories.map(category => (
               <option key={category.id} value={category.id}>{category.name}</option>
             ))}
@@ -107,9 +107,9 @@ export default function MerchantProductsPage() {
           onChange={e => { setStatus(e.target.value as typeof status); setPage(1) }}
           className="select select-sm w-full sm:w-auto bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
         >
-          <option value="">All statuses</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
+          <option value="">ყველა სტატუსი</option>
+          <option value="active">აქტიური</option>
+          <option value="inactive">არააქტიური</option>
         </select>
         <select
           value={sort}
@@ -127,16 +127,16 @@ export default function MerchantProductsPage() {
           </div>
         ) : isError || !data ? (
           <div className="p-6">
-            <div className="alert alert-error text-sm rounded-xl">Failed to load products.</div>
+            <div className="alert alert-error text-sm rounded-xl">პროდუქტების ჩატვირთვა ვერ მოხერხდა.</div>
           </div>
         ) : data.items.length === 0 ? (
-          <div className="py-20 text-center text-white/20 text-sm">No products found.</div>
+          <div className="py-20 text-center text-white/20 text-sm">პროდუქტები ვერ მოიძებნა.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/6">
-                  {['Product', 'Price', 'Status', ''].map((h, i) => (
+                  {['პროდუქტი', 'ფასი', 'სტატუსი', ''].map((h, i) => (
                     <th key={i} className={[
                       'px-5 py-3 text-xs font-medium text-white/30 uppercase tracking-widest whitespace-nowrap',
                       i === 3 ? 'text-right' : 'text-left',
@@ -171,16 +171,16 @@ export default function MerchantProductsPage() {
                           ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
                           : 'bg-white/4 border-white/8 text-white/30',
                       ].join(' ')}>
-                        {product.isActive ? 'Active' : 'Inactive'}
+                        {product.isActive ? 'აქტიური' : 'არააქტიური'}
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-right" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1.5">
                         <Link
                           href={`/dashboard/merchant/store/products/${product.id}`}
-                          aria-label="Edit"
+                          aria-label="რედაქტირება"
                           className="tooltip tooltip-top btn btn-xs btn-square bg-white/4 border-white/8 text-white/60 hover:text-white"
-                          data-tip="Edit"
+                          data-tip="რედაქტირება"
                         >
                           <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden>
                             <path d="M9.5 1.5l3 3-7 7-3.5 1 1-3.5 6.5-6.5z" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
@@ -190,9 +190,9 @@ export default function MerchantProductsPage() {
                           type="button"
                           onClick={() => handleDuplicate(product.id)}
                           disabled={isDuplicating}
-                          aria-label="Duplicate"
+                          aria-label="დუბლირება"
                           className="tooltip tooltip-top btn btn-xs btn-square bg-white/4 border-white/8 text-white/60 hover:text-white disabled:opacity-40"
-                          data-tip="Duplicate"
+                          data-tip="დუბლირება"
                         >
                           <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden>
                             <rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
@@ -203,9 +203,9 @@ export default function MerchantProductsPage() {
                           type="button"
                           onClick={() => handleDelete(product.id, product.name)}
                           disabled={isDeleting}
-                          aria-label="Delete"
+                          aria-label="წაშლა"
                           className="tooltip tooltip-top btn btn-xs btn-square bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40"
-                          data-tip="Delete"
+                          data-tip="წაშლა"
                         >
                           <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden>
                             <path d="M2.5 3.5h9M5.5 3.5V2a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1.5M5.5 6.5v4M8.5 6.5v4M3.5 3.5l.5 8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1l.5-8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
@@ -228,7 +228,7 @@ export default function MerchantProductsPage() {
             disabled={page === 1}
             className="btn btn-sm bg-white/4 border-white/8 text-white/60 hover:text-white disabled:opacity-30"
           >
-            Prev
+            წინა
           </button>
           <span className="text-white/30 text-sm tabular-nums">{page} / {totalPages}</span>
           <button
@@ -236,7 +236,7 @@ export default function MerchantProductsPage() {
             disabled={page === totalPages}
             className="btn btn-sm bg-white/4 border-white/8 text-white/60 hover:text-white disabled:opacity-30"
           >
-            Next
+            შემდეგი
           </button>
         </div>
       )}

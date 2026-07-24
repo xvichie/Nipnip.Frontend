@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic'
 
 const LocationPickerMap = dynamic(() => import('@/components/storefront/shared/LocationPickerMap'), {
   ssr: false,
-  loading: () => <div className="h-[260px] flex items-center justify-center text-xs text-white/30">Loading map...</div>,
+  loading: () => <div className="h-[260px] flex items-center justify-center text-xs text-white/30">რუკა იტვირთება...</div>,
 })
 
 interface PickupLocationPickerProps {
@@ -59,10 +59,10 @@ export function PickupLocationPicker({ initialPosition = null, onLocationChange 
           disabled={isLocating}
           className="text-xs font-semibold text-fuchsia-400 hover:text-fuchsia-300 disabled:opacity-50"
         >
-          {isLocating ? 'Locating…' : 'Use my location'}
+          {isLocating ? 'მდებარეობის დადგენა…' : 'ჩემი მდებარეობის გამოყენება'}
         </button>
-        <span className="text-xs text-white/25">or click the map</span>
-        {isResolving && <span className="text-xs text-white/30">Resolving address…</span>}
+        <span className="text-xs text-white/25">ან დააჭირეთ რუკას</span>
+        {isResolving && <span className="text-xs text-white/30">მისამართის დადგენა…</span>}
       </div>
 
       <div className="rounded-xl border border-white/10 overflow-hidden relative">
@@ -70,7 +70,7 @@ export function PickupLocationPicker({ initialPosition = null, onLocationChange 
       </div>
 
       {position && (
-        <p className="text-xs text-white/30">Selected ({position.lat.toFixed(5)}, {position.lng.toFixed(5)})</p>
+        <p className="text-xs text-white/30">არჩეულია ({position.lat.toFixed(5)}, {position.lng.toFixed(5)})</p>
       )}
     </div>
   )

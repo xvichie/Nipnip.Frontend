@@ -25,9 +25,9 @@ export function ExtraProductPicker({ sellerId, onPick, pickingId, disabled }: Ex
           ))}
         </div>
       ) : isError || !data ? (
-        <p className="text-white/30 text-xs">Failed to load your products. Try again in a moment.</p>
+        <p className="text-white/30 text-xs">თქვენი პროდუქტების ჩატვირთვა ვერ მოხერხდა. სცადეთ ცოტა ხანში.</p>
       ) : data.products.length === 0 ? (
-        <p className="text-white/30 text-xs">No products found for this seller.</p>
+        <p className="text-white/30 text-xs">ამ გამყიდველისთვის პროდუქტები ვერ მოიძებნა.</p>
       ) : (
         <>
           <div className={`grid grid-cols-3 gap-2 max-h-72 overflow-y-auto pr-0.5 transition-opacity ${isFetching ? 'opacity-50' : ''}`}>
@@ -47,7 +47,7 @@ export function ExtraProductPicker({ sellerId, onPick, pickingId, disabled }: Ex
                       <CImg src={product.thumbnailUrl} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white/20 text-[9px] p-1 text-center">
-                        No photo
+                        ფოტო არ არის
                       </div>
                     )}
                     {pickingId === id && (
@@ -75,10 +75,10 @@ export function ExtraProductPicker({ sellerId, onPick, pickingId, disabled }: Ex
                 disabled={disabled || isFetching || page <= 1}
                 className="btn btn-xs bg-white/4 border-white/10 text-white/60 hover:text-white disabled:opacity-30"
               >
-                Prev
+                წინა
               </button>
               <span className="text-white/30 text-xs flex items-center gap-1.5">
-                Page {data.currentPage} of {data.totalPages}
+                გვერდი {data.currentPage} / {data.totalPages}
                 {isFetching && <span className="loading loading-spinner loading-xs" />}
               </span>
               <button
@@ -87,7 +87,7 @@ export function ExtraProductPicker({ sellerId, onPick, pickingId, disabled }: Ex
                 disabled={disabled || isFetching || page >= data.totalPages}
                 className="btn btn-xs bg-white/4 border-white/10 text-white/60 hover:text-white disabled:opacity-30"
               >
-                Next
+                შემდეგი
               </button>
             </div>
           )}

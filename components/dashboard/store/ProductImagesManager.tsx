@@ -67,7 +67,7 @@ export function ProductImagesManager({ productId, images }: { productId: string;
       const url = await uploadImage(file)
       createImage({ url })
     } catch {
-      setError('Upload failed. Check Cloudinary config and try again.')
+      setError('ატვირთვა ვერ მოხერხდა. შეამოწმეთ Cloudinary-ის კონფიგურაცია და სცადეთ თავიდან.')
     } finally {
       setUploading(false)
     }
@@ -75,9 +75,9 @@ export function ProductImagesManager({ productId, images }: { productId: string;
 
   return (
     <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
-      <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Images</h2>
+      <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">სურათები</h2>
       {order.length > 1 && (
-        <p className="text-white/25 text-xs -mt-2">Drag to reorder. The first image is the storefront cover.</p>
+        <p className="text-white/25 text-xs -mt-2">გადაათრიეთ თანმიმდევრობის შესაცვლელად. პირველი სურათი არის მაღაზიის ყდის სურათი.</p>
       )}
 
       <div className="flex flex-wrap gap-3">
@@ -94,7 +94,7 @@ export function ProductImagesManager({ productId, images }: { productId: string;
             <CImg src={image.url} alt="" className="w-full h-full object-cover pointer-events-none" />
             {index === 0 && (
               <span className="absolute top-1 left-1 rounded bg-fuchsia-600 text-white text-[9px] font-bold px-1.5 py-0.5">
-                Cover
+                ყდა
               </span>
             )}
             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity">
@@ -103,7 +103,7 @@ export function ProductImagesManager({ productId, images }: { productId: string;
                   type="button"
                   onClick={() => handleMove(index, -1)}
                   disabled={index === 0}
-                  aria-label="Move left"
+                  aria-label="მარცხნივ გადატანა"
                   className="text-white/70 hover:text-white disabled:opacity-20 text-xs px-1"
                 >
                   ‹
@@ -112,7 +112,7 @@ export function ProductImagesManager({ productId, images }: { productId: string;
                   type="button"
                   onClick={() => handleMove(index, 1)}
                   disabled={index === order.length - 1}
-                  aria-label="Move right"
+                  aria-label="მარჯვნივ გადატანა"
                   className="text-white/70 hover:text-white disabled:opacity-20 text-xs px-1"
                 >
                   ›
@@ -124,7 +124,7 @@ export function ProductImagesManager({ productId, images }: { productId: string;
                   onClick={() => handleSetCover(image.id)}
                   className="text-[10px] text-white/80 hover:text-white"
                 >
-                  Set as cover
+                  ყდად დაყენება
                 </button>
               )}
               <button
@@ -132,7 +132,7 @@ export function ProductImagesManager({ productId, images }: { productId: string;
                 onClick={() => deleteImage(image.id)}
                 className="text-xs text-red-300 hover:text-red-200"
               >
-                Remove
+                წაშლა
               </button>
             </div>
           </div>
@@ -151,7 +151,7 @@ export function ProductImagesManager({ productId, images }: { productId: string;
           disabled={uploading || isCreating}
           className="w-20 h-20 rounded-xl border border-dashed border-white/12 bg-white/2 hover:border-fuchsia-500/40 hover:bg-fuchsia-500/5 flex items-center justify-center text-white/30 disabled:opacity-40"
         >
-          {uploading || isCreating ? <span className="loading loading-spinner loading-sm text-fuchsia-400" /> : '+ Add'}
+          {uploading || isCreating ? <span className="loading loading-spinner loading-sm text-fuchsia-400" /> : '+ დამატება'}
         </button>
       </div>
 

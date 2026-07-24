@@ -49,7 +49,7 @@ function SaleCategoryToggle() {
         <div>
           <p className="text-sm font-medium text-white">{SALE_CATEGORY.name}</p>
           <p className="text-white/30 text-xs mt-0.5">
-            Built-in category showing every product currently on sale — no need to assign products to it manually.
+            ჩაშენებული კატეგორია, რომელიც აჩვენებს ყველა ფასდაკლებულ პროდუქტს — არ არის საჭირო პროდუქტების ხელით მიბმა.
           </p>
         </div>
         <input
@@ -63,7 +63,7 @@ function SaleCategoryToggle() {
 
       {showSaleCategory && (
         <label className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer">
-          <span className="text-sm text-white/70">Show {SALE_CATEGORY.iconEmoji} icon on the storefront</span>
+          <span className="text-sm text-white/70">{SALE_CATEGORY.iconEmoji} ხატულას ჩვენება მაღაზიაში</span>
           <input
             type="checkbox"
             checked={showSaleCategoryIcon}

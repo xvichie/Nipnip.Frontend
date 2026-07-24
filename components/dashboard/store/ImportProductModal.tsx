@@ -134,7 +134,7 @@ export function ImportProductModal() {
         // manually so the merchant can add a name/price themselves before importing.
         if (detail.imageUrls.length > 0) setImages(detail.imageUrls)
         if (detail.videoUrl) setVideoUrl(detail.videoUrl)
-        setError('This post has no caption text — add one below, then hit Import.')
+        setError('ამ პოსტს არ აქვს წარწერის ტექსტი — დაამატეთ ქვემოთ და დააჭირეთ „იმპორტს“.')
         return
       }
 
@@ -146,7 +146,7 @@ export function ImportProductModal() {
         if (detail.videoUrl) setVideoUrl(detail.videoUrl)
       }
     } catch {
-      setError('Failed to load that post. It may have been removed.')
+      setError('ამ პოსტის ჩატვირთვა ვერ მოხერხდა. შესაძლოა წაშლილია.')
     } finally {
       setPickedId(null)
     }
@@ -196,7 +196,7 @@ export function ImportProductModal() {
       const uploaded = await Promise.all(Array.from(files).map(file => uploadImage(file)))
       setImages(prev => [...prev, ...uploaded])
     } catch {
-      setError('Failed to upload one of those photos.')
+      setError('ამ ფოტოებიდან ერთ-ერთის ატვირთვა ვერ მოხერხდა.')
     } finally {
       setUploadingImage(false)
     }
@@ -209,7 +209,7 @@ export function ImportProductModal() {
       const url = await uploadVideo(file)
       setUploadedVideoUrl(url)
     } catch {
-      setError('Failed to upload that video.')
+      setError('ვიდეოს ატვირთვა ვერ მოხერხდა.')
     } finally {
       setUploadingVideo(false)
     }
@@ -234,7 +234,7 @@ export function ImportProductModal() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setError(data.error ?? 'Failed to import that post.')
+        setError(data.error ?? 'ამ პოსტის იმპორტი ვერ მოხერხდა.')
         return false
       }
       const result: ProductImportData = {
@@ -245,7 +245,7 @@ export function ImportProductModal() {
       router.push(`/dashboard/merchant/store/products/new?imported=${platform}`)
       return true
     } catch {
-      setError('Failed to import that post.')
+      setError('ამ პოსტის იმპორტი ვერ მოხერხდა.')
       return false
     } finally {
       setLoading(false)
@@ -271,14 +271,14 @@ export function ImportProductModal() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setError(data.error ?? 'Failed to import that product.')
+        setError(data.error ?? 'ამ პროდუქტის იმპორტი ვერ მოხერხდა.')
         return false
       }
       sessionStorage.setItem(PRODUCT_IMPORT_STORAGE_KEY, JSON.stringify(data as ProductImportData))
       router.push('/dashboard/merchant/store/products/new?imported=mymarket')
       return true
     } catch {
-      setError('Failed to import that product.')
+      setError('ამ პროდუქტის იმპორტი ვერ მოხერხდა.')
       return false
     } finally {
       setLoading(false)
@@ -311,14 +311,14 @@ export function ImportProductModal() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setError(data.error ?? 'Failed to import that product.')
+        setError(data.error ?? 'ამ პროდუქტის იმპორტი ვერ მოხერხდა.')
         return false
       }
       sessionStorage.setItem(PRODUCT_IMPORT_STORAGE_KEY, JSON.stringify(data as ProductImportData))
       router.push('/dashboard/merchant/store/products/new?imported=phubber')
       return true
     } catch {
-      setError('Failed to import that product.')
+      setError('ამ პროდუქტის იმპორტი ვერ მოხერხდა.')
       return false
     } finally {
       setLoading(false)
@@ -353,14 +353,14 @@ export function ImportProductModal() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setError(data.error ?? 'Failed to import that product.')
+        setError(data.error ?? 'ამ პროდუქტის იმპორტი ვერ მოხერხდა.')
         return false
       }
       sessionStorage.setItem(PRODUCT_IMPORT_STORAGE_KEY, JSON.stringify(data as ProductImportData))
       router.push('/dashboard/merchant/store/products/new?imported=extra')
       return true
     } catch {
-      setError('Failed to import that product.')
+      setError('ამ პროდუქტის იმპორტი ვერ მოხერხდა.')
       return false
     } finally {
       setLoading(false)
@@ -398,7 +398,7 @@ export function ImportProductModal() {
           <path d="M2 12.5V14h1.5l7.4-7.4-1.5-1.5L2 12.5Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
           <path d="M11.4 3l1.6 1.6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
         </svg>
-        Import
+        იმპორტი
       </button>
 
       {open && (
@@ -413,15 +413,15 @@ export function ImportProductModal() {
             <div className="flex items-center justify-between px-5 pt-5">
               <h3 className="text-sm font-semibold text-white">
                 {platform === 'choose'
-                  ? 'Import a product'
+                  ? 'პროდუქტის იმპორტი'
                   : platform === 'facebook-bulk'
-                    ? 'Bulk import from Facebook'
-                    : `Import from ${PLATFORM_LABELS[platform]}`}
+                    ? 'მასობრივი იმპორტი Facebook-იდან'
+                    : `იმპორტი ${PLATFORM_LABELS[platform]}-დან`}
               </h3>
               <button
                 type="button"
                 onClick={close}
-                aria-label="Close"
+                aria-label="დახურვა"
                 className="w-7 h-7 flex items-center justify-center text-white/40 hover:text-white"
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
@@ -432,7 +432,7 @@ export function ImportProductModal() {
 
             {platform === 'choose' ? (
               <div className="flex flex-col gap-4 px-5 pt-4 pb-5">
-                <p className="text-white/40 text-xs leading-relaxed">Choose where to import a product from.</p>
+                <p className="text-white/40 text-xs leading-relaxed">აირჩიეთ, საიდან გსურთ პროდუქტის იმპორტი.</p>
 
                 <button
                   type="button"
@@ -506,7 +506,7 @@ export function ImportProductModal() {
                     <rect x="1.5" y="2.5" width="9" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
                     <rect x="5.5" y="6.5" width="9" height="9" rx="1.5" fill="#14141c" stroke="currentColor" strokeWidth="1.3"/>
                   </svg>
-                  Bulk Import from Facebook
+                  მასობრივი იმპორტი Facebook-იდან
                 </button>
               </div>
             ) : platform === 'mymarket' ? (
@@ -519,7 +519,7 @@ export function ImportProductModal() {
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
                     <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Back
+                  უკან
                 </button>
 
                 {mmStatus === undefined ? (
@@ -531,8 +531,8 @@ export function ImportProductModal() {
                 ) : mmConnected && !mymarketManual ? (
                   <>
                     <p className="text-white/40 text-xs leading-relaxed">
-                      Pick a product from your connected MyMarket shop — everything below is pulled in
-                      automatically. Review it before saving.
+                      აირჩიეთ პროდუქტი თქვენი დაკავშირებული MyMarket მაღაზიიდან — ქვემოთ ყველაფერი ავტომატურად
+                      ჩაიტვირთება. გადახედეთ შენახვამდე.
                     </p>
                     <MyMarketProductPicker
                       shopId={mmStatus!.shopId!}
@@ -545,7 +545,7 @@ export function ImportProductModal() {
                       onClick={() => setMymarketManual(true)}
                       className="text-white/30 hover:text-white/60 text-xs self-start"
                     >
-                      Or paste a product link instead
+                      ან ჩასვით პროდუქტის ბმული ამის ნაცვლად
                     </button>
                     {error && (
                       <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
@@ -564,18 +564,18 @@ export function ImportProductModal() {
                         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
                           <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        Browse my products instead
+                        ამის ნაცვლად ჩემი პროდუქტების დათვალიერება
                       </button>
                     )}
 
                     <p className="text-white/40 text-xs leading-relaxed">
-                      Paste the product page link from MyMarket.ge — the title, photos, price, and attributes are
-                      pulled in automatically. Review everything before saving.
+                      ჩასვით პროდუქტის გვერდის ბმული MyMarket.ge-დან — სათაური, ფოტოები, ფასი და
+                      მახასიათებლები ავტომატურად ჩაიტვირთება. გადახედეთ ყველაფერს შენახვამდე.
                     </p>
 
                     <div className="fieldset gap-2">
                       <label htmlFor="mymarket-url" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                        Product link <span className="text-error">*</span>
+                        პროდუქტის ბმული <span className="text-error">*</span>
                       </label>
                       <input
                         id="mymarket-url"
@@ -593,11 +593,11 @@ export function ImportProductModal() {
 
                     {!mmConnected && (
                       <p className="text-white/25 text-xs leading-relaxed">
-                        Connect your shop in{' '}
+                        დააკავშირეთ თქვენი მაღაზია{' '}
                         <Link href="/dashboard/merchant/store/integrations" className="text-amber-400 hover:text-amber-300">
-                          Integrations
+                          ინტეგრაციებში
                         </Link>{' '}
-                        to browse your products directly.
+                        თქვენი პროდუქტების პირდაპირ დასათვალიერებლად.
                       </p>
                     )}
 
@@ -612,7 +612,7 @@ export function ImportProductModal() {
                       disabled={loading || !mymarketUrl.trim()}
                       className="btn w-full gap-2 bg-amber-500 hover:bg-amber-400 border-amber-500 hover:border-amber-400 text-black font-semibold disabled:opacity-40"
                     >
-                      {loading ? <span className="loading loading-spinner loading-sm" /> : 'Import'}
+                      {loading ? <span className="loading loading-spinner loading-sm" /> : 'იმპორტი'}
                     </button>
                   </form>
                 )}
@@ -627,7 +627,7 @@ export function ImportProductModal() {
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
                     <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Back
+                  უკან
                 </button>
 
                 {phStatus === undefined ? (
@@ -635,8 +635,8 @@ export function ImportProductModal() {
                 ) : phConnected && !phubberManual ? (
                   <>
                     <p className="text-white/40 text-xs leading-relaxed">
-                      Pick a product from your connected Phubber seller account — everything below is pulled in
-                      automatically. Review it before saving.
+                      აირჩიეთ პროდუქტი თქვენი დაკავშირებული Phubber გამყიდველის ანგარიშიდან — ქვემოთ ყველაფერი
+                      ავტომატურად ჩაიტვირთება. გადახედეთ შენახვამდე.
                     </p>
                     <PhubberProductPicker
                       sellerId={phStatus!.sellerId!}
@@ -649,7 +649,7 @@ export function ImportProductModal() {
                       onClick={() => setPhubberManual(true)}
                       className="text-white/30 hover:text-white/60 text-xs self-start"
                     >
-                      Or paste a product link instead
+                      ან ჩასვით პროდუქტის ბმული ამის ნაცვლად
                     </button>
                     {error && (
                       <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
@@ -668,18 +668,18 @@ export function ImportProductModal() {
                         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
                           <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        Browse my products instead
+                        ამის ნაცვლად ჩემი პროდუქტების დათვალიერება
                       </button>
                     )}
 
                     <p className="text-white/40 text-xs leading-relaxed">
-                      Paste the product page link from Phubber — the title, photos, price, and attributes are
-                      pulled in automatically. Review everything before saving.
+                      ჩასვით პროდუქტის გვერდის ბმული Phubber-იდან — სათაური, ფოტოები, ფასი და
+                      მახასიათებლები ავტომატურად ჩაიტვირთება. გადახედეთ ყველაფერს შენახვამდე.
                     </p>
 
                     <div className="fieldset gap-2">
                       <label htmlFor="phubber-url" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                        Product link <span className="text-error">*</span>
+                        პროდუქტის ბმული <span className="text-error">*</span>
                       </label>
                       <input
                         id="phubber-url"
@@ -697,11 +697,11 @@ export function ImportProductModal() {
 
                     {!phConnected && (
                       <p className="text-white/25 text-xs leading-relaxed">
-                        Connect your seller account in{' '}
+                        დააკავშირეთ თქვენი გამყიდველის ანგარიში{' '}
                         <Link href="/dashboard/merchant/store/integrations" className="text-[#EAC7C5] hover:brightness-110">
-                          Integrations
+                          ინტეგრაციებში
                         </Link>{' '}
-                        to browse your products directly.
+                        თქვენი პროდუქტების პირდაპირ დასათვალიერებლად.
                       </p>
                     )}
 
@@ -716,7 +716,7 @@ export function ImportProductModal() {
                       disabled={loading || !phubberUrl.trim()}
                       className="btn w-full gap-2 bg-[#EAC7C5] hover:brightness-95 border-[#EAC7C5] text-black font-semibold disabled:opacity-40"
                     >
-                      {loading ? <span className="loading loading-spinner loading-sm" /> : 'Import'}
+                      {loading ? <span className="loading loading-spinner loading-sm" /> : 'იმპორტი'}
                     </button>
                   </form>
                 )}
@@ -731,7 +731,7 @@ export function ImportProductModal() {
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
                     <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Back
+                  უკან
                 </button>
 
                 {exStatus === undefined ? (
@@ -739,8 +739,8 @@ export function ImportProductModal() {
                 ) : exConnected && !extraManual ? (
                   <>
                     <p className="text-white/40 text-xs leading-relaxed">
-                      Pick a product from your connected Extra.ge seller account — everything below is pulled in
-                      automatically. Review it before saving.
+                      აირჩიეთ პროდუქტი თქვენი დაკავშირებული Extra.ge გამყიდველის ანგარიშიდან — ქვემოთ ყველაფერი
+                      ავტომატურად ჩაიტვირთება. გადახედეთ შენახვამდე.
                     </p>
                     <ExtraProductPicker
                       sellerId={exStatus!.sellerId!}
@@ -753,7 +753,7 @@ export function ImportProductModal() {
                       onClick={() => setExtraManual(true)}
                       className="text-white/30 hover:text-white/60 text-xs self-start"
                     >
-                      Or paste a product link instead
+                      ან ჩასვით პროდუქტის ბმული ამის ნაცვლად
                     </button>
                     {error && (
                       <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
@@ -772,18 +772,18 @@ export function ImportProductModal() {
                         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
                           <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        Browse my products instead
+                        ამის ნაცვლად ჩემი პროდუქტების დათვალიერება
                       </button>
                     )}
 
                     <p className="text-white/40 text-xs leading-relaxed">
-                      Paste the product page link from Extra.ge — the title, photos, price, and attributes are
-                      pulled in automatically. Review everything before saving.
+                      ჩასვით პროდუქტის გვერდის ბმული Extra.ge-დან — სათაური, ფოტოები, ფასი და
+                      მახასიათებლები ავტომატურად ჩაიტვირთება. გადახედეთ ყველაფერს შენახვამდე.
                     </p>
 
                     <div className="fieldset gap-2">
                       <label htmlFor="extra-url" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                        Product link <span className="text-error">*</span>
+                        პროდუქტის ბმული <span className="text-error">*</span>
                       </label>
                       <input
                         id="extra-url"
@@ -801,11 +801,11 @@ export function ImportProductModal() {
 
                     {!exConnected && (
                       <p className="text-white/25 text-xs leading-relaxed">
-                        Connect your seller account in{' '}
+                        დააკავშირეთ თქვენი გამყიდველის ანგარიში{' '}
                         <Link href="/dashboard/merchant/store/integrations" className="text-[#c299ff] hover:brightness-110">
-                          Integrations
+                          ინტეგრაციებში
                         </Link>{' '}
-                        to browse your products directly.
+                        თქვენი პროდუქტების პირდაპირ დასათვალიერებლად.
                       </p>
                     )}
 
@@ -820,7 +820,7 @@ export function ImportProductModal() {
                       disabled={loading || !extraUrl.trim()}
                       className="btn w-full gap-2 bg-[#7A1DFF] hover:brightness-110 border-[#7A1DFF] text-white font-semibold disabled:opacity-40"
                     >
-                      {loading ? <span className="loading loading-spinner loading-sm" /> : 'Import'}
+                      {loading ? <span className="loading loading-spinner loading-sm" /> : 'იმპორტი'}
                     </button>
                   </form>
                 )}
@@ -836,7 +836,7 @@ export function ImportProductModal() {
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
                     <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Back
+                  უკან
                 </button>
 
                 <BulkImportFromFacebookSection onImportingChange={setBulkImporting} onDone={close} />
@@ -851,19 +851,19 @@ export function ImportProductModal() {
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
                     <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Back
+                  უკან
                 </button>
                 <p className="text-white/40 text-xs leading-relaxed">
-                  Pick a recent post from your connected {platform === 'facebook' ? 'Facebook Page' : 'Instagram account'}, or
-                  paste the details in yourself. AI will pull out the product name, price, sizes/colors, and category —
-                  review everything before saving.
+                  აირჩიეთ ბოლო პოსტი თქვენი დაკავშირებული {platform === 'facebook' ? 'Facebook გვერდიდან' : 'Instagram ანგარიშიდან'}, ან
+                  თავად ჩასვით დეტალები. AI ამოიღებს პროდუქტის სახელს, ფასს, ზომებს/ფერებს და კატეგორიას —
+                  გადახედეთ ყველაფერს შენახვამდე.
                 </p>
                 <button
                   type="button"
                   onClick={() => setMode('post')}
                   className="btn w-full justify-start gap-3 bg-white/4 border-white/10 text-white/70 hover:text-white hover:border-white/20"
                 >
-                  Select from a {platform === 'facebook' ? 'Facebook post' : 'Instagram post'}
+                  არჩევა {platform === 'facebook' ? 'Facebook პოსტიდან' : 'Instagram პოსტიდან'}
                 </button>
                 <button
                   type="button"
@@ -874,7 +874,7 @@ export function ImportProductModal() {
                     <path d="M2 12.5V14h1.5l7.4-7.4-1.5-1.5L2 12.5Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
                     <path d="M11.4 3l1.6 1.6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
                   </svg>
-                  Enter details manually
+                  დეტალების ხელით შეყვანა
                 </button>
               </div>
             ) : (
@@ -887,14 +887,14 @@ export function ImportProductModal() {
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
                     <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Back
+                  უკან
                 </button>
 
                 {mode === 'post' && (
                   connected ? (
                     <div className="fieldset gap-2">
                       <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                        Recent posts from {accountLabel}
+                        ბოლო პოსტები {accountLabel}-დან
                       </label>
                       {itemsLoading ? (
                         <div className="flex gap-2">
@@ -917,7 +917,7 @@ export function ImportProductModal() {
                                 <CImg src={item.thumbnailUrl} alt="" className="w-full h-full object-cover" />
                               ) : (
                                 <div className="w-full h-full bg-white/4 flex items-center justify-center text-white/20 text-[9px] p-1 text-center leading-tight">
-                                  {item.text?.slice(0, 40) ?? 'Post'}
+                                  {item.text?.slice(0, 40) ?? 'პოსტი'}
                                 </div>
                               )}
                               {pickedId === item.id && (
@@ -929,30 +929,30 @@ export function ImportProductModal() {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-white/30 text-xs">No recent posts found.</p>
+                        <p className="text-white/30 text-xs">ბოლო პოსტები ვერ მოიძებნა.</p>
                       )}
-                      <p className="text-white/25 text-xs">Pick a post to fill in the fields below.</p>
+                      <p className="text-white/25 text-xs">აირჩიეთ პოსტი ქვემოთ ველების შესავსებად.</p>
                     </div>
                   ) : (
                     <Link
                       href="/dashboard/merchant/store/integrations"
                       className="btn btn-sm w-fit gap-2 bg-white/4 border-white/10 text-white/70 hover:text-white"
                     >
-                      Connect {platform === 'facebook' ? 'Facebook' : 'Instagram'} in Integrations
+                      {platform === 'facebook' ? 'Facebook' : 'Instagram'}-ის დაკავშირება ინტეგრაციებში
                     </Link>
                   )
                 )}
 
                 <div className="fieldset gap-2">
                   <label htmlFor="import-caption" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                    Post text <span className="text-error">*</span>
+                    პოსტის ტექსტი <span className="text-error">*</span>
                   </label>
                   <textarea
                     id="import-caption"
                     autoFocus={mode === 'manual'}
                     value={captionText}
                     onChange={e => setCaptionText(e.target.value)}
-                    placeholder="Paste the post caption here..."
+                    placeholder="ჩასვით პოსტის წარწერა აქ..."
                     rows={6}
                     disabled={busy}
                     className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 resize-none"
@@ -962,7 +962,7 @@ export function ImportProductModal() {
 
                 <div className="fieldset gap-2">
                   <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                    Photos <span className="text-white/30 normal-case">({images.length} added)</span>
+                    ფოტოები <span className="text-white/30 normal-case">(დამატებულია {images.length})</span>
                   </label>
 
                   {images.length > 0 && (
@@ -980,7 +980,7 @@ export function ImportProductModal() {
                           <CImg src={url} alt="" className="w-full h-full object-cover pointer-events-none" />
                           {i === 0 && (
                             <span className="absolute top-0.5 left-0.5 rounded bg-fuchsia-600 text-white text-[8px] font-bold px-1 py-0.5">
-                              Cover
+                              ყდა
                             </span>
                           )}
                           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-0.5 transition-opacity">
@@ -989,7 +989,7 @@ export function ImportProductModal() {
                                 type="button"
                                 onClick={() => moveImage(i, -1)}
                                 disabled={busy || i === 0}
-                                aria-label="Move left"
+                                aria-label="მარცხნივ გადატანა"
                                 className="text-white/70 hover:text-white disabled:opacity-20 text-xs px-1"
                               >
                                 ‹
@@ -998,7 +998,7 @@ export function ImportProductModal() {
                                 type="button"
                                 onClick={() => moveImage(i, 1)}
                                 disabled={busy || i === images.length - 1}
-                                aria-label="Move right"
+                                aria-label="მარჯვნივ გადატანა"
                                 className="text-white/70 hover:text-white disabled:opacity-20 text-xs px-1"
                               >
                                 ›
@@ -1010,7 +1010,7 @@ export function ImportProductModal() {
                               disabled={busy}
                               className="text-[10px] text-red-300 hover:text-red-200"
                             >
-                              Remove
+                              წაშლა
                             </button>
                           </div>
                         </div>
@@ -1025,7 +1025,7 @@ export function ImportProductModal() {
                       value={imageUrlInput}
                       onChange={e => setImageUrlInput(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddImageUrl() } }}
-                      placeholder="Paste a photo link"
+                      placeholder="ჩასვით ფოტოს ბმული"
                       disabled={busy}
                       className="input flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                     />
@@ -1035,10 +1035,10 @@ export function ImportProductModal() {
                       disabled={busy || !imageUrlInput.trim()}
                       className="btn bg-white/4 border-white/10 text-white/70 hover:text-white shrink-0 disabled:opacity-40"
                     >
-                      Add
+                      დამატება
                     </button>
                     <label className="btn bg-white/4 border-white/10 text-white/70 hover:text-white shrink-0 cursor-pointer">
-                      {uploadingImage ? <span className="loading loading-spinner loading-xs" /> : 'Upload'}
+                      {uploadingImage ? <span className="loading loading-spinner loading-xs" /> : 'ატვირთვა'}
                       <input
                         type="file"
                         accept="image/*"
@@ -1051,26 +1051,26 @@ export function ImportProductModal() {
                   </div>
                   <p className="text-white/25 text-xs leading-relaxed">
                     {platform === 'facebook'
-                      ? 'On the post, right-click each photo → "Copy image address", and paste it above — more reliable than the post link. Or upload photos directly (you can select multiple at once).'
-                      : 'Or upload photos directly (you can select multiple at once).'}
+                      ? 'პოსტზე დააჭირეთ მარჯვენა ღილაკს თითოეულ ფოტოზე → „Copy image address“ და ჩასვით ზემოთ — უფრო საიმედოა, ვიდრე პოსტის ბმული. ან ატვირთეთ ფოტოები პირდაპირ (შეგიძლიათ რამდენიმეს ერთდროულად არჩევა).'
+                      : 'ან ატვირთეთ ფოტოები პირდაპირ (შეგიძლიათ რამდენიმეს ერთდროულად არჩევა).'}
                   </p>
                 </div>
 
                 <div className="fieldset gap-2">
                   <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                    Video <span className="text-white/30 normal-case">(optional)</span>
+                    ვიდეო <span className="text-white/30 normal-case">(სურვილისამებრ)</span>
                   </label>
 
                   {uploadedVideoUrl ? (
                     <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/4 px-3 py-2">
-                      <span className="text-xs text-white/50 flex-1">Video uploaded</span>
+                      <span className="text-xs text-white/50 flex-1">ვიდეო ატვირთულია</span>
                       <button
                         type="button"
                         onClick={() => setUploadedVideoUrl(null)}
                         disabled={busy}
                         className="text-xs text-white/40 hover:text-white"
                       >
-                        Remove
+                        წაშლა
                       </button>
                     </div>
                   ) : (
@@ -1081,12 +1081,12 @@ export function ImportProductModal() {
                           inputMode="url"
                           value={videoUrl}
                           onChange={e => setVideoUrl(e.target.value)}
-                          placeholder={platform === 'facebook' ? 'Paste a direct video link (rarely works for FB)' : 'Paste a direct video link'}
+                          placeholder={platform === 'facebook' ? 'ჩასვით პირდაპირი ვიდეო ბმული (იშვიათად მუშაობს FB-სთვის)' : 'ჩასვით პირდაპირი ვიდეო ბმული'}
                           disabled={busy}
                           className="input flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                         />
                         <label className="btn bg-white/4 border-white/10 text-white/70 hover:text-white shrink-0 cursor-pointer">
-                          {uploadingVideo ? <span className="loading loading-spinner loading-xs" /> : 'Upload'}
+                          {uploadingVideo ? <span className="loading loading-spinner loading-xs" /> : 'ატვირთვა'}
                           <input
                             type="file"
                             accept="video/*"
@@ -1097,7 +1097,7 @@ export function ImportProductModal() {
                         </label>
                       </div>
                       <p className="text-white/25 text-xs leading-relaxed">
-                        Or download the video from the post and upload it directly for reliable results.
+                        ან გადმოწერეთ ვიდეო პოსტიდან და ატვირთეთ პირდაპირ საიმედო შედეგისთვის.
                       </p>
                     </>
                   )}
@@ -1114,7 +1114,7 @@ export function ImportProductModal() {
                   disabled={busy || !captionText.trim()}
                   className="btn w-full gap-2 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
                 >
-                  {loading ? <span className="loading loading-spinner loading-sm" /> : 'Import'}
+                  {loading ? <span className="loading loading-spinner loading-sm" /> : 'იმპორტი'}
                 </button>
               </form>
             )}

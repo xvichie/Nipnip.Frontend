@@ -87,7 +87,7 @@ export function BulkImportFromFacebookSection({ onImportingChange, onDone }: Bul
     if (chosen.length === 0) return
 
     setImporting(true)
-    const rows: ResultRow[] = chosen.map(p => ({ postId: p.id, label: p.message?.slice(0, 40) || 'Post', status: 'pending' }))
+    const rows: ResultRow[] = chosen.map(p => ({ postId: p.id, label: p.message?.slice(0, 40) || 'პოსტი', status: 'pending' }))
     setResults([...rows])
 
     for (let i = 0; i < chosen.length; i++) {
@@ -107,7 +107,7 @@ export function BulkImportFromFacebookSection({ onImportingChange, onDone }: Bul
 
       const detail = await apiFetch<FacebookPostDetailResponse>(`/api/stores/me/facebook/posts/${postId}`, token)
       if (!detail.message?.trim()) {
-        return { ...row, status: 'skipped', reason: 'No caption text' }
+        return { ...row, status: 'skipped', reason: 'წარწერის ტექსტი არ არის' }
       }
 
       const importRes = await fetch('/api/import/facebook', {
@@ -122,7 +122,7 @@ export function BulkImportFromFacebookSection({ onImportingChange, onDone }: Bul
       })
       const extracted = (await importRes.json()) as ExtractedProduct & { error?: string }
       if (!importRes.ok) {
-        return { ...row, status: 'failed', reason: extracted.error ?? 'AI extraction failed' }
+        return { ...row, status: 'failed', reason: extracted.error ?? 'AI-ს მიერ მონაცემების ამოღება ვერ მოხერხდა' }
       }
 
       const name = extracted.name?.trim() || detail.message.slice(0, 60)
@@ -172,10 +172,10 @@ export function BulkImportFromFacebookSection({ onImportingChange, onDone }: Bul
         ...row,
         label: name,
         status: 'created',
-        reason: noPriceDetected ? 'No price detected — set it manually' : undefined,
+        reason: noPriceDetected ? 'ფასი ვერ იქნა დადგენილი — დააყენეთ ხელით' : undefined,
       }
     } catch (err) {
-      return { ...row, status: 'failed', reason: err instanceof ApiError ? err.message : 'Unexpected error' }
+      return { ...row, status: 'failed', reason: err instanceof ApiError ? err.message : 'მოულოდნელი შეცდომა' }
     }
   }
 
@@ -192,13 +192,13 @@ export function BulkImportFromFacebookSection({ onImportingChange, onDone }: Bul
     return (
       <>
         <p className="text-white/40 text-xs leading-relaxed">
-          Connect your Facebook Page to bulk-import products from your recent posts.
+          დააკავშირეთ თქვენი Facebook გვერდი პროდუქტების მასობრივად საიმპორტოდ თქვენი ბოლო პოსტებიდან.
         </p>
         <Link
           href="/dashboard/merchant/store/integrations"
           className="btn btn-sm w-fit gap-2 bg-[#1877F2]/15 border-[#1877F2]/30 text-[#8fb8fa] hover:bg-[#1877F2]/25"
         >
-          Connect Facebook in Integrations
+          Facebook-ის დაკავშირება ინტეგრაციებში
         </Link>
       </>
     )
@@ -208,9 +208,9 @@ export function BulkImportFromFacebookSection({ onImportingChange, onDone }: Bul
     return (
       <>
         <p className="text-white/40 text-xs leading-relaxed">
-          Every recent post is selected by default — untick anything you don&apos;t want imported, then import the
-          rest as products in one go. AI fills in name, price, sizes/colors, and category for each; review and fix
-          up anything it misses afterward.
+          ყველა ბოლო პოსტი ავტომატურად შერჩეულია — მოხსენით ის, რისი იმპორტიც არ გსურთ, შემდეგ დანარჩენი
+          იმპორტირდება პროდუქტებად ერთდროულად. AI ავსებს სახელს, ფასს, ზომებს/ფერებს და კატეგორიას თითოეულისთვის;
+          გადახედეთ და გაასწორეთ ის, რასაც ვერ დაადგენს.
         </p>
 
         {postsLoading ? (
@@ -222,9 +222,9 @@ export function BulkImportFromFacebookSection({ onImportingChange, onDone }: Bul
         ) : posts && posts.length > 0 ? (
           <>
             <div className="flex items-center justify-between">
-              <span className="text-white/40 text-xs">{selected.size} of {posts.length} selected</span>
+              <span className="text-white/40 text-xs">არჩეულია {selected.size} / {posts.length}</span>
               <button type="button" onClick={toggleAll} className="text-fuchsia-400 hover:text-fuchsia-300 text-xs">
-                {selected.size === posts.length ? 'Deselect all' : 'Select all'}
+                {selected.size === posts.length ? 'ყველას მოხსნა' : 'ყველას არჩევა'}
               </button>
             </div>
             <div className="grid grid-cols-4 gap-2">
@@ -245,7 +245,7 @@ export function BulkImportFromFacebookSection({ onImportingChange, onDone }: Bul
                       <CImg src={post.thumbnailUrl} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full bg-white/4 flex items-center justify-center text-white/20 text-[8px] p-1 text-center leading-tight">
-                        {post.message?.slice(0, 30) ?? 'Post'}
+                        {post.message?.slice(0, 30) ?? 'პოსტი'}
                       </div>
                     )}
                     <div
@@ -264,7 +264,7 @@ export function BulkImportFromFacebookSection({ onImportingChange, onDone }: Bul
             </div>
           </>
         ) : (
-          <p className="text-white/30 text-xs">No recent posts found on your Page.</p>
+          <p className="text-white/30 text-xs">თქვენს გვერდზე ბოლო პოსტები ვერ მოიძებნა.</p>
         )}
 
         <button
@@ -273,7 +273,7 @@ export function BulkImportFromFacebookSection({ onImportingChange, onDone }: Bul
           disabled={selected.size === 0}
           className="btn w-full gap-2 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
         >
-          Import {selected.size} post{selected.size === 1 ? '' : 's'}
+          {selected.size} პოსტის იმპორტი
         </button>
       </>
     )
@@ -300,14 +300,14 @@ export function BulkImportFromFacebookSection({ onImportingChange, onDone }: Bul
       {done && (
         <>
           <div className="rounded-xl border border-white/10 bg-white/4 px-4 py-3 text-sm text-white/70">
-            {created} created{skipped > 0 ? `, ${skipped} skipped` : ''}{failed > 0 ? `, ${failed} failed` : ''}.
+            შეიქმნა {created}{skipped > 0 ? `, გამოტოვდა ${skipped}` : ''}{failed > 0 ? `, ვერ შესრულდა ${failed}` : ''}.
           </div>
           <button
             type="button"
             onClick={onDone}
             className="btn w-full gap-2 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white"
           >
-            Done
+            დასრულდა
           </button>
         </>
       )}

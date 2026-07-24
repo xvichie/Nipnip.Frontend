@@ -40,7 +40,7 @@ function VariantRow({ productId, variant }: { productId: string; variant: Produc
           value={price}
           onChange={e => setPrice(e.target.value)}
           onBlur={saveIfChanged}
-          title="Price"
+          title="ფასი"
           className="input input-xs w-20 bg-white/4 border-white/10 focus:border-fuchsia-500/60 tabular-nums"
         />
         <span className="text-white/25 text-xs">₾</span>
@@ -50,8 +50,8 @@ function VariantRow({ productId, variant }: { productId: string; variant: Produc
           value={salePrice}
           onChange={e => setSalePrice(e.target.value)}
           onBlur={saveIfChanged}
-          placeholder="Sale"
-          title="Sale price"
+          placeholder="ფასდაკლება"
+          title="ფასდაკლებული ფასი"
           className="input input-xs w-20 bg-white/4 border-white/10 focus:border-fuchsia-500/60 tabular-nums"
         />
         <input
@@ -60,16 +60,16 @@ function VariantRow({ productId, variant }: { productId: string; variant: Produc
           onChange={e => setStock(e.target.value)}
           onBlur={saveIfChanged}
           placeholder="∞"
-          title="Stock (blank = unlimited)"
+          title="მარაგი (ცარიელი = შეუზღუდავი)"
           className="input input-xs w-16 bg-white/4 border-white/10 focus:border-fuchsia-500/60 tabular-nums"
         />
-        <span className="text-white/25 text-xs">{stock.trim() === '' ? 'unlimited' : 'in stock'}</span>
+        <span className="text-white/25 text-xs">{stock.trim() === '' ? 'შეუზღუდავი' : 'მარაგშია'}</span>
         <button
           type="button"
-          onClick={() => { if (confirm('Delete this variant?')) deleteVariant(variant.id) }}
+          onClick={() => { if (confirm('წავშალო ეს ვარიაცია?')) deleteVariant(variant.id) }}
           className="btn btn-xs bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20"
         >
-          Delete
+          წაშლა
         </button>
       </div>
     </div>
@@ -125,7 +125,7 @@ export function ProductVariantsManager({
 
   return (
     <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
-      <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Variants</h2>
+      <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ვარიაციები</h2>
 
       {variants.length > 0 ? (
         <div className="flex flex-col gap-2">
@@ -135,8 +135,8 @@ export function ProductVariantsManager({
         </div>
       ) : (
         <p className="text-white/30 text-sm">
-          No variants yet — this product sells at the base price with unlimited stock. Add a variant only when you
-          need to override price or stock for a specific option combination.
+          ვარიაციები ჯერ არ არის — ეს პროდუქტი იყიდება საბაზისო ფასად შეუზღუდავი მარაგით. დაამატეთ ვარიაცია მხოლოდ მაშინ, როცა
+          გჭირდებათ ფასის ან მარაგის შეცვლა კონკრეტული პარამეტრების კომბინაციისთვის.
         </p>
       )}
 
@@ -156,7 +156,7 @@ export function ProductVariantsManager({
             step="0.01"
             value={price}
             onChange={e => setPrice(e.target.value)}
-            placeholder="Price"
+            placeholder="ფასი"
             className="input input-sm w-24 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
           />
           <input
@@ -164,15 +164,15 @@ export function ProductVariantsManager({
             step="0.01"
             value={salePrice}
             onChange={e => setSalePrice(e.target.value)}
-            placeholder="Sale price"
+            placeholder="ფასდაკლებული ფასი"
             className="input input-sm w-24 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
           />
           <input
             type="number"
             value={stock}
             onChange={e => setStock(e.target.value)}
-            placeholder="Stock (∞)"
-            title="Blank = unlimited stock"
+            placeholder="მარაგი (∞)"
+            title="ცარიელი = შეუზღუდავი მარაგი"
             className="input input-sm w-20 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
           />
         </div>
@@ -196,17 +196,17 @@ export function ProductVariantsManager({
         )}
 
         {configuredOptions.length > 0 && !allOptionsSelected && (
-          <p className="text-white/30 text-xs">Pick a value for every option before adding this variant.</p>
+          <p className="text-white/30 text-xs">აირჩიეთ მნიშვნელობა ყველა პარამეტრისთვის ვარიაციის დამატებამდე.</p>
         )}
 
-        {error && <p className="text-error text-xs">Failed to create variant. Check the SKU is unique and sale price is lower than price.</p>}
+        {error && <p className="text-error text-xs">ვარიაციის შექმნა ვერ მოხერხდა. დარწმუნდით, რომ SKU უნიკალურია და ფასდაკლებული ფასი ნაკლებია ფასზე.</p>}
 
         <button
           type="submit"
           disabled={isPending || !sku.trim() || !price || !allOptionsSelected}
           className="btn btn-sm self-start bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
         >
-          {isPending ? <span className="loading loading-spinner loading-xs" /> : 'Add Variant'}
+          {isPending ? <span className="loading loading-spinner loading-xs" /> : 'ვარიაციის დამატება'}
         </button>
       </form>
     </div>

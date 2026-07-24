@@ -91,9 +91,9 @@ export default function EditProductPage() {
         }),
         setRelated({ productIds: relatedPicks.map(p => p.id) }),
       ])
-      showToast('success', 'Changes saved')
+      showToast('success', 'ცვლილებები შენახულია')
     } catch {
-      showToast('error', 'Failed to save changes')
+      showToast('error', 'ცვლილებების შენახვა ვერ მოხერხდა')
     }
   }
 
@@ -143,7 +143,7 @@ export default function EditProductPage() {
       setImportingOptions(false)
     }
 
-    showToast('success', 'Imported — review below, then save')
+    showToast('success', 'იმპორტირებულია — გადახედეთ ქვემოთ და შემდეგ შეინახეთ')
   }
 
   if (isLoading) {
@@ -158,7 +158,7 @@ export default function EditProductPage() {
   if (isError || !product) {
     return (
       <div className="max-w-2xl">
-        <div className="alert alert-error text-sm rounded-2xl">Product not found.</div>
+        <div className="alert alert-error text-sm rounded-2xl">პროდუქტი ვერ მოიძებნა.</div>
       </div>
     )
   }
@@ -181,7 +181,7 @@ export default function EditProductPage() {
         <form id="product-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="fieldset gap-2">
             <label htmlFor="e-p-name" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-              Name <span className="text-error">*</span>
+              სახელი <span className="text-error">*</span>
             </label>
             <input
               id="e-p-name"
@@ -195,7 +195,7 @@ export default function EditProductPage() {
 
           <div className="fieldset gap-2">
             <label htmlFor="e-p-description" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-              Description
+              აღწერა
             </label>
             <textarea
               id="e-p-description"
@@ -209,7 +209,7 @@ export default function EditProductPage() {
           <div className="flex gap-3">
             <div className="fieldset gap-2 flex-1">
               <label htmlFor="e-p-price" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                Base Price <span className="text-error">*</span>
+                საბაზისო ფასი <span className="text-error">*</span>
               </label>
               <input
                 id="e-p-price"
@@ -225,7 +225,7 @@ export default function EditProductPage() {
 
             <div className="fieldset gap-2 flex-1">
               <label htmlFor="e-p-sale-price" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                Sale Price
+                ფასდაკლებული ფასი
               </label>
               <input
                 id="e-p-sale-price"
@@ -234,7 +234,7 @@ export default function EditProductPage() {
                 min="0"
                 value={salePrice}
                 onChange={e => setSalePrice(e.target.value)}
-                placeholder="Optional"
+                placeholder="სურვილისამებრ"
                 className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
               />
             </div>
@@ -243,7 +243,7 @@ export default function EditProductPage() {
           {categories && categories.length > 0 && (
             <div className="fieldset gap-2">
               <label htmlFor="e-p-category" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                Category
+                კატეგორია
               </label>
               <select
                 id="e-p-category"
@@ -251,7 +251,7 @@ export default function EditProductPage() {
                 onChange={e => setCategoryId(e.target.value)}
                 className="select w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
               >
-                <option value="">Uncategorized</option>
+                <option value="">კატეგორიის გარეშე</option>
                 {categories.map(category => (
                   <option key={category.id} value={category.id}>{category.name}</option>
                 ))}
@@ -261,7 +261,7 @@ export default function EditProductPage() {
 
           {collections && collections.length > 0 && (
             <div className="fieldset gap-2">
-              <span className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Collections</span>
+              <span className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">კოლექციები</span>
               <div className="flex flex-col gap-1.5">
                 {collections.map(collection => (
                   <label
@@ -288,12 +288,12 @@ export default function EditProductPage() {
               onChange={e => setIsActive(e.target.checked)}
               className={`toggle toggle-sm ${isActive ? 'toggle-success' : 'toggle-error'}`}
             />
-            <span className="text-sm text-white/70">Visible in store</span>
+            <span className="text-sm text-white/70">გამოჩენილია მაღაზიაში</span>
           </label>
 
           {error && (
             <div className="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
-              Failed to save changes.
+              ცვლილებების შენახვა ვერ მოხერხდა.
             </div>
           )}
 
@@ -301,7 +301,7 @@ export default function EditProductPage() {
       </div>
 
       <FloatingFormButton anchorRef={contentRef} formId="product-form" disabled={isPending || isSavingRelated || importingOptions || !name.trim() || !basePrice}>
-        {isPending || isSavingRelated ? <span className="loading loading-spinner loading-sm" /> : 'Save Changes'}
+        {isPending || isSavingRelated ? <span className="loading loading-spinner loading-sm" /> : 'ცვლილებების შენახვა'}
       </FloatingFormButton>
 
       <ProductImagesManager productId={productId} images={product.images} />

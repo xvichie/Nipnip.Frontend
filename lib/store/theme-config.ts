@@ -371,10 +371,10 @@ export const HERO_TEXT_POSITIONS: Required<ThemeConfig>['heroTextPosition'][] = 
 ]
 
 export const BANNER_PATTERNS: { value: Required<ThemeConfig>['bannerPattern']; label: string }[] = [
-  { value: 'dots', label: 'Dots' },
-  { value: 'stripes', label: 'Stripes' },
-  { value: 'grid', label: 'Grid' },
-  { value: 'checkers', label: 'Checkers' },
+  { value: 'dots', label: 'წერტილები' },
+  { value: 'stripes', label: 'ზოლები' },
+  { value: 'grid', label: 'ბადე' },
+  { value: 'checkers', label: 'ჭადრაკული' },
 ]
 
 export function hasBanner(tokens: Required<ThemeConfig>): boolean {

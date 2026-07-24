@@ -45,11 +45,11 @@ export function RelatedProductsManager({
   return (
     <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
       <div>
-        <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Similar Products</h2>
+        <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">მსგავსი პროდუქტები</h2>
         <p className="text-white/30 text-xs mt-1">
-          Hand-pick which products show below this one. Leave empty and we&apos;ll automatically suggest
-          products from the same category and a similar price range instead. Picks are saved together
-          with the rest of this page via the floating Save Changes button.
+          ხელით აირჩიეთ, რომელი პროდუქტები გამოჩნდეს ამის ქვემოთ. ცარიელი დატოვების შემთხვევაში ავტომატურად
+          შემოგთავაზებთ პროდუქტებს იმავე კატეგორიიდან და მსგავსი ფასის დიაპაზონიდან. არჩევანი ინახება
+          გვერდის დანარჩენ ცვლილებებთან ერთად, „ცვლილებების შენახვის“ ღილაკით.
         </p>
       </div>
 
@@ -79,7 +79,7 @@ export function RelatedProductsManager({
           ))}
         </div>
       ) : (
-        <p className="text-white/30 text-sm">No manual picks yet — using automatic suggestions.</p>
+        <p className="text-white/30 text-sm">ხელით არჩეული ჯერ არაფერია — გამოიყენება ავტომატური რეკომენდაციები.</p>
       )}
 
       <div className="relative">
@@ -87,7 +87,7 @@ export function RelatedProductsManager({
           type="text"
           value={searchInput}
           onChange={e => setSearchInput(e.target.value)}
-          placeholder="Search products to add…"
+          placeholder="მოძებნეთ დასამატებელი პროდუქტები…"
           className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
         />
         {search && candidates.length > 0 && (

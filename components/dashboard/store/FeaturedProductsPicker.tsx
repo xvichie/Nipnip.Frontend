@@ -29,7 +29,7 @@ function ReorderButtons({
         type="button"
         onClick={onUp}
         disabled={disabledUp}
-        aria-label="Move up"
+        aria-label="ზემოთ გადატანა"
         className="w-5 h-4 flex items-center justify-center rounded text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-20 disabled:hover:text-white/40 disabled:hover:bg-transparent transition-colors"
       >
         <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden>
@@ -40,7 +40,7 @@ function ReorderButtons({
         type="button"
         onClick={onDown}
         disabled={disabledDown}
-        aria-label="Move down"
+        aria-label="ქვემოთ გადატანა"
         className="w-5 h-4 flex items-center justify-center rounded text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-20 disabled:hover:text-white/40 disabled:hover:bg-transparent transition-colors"
       >
         <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden>
@@ -94,10 +94,10 @@ export function FeaturedProductsPicker({
   return (
     <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
       <div>
-        <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Featured Products</h2>
+        <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">გამორჩეული პროდუქტები</h2>
         <p className="text-white/30 text-xs mt-1">
-          Hand-pick and order which products show in the homepage Product Grid, instead of it always
-          being your newest listings.
+          ხელით აირჩიეთ და დაალაგეთ, რომელი პროდუქტები გამოჩნდეს მთავარი გვერდის პროდუქტების ბადეში, იმის
+          ნაცვლად, რომ ყოველთვის თქვენი უახლესი პროდუქტები ჩანდეს.
         </p>
       </div>
 
@@ -119,7 +119,7 @@ export function FeaturedProductsPicker({
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-white truncate">{product?.name ?? 'Loading…'}</p>
+                  <p className="text-sm font-medium text-white truncate">{product?.name ?? 'იტვირთება…'}</p>
                   {product && <p className="text-white/40 text-xs">{priceLabel(product)}</p>}
                 </div>
                 <button
@@ -134,7 +134,7 @@ export function FeaturedProductsPicker({
           })}
         </div>
       ) : (
-        <p className="text-white/30 text-sm">No products picked yet — showing your newest listings instead.</p>
+        <p className="text-white/30 text-sm">პროდუქტები ჯერ არჩეული არ არის — ნაცვლად ამისა ნაჩვენებია თქვენი უახლესი პროდუქტები.</p>
       )}
 
       <div className="relative">
@@ -142,7 +142,7 @@ export function FeaturedProductsPicker({
           type="text"
           value={searchInput}
           onChange={e => setSearchInput(e.target.value)}
-          placeholder="Search products to feature…"
+          placeholder="მოძებნეთ გამოსაჩენი პროდუქტები…"
           className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
         />
         {search && candidates.length > 0 && (

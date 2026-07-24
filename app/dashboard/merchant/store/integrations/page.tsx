@@ -31,7 +31,7 @@ function HowToConnect({ children }: { children: React.ReactNode }) {
         <svg width="8" height="8" viewBox="0 0 10 10" fill="none" aria-hidden className="shrink-0 transition-transform group-open:rotate-90">
           <path d="M3 1.5l4 3.5-4 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
-        How to get this
+        როგორ მოვიპოვო ეს
       </summary>
       <div className="px-3 pb-2.5 pt-0.5 text-white/40 text-xs leading-relaxed">
         {children}
@@ -102,30 +102,30 @@ function IntegrationsPageContent() {
     setConnectError(null)
     getConnectUrl(undefined, {
       onSuccess: data => { window.location.href = data.url },
-      onError: () => setConnectError('Failed to start connecting your Facebook Page.'),
+      onError: () => setConnectError('თქვენი Facebook გვერდის დაკავშირება ვერ დაიწყო.'),
     })
   }
 
   function handleDisconnect() {
-    if (!confirm('Disconnect your Facebook Page? You can reconnect it any time.')) return
+    if (!confirm('გაითიშოს თქვენი Facebook გვერდი? შეგიძლიათ ნებისმიერ დროს ხელახლა დააკავშიროთ.')) return
     disconnect()
   }
 
   return (
     <div className="flex flex-col gap-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-black tracking-tight">Integrations</h1>
-        <p className="text-white/40 text-sm mt-1">Connect other platforms to your store.</p>
+        <h1 className="text-2xl font-black tracking-tight">ინტეგრაციები</h1>
+        <p className="text-white/40 text-sm mt-1">დააკავშირეთ სხვა პლატფორმები თქვენს მაღაზიასთან.</p>
       </div>
 
       {fbBanner === 'connected' && (
         <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-400">
-          Facebook Page connected — you can now pick recent posts straight from &quot;Import&quot; when adding a product.
+          Facebook გვერდი დაკავშირებულია — ახლა შეგიძლიათ აირჩიოთ ბოლო პოსტები პირდაპირ „იმპორტიდან“ პროდუქტის დამატებისას.
         </div>
       )}
       {fbBanner === 'error' && (
         <div className="rounded-2xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
-          Failed to connect your Facebook Page. Please try again.
+          თქვენი Facebook გვერდის დაკავშირება ვერ მოხერხდა. გთხოვთ სცადოთ თავიდან.
         </div>
       )}
       {fbBanner === 'choose' && fbPending && (
@@ -133,18 +133,18 @@ function IntegrationsPageContent() {
       )}
       {ttBanner === 'connected' && (
         <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-400 flex items-center justify-between gap-3">
-          TikTok account connected — you can now export a product straight to TikTok.
+          TikTok ანგარიში დაკავშირებულია — ახლა შეგიძლიათ პროდუქტის ექსპორტი პირდაპირ TikTok-ზე.
           <button type="button" onClick={() => setTtBanner(null)} className="text-emerald-400/60 hover:text-emerald-400 shrink-0">✕</button>
         </div>
       )}
       {ttBanner === 'error' && (
         <div className="rounded-2xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error flex items-center justify-between gap-3">
-          Failed to connect your TikTok account. Please try again.
+          თქვენი TikTok ანგარიშის დაკავშირება ვერ მოხერხდა. გთხოვთ სცადოთ თავიდან.
           <button type="button" onClick={() => setTtBanner(null)} className="text-error/60 hover:text-error shrink-0">✕</button>
         </div>
       )}
 
-      <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2">Social Media</p>
+      <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2">სოციალური მედია</p>
 
       <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex items-center gap-4">
         <div className="w-11 h-11 rounded-xl bg-[#1877F2]/15 border border-[#1877F2]/30 flex items-center justify-center shrink-0">
@@ -157,13 +157,13 @@ function IntegrationsPageContent() {
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-white">Facebook Page</p>
+          <p className="text-sm font-semibold text-white">Facebook გვერდი</p>
           {isLoading ? (
-            <p className="text-white/30 text-xs mt-0.5">Checking connection...</p>
+            <p className="text-white/30 text-xs mt-0.5">კავშირი მოწმდება...</p>
           ) : connected ? (
-            <p className="text-emerald-400 text-xs mt-0.5">Connected — {fbStatusData?.pageName}</p>
+            <p className="text-emerald-400 text-xs mt-0.5">დაკავშირებულია — {fbStatusData?.pageName}</p>
           ) : (
-            <p className="text-white/30 text-xs mt-0.5">Connect your Page to import products straight from your posts.</p>
+            <p className="text-white/30 text-xs mt-0.5">დააკავშირეთ თქვენი გვერდი პროდუქტების პირდაპირ თქვენი პოსტებიდან საიმპორტოდ.</p>
           )}
         </div>
 
@@ -175,7 +175,7 @@ function IntegrationsPageContent() {
               disabled={disconnecting}
               className="btn btn-sm bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40 shrink-0"
             >
-              {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'Disconnect'}
+              {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'გათიშვა'}
             </button>
           ) : (
             <button
@@ -184,7 +184,7 @@ function IntegrationsPageContent() {
               disabled={connecting}
               className="btn btn-sm bg-[#1877F2]/15 border-[#1877F2]/30 text-[#8fb8fa] hover:bg-[#1877F2]/25 disabled:opacity-40 shrink-0"
             >
-              {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Connect'}
+              {connecting ? <span className="loading loading-spinner loading-xs" /> : 'დაკავშირება'}
             </button>
           )
         )}
@@ -206,31 +206,31 @@ function IntegrationsPageContent() {
             <BetaBadge />
           </p>
           {igLoading ? (
-            <p className="text-white/30 text-xs mt-0.5">Checking connection...</p>
+            <p className="text-white/30 text-xs mt-0.5">კავშირი მოწმდება...</p>
           ) : igConnected ? (
-            <p className="text-emerald-400 text-xs mt-0.5">Connected — @{igStatusData?.username}</p>
+            <p className="text-emerald-400 text-xs mt-0.5">დაკავშირებულია — @{igStatusData?.username}</p>
           ) : connected ? (
             <p className="text-white/30 text-xs mt-0.5">
-              No Instagram Business account is linked to your Facebook Page yet.
+              თქვენს Facebook გვერდთან ჯერ არ არის მიბმული Instagram ბიზნეს-ანგარიში.
             </p>
           ) : (
-            <p className="text-white/30 text-xs mt-0.5">Connect a Facebook Page above with a linked Instagram Business account.</p>
+            <p className="text-white/30 text-xs mt-0.5">დააკავშირეთ ზემოთ Facebook გვერდი მიბმული Instagram ბიზნეს-ანგარიშით.</p>
           )}
         </div>
       </div>
 
       <TikTokCard />
 
-      <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2 mt-2">Delivery Services</p>
+      <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2 mt-2">მიწოდების სერვისები</p>
       <QuickShipperCard />
 
-      <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2 mt-2">Payment Providers</p>
+      <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2 mt-2">გადახდის პროვაიდერები</p>
       <FlittCard />
       <TbcCard />
       <BogCard />
       <CityPayCard />
 
-      <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2 mt-2">Marketplaces</p>
+      <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2 mt-2">მარკეტფლეისები</p>
       <MyMarketCard />
       <PhubberCard />
       <ExtraCard />
@@ -250,12 +250,12 @@ function TikTokCard() {
     setConnectError(null)
     getConnectUrl(undefined, {
       onSuccess: data => { window.location.href = data.url },
-      onError: () => setConnectError('Failed to start connecting your TikTok account.'),
+      onError: () => setConnectError('თქვენი TikTok ანგარიშის დაკავშირება ვერ დაიწყო.'),
     })
   }
 
   function handleDisconnect() {
-    if (!confirm('Disconnect TikTok? You can reconnect it any time.')) return
+    if (!confirm('გაითიშოს TikTok? შეგიძლიათ ნებისმიერ დროს ხელახლა დააკავშიროთ.')) return
     disconnect()
   }
 
@@ -273,11 +273,11 @@ function TikTokCard() {
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-white">TikTok</p>
         {isLoading ? (
-          <p className="text-white/30 text-xs mt-0.5">Checking connection...</p>
+          <p className="text-white/30 text-xs mt-0.5">კავშირი მოწმდება...</p>
         ) : connected ? (
-          <p className="text-emerald-400 text-xs mt-0.5">Connected — {status?.displayName}</p>
+          <p className="text-emerald-400 text-xs mt-0.5">დაკავშირებულია — {status?.displayName}</p>
         ) : (
-          <p className="text-white/30 text-xs mt-0.5">Connect your TikTok account to export products as photo posts.</p>
+          <p className="text-white/30 text-xs mt-0.5">დააკავშირეთ თქვენი TikTok ანგარიში პროდუქტების ფოტო-პოსტებად საექსპორტოდ.</p>
         )}
         {connectError && <p className="text-error text-xs mt-1">{connectError}</p>}
       </div>
@@ -290,7 +290,7 @@ function TikTokCard() {
             disabled={disconnecting}
             className="btn btn-sm bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40 shrink-0"
           >
-            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'Disconnect'}
+            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'გათიშვა'}
           </button>
         ) : (
           <button
@@ -299,7 +299,7 @@ function TikTokCard() {
             disabled={connecting}
             className="btn btn-sm bg-white/10 border-white/20 text-white hover:bg-white/15 disabled:opacity-40 shrink-0"
           >
-            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Connect'}
+            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'დაკავშირება'}
           </button>
         )
       )}
@@ -326,7 +326,7 @@ function FlittCard() {
   }
 
   function handleDisconnect() {
-    if (!confirm('Disconnect Flitt? Card payments will stop working at checkout until you reconnect.')) return
+    if (!confirm('გაითიშოს Flitt? ბარათით გადახდები შეწყვეტს მუშაობას შეკვეთისას, სანამ ხელახლა არ დააკავშირებთ.')) return
     disconnect()
   }
 
@@ -345,11 +345,11 @@ function FlittCard() {
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white">Flitt</p>
           {isLoading ? (
-            <p className="text-white/30 text-xs mt-0.5">Checking connection...</p>
+            <p className="text-white/30 text-xs mt-0.5">კავშირი მოწმდება...</p>
           ) : connected ? (
-            <p className="text-emerald-400 text-xs mt-0.5">Connected — Merchant ID {status?.merchantId}</p>
+            <p className="text-emerald-400 text-xs mt-0.5">დაკავშირებულია — Merchant ID {status?.merchantId}</p>
           ) : (
-            <p className="text-white/30 text-xs mt-0.5">Connect your Flitt account to accept card payments at checkout.</p>
+            <p className="text-white/30 text-xs mt-0.5">დააკავშირეთ თქვენი Flitt ანგარიში ბარათით გადახდების მისაღებად შეკვეთისას.</p>
           )}
         </div>
 
@@ -360,7 +360,7 @@ function FlittCard() {
             disabled={disconnecting}
             className="btn btn-sm bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40 shrink-0"
           >
-            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'Disconnect'}
+            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'გათიშვა'}
           </button>
         )}
       </div>
@@ -387,14 +387,14 @@ function FlittCard() {
             disabled={connecting || !merchantId.trim() || !secretKey.trim()}
             className="btn btn-sm bg-[#788FFF]/15 border-[#788FFF]/30 text-[#788FFF] hover:bg-[#788FFF]/25 disabled:opacity-40 shrink-0"
           >
-            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Connect'}
+            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'დაკავშირება'}
           </button>
         </div>
       )}
       {!isLoading && !connected && (
         <HowToConnect>
-          Find your Merchant ID and Secret key in the Flitt merchant portal at{' '}
-          <span className="text-white/60">portal.flitt.com</span>, under your shop&apos;s settings.
+          იპოვეთ თქვენი Merchant ID და Secret key Flitt-ის მერჩანტის პორტალზე{' '}
+          <span className="text-white/60">portal.flitt.com</span>, თქვენი მაღაზიის პარამეტრებში.
         </HowToConnect>
       )}
       {connectError && <p className="text-error text-xs">{connectError.message}</p>}
@@ -421,7 +421,7 @@ function TbcCard() {
   }
 
   function handleDisconnect() {
-    if (!confirm('Disconnect TBC? Card payments will stop working at checkout until you reconnect.')) return
+    if (!confirm('გაითიშოს TBC? ბარათით გადახდები შეწყვეტს მუშაობას შეკვეთისას, სანამ ხელახლა არ დააკავშირებთ.')) return
     disconnect()
   }
 
@@ -435,11 +435,11 @@ function TbcCard() {
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white">TBC</p>
           {isLoading ? (
-            <p className="text-white/30 text-xs mt-0.5">Checking connection...</p>
+            <p className="text-white/30 text-xs mt-0.5">კავშირი მოწმდება...</p>
           ) : connected ? (
-            <p className="text-emerald-400 text-xs mt-0.5">Connected — Client ID {status?.clientId}</p>
+            <p className="text-emerald-400 text-xs mt-0.5">დაკავშირებულია — Client ID {status?.clientId}</p>
           ) : (
-            <p className="text-white/30 text-xs mt-0.5">Connect your TBC E-Commerce account to accept card payments at checkout.</p>
+            <p className="text-white/30 text-xs mt-0.5">დააკავშირეთ თქვენი TBC E-Commerce ანგარიში ბარათით გადახდების მისაღებად შეკვეთისას.</p>
           )}
         </div>
 
@@ -450,7 +450,7 @@ function TbcCard() {
             disabled={disconnecting}
             className="btn btn-sm bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40 shrink-0"
           >
-            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'Disconnect'}
+            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'გათიშვა'}
           </button>
         )}
       </div>
@@ -477,14 +477,14 @@ function TbcCard() {
             disabled={connecting || !clientId.trim() || !clientSecret.trim()}
             className="btn btn-sm bg-[#4FC3F7]/15 border-[#4FC3F7]/30 text-[#4FC3F7] hover:bg-[#4FC3F7]/25 disabled:opacity-40 shrink-0"
           >
-            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Connect'}
+            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'დაკავშირება'}
           </button>
         </div>
       )}
       {!isLoading && !connected && (
         <HowToConnect>
-          Get your Client ID and Client secret from the merchant dashboard at{' '}
-          <span className="text-white/60">ecom.tbcpayments.ge</span>, under your shop&apos;s API/integration settings.
+          მიიღეთ თქვენი Client ID და Client secret მერჩანტის დაშბორდიდან{' '}
+          <span className="text-white/60">ecom.tbcpayments.ge</span>, თქვენი მაღაზიის API/ინტეგრაციის პარამეტრებში.
         </HowToConnect>
       )}
       {connectError && <p className="text-error text-xs">{connectError.message}</p>}
@@ -502,14 +502,14 @@ function BogCard() {
 
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white flex items-center gap-2">
-            Bank of Georgia
+            საქართველოს ბანკი
             <SoonBadge />
           </p>
-          <p className="text-white/30 text-xs mt-0.5">Card payments via BOG Payment by Link — coming soon.</p>
+          <p className="text-white/30 text-xs mt-0.5">ბარათით გადახდები BOG Payment by Link-ის მეშვეობით — მალე.</p>
         </div>
 
         <button type="button" disabled className="btn btn-sm bg-white/4 border-white/8 text-white/30 disabled:opacity-40 shrink-0">
-          Connect
+          დაკავშირება
         </button>
       </div>
     </div>
@@ -535,7 +535,7 @@ function CityPayCard() {
   }
 
   function handleDisconnect() {
-    if (!confirm('Disconnect CityPay? Crypto payments will stop working at checkout until you reconnect.')) return
+    if (!confirm('გაითიშოს CityPay? კრიპტოვალუტით გადახდები შეწყვეტს მუშაობას შეკვეთისას, სანამ ხელახლა არ დააკავშირებთ.')) return
     disconnect()
   }
 
@@ -552,11 +552,11 @@ function CityPayCard() {
             <BetaBadge />
           </p>
           {isLoading ? (
-            <p className="text-white/30 text-xs mt-0.5">Checking connection...</p>
+            <p className="text-white/30 text-xs mt-0.5">კავშირი მოწმდება...</p>
           ) : connected ? (
-            <p className="text-emerald-400 text-xs mt-0.5">Connected — Customer ID {status?.customerId}</p>
+            <p className="text-emerald-400 text-xs mt-0.5">დაკავშირებულია — Customer ID {status?.customerId}</p>
           ) : (
-            <p className="text-white/30 text-xs mt-0.5">Connect your CityPay account to accept Bitcoin and other crypto payments at checkout.</p>
+            <p className="text-white/30 text-xs mt-0.5">დააკავშირეთ თქვენი CityPay ანგარიში Bitcoin-ისა და სხვა კრიპტოვალუტების მისაღებად შეკვეთისას.</p>
           )}
         </div>
 
@@ -567,7 +567,7 @@ function CityPayCard() {
             disabled={disconnecting}
             className="btn btn-sm bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40 shrink-0"
           >
-            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'Disconnect'}
+            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'გათიშვა'}
           </button>
         )}
       </div>
@@ -594,15 +594,15 @@ function CityPayCard() {
             disabled={connecting || !customerId.trim() || !accessToken.trim()}
             className="btn btn-sm bg-[#E63946]/15 border-[#E63946]/30 text-[#E63946] hover:bg-[#E63946]/25 disabled:opacity-40 shrink-0"
           >
-            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Connect'}
+            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'დაკავშირება'}
           </button>
         </div>
       )}
       {!isLoading && !connected && (
         <HowToConnect>
-          Your Customer ID is shown in your CityPay customer cabinet under your company name. Create an Access token from{' '}
-          <span className="text-white/60">Products → Order</span> in the sidebar — add a callback URL there too, since CityPay
-          needs one configured for your token, not sent per order.
+          თქვენი Customer ID ნაჩვენებია CityPay-ის კლიენტის კაბინეტში, თქვენი კომპანიის სახელის ქვეშ. შექმენით Access token{' '}
+          <span className="text-white/60">Products → Order</span>-იდან გვერდით მენიუში — იქვე დაამატეთ callback URL-იც, ვინაიდან CityPay-ს
+          ესაჭიროება ის თქვენი ტოკენისთვის კონფიგურირებული, და არა შეკვეთაზე გაგზავნილი.
         </HowToConnect>
       )}
       {connectError && <p className="text-error text-xs">{connectError.message}</p>}
@@ -625,7 +625,7 @@ function MyMarketCard() {
   }
 
   function handleDisconnect() {
-    if (!confirm('Disconnect MyMarket? You can reconnect it any time.')) return
+    if (!confirm('გაითიშოს MyMarket? შეგიძლიათ ნებისმიერ დროს ხელახლა დააკავშიროთ.')) return
     disconnect()
   }
 
@@ -639,11 +639,11 @@ function MyMarketCard() {
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white">MyMarket</p>
           {isLoading ? (
-            <p className="text-white/30 text-xs mt-0.5">Checking connection...</p>
+            <p className="text-white/30 text-xs mt-0.5">კავშირი მოწმდება...</p>
           ) : connected ? (
-            <p className="text-emerald-400 text-xs mt-0.5">Connected — Shop ID {status?.shopId}</p>
+            <p className="text-emerald-400 text-xs mt-0.5">დაკავშირებულია — Shop ID {status?.shopId}</p>
           ) : (
-            <p className="text-white/30 text-xs mt-0.5">Save your shop ID to import products by pasting a MyMarket product link.</p>
+            <p className="text-white/30 text-xs mt-0.5">შეინახეთ თქვენი მაღაზიის ID პროდუქტების MyMarket-ის ბმულით საიმპორტოდ.</p>
           )}
         </div>
 
@@ -654,7 +654,7 @@ function MyMarketCard() {
             disabled={disconnecting}
             className="btn btn-sm bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40 shrink-0"
           >
-            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'Disconnect'}
+            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'გათიშვა'}
           </button>
         )}
       </div>
@@ -665,7 +665,7 @@ function MyMarketCard() {
             type="text"
             value={shopIdInput}
             onChange={e => setShopIdInput(e.target.value)}
-            placeholder="https://mymarket.ge/shops/15915/ or just 15915"
+            placeholder="https://mymarket.ge/shops/15915/ ან უბრალოდ 15915"
             className="input input-sm bg-white/4 border-white/10 focus:border-amber-500/60 flex-1"
           />
           <button
@@ -674,13 +674,13 @@ function MyMarketCard() {
             disabled={connecting || !shopIdInput.trim()}
             className="btn btn-sm bg-amber-500/15 border-amber-500/30 text-amber-300 hover:bg-amber-500/25 disabled:opacity-40 shrink-0"
           >
-            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Save'}
+            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'შენახვა'}
           </button>
         </div>
       )}
       {!isLoading && !connected && (
         <HowToConnect>
-          Open your shop page on MyMarket.ge and copy its URL — or just the number at the end, e.g.{' '}
+          გახსენით თქვენი მაღაზიის გვერდი MyMarket.ge-ზე და დააკოპირეთ მისი URL — ან უბრალოდ ბოლოში მდგომი ნომერი, მაგ.{' '}
           <span className="text-white/60">mymarket.ge/shops/15915</span> → <span className="text-white/60">15915</span>.
         </HowToConnect>
       )}
@@ -704,7 +704,7 @@ function PhubberCard() {
   }
 
   function handleDisconnect() {
-    if (!confirm('Disconnect Phubber? You can reconnect it any time.')) return
+    if (!confirm('გაითიშოს Phubber? შეგიძლიათ ნებისმიერ დროს ხელახლა დააკავშიროთ.')) return
     disconnect()
   }
 
@@ -718,11 +718,11 @@ function PhubberCard() {
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white">Phubber</p>
           {isLoading ? (
-            <p className="text-white/30 text-xs mt-0.5">Checking connection...</p>
+            <p className="text-white/30 text-xs mt-0.5">კავშირი მოწმდება...</p>
           ) : connected ? (
-            <p className="text-emerald-400 text-xs mt-0.5">Connected — Seller ID {status?.sellerId}</p>
+            <p className="text-emerald-400 text-xs mt-0.5">დაკავშირებულია — Seller ID {status?.sellerId}</p>
           ) : (
-            <p className="text-white/30 text-xs mt-0.5">Save your seller ID to import products by pasting a Phubber product link.</p>
+            <p className="text-white/30 text-xs mt-0.5">შეინახეთ თქვენი გამყიდველის ID პროდუქტების Phubber-ის ბმულით საიმპორტოდ.</p>
           )}
         </div>
 
@@ -733,7 +733,7 @@ function PhubberCard() {
             disabled={disconnecting}
             className="btn btn-sm bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40 shrink-0"
           >
-            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'Disconnect'}
+            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'გათიშვა'}
           </button>
         )}
       </div>
@@ -744,7 +744,7 @@ function PhubberCard() {
             type="text"
             value={sellerIdInput}
             onChange={e => setSellerIdInput(e.target.value)}
-            placeholder="https://beta.phubber.ge/seller-page/5fae60d4... or just the ID"
+            placeholder="https://beta.phubber.ge/seller-page/5fae60d4... ან უბრალოდ ID"
             className="input input-sm bg-white/4 border-white/10 focus:border-[#EAC7C5]/60 flex-1"
           />
           <button
@@ -753,13 +753,13 @@ function PhubberCard() {
             disabled={connecting || !sellerIdInput.trim()}
             className="btn btn-sm bg-[#EAC7C5]/20 border-[#EAC7C5]/40 text-[#EAC7C5] hover:bg-[#EAC7C5]/30 disabled:opacity-40 shrink-0"
           >
-            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Save'}
+            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'შენახვა'}
           </button>
         </div>
       )}
       {!isLoading && !connected && (
         <HowToConnect>
-          Open your seller page on Phubber and copy its URL — or just the ID at the end, e.g.{' '}
+          გახსენით თქვენი გამყიდველის გვერდი Phubber-ზე და დააკოპირეთ მისი URL — ან უბრალოდ ბოლოში მდგომი ID, მაგ.{' '}
           <span className="text-white/60">beta.phubber.ge/seller-page/5fae60d4...</span>
         </HowToConnect>
       )}
@@ -783,7 +783,7 @@ function ExtraCard() {
   }
 
   function handleDisconnect() {
-    if (!confirm('Disconnect Extra.ge? You can reconnect it any time.')) return
+    if (!confirm('გაითიშოს Extra.ge? შეგიძლიათ ნებისმიერ დროს ხელახლა დააკავშიროთ.')) return
     disconnect()
   }
 
@@ -797,11 +797,11 @@ function ExtraCard() {
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white">Extra.ge</p>
           {isLoading ? (
-            <p className="text-white/30 text-xs mt-0.5">Checking connection...</p>
+            <p className="text-white/30 text-xs mt-0.5">კავშირი მოწმდება...</p>
           ) : connected ? (
-            <p className="text-emerald-400 text-xs mt-0.5">Connected — Seller ID {status?.sellerId}</p>
+            <p className="text-emerald-400 text-xs mt-0.5">დაკავშირებულია — Seller ID {status?.sellerId}</p>
           ) : (
-            <p className="text-white/30 text-xs mt-0.5">Save your seller ID to import products by pasting an Extra.ge product link.</p>
+            <p className="text-white/30 text-xs mt-0.5">შეინახეთ თქვენი გამყიდველის ID პროდუქტების Extra.ge-ის ბმულით საიმპორტოდ.</p>
           )}
         </div>
 
@@ -812,7 +812,7 @@ function ExtraCard() {
             disabled={disconnecting}
             className="btn btn-sm bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40 shrink-0"
           >
-            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'Disconnect'}
+            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'გათიშვა'}
           </button>
         )}
       </div>
@@ -823,7 +823,7 @@ function ExtraCard() {
             type="text"
             value={sellerIdInput}
             onChange={e => setSellerIdInput(e.target.value)}
-            placeholder="https://extra.ge/seller/algorithmalgoritmi/228 or just the ID"
+            placeholder="https://extra.ge/seller/algorithmalgoritmi/228 ან უბრალოდ ID"
             className="input input-sm bg-white/4 border-white/10 focus:border-[#7A1DFF]/60 flex-1"
           />
           <button
@@ -832,13 +832,13 @@ function ExtraCard() {
             disabled={connecting || !sellerIdInput.trim()}
             className="btn btn-sm bg-[#7A1DFF]/20 border-[#7A1DFF]/40 text-[#c299ff] hover:bg-[#7A1DFF]/30 disabled:opacity-40 shrink-0"
           >
-            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Save'}
+            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'შენახვა'}
           </button>
         </div>
       )}
       {!isLoading && !connected && (
         <HowToConnect>
-          Open your seller page on Extra.ge and copy its URL — or just the number at the end, e.g.{' '}
+          გახსენით თქვენი გამყიდველის გვერდი Extra.ge-ზე და დააკოპირეთ მისი URL — ან უბრალოდ ბოლოში მდგომი ნომერი, მაგ.{' '}
           <span className="text-white/60">extra.ge/seller/algorithmalgoritmi/228</span> → <span className="text-white/60">228</span>.
         </HowToConnect>
       )}
@@ -872,7 +872,7 @@ function QuickShipperCard() {
   }
 
   function handleDisconnect() {
-    if (!confirm('Disconnect QuickShipper? You can reconnect it any time.')) return
+    if (!confirm('გაითიშოს QuickShipper? შეგიძლიათ ნებისმიერ დროს ხელახლა დააკავშიროთ.')) return
     disconnect()
   }
 
@@ -911,11 +911,11 @@ function QuickShipperCard() {
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white">QuickShipper</p>
           {isLoading ? (
-            <p className="text-white/30 text-xs mt-0.5">Checking connection...</p>
+            <p className="text-white/30 text-xs mt-0.5">კავშირი მოწმდება...</p>
           ) : connected ? (
-            <p className="text-emerald-400 text-xs mt-0.5">Connected — ready to ship orders</p>
+            <p className="text-emerald-400 text-xs mt-0.5">დაკავშირებულია — მზადაა შეკვეთების გასაგზავნად</p>
           ) : (
-            <p className="text-white/30 text-xs mt-0.5">Connect your QuickShipper account to ship orders with real couriers.</p>
+            <p className="text-white/30 text-xs mt-0.5">დააკავშირეთ თქვენი QuickShipper ანგარიში შეკვეთების რეალური კურიერებით გასაგზავნად.</p>
           )}
         </div>
 
@@ -926,7 +926,7 @@ function QuickShipperCard() {
             disabled={disconnecting}
             className="btn btn-sm bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40 shrink-0"
           >
-            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'Disconnect'}
+            {disconnecting ? <span className="loading loading-spinner loading-xs" /> : 'გათიშვა'}
           </button>
         )}
       </div>
@@ -937,14 +937,14 @@ function QuickShipperCard() {
             type="text"
             value={username}
             onChange={e => setUsername(e.target.value)}
-            placeholder="QuickShipper username"
+            placeholder="QuickShipper-ის მომხმარებლის სახელი"
             className="input input-sm bg-white/4 border-white/10 focus:border-fuchsia-500/60 flex-1"
           />
           <input
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            placeholder="Password"
+            placeholder="პაროლი"
             className="input input-sm bg-white/4 border-white/10 focus:border-fuchsia-500/60 flex-1"
           />
           <button
@@ -953,20 +953,20 @@ function QuickShipperCard() {
             disabled={connecting || !username.trim() || !password.trim()}
             className="btn btn-sm bg-amber-500/15 border-amber-500/30 text-amber-300 hover:bg-amber-500/25 disabled:opacity-40 shrink-0"
           >
-            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'Connect'}
+            {connecting ? <span className="loading loading-spinner loading-xs" /> : 'დაკავშირება'}
           </button>
         </div>
       )}
       {!isLoading && !connected && (
         <HowToConnect>
-          Use the same username and password you log into your own QuickShipper account with — no separate API credentials needed.
+          გამოიყენეთ იგივე მომხმარებლის სახელი და პაროლი, რომლითაც თქვენ საკუთარ QuickShipper ანგარიშში შედიხართ — ცალკე API მონაცემები საჭირო არ არის.
         </HowToConnect>
       )}
       {connectError && <p className="text-error text-xs">{connectError.message}</p>}
 
       {!isLoading && connected && (
         <div className="rounded-xl bg-white/2 border border-white/5 p-4 flex flex-col gap-3">
-          <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">Pickup location</p>
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">გატანის მისამართი</p>
 
           {!editingPickup ? (
             pickup?.address ? (
@@ -980,18 +980,18 @@ function QuickShipperCard() {
                   onClick={openPickupEditor}
                   className="btn btn-xs bg-white/4 border-white/8 text-white/50 hover:text-white shrink-0"
                 >
-                  Edit
+                  რედაქტირება
                 </button>
               </div>
             ) : (
               <div className="flex items-center justify-between gap-3">
-                <p className="text-white/40 text-xs">Set a pickup location before you can ship any orders.</p>
+                <p className="text-white/40 text-xs">დააყენეთ გატანის მისამართი შეკვეთების გაგზავნამდე.</p>
                 <button
                   type="button"
                   onClick={openPickupEditor}
                   className="btn btn-xs bg-amber-500/15 border-amber-500/30 text-amber-300 hover:bg-amber-500/25 shrink-0"
                 >
-                  Set location
+                  მისამართის დაყენება
                 </button>
               </div>
             )
@@ -1006,14 +1006,14 @@ function QuickShipperCard() {
                   type="text"
                   value={contactName}
                   onChange={e => setContactName(e.target.value)}
-                  placeholder="Contact name"
+                  placeholder="საკონტაქტო სახელი"
                   className="input input-sm bg-white/4 border-white/10 focus:border-fuchsia-500/60 flex-1"
                 />
                 <input
                   type="text"
                   value={contactPhone}
                   onChange={e => setContactPhone(e.target.value)}
-                  placeholder="Phone (e.g. 555123456)"
+                  placeholder="ტელეფონი (მაგ. 555123456)"
                   className="input input-sm bg-white/4 border-white/10 focus:border-fuchsia-500/60 flex-1"
                 />
               </div>
@@ -1024,14 +1024,14 @@ function QuickShipperCard() {
                   disabled={savingPickup || !pickupDraft || !contactName.trim() || !contactPhone.trim()}
                   className="btn btn-sm bg-amber-500/15 border-amber-500/30 text-amber-300 hover:bg-amber-500/25 disabled:opacity-40"
                 >
-                  {savingPickup ? <span className="loading loading-spinner loading-xs" /> : 'Save'}
+                  {savingPickup ? <span className="loading loading-spinner loading-xs" /> : 'შენახვა'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setEditingPickup(false)}
                   className="btn btn-sm bg-white/4 border-white/8 text-white/50 hover:text-white"
                 >
-                  Cancel
+                  გაუქმება
                 </button>
               </div>
             </div>

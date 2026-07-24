@@ -86,14 +86,14 @@ export default function MerchantStoreContactPage() {
     <>
     <div className="flex flex-col gap-8 max-w-2xl pb-24">
       <div>
-        <h1 className="text-2xl font-black tracking-tight">Contact &amp; Socials</h1>
-        <p className="text-white/40 text-sm mt-1">Shown on your storefront&apos;s Contact page and footer.</p>
+        <h1 className="text-2xl font-black tracking-tight">კონტაქტი და სოც. ქსელები</h1>
+        <p className="text-white/40 text-sm mt-1">ნაჩვენებია თქვენი მაღაზიის კონტაქტის გვერდზე და ქვედა კოლონტიტულში.</p>
       </div>
 
       <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
         <div>
-          <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Contact Link Label</h2>
-          <p className="text-white/30 text-xs mt-1">What the contact link is called in your menu and page heading, e.g. კონტაქტი, დაგვიკავშირდით, მოგვწერეთ.</p>
+          <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">კონტაქტის ბმულის ეტიკეტი</h2>
+          <p className="text-white/30 text-xs mt-1">როგორ ეწოდება კონტაქტის ბმულს თქვენს მენიუში და გვერდის სათაურში, მაგ. კონტაქტი, დაგვიკავშირდით, მოგვწერეთ.</p>
         </div>
         <input
           type="text"
@@ -105,10 +105,10 @@ export default function MerchantStoreContactPage() {
       </div>
 
       <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-        <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Contact Info</h2>
+        <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">საკონტაქტო ინფორმაცია</h2>
 
         <div className="fieldset gap-2">
-          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Email</label>
+          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ელფოსტა</label>
           <input
             type="email"
             value={contactEmail}
@@ -119,7 +119,7 @@ export default function MerchantStoreContactPage() {
         </div>
 
         <div className="fieldset gap-2">
-          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Phone</label>
+          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ტელეფონი</label>
           <input
             type="tel"
             value={contactPhone}
@@ -130,19 +130,19 @@ export default function MerchantStoreContactPage() {
         </div>
 
         <div className="fieldset gap-2">
-          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Address</label>
+          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მისამართი</label>
           <input
             type="text"
             value={contactAddress}
             onChange={e => setContactAddress(e.target.value)}
-            placeholder="Street, city"
+            placeholder="ქუჩა, ქალაქი"
             className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
           />
         </div>
 
         <div className="fieldset gap-2">
-          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Location on map</label>
-          <p className="text-white/30 text-xs -mt-1">Shown as a map on your storefront&apos;s Contact page.</p>
+          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მდებარეობა რუკაზე</label>
+          <p className="text-white/30 text-xs -mt-1">ნაჩვენებია რუკის სახით თქვენი მაღაზიის კონტაქტის გვერდზე.</p>
           <LocationPicker
             surface={DASHBOARD_SURFACE}
             radius="rounded-xl"
@@ -157,7 +157,7 @@ export default function MerchantStoreContactPage() {
       </div>
 
       <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-        <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Socials</h2>
+        <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">სოციალური ქსელები</h2>
 
         <div className="fieldset gap-2">
           <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Instagram</label>
@@ -209,12 +209,12 @@ export default function MerchantStoreContactPage() {
       <div className="max-w-6xl mx-auto flex items-center gap-4">
         {error && (
           <div className="flex-1 rounded-xl border border-error/30 bg-error/10 px-4 py-2.5 text-sm text-error">
-            Failed to save changes.
+            ცვლილებების შენახვა ვერ მოხერხდა.
           </div>
         )}
         {saved && (
           <div className="flex-1 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-400">
-            Saved successfully
+            წარმატებით შეინახა
           </div>
         )}
         <button
@@ -223,7 +223,7 @@ export default function MerchantStoreContactPage() {
           disabled={isPending}
           className={`btn gap-2 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40 ${error || saved ? '' : 'w-full'}`}
         >
-          {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Save'}
+          {isPending ? <span className="loading loading-spinner loading-sm" /> : 'შენახვა'}
         </button>
       </div>
     </div>

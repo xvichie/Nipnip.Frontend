@@ -113,7 +113,7 @@ export function ImportFromListingModal({
           <path d="M7 1.5v8M3.5 6l3.5 3.5L10.5 6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
           <path d="M2 11.5h10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
         </svg>
-        Import from another listing
+        იმპორტი სხვა პროდუქტიდან
       </button>
 
       <dialog ref={dialogRef} className="modal">
@@ -134,13 +134,13 @@ export function ImportFromListingModal({
                 type="text"
                 value={searchInput}
                 onChange={e => setSearchInput(e.target.value)}
-                placeholder="Search your products…"
+                placeholder="მოძებნეთ თქვენი პროდუქტები…"
                 className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
               />
               <div className="flex flex-col gap-1 max-h-72 overflow-y-auto">
                 {candidates.length === 0 ? (
                   <p className="text-white/30 text-sm py-6 text-center">
-                    {search ? 'No matches.' : 'Type to search your products.'}
+                    {search ? 'დამთხვევა ვერ მოიძებნა.' : 'დაწერეთ თქვენი პროდუქტების საძებნელად.'}
                   </p>
                 ) : (
                   candidates.map(product => (
@@ -182,28 +182,28 @@ export function ImportFromListingModal({
               </button>
 
               <div className="flex flex-col gap-1">
-                <FieldCheckbox label="Name" checked={fields.name} onChange={() => toggle('name')} />
+                <FieldCheckbox label="სახელი" checked={fields.name} onChange={() => toggle('name')} />
                 <FieldCheckbox
-                  label="Description"
+                  label="აღწერა"
                   checked={fields.description}
                   onChange={() => toggle('description')}
                   disabled={!picked.description}
                 />
-                <FieldCheckbox label="Price" checked={fields.price} onChange={() => toggle('price')} />
+                <FieldCheckbox label="ფასი" checked={fields.price} onChange={() => toggle('price')} />
                 <FieldCheckbox
-                  label="Category"
+                  label="კატეგორია"
                   checked={fields.categoryId}
                   onChange={() => toggle('categoryId')}
                   disabled={!picked.categoryId}
                 />
                 <FieldCheckbox
-                  label={`Variations (${picked.options.length})`}
+                  label={`ვარიაციები (${picked.options.length})`}
                   checked={fields.options}
                   onChange={() => toggle('options')}
                   disabled={picked.options.length === 0}
                 />
                 <FieldCheckbox
-                  label={`Similar products (${picked.relatedProducts.length})`}
+                  label={`მსგავსი პროდუქტები (${picked.relatedProducts.length})`}
                   checked={fields.relatedProducts}
                   onChange={() => toggle('relatedProducts')}
                   disabled={picked.relatedProducts.length === 0}
@@ -215,7 +215,7 @@ export function ImportFromListingModal({
                 onClick={handleImport}
                 className="btn btn-sm w-full bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white"
               >
-                Import selected fields
+                მონიშნული ველების იმპორტი
               </button>
             </div>
           )}

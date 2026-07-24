@@ -73,7 +73,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
   function handlePublish() {
     setError(null)
     const onSuccess = (data: { postUrl: string }) => setResult(data)
-    const onError = () => setError(`Failed to post to your ${platform === 'facebook' ? 'Facebook Page' : 'Instagram account'}.`)
+    const onError = () => setError(`ვერ მოხერხდა გამოქვეყნება თქვენს ${platform === 'facebook' ? 'Facebook გვერდზე' : 'Instagram ანგარიშზე'}.`)
 
     if (platform === 'facebook') publishFacebook({ productId, message: message.trim() }, { onSuccess, onError })
     else if (platform === 'instagram') publishInstagram({ productId, message: message.trim() }, { onSuccess, onError })
@@ -82,7 +82,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
         { productId, title: ttTitle.trim(), description: ttDescription.trim(), autoAddMusic: ttAutoMusic },
         {
           onSuccess: data => setTtResult({ privacyLevel: data.privacyLevel }),
-          onError: () => setError('Failed to post to your TikTok account.'),
+          onError: () => setError('ვერ მოხერხდა გამოქვეყნება თქვენს TikTok ანგარიშზე.'),
         },
       )
     }
@@ -99,7 +99,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
         onClick={() => setOpen(true)}
         className="btn btn-sm gap-2 bg-white/4 border-white/10 text-white/70 hover:text-white hover:border-white/20"
       >
-        Export
+        ექსპორტი
       </button>
 
       {open && (
@@ -108,12 +108,12 @@ export function ExportProductButton({ productId }: { productId: string }) {
           <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#14141c] flex flex-col overflow-hidden max-h-[90vh]">
             <div className="flex items-center justify-between px-5 pt-5">
               <h3 className="text-sm font-semibold text-white">
-                {platform === 'choose' ? 'Export product' : `Post to ${platformLabel}`}
+                {platform === 'choose' ? 'პროდუქტის ექსპორტი' : `გამოქვეყნება ${platformLabel}-ზე`}
               </h3>
               <button
                 type="button"
                 onClick={close}
-                aria-label="Close"
+                aria-label="დახურვა"
                 className="w-7 h-7 flex items-center justify-center text-white/40 hover:text-white"
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
@@ -124,7 +124,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
 
             {platform === 'choose' ? (
               <div className="flex flex-col gap-4 px-5 pt-4 pb-5">
-                <p className="text-white/40 text-xs leading-relaxed">Choose where to post this product.</p>
+                <p className="text-white/40 text-xs leading-relaxed">აირჩიეთ, სად გსურთ ამ პროდუქტის გამოქვეყნება.</p>
 
                 <button
                   type="button"
@@ -139,7 +139,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
                     />
                   </svg>
                   Facebook
-                  {!fbConnected && <span className="text-white/30 text-xs font-normal ml-auto">Connect first</span>}
+                  {!fbConnected && <span className="text-white/30 text-xs font-normal ml-auto">ჯერ დააკავშირეთ</span>}
                 </button>
 
                 <button
@@ -155,7 +155,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
                   </svg>
                   Instagram
                   <BetaBadge />
-                  {!igConnected && <span className="text-white/30 text-xs font-normal ml-auto">Connect first</span>}
+                  {!igConnected && <span className="text-white/30 text-xs font-normal ml-auto">ჯერ დააკავშირეთ</span>}
                 </button>
 
                 <button
@@ -172,7 +172,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
                   </svg>
                   TikTok
                   <BetaBadge />
-                  {!ttConnected && <span className="text-white/30 text-xs font-normal ml-auto">Connect first</span>}
+                  {!ttConnected && <span className="text-white/30 text-xs font-normal ml-auto">ჯერ დააკავშირეთ</span>}
                 </button>
               </div>
             ) : (
@@ -185,16 +185,16 @@ export function ExportProductButton({ productId }: { productId: string }) {
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
                     <path d="M6.5 2L3 5l3.5 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Back
+                  უკან
                 </button>
 
                 {platform === 'tiktok' ? (
                   ttResult ? (
                     <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
-                      Posted to TikTok — visible as: {ttResult.privacyLevel.replaceAll('_', ' ').toLowerCase()}.
+                      გამოქვეყნდა TikTok-ზე — ხილვადობა: {ttResult.privacyLevel.replaceAll('_', ' ').toLowerCase()}.
                       {ttResult.privacyLevel !== 'PUBLIC_TO_EVERYONE' && (
                         <p className="text-emerald-400/70 text-xs mt-1">
-                          Your app isn&apos;t yet audited by TikTok, so early posts are only visible to your own account.
+                          თქვენი აპლიკაცია ჯერ არ არის TikTok-ის მიერ დამოწმებული, ამიტომ საწყისი პოსტები ხილვადია მხოლოდ თქვენი ანგარიშისთვის.
                         </p>
                       )}
                     </div>
@@ -214,13 +214,13 @@ export function ExportProductButton({ productId }: { productId: string }) {
                         </div>
                       ) : (
                         <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
-                          TikTok photo posts need at least one photo — add one to this product first.
+                          TikTok-ის ფოტო-პოსტს სჭირდება მინიმუმ ერთი ფოტო — ჯერ დაამატეთ ერთი ამ პროდუქტს.
                         </div>
                       )}
 
                       <div className="fieldset gap-2">
                         <label htmlFor="tt-title" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                          Title
+                          სათაური
                         </label>
                         <input
                           id="tt-title"
@@ -234,7 +234,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
 
                       <div className="fieldset gap-2">
                         <label htmlFor="tt-description" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                          Description
+                          აღწერა
                         </label>
                         <textarea
                           id="tt-description"
@@ -254,7 +254,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
                           disabled={isPending}
                           className="checkbox checkbox-xs checkbox-secondary"
                         />
-                        Let TikTok add recommended music
+                        TikTok-ს დავანებოთ რეკომენდირებული მუსიკის დამატება
                       </label>
 
                       {error && (
@@ -269,14 +269,14 @@ export function ExportProductButton({ productId }: { productId: string }) {
                         disabled={isPending || !ttTitle.trim() || ttPreview.imageUrls.length === 0}
                         className="btn w-full gap-2 text-white disabled:opacity-40 bg-white/15 hover:bg-white/20 border-white/20"
                       >
-                        {isPending ? <span className="loading loading-spinner loading-sm" /> : 'Post to TikTok'}
+                        {isPending ? <span className="loading loading-spinner loading-sm" /> : 'გამოქვეყნება TikTok-ზე'}
                       </button>
                     </>
                   )
                 ) : result ? (
                   <>
                     <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
-                      Posted to your {platform === 'facebook' ? 'Facebook Page' : 'Instagram account'}.
+                      გამოქვეყნდა თქვენს {platform === 'facebook' ? 'Facebook გვერდზე' : 'Instagram ანგარიშზე'}.
                     </div>
                     <a
                       href={result.postUrl}
@@ -284,7 +284,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
                       rel="noopener noreferrer"
                       className="btn btn-sm w-fit gap-2 bg-white/4 border-white/10 text-white/70 hover:text-white"
                     >
-                      View on {platform === 'facebook' ? 'Facebook' : 'Instagram'} →
+                      ნახვა {platform === 'facebook' ? 'Facebook-ზე' : 'Instagram-ზე'} →
                     </a>
                   </>
                 ) : previewLoading || !preview ? (
@@ -298,13 +298,13 @@ export function ExportProductButton({ productId }: { productId: string }) {
                       <CImg src={preview.imageUrl} alt="" className="w-full h-40 object-cover rounded-xl border border-white/10" />
                     ) : platform === 'instagram' ? (
                       <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
-                        Instagram posts need at least one photo — add one to this product first.
+                        Instagram-ის პოსტს სჭირდება მინიმუმ ერთი ფოტო — ჯერ დაამატეთ ერთი ამ პროდუქტს.
                       </div>
                     ) : null}
 
                     <div className="fieldset gap-2">
                       <label htmlFor="export-message" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                        Post text
+                        პოსტის ტექსტი
                       </label>
                       <textarea
                         id="export-message"
@@ -333,7 +333,7 @@ export function ExportProductButton({ productId }: { productId: string }) {
                           : 'bg-[#d62976] hover:bg-[#c02268] border-[#d62976] hover:border-[#c02268]',
                       ].join(' ')}
                     >
-                      {isPending ? <span className="loading loading-spinner loading-sm" /> : `Post to ${platform === 'facebook' ? 'Facebook' : 'Instagram'}`}
+                      {isPending ? <span className="loading loading-spinner loading-sm" /> : `გამოქვეყნება ${platform === 'facebook' ? 'Facebook' : 'Instagram'}-ზე`}
                     </button>
                   </>
                 )}
