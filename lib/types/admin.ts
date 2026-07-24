@@ -69,3 +69,9 @@ export interface ImportFacebookResponse {
   /** A data: URI ready to convert to a File and upload — not a Facebook-hosted link. */
   imageDataUri: string | null
 }
+
+/** Just enough to mint a Clerk actor token client-side — see hooks/useImpersonate.ts. */
+export interface ImpersonationInfoResponse {
+  clerkUserId: string
+  name: string
+}

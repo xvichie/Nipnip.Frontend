@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar'
+import { ImpersonationBanner } from '@/components/ImpersonationBanner'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,6 +9,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main content */}
       <div className="drawer-content flex flex-col min-h-screen">
+
+        <ImpersonationBanner />
 
         {/* Mobile top bar */}
         <header className="lg:hidden sticky top-0 z-10 flex items-center justify-between gap-3 h-14 px-4 border-b border-white/[0.06] bg-[#08080d]/90 backdrop-blur-sm shrink-0">

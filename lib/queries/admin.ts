@@ -120,6 +120,21 @@ export function useAdminDeactivateMerchant() {
   })
 }
 
+export function useAdminDeleteMerchantPermanently() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const token = await getToken()
+      return apiFetch<void>(`/api/admin/merchants/${id}/permanent`, token, { method: 'DELETE' })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'merchants'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] })
+    },
+  })
+}
+
 export function useAdminToggleMerchantHighlight() {
   const { getToken } = useAuth()
   const queryClient = useQueryClient()

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useAdminCreators, useAdminToggleCreatorHighlight, useAdminToggleCreatorTest } from '@/lib/queries/admin'
+import { useImpersonate } from '@/hooks/useImpersonate'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', {
@@ -14,6 +15,7 @@ export default function AdminCreatorsPage() {
   const { data, isLoading, isError } = useAdminCreators(page)
   const { mutate: toggleHighlight, isPending: isToggling } = useAdminToggleCreatorHighlight()
   const { mutate: toggleTest, isPending: isTogglingTest } = useAdminToggleCreatorTest()
+  const { impersonate, loadingId: impersonatingId, error: impersonateError } = useImpersonate()
 
   const totalPages = data ? Math.ceil(data.totalCount / 50) : 1
 
@@ -26,6 +28,10 @@ export default function AdminCreatorsPage() {
           {data ? `${data.totalCount} total` : 'All creators including inactive'}
         </p>
       </div>
+
+      {impersonateError && (
+        <div className="alert alert-error text-sm rounded-xl">{impersonateError}</div>
+      )}
 
       <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] overflow-hidden">
         {isLoading ? (
@@ -43,9 +49,9 @@ export default function AdminCreatorsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/[0.06]">
-                  {['Name', 'Instagram', 'TikTok', 'Featured', 'Test', 'Status', 'Created'].map((h, i) => (
+                  {['Name', 'Instagram', 'TikTok', 'Featured', 'Test', 'Status', 'Created', ''].map((h, i) => (
                     <th
-                      key={h}
+                      key={h || 'actions'}
                       className={[
                         'px-5 py-3 text-xs font-medium text-white/30 uppercase tracking-widest whitespace-nowrap',
                         i >= 5 ? 'text-right' : 'text-left',
@@ -114,6 +120,16 @@ export default function AdminCreatorsPage() {
                     </td>
                     <td className="px-5 py-3.5 text-right text-white/40 text-xs whitespace-nowrap">
                       {formatDate(c.createdAt)}
+                    </td>
+                    <td className="px-5 py-3.5 text-right">
+                      <button
+                        onClick={() => impersonate('creator', c.id, c.name)}
+                        disabled={impersonatingId === c.id}
+                        className="btn btn-xs bg-amber-500/10 border-amber-500/20 text-amber-300 hover:bg-amber-500/20 disabled:opacity-40"
+                        title="Sign in as this creator — you'll be switched into their account"
+                      >
+                        {impersonatingId === c.id ? <span className="loading loading-spinner loading-xs" /> : 'Sign in as'}
+                      </button>
                     </td>
                   </tr>
                 ))}

@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useAdminMerchants, useAdminDeactivateMerchant, useAdminToggleMerchantHighlight, useAdminToggleMerchantTest } from '@/lib/queries/admin'
+import { useAdminMerchants, useAdminDeactivateMerchant, useAdminDeleteMerchantPermanently, useAdminToggleMerchantHighlight, useAdminToggleMerchantTest } from '@/lib/queries/admin'
+import { useImpersonate } from '@/hooks/useImpersonate'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', {
@@ -14,14 +15,24 @@ export default function AdminMerchantsPage() {
   const [page, setPage] = useState(1)
   const { data, isLoading, isError } = useAdminMerchants(page)
   const { mutate: deactivate, isPending: isDeactivating } = useAdminDeactivateMerchant()
+  const { mutate: deletePermanently, isPending: isDeleting } = useAdminDeleteMerchantPermanently()
   const { mutate: toggleHighlight, isPending: isToggling } = useAdminToggleMerchantHighlight()
   const { mutate: toggleTest, isPending: isTogglingTest } = useAdminToggleMerchantTest()
+  const { impersonate, loadingId: impersonatingId, error: impersonateError } = useImpersonate()
 
   const totalPages = data ? Math.ceil(data.totalCount / 50) : 1
 
   function handleDeactivate(id: string, name: string) {
     if (!confirm(`Deactivate "${name}"? This will hide them from the public marketplace.`)) return
     deactivate(id)
+  }
+
+  function handleDeletePermanently(id: string, name: string) {
+    if (!confirm(
+      `Permanently delete "${name}"?\n\nThis removes their store, products, categories, collections, orders, discount codes, and all click/conversion (affiliate link) history — everything, with no way to undo it.\n\nType OK only if you're sure.`
+    )) return
+    if (prompt(`Type the merchant's name (${name}) to confirm permanent deletion:`) !== name) return
+    deletePermanently(id)
   }
 
   return (
@@ -44,6 +55,10 @@ export default function AdminMerchantsPage() {
           New Merchant
         </Link>
       </div>
+
+      {impersonateError && (
+        <div className="alert alert-error text-sm rounded-xl">{impersonateError}</div>
+      )}
 
       <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] overflow-hidden">
         {isLoading ? (
@@ -140,6 +155,16 @@ export default function AdminMerchantsPage() {
                     </td>
                     <td className="px-5 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-2">
+                        {!m.isProspect && (
+                          <button
+                            onClick={() => impersonate('merchant', m.id, m.name)}
+                            disabled={impersonatingId === m.id}
+                            className="btn btn-xs bg-amber-500/10 border-amber-500/20 text-amber-300 hover:bg-amber-500/20 disabled:opacity-40"
+                            title="Sign in as this merchant — you'll be switched into their account"
+                          >
+                            {impersonatingId === m.id ? <span className="loading loading-spinner loading-xs" /> : 'Sign in as'}
+                          </button>
+                        )}
                         <Link
                           href={`/admin/merchants/${m.id}/edit`}
                           className="btn btn-xs bg-white/4 border-white/8 text-white/60 hover:text-white"
@@ -161,6 +186,14 @@ export default function AdminMerchantsPage() {
                             Deactivate
                           </button>
                         )}
+                        <button
+                          onClick={() => handleDeletePermanently(m.id, m.name)}
+                          disabled={isDeleting}
+                          title="Permanently delete this merchant and everything linked to it — cannot be undone"
+                          className="btn btn-xs bg-red-600/20 border-red-600/40 text-red-300 hover:bg-red-600/30 disabled:opacity-40"
+                        >
+                          {isDeleting ? <span className="loading loading-spinner loading-xs" /> : 'Delete'}
+                        </button>
                       </div>
                     </td>
                   </tr>
