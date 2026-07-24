@@ -3,7 +3,8 @@ import { ProductCard } from './ProductCard'
 import { CategoryIcon } from '@/components/storefront/shared/CategoryIcon'
 import { ProductScrollRow } from '@/components/storefront/shared/ProductScrollRow'
 import { HeroCarousel } from '@/components/storefront/shared/HeroCarousel'
-import { getBannerBackgroundStyle, getHeroBackgroundImageClass, getHeroCtaHref, getHeroCtaLabel, getHeroImageClass, getHeroOverlayStyle, getHeroTextAlignClass, getHeroTextColorClass, getHomeSectionOrder, hasBanner, hasContentBlock, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
+import { ScrollIndicator } from '@/components/storefront/shared/ScrollIndicator'
+import { getBannerBackgroundStyle, getHeroBackgroundImageClass, getHeroCtaHref, getHeroCtaLabel, getHeroImageClass, getHeroOverlayStyle, getHeroSecondaryCtaHref, getHeroSecondaryCtaLabel, getHeroTextAlignClass, getHeroTextColorClass, getHomeSectionOrder, getSectionBackgroundStyle, hasBanner, hasContentBlock, hasHeroVideo, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
 import { getLandingCategories } from '@/lib/store/landing-categories'
 import { getLandingCollections } from '@/lib/store/landing-collections'
 import { ContentBlock } from '@/components/storefront/shared/ContentBlock'
@@ -70,17 +71,31 @@ export function Home({
         {t.heroSubheadline && (
           <p className={`${getHeroTextColorClass(t, 'subheadline', 'text-[#767676]')} ${HERO_SUBHEADLINE_SIZE_CLASS[t.heroSubheadlineSize]} mb-9`}>{t.heroSubheadline}</p>
         )}
-        {t.heroCtaEnabled && (
-          <Link
-            href={getHeroCtaHref(t, categories)}
-            className={`inline-flex items-center justify-center gap-2 border-2 text-xs uppercase tracking-widest font-medium px-8 py-3.5 transition-colors ${
-              t.heroTextTheme === 'light'
-                ? 'border-white text-white hover:bg-white hover:text-black'
-                : 'border-black text-[#111111] hover:bg-black hover:text-white'
-            }`}
-          >
-            {getHeroCtaLabel(t, 'ყველა პროდუქტის ნახვა')}
-          </Link>
+        {(t.heroCtaEnabled || t.heroSecondaryCtaEnabled) && (
+          <div className="flex flex-wrap items-center gap-6">
+            {t.heroCtaEnabled && (
+              <Link
+                href={getHeroCtaHref(t, categories)}
+                className={`inline-flex items-center justify-center gap-2 border-2 text-xs uppercase tracking-widest font-medium px-8 py-3.5 transition-colors ${
+                  t.heroTextTheme === 'light'
+                    ? 'border-white text-white hover:bg-white hover:text-black'
+                    : 'border-black text-[#111111] hover:bg-black hover:text-white'
+                }`}
+              >
+                {getHeroCtaLabel(t, 'ყველა პროდუქტის ნახვა')}
+              </Link>
+            )}
+            {t.heroSecondaryCtaEnabled && (
+              <Link
+                href={getHeroSecondaryCtaHref(t, categories)}
+                className={`text-xs uppercase tracking-widest font-medium underline underline-offset-4 transition-opacity hover:opacity-70 ${
+                  t.heroTextTheme === 'light' ? 'text-white' : 'text-[#111111]'
+                }`}
+              >
+                {getHeroSecondaryCtaLabel(t, 'მეტის ნახვა')}
+              </Link>
+            )}
+          </div>
         )}
       </div>
     )
@@ -99,12 +114,33 @@ export function Home({
         {isBackgroundHero ? (
           <div className={`relative flex flex-col ${pos.wrapper} ${heightClass}`}>
             <div className="absolute inset-0">
-              <CImg src={t.heroImageUrl} cldWidth={1800} alt={t.heroHeadline || store.name} className={getHeroBackgroundImageClass(t)} />
+              {hasHeroVideo(t) ? (
+                <>
+                  <video
+                    key={t.heroVideoUrl}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="none"
+                    poster={t.heroImageUrl}
+                    className={`${getHeroBackgroundImageClass(t)} ${t.heroVideoMobileEnabled ? '' : 'hidden md:block'}`}
+                  >
+                    <source src={t.heroVideoUrl} />
+                  </video>
+                  {!t.heroVideoMobileEnabled && (
+                    <CImg src={t.heroImageUrl} cldWidth={1800} alt={t.heroHeadline || store.name} className={`${getHeroBackgroundImageClass(t)} md:hidden`} />
+                  )}
+                </>
+              ) : (
+                <CImg src={t.heroImageUrl} cldWidth={1800} alt={t.heroHeadline || store.name} className={`${getHeroBackgroundImageClass(t)} ${t.heroKenBurnsEnabled ? 'animate-ken-burns' : ''}`} />
+              )}
               {overlayStyle && <div className="absolute inset-0" style={overlayStyle} />}
             </div>
             <div className="relative max-w-6xl mx-auto px-4 sm:px-6 w-full">
               {heroText}
             </div>
+            {t.heroScrollIndicatorEnabled && <ScrollIndicator colorClassName={t.heroTextTheme === 'light' ? 'text-white' : 'text-[#111111]'} />}
           </div>
         ) : isSplitHero ? (
           <div className={`relative max-w-6xl mx-auto px-4 sm:px-6 grid md:grid-cols-2 gap-10 md:gap-14 ${heightClass}`}>
@@ -126,6 +162,7 @@ export function Home({
     ? tokens.heroSlides.map(slide => ({
         ...tokens,
         heroImageUrl: slide.imageUrl,
+        heroVideoUrl: slide.videoUrl,
         heroEyebrow: slide.eyebrow,
         heroHeadline: slide.headline,
         heroSubheadline: slide.subheadline,
@@ -134,6 +171,11 @@ export function Home({
         heroCtaLinkType: slide.ctaLinkType,
         heroCtaCategoryId: slide.ctaCategoryId,
         heroCtaCustomUrl: slide.ctaCustomUrl,
+        heroSecondaryCtaEnabled: slide.secondaryCtaEnabled,
+        heroSecondaryCtaText: slide.secondaryCtaText,
+        heroSecondaryCtaLinkType: slide.secondaryCtaLinkType,
+        heroSecondaryCtaCategoryId: slide.secondaryCtaCategoryId,
+        heroSecondaryCtaCustomUrl: slide.secondaryCtaCustomUrl,
       }))
     : [tokens]
 
@@ -144,7 +186,7 @@ export function Home({
   )
 
   const categoriesSection = landingCategories.length > 0 && (
-    <section key="categories" className="border-t border-black/10">
+    <section key="categories" className="border-t border-black/10" style={getSectionBackgroundStyle(tokens, 'categories')}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
         <div className={`grid ${LANDING_CATEGORY_GRID_CLASS[tokens.landingCategoryColumns]} gap-6`}>
           {landingCategories.map(category => (
@@ -165,7 +207,7 @@ export function Home({
   )
 
   const productsSection = (
-    <section key="products">
+    <section key="products" style={getSectionBackgroundStyle(tokens, 'products')}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 border-t border-black/10">
         <div className="flex items-end justify-between mb-10">
           <h2 className="font-serif italic text-3xl text-[#111111]">ყველა პროდუქტი</h2>
@@ -198,7 +240,7 @@ export function Home({
   )
 
   const collectionsSection = landingCollections.length > 0 && (
-    <section key="collections" className="border-t border-black/10">
+    <section key="collections" className="border-t border-black/10" style={getSectionBackgroundStyle(tokens, 'collections')}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 flex flex-col gap-16">
         {landingCollections.map(collection => (
           <ProductScrollRow
@@ -227,7 +269,7 @@ export function Home({
   )
 
   const contentSection = hasContentBlock(tokens) && (
-    <section key="content" className="border-t border-black/10">
+    <section key="content" className="border-t border-black/10" style={getSectionBackgroundStyle(tokens, 'content')}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
         <ContentBlock
           tokens={tokens}
@@ -240,7 +282,7 @@ export function Home({
   )
 
   const faqSection = tokens.showFaqSection && tokens.faqItems.length > 0 && (
-    <section key="faq" className="border-t border-black/10">
+    <section key="faq" className="border-t border-black/10" style={getSectionBackgroundStyle(tokens, 'faq')}>
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
         <FaqAccordion
           tokens={tokens}

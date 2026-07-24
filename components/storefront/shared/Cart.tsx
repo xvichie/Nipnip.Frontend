@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
-import { getThemeDefinition, RADIUS_CLASS, SURFACE_CLASSES } from '@/lib/storefront-themes'
+import { SURFACE_CLASSES } from '@/lib/storefront-themes'
+import { getRadiusClass } from '@/lib/store/theme-config'
 import type { ThemeConfig, ThemeId } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
 
@@ -17,7 +18,7 @@ export function Cart({
 }) {
   const { cart, isLoading, updateItem, removeItem, updateBundleItem, removeBundleItem } = useStorefrontCart()
   const surface = SURFACE_CLASSES[themeId]
-  const radius = RADIUS_CLASS[getThemeDefinition(themeId).radius]
+  const radius = getRadiusClass(themeId, tokens)
   const hasStockIssue = cart?.items.some(item => item.stock !== null && item.quantity > item.stock) ?? false
 
   if (isLoading) {

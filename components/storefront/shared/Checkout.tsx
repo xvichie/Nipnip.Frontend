@@ -6,7 +6,8 @@ import { useCheckout, useValidateDiscountCode } from '@/lib/queries/storefront'
 import { getStoreRef } from '@/lib/store/referral'
 import { trackPurchase } from '@/lib/store/tracking-pixels'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
-import { getThemeDefinition, RADIUS_CLASS, SURFACE_CLASSES } from '@/lib/storefront-themes'
+import { SURFACE_CLASSES } from '@/lib/storefront-themes'
+import { getRadiusClass } from '@/lib/store/theme-config'
 import { LocationPicker } from './LocationPicker'
 import type { PaymentMethod, StorePageResponse, ThemeConfig, ThemeId } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
@@ -121,7 +122,7 @@ export function Checkout({
   const checkout = useCheckout(slug)
   const validateDiscount = useValidateDiscountCode(slug)
   const surface = SURFACE_CLASSES[themeId]
-  const radius = RADIUS_CLASS[getThemeDefinition(themeId).radius]
+  const radius = getRadiusClass(themeId, tokens)
 
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')

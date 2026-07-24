@@ -53,12 +53,30 @@ export type ContentImagePosition = 'left' | 'right'
 
 export interface ThemeConfig {
   accentColor?: string
-  font?: 'sans' | 'serif' | 'mono'
+  /** Key into FONT_OPTIONS (lib/storefront-fonts.ts) — 'sans'/'serif'/'mono' are generic-stack defaults, everything else is a real webfont. */
+  font?: string
+  /**
+   * Overrides the theme's own default corner rounding — but only for the shared, non-themed
+   * components (Cart, Checkout, Bundle list, Contact page), which already compute their radius
+   * dynamically. Every other themed component (Header/Home/ProductCard/etc.) hardcodes its own
+   * rounded-* classes per theme and is unaffected. 'theme' keeps the theme's own default.
+   */
+  cornerRadius?: 'theme' | 'none' | 'md' | '2xl'
+  /** Per home-page section background color override. Empty/missing keys inherit the theme's default. 'hero' is intentionally unused — it already has its own bannerColor/heroVideoUrl. */
+  sectionBackgroundColors?: Partial<Record<HomeSectionKey, string>>
+  /** 'full' (default) is today's edge-to-edge layout. 'boxed' constrains the whole site to boxedMaxWidth, centered on boxedBackgroundColor. */
+  layoutWidth?: 'full' | 'boxed'
+  boxedMaxWidth?: number
+  boxedBackgroundColor?: string
   logoUrl?: string
   showStoreName?: boolean
   heroImageUrl?: string
   heroImageFit?: HeroImageFit
   heroImagePosition?: HeroImagePosition
+  /** Only used when heroLayout is 'background'. heroImageUrl still serves as the poster frame and the mobile fallback. */
+  heroVideoUrl?: string
+  /** Off by default — most stores skip autoplaying video on mobile to save the visitor's data. */
+  heroVideoMobileEnabled?: boolean
   bannerType?: BannerType
   bannerUrl?: string
   bannerColor?: string
@@ -83,6 +101,14 @@ export interface ThemeConfig {
   heroCtaLinkType?: HeroCtaLinkType
   heroCtaCategoryId?: string
   heroCtaCustomUrl?: string
+  /** A second, lower-emphasis button next to the main hero CTA. */
+  heroSecondaryCtaEnabled?: boolean
+  heroSecondaryCtaText?: string
+  heroSecondaryCtaLinkType?: HeroCtaLinkType
+  heroSecondaryCtaCategoryId?: string
+  heroSecondaryCtaCustomUrl?: string
+  heroKenBurnsEnabled?: boolean
+  heroScrollIndicatorEnabled?: boolean
   seoTagline?: string
   seoDescription?: string
   contactEmail?: string
@@ -216,6 +242,7 @@ export interface StoreHoursDay {
 
 export interface HeroSlide {
   imageUrl: string
+  videoUrl: string
   eyebrow: string
   headline: string
   subheadline: string
@@ -224,6 +251,11 @@ export interface HeroSlide {
   ctaLinkType: HeroCtaLinkType
   ctaCategoryId: string
   ctaCustomUrl: string
+  secondaryCtaEnabled: boolean
+  secondaryCtaText: string
+  secondaryCtaLinkType: HeroCtaLinkType
+  secondaryCtaCategoryId: string
+  secondaryCtaCustomUrl: string
 }
 
 export interface FooterLinkColumn {

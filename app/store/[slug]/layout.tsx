@@ -28,6 +28,7 @@ import { SaleCountdownBar } from '@/components/storefront/shared/SaleCountdownBa
 import { FloatingContactButton } from '@/components/storefront/shared/FloatingContactButton'
 import { TrackingScripts } from '@/components/storefront/shared/TrackingScripts'
 import { StoreOfflinePage } from '@/components/storefront/shared/StoreOfflinePage'
+import { ALL_FONT_VARIABLE_CLASSES, getFontFamily } from '@/lib/storefront-fonts'
 import { isCurrentUserAdmin } from '@/lib/server/is-admin'
 import type { CategoryResponse, StorePageResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
@@ -118,8 +119,11 @@ export default async function StoreLayout({
   const showTopBar = tokens.socialsPosition === 'top' || tokens.socialsPosition === 'both'
   const showBottomBar = tokens.socialsPosition === 'bottom' || tokens.socialsPosition === 'both'
 
-  return (
-    <div className={`min-h-screen flex flex-col ${SURFACE_CLASSES[themeId].page} ${SURFACE_CLASSES[themeId].text}`}>
+  const content = (
+    <div
+      className={`min-h-screen flex flex-col ${SURFACE_CLASSES[themeId].page} ${SURFACE_CLASSES[themeId].text} ${ALL_FONT_VARIABLE_CLASSES}`}
+      style={{ fontFamily: getFontFamily(tokens.font) }}
+    >
       <JsonLd data={buildStoreJsonLd(slug, store, tokens)} />
       <PageViewTracker slug={slug} />
       <TrackingScripts tokens={tokens} />
@@ -138,6 +142,16 @@ export default async function StoreLayout({
       </StorefrontToastProvider>
       {override.footerExtraHtml && <div dangerouslySetInnerHTML={{ __html: override.footerExtraHtml }} />}
       <FloatingContactButton tokens={tokens} />
+    </div>
+  )
+
+  if (tokens.layoutWidth !== 'boxed') return content
+
+  return (
+    <div className="min-h-screen" style={{ backgroundColor: tokens.boxedBackgroundColor }}>
+      <div className="mx-auto shadow-2xl shadow-black/40" style={{ maxWidth: `${tokens.boxedMaxWidth}px` }}>
+        {content}
+      </div>
     </div>
   )
 }

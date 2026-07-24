@@ -69,6 +69,24 @@
   animation: gradient-shift 5s ease infinite;
 }
 
+@keyframes ken-burns {
+  0%   { transform: scale(1); }
+  100% { transform: scale(1.12); }
+}
+
+.animate-ken-burns {
+  animation: ken-burns 20s ease-out infinite alternate;
+}
+
+@keyframes scroll-hint {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50%      { transform: translateY(8px); opacity: 1; }
+}
+
+.animate-scroll-hint {
+  animation: scroll-hint 1.8s ease-in-out infinite;
+}
+
 /* Drag-to-reorder image thumbnails (view-transition-name: vt-*) get a slower, more
    noticeable slide than the browser's default ~0.25s crossfade when they swap places. */
 ::view-transition-group(*) {

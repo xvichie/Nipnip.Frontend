@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { getThemeDefinition, RADIUS_CLASS, SURFACE_CLASSES } from '@/lib/storefront-themes'
+import { getThemeDefinition, SURFACE_CLASSES } from '@/lib/storefront-themes'
+import { getRadiusClass } from '@/lib/store/theme-config'
 import { SocialLinks } from './SocialLinks'
 import { ContactForm } from './ContactForm'
 import { LocationMap } from './LocationMap'
@@ -50,7 +51,7 @@ export function ContactPage({
 }) {
   const surface = SURFACE_CLASSES[themeId]
   const themeDef = getThemeDefinition(themeId)
-  const radius = RADIUS_CLASS[themeDef.radius]
+  const radius = getRadiusClass(themeId, tokens)
   const rows = ROWS.filter(row => tokens[row.key])
 
   return (

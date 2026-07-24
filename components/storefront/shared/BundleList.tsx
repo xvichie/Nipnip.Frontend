@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useBundles } from '@/lib/queries/storefront'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
-import { getThemeDefinition, RADIUS_CLASS, SURFACE_CLASSES } from '@/lib/storefront-themes'
+import { SURFACE_CLASSES } from '@/lib/storefront-themes'
+import { getRadiusClass } from '@/lib/store/theme-config'
 import type { ThemeConfig, ThemeId } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
 
@@ -19,7 +20,7 @@ export function BundleList({
   const { data: bundles, isLoading } = useBundles(slug)
   const { addBundle } = useStorefrontCart()
   const surface = SURFACE_CLASSES[themeId]
-  const radius = RADIUS_CLASS[getThemeDefinition(themeId).radius]
+  const radius = getRadiusClass(themeId, tokens)
   const [addingId, setAddingId] = useState<string | null>(null)
 
   async function handleAdd(bundleId: string) {

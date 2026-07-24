@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useMyCategories, useMyCollections, useMyPages, useMyProducts, useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { DEFAULT_THEME_CONFIG, getHomeSectionOrder, HOME_SECTION_KEYS, parseThemeConfig } from '@/lib/store/theme-config'
+import { ALL_FONT_VARIABLE_CLASSES, getFontFamily } from '@/lib/storefront-fonts'
 import { getLandingCollections } from '@/lib/store/landing-collections'
 import { withSaleCategory } from '@/lib/store/sale-category'
 import { isThemeId, SURFACE_CLASSES } from '@/lib/storefront-themes'
@@ -131,6 +132,10 @@ export default function StoreLayoutPage() {
   const [previewFullscreen, setPreviewFullscreen] = useState(false)
 
   const [homeSectionOrder, setHomeSectionOrder] = useState<HomeSectionKey[]>(DEFAULT_THEME_CONFIG.homeSectionOrder)
+  const [sectionBackgroundColors, setSectionBackgroundColors] = useState(DEFAULT_THEME_CONFIG.sectionBackgroundColors)
+  const [layoutWidth, setLayoutWidth] = useState(DEFAULT_THEME_CONFIG.layoutWidth)
+  const [boxedMaxWidth, setBoxedMaxWidth] = useState(DEFAULT_THEME_CONFIG.boxedMaxWidth)
+  const [boxedBackgroundColor, setBoxedBackgroundColor] = useState(DEFAULT_THEME_CONFIG.boxedBackgroundColor)
   const [categoryMenuMode, setCategoryMenuMode] = useState<CategoryMenuMode>(DEFAULT_THEME_CONFIG.categoryMenuMode)
   const [categoryMenuScope, setCategoryMenuScope] = useState<CategoryMenuScope>(DEFAULT_THEME_CONFIG.categoryMenuScope)
   const [categoryMenuSelectedIds, setCategoryMenuSelectedIds] = useState<string[]>(DEFAULT_THEME_CONFIG.categoryMenuSelectedIds)
@@ -211,6 +216,10 @@ export default function StoreLayoutPage() {
     setHydrated(true)
     const parsed = parseThemeConfig(store.themeConfig)
     setHomeSectionOrder(getHomeSectionOrder(parsed))
+    setSectionBackgroundColors(parsed.sectionBackgroundColors)
+    setLayoutWidth(parsed.layoutWidth)
+    setBoxedMaxWidth(parsed.boxedMaxWidth)
+    setBoxedBackgroundColor(parsed.boxedBackgroundColor)
     setCategoryMenuMode(parsed.categoryMenuMode)
     setCategoryMenuScope(parsed.categoryMenuScope)
     setCategoryMenuSelectedIds(parsed.categoryMenuSelectedIds)
@@ -290,6 +299,15 @@ export default function StoreLayoutPage() {
 
   function toggleSection(key: HomeSectionKey) {
     setHomeSectionOrder(prev => (prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]))
+  }
+
+  function updateSectionBackgroundColor(key: Exclude<HomeSectionKey, 'hero'>, color: string) {
+    setSectionBackgroundColors(prev => {
+      const next = { ...prev }
+      if (color) next[key] = color
+      else delete next[key]
+      return next
+    })
   }
 
   function moveSection(key: HomeSectionKey, direction: -1 | 1) {
@@ -404,6 +422,10 @@ export default function StoreLayoutPage() {
         themeConfig: JSON.stringify({
           ...parsed,
           homeSectionOrder,
+          sectionBackgroundColors,
+          layoutWidth,
+          boxedMaxWidth,
+          boxedBackgroundColor,
           categoryMenuMode,
           categoryMenuScope,
           categoryMenuSelectedIds,
@@ -489,6 +511,10 @@ export default function StoreLayoutPage() {
   const tokens: Required<ThemeConfig> = {
     ...parsed,
     homeSectionOrder,
+    sectionBackgroundColors,
+    layoutWidth,
+    boxedMaxWidth,
+    boxedBackgroundColor,
     categoryMenuMode,
     categoryMenuScope,
     categoryMenuSelectedIds,
@@ -583,20 +609,22 @@ export default function StoreLayoutPage() {
   const HomePreview = HOMES[themeId]
 
   const previewContent = (
-    <StorefrontCartProvider slug={store.slug} preview>
-      <AnnouncementBar slug={store.slug} tokens={tokens} />
-      <HeaderPreview slug={store.slug} storeName={store.name} categories={categories ?? []} pages={pages ?? []} tokens={tokens} />
-      <HomePreview
-        slug={store.slug}
-        store={store}
-        categories={categories ?? []}
-        collections={collections ?? []}
-        collectionProducts={collectionProducts}
-        products={previewProducts}
-        tokens={tokens}
-      />
-      <FooterPreview slug={store.slug} storeName={store.name} tokens={tokens} pages={pages ?? []} />
-    </StorefrontCartProvider>
+    <div className={ALL_FONT_VARIABLE_CLASSES} style={{ fontFamily: getFontFamily(tokens.font) }}>
+      <StorefrontCartProvider slug={store.slug} preview>
+        <AnnouncementBar slug={store.slug} tokens={tokens} />
+        <HeaderPreview slug={store.slug} storeName={store.name} categories={categories ?? []} pages={pages ?? []} tokens={tokens} />
+        <HomePreview
+          slug={store.slug}
+          store={store}
+          categories={categories ?? []}
+          collections={collections ?? []}
+          collectionProducts={collectionProducts}
+          products={previewProducts}
+          tokens={tokens}
+        />
+        <FooterPreview slug={store.slug} storeName={store.name} tokens={tokens} pages={pages ?? []} />
+      </StorefrontCartProvider>
+    </div>
   )
 
   const previewControls = (
@@ -777,6 +805,27 @@ export default function StoreLayoutPage() {
               <p className="text-white/30 text-xs mt-1">What shows in the homepage Product Grid section.</p>
             </div>
             <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Background color</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={sectionBackgroundColors.products || '#000000'}
+                  onChange={e => updateSectionBackgroundColor('products', e.target.value)}
+                  className="w-9 h-9 rounded-lg border border-white/10 bg-transparent cursor-pointer shrink-0"
+                />
+                <input
+                  type="text"
+                  value={sectionBackgroundColors.products ?? ''}
+                  onChange={e => updateSectionBackgroundColor('products', e.target.value)}
+                  placeholder="Theme default"
+                  className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                />
+                {sectionBackgroundColors.products && (
+                  <button type="button" onClick={() => updateSectionBackgroundColor('products', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">Clear</button>
+                )}
+              </div>
+            </div>
+            <div className="fieldset gap-2">
               <div className="grid grid-cols-2 gap-2">
                 {([
                   { value: 'latest', label: 'Newest products' },
@@ -814,6 +863,28 @@ export default function StoreLayoutPage() {
               <p className="text-white/30 text-xs mt-1">
                 An optional &quot;About us&quot; style section — enable it above under Home Page Sections once it has a heading or text.
               </p>
+            </div>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Background color</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={sectionBackgroundColors.content || '#000000'}
+                  onChange={e => updateSectionBackgroundColor('content', e.target.value)}
+                  className="w-9 h-9 rounded-lg border border-white/10 bg-transparent cursor-pointer shrink-0"
+                />
+                <input
+                  type="text"
+                  value={sectionBackgroundColors.content ?? ''}
+                  onChange={e => updateSectionBackgroundColor('content', e.target.value)}
+                  placeholder="Theme default"
+                  className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                />
+                {sectionBackgroundColors.content && (
+                  <button type="button" onClick={() => updateSectionBackgroundColor('content', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">Clear</button>
+                )}
+              </div>
             </div>
 
             <div className="fieldset gap-2">
@@ -1054,6 +1125,28 @@ export default function StoreLayoutPage() {
               />
             </label>
 
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Background color</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={sectionBackgroundColors.categories || '#000000'}
+                  onChange={e => updateSectionBackgroundColor('categories', e.target.value)}
+                  className="w-9 h-9 rounded-lg border border-white/10 bg-transparent cursor-pointer shrink-0"
+                />
+                <input
+                  type="text"
+                  value={sectionBackgroundColors.categories ?? ''}
+                  onChange={e => updateSectionBackgroundColor('categories', e.target.value)}
+                  placeholder="Theme default"
+                  className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                />
+                {sectionBackgroundColors.categories && (
+                  <button type="button" onClick={() => updateSectionBackgroundColor('categories', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">Clear</button>
+                )}
+              </div>
+            </div>
+
             {showLandingCategories && (
               <>
                 <div className="fieldset gap-2">
@@ -1156,6 +1249,28 @@ export default function StoreLayoutPage() {
                 className={`toggle toggle-sm shrink-0 ${showLandingCollections ? 'toggle-success' : 'toggle-error'}`}
               />
             </label>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Background color</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={sectionBackgroundColors.collections || '#000000'}
+                  onChange={e => updateSectionBackgroundColor('collections', e.target.value)}
+                  className="w-9 h-9 rounded-lg border border-white/10 bg-transparent cursor-pointer shrink-0"
+                />
+                <input
+                  type="text"
+                  value={sectionBackgroundColors.collections ?? ''}
+                  onChange={e => updateSectionBackgroundColor('collections', e.target.value)}
+                  placeholder="Theme default"
+                  className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                />
+                {sectionBackgroundColors.collections && (
+                  <button type="button" onClick={() => updateSectionBackgroundColor('collections', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">Clear</button>
+                )}
+              </div>
+            </div>
 
             {showLandingCollections && (
               <>
@@ -1646,6 +1761,28 @@ export default function StoreLayoutPage() {
               />
             </label>
 
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Background color</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={sectionBackgroundColors.faq || '#000000'}
+                  onChange={e => updateSectionBackgroundColor('faq', e.target.value)}
+                  className="w-9 h-9 rounded-lg border border-white/10 bg-transparent cursor-pointer shrink-0"
+                />
+                <input
+                  type="text"
+                  value={sectionBackgroundColors.faq ?? ''}
+                  onChange={e => updateSectionBackgroundColor('faq', e.target.value)}
+                  placeholder="Theme default"
+                  className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                />
+                {sectionBackgroundColors.faq && (
+                  <button type="button" onClick={() => updateSectionBackgroundColor('faq', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">Clear</button>
+                )}
+              </div>
+            </div>
+
             {showFaqSection && (
               <>
                 <div className="fieldset gap-2">
@@ -1896,6 +2033,69 @@ export default function StoreLayoutPage() {
                 className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
               />
             </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+            <div>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Page Width</h2>
+              <p className="text-white/30 text-xs mt-1">Boxed constrains the whole site to a centered column with visible margins on wide screens.</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {([
+                { value: 'full', label: 'Full width' },
+                { value: 'boxed', label: 'Boxed' },
+              ] as { value: Required<ThemeConfig>['layoutWidth']; label: string }[]).map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setLayoutWidth(opt.value)}
+                  className={[
+                    'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                    layoutWidth === opt.value
+                      ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                      : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                  ].join(' ')}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {layoutWidth === 'boxed' && (
+              <>
+                <div className="fieldset gap-2">
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Max width — {boxedMaxWidth}px</label>
+                  <input
+                    type="range"
+                    min={1000}
+                    max={1800}
+                    step={50}
+                    value={boxedMaxWidth}
+                    onChange={e => setBoxedMaxWidth(Number(e.target.value))}
+                    className="range range-xs accent-fuchsia-500"
+                  />
+                </div>
+
+                <div className="fieldset gap-2">
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Margin color</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={boxedBackgroundColor}
+                      onChange={e => setBoxedBackgroundColor(e.target.value)}
+                      className="w-9 h-9 rounded-lg border border-white/10 bg-transparent cursor-pointer shrink-0"
+                    />
+                    <input
+                      type="text"
+                      value={boxedBackgroundColor}
+                      onChange={e => setBoxedBackgroundColor(e.target.value)}
+                      className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
         </div>

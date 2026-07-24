@@ -1,12 +1,20 @@
 import type { CSSProperties } from 'react'
-import type { AdminThemeOverride, CategoryResponse, ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
+import { getThemeDefinition, RADIUS_CLASS } from '@/lib/storefront-themes'
+import type { AdminThemeOverride, CategoryResponse, HomeSectionKey, ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
 
 export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   accentColor: '#111111',
   font: 'sans',
+  cornerRadius: 'theme',
+  sectionBackgroundColors: {},
+  layoutWidth: 'full',
+  boxedMaxWidth: 1400,
+  boxedBackgroundColor: '#111111',
   logoUrl: '',
   showStoreName: false,
   heroImageUrl: '',
+  heroVideoUrl: '',
+  heroVideoMobileEnabled: false,
   heroImageFit: 'contain',
   heroImagePosition: 'center',
   bannerType: 'image',
@@ -33,6 +41,13 @@ export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   heroCtaLinkType: 'products',
   heroCtaCategoryId: '',
   heroCtaCustomUrl: '',
+  heroSecondaryCtaEnabled: false,
+  heroSecondaryCtaText: '',
+  heroSecondaryCtaLinkType: 'products',
+  heroSecondaryCtaCategoryId: '',
+  heroSecondaryCtaCustomUrl: '',
+  heroKenBurnsEnabled: false,
+  heroScrollIndicatorEnabled: false,
   seoTagline: '',
   seoDescription: '',
   contactEmail: '',
@@ -270,6 +285,25 @@ export function getHeroBackgroundImageClass(tokens: Required<ThemeConfig>): stri
   return `w-full h-full object-cover ${HERO_IMAGE_POSITION_CLASS[tokens.heroImagePosition]}`
 }
 
+export function hasHeroVideo(tokens: Required<ThemeConfig>): boolean {
+  return tokens.heroLayout === 'background' && !!tokens.heroVideoUrl
+}
+
+// Only the shared, non-themed components (Cart, Checkout, Bundle list, Contact page) read this —
+// every other themed component hardcodes its own rounded-* classes per theme and is unaffected.
+export function getRadiusClass(themeId: string, tokens: Required<ThemeConfig>): string {
+  const radius = tokens.cornerRadius === 'theme' ? getThemeDefinition(themeId).radius : tokens.cornerRadius
+  return RADIUS_CLASS[radius]
+}
+
+export function getSectionBackgroundStyle(
+  tokens: Required<ThemeConfig>,
+  key: Exclude<HomeSectionKey, 'hero'>
+): CSSProperties | undefined {
+  const color = tokens.sectionBackgroundColors[key]
+  return color ? { backgroundColor: color } : undefined
+}
+
 // Merchant-facing "light/dark/auto" text color override — used instead of a raw color
 // picker so choosing readable text over a photo stays a one-click, non-technical decision.
 export const HERO_TEXT_THEME_CLASS: Record<'light' | 'dark', { headline: string; subheadline: string; eyebrow: string }> = {
@@ -311,6 +345,21 @@ export function getHeroCtaHref(tokens: Required<ThemeConfig>, categories: Catego
   }
   if (tokens.heroCtaLinkType === 'custom' && tokens.heroCtaCustomUrl.trim()) {
     return tokens.heroCtaCustomUrl.trim()
+  }
+  return '/products'
+}
+
+export function getHeroSecondaryCtaLabel(tokens: Required<ThemeConfig>, fallback: string): string {
+  return tokens.heroSecondaryCtaText.trim() || fallback
+}
+
+export function getHeroSecondaryCtaHref(tokens: Required<ThemeConfig>, categories: CategoryResponse[]): string {
+  if (tokens.heroSecondaryCtaLinkType === 'category' && tokens.heroSecondaryCtaCategoryId) {
+    const category = categories.find(c => c.id === tokens.heroSecondaryCtaCategoryId)
+    if (category) return `/products/category/${category.slug}`
+  }
+  if (tokens.heroSecondaryCtaLinkType === 'custom' && tokens.heroSecondaryCtaCustomUrl.trim()) {
+    return tokens.heroSecondaryCtaCustomUrl.trim()
   }
   return '/products'
 }

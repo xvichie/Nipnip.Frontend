@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useMyCategories, useMyCollections, useMyPages, useMyProducts, useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
-import { uploadImage } from '@/lib/uploadImage'
+import { uploadImage, uploadVideo } from '@/lib/uploadImage'
 import { BANNER_PATTERNS, DEFAULT_THEME_CONFIG, HERO_TEXT_POSITIONS, parseThemeConfig } from '@/lib/store/theme-config'
+import { ALL_FONT_VARIABLE_CLASSES, FONT_OPTIONS, getFontOption, type FontCategory } from '@/lib/storefront-fonts'
 import { getThemeDefinition, isThemeId, SURFACE_CLASSES, THEMES } from '@/lib/storefront-themes'
 import { StorefrontCartProvider } from '@/lib/store/storefront-cart-context'
 import { PreviewFrame, type PreviewMode } from '@/components/dashboard/store/PreviewFrame'
@@ -115,6 +116,109 @@ function ImageField({
   )
 }
 
+function VideoField({
+  label,
+  value,
+  uploading,
+  onFile,
+  onClear,
+}: {
+  label: string
+  value: string
+  uploading: boolean
+  onFile: (file: File) => void
+  onClear: () => void
+}) {
+  return (
+    <div className="fieldset gap-2">
+      <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">{label}</label>
+      <div className="flex items-center gap-4">
+        <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 bg-white/4 shrink-0 flex items-center justify-center">
+          {uploading ? (
+            <span className="loading loading-spinner loading-sm text-fuchsia-400" />
+          ) : value ? (
+            <video src={value} muted loop autoPlay playsInline className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-white/20 text-[10px]">None</span>
+          )}
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="btn btn-xs bg-white/4 border-white/8 text-white/60 hover:text-white cursor-pointer w-fit">
+            Upload
+            <input
+              type="file"
+              accept="video/*"
+              className="hidden"
+              onChange={e => { const f = e.target.files?.[0]; if (f) onFile(f) }}
+            />
+          </label>
+          {value && (
+            <button type="button" onClick={onClear} className="text-xs text-white/30 hover:text-red-400 text-left">
+              Remove
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const FONT_CATEGORY_LABELS: { category: FontCategory; title: string }[] = [
+  { category: 'default', title: 'Default' },
+  { category: 'georgian', title: 'ქართული' },
+  { category: 'latin', title: 'Latin' },
+]
+
+function FontPicker({ value, onChange }: { value: string; onChange: (key: string) => void }) {
+  const [search, setSearch] = useState('')
+  const filtered = FONT_OPTIONS.filter(f => f.label.toLowerCase().includes(search.toLowerCase()))
+  const current = getFontOption(value)
+
+  return (
+    <div className={`flex flex-col gap-2 ${ALL_FONT_VARIABLE_CLASSES}`}>
+      <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/4">
+        <span className="text-white/40 text-xs uppercase tracking-wider shrink-0">Selected</span>
+        <span style={{ fontFamily: current.fontFamily }} className="text-white text-sm truncate">{current.label}</span>
+      </div>
+      <input
+        type="text"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        placeholder="Search fonts…"
+        className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
+      />
+      <div className="max-h-72 overflow-y-auto rounded-xl border border-white/10 bg-white/2 divide-y divide-white/5">
+        {FONT_CATEGORY_LABELS.map(group => {
+          const items = filtered.filter(f => f.category === group.category)
+          if (items.length === 0) return null
+          return (
+            <div key={group.category}>
+              <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-white/30 bg-white/2 sticky top-0">{group.title}</p>
+              {items.map(opt => (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => onChange(opt.key)}
+                  className={`w-full text-left px-3 py-2.5 flex items-center justify-between gap-3 transition-colors ${value === opt.key ? 'bg-fuchsia-500/10' : 'hover:bg-white/4'}`}
+                >
+                  <span className="min-w-0 flex-1">
+                    <span style={{ fontFamily: opt.fontFamily }} className="block text-white text-sm truncate">{opt.label}</span>
+                    {opt.sampleText && (
+                      <span style={{ fontFamily: opt.fontFamily }} className="block text-white/50 text-xs truncate mt-0.5">{opt.sampleText}</span>
+                    )}
+                  </span>
+                  {value === opt.key && <span className="text-fuchsia-400 text-xs shrink-0">✓</span>}
+                </button>
+              ))}
+            </div>
+          )
+        })}
+        {filtered.length === 0 && <p className="px-3 py-4 text-white/30 text-xs text-center">No fonts match.</p>}
+      </div>
+    </div>
+  )
+}
+
 const TEXT_SIZE_OPTIONS: { value: HeroTextSize; label: string }[] = [
   { value: 'sm', label: 'S' },
   { value: 'md', label: 'M' },
@@ -151,6 +255,8 @@ function HeroSlideFields({
   categories,
   uploading,
   onFile,
+  videoUploading,
+  onVideoFile,
   onChange,
   onMove,
   onRemove,
@@ -161,6 +267,8 @@ function HeroSlideFields({
   categories: CategoryResponse[]
   uploading: boolean
   onFile: (file: File) => void
+  videoUploading: boolean
+  onVideoFile: (file: File) => void
   onChange: <K extends keyof HeroSlide>(field: K, value: HeroSlide[K]) => void
   onMove: (direction: -1 | 1) => void
   onRemove: () => void
@@ -177,6 +285,8 @@ function HeroSlideFields({
       </div>
 
       <ImageField label="Image" value={slide.imageUrl} uploading={uploading} onFile={onFile} onClear={() => onChange('imageUrl', '')} />
+
+      <VideoField label="Video (optional, background layout only)" value={slide.videoUrl} uploading={videoUploading} onFile={onVideoFile} onClear={() => onChange('videoUrl', '')} />
 
       <div className="fieldset gap-2">
         <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Eyebrow</label>
@@ -259,6 +369,73 @@ function HeroSlideFields({
           </div>
         </>
       )}
+
+      <label className="flex items-center justify-between gap-3 cursor-pointer">
+        <span className="text-sm text-white/70">Show secondary button</span>
+        <input
+          type="checkbox"
+          checked={slide.secondaryCtaEnabled}
+          onChange={e => onChange('secondaryCtaEnabled', e.target.checked)}
+          className={`toggle toggle-sm ${slide.secondaryCtaEnabled ? 'toggle-success' : 'toggle-error'}`}
+        />
+      </label>
+
+      {slide.secondaryCtaEnabled && (
+        <>
+          <div className="fieldset gap-2">
+            <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Secondary button text</label>
+            <input type="text" value={slide.secondaryCtaText} onChange={e => onChange('secondaryCtaText', e.target.value)} placeholder="მეტის ნახვა" className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60" />
+          </div>
+
+          <div className="fieldset gap-2">
+            <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Sends visitors to</label>
+            <div className="grid grid-cols-3 gap-2">
+              {([
+                { value: 'products', label: 'All products' },
+                { value: 'category', label: 'A category' },
+                { value: 'custom', label: 'Custom link' },
+              ] as { value: HeroCtaLinkType; label: string }[]).map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => onChange('secondaryCtaLinkType', opt.value)}
+                  className={[
+                    'rounded-lg border px-2 py-1.5 text-[11px] font-medium text-center transition-colors',
+                    slide.secondaryCtaLinkType === opt.value
+                      ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                      : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                  ].join(' ')}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {slide.secondaryCtaLinkType === 'category' && (
+              <select
+                value={slide.secondaryCtaCategoryId}
+                onChange={e => onChange('secondaryCtaCategoryId', e.target.value)}
+                className="select select-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 mt-1"
+              >
+                <option value="">Choose a category…</option>
+                {categories.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            )}
+
+            {slide.secondaryCtaLinkType === 'custom' && (
+              <input
+                type="text"
+                value={slide.secondaryCtaCustomUrl}
+                onChange={e => onChange('secondaryCtaCustomUrl', e.target.value)}
+                placeholder="/products/category/shoes or https://…"
+                className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 mt-1"
+              />
+            )}
+          </div>
+        </>
+      )}
     </div>
   )
 }
@@ -279,11 +456,18 @@ export default function StoreDesignPage() {
   const [previewFullscreen, setPreviewFullscreen] = useState(false)
   const [accentColor, setAccentColor] = useState(DEFAULT_THEME_CONFIG.accentColor)
   const [font, setFont] = useState<Required<ThemeConfig>['font']>(DEFAULT_THEME_CONFIG.font)
+  const [cornerRadius, setCornerRadius] = useState<Required<ThemeConfig>['cornerRadius']>(DEFAULT_THEME_CONFIG.cornerRadius)
+  const [sectionBackgroundColors, setSectionBackgroundColors] = useState(DEFAULT_THEME_CONFIG.sectionBackgroundColors)
+  const [layoutWidth, setLayoutWidth] = useState(DEFAULT_THEME_CONFIG.layoutWidth)
+  const [boxedMaxWidth, setBoxedMaxWidth] = useState(DEFAULT_THEME_CONFIG.boxedMaxWidth)
+  const [boxedBackgroundColor, setBoxedBackgroundColor] = useState(DEFAULT_THEME_CONFIG.boxedBackgroundColor)
   const [logoUrl, setLogoUrl] = useState('')
   const [faviconUrl, setFaviconUrl] = useState('')
   const [socialImageUrl, setSocialImageUrl] = useState('')
   const [showStoreName, setShowStoreName] = useState(DEFAULT_THEME_CONFIG.showStoreName)
   const [heroImageUrl, setHeroImageUrl] = useState('')
+  const [heroVideoUrl, setHeroVideoUrl] = useState('')
+  const [heroVideoMobileEnabled, setHeroVideoMobileEnabled] = useState(DEFAULT_THEME_CONFIG.heroVideoMobileEnabled)
   const [heroImageFit, setHeroImageFit] = useState<HeroImageFit>(DEFAULT_THEME_CONFIG.heroImageFit)
   const [heroImagePosition, setHeroImagePosition] = useState<HeroImagePosition>(DEFAULT_THEME_CONFIG.heroImagePosition)
   const [bannerType, setBannerType] = useState<BannerType>(DEFAULT_THEME_CONFIG.bannerType)
@@ -310,6 +494,13 @@ export default function StoreDesignPage() {
   const [heroCtaLinkType, setHeroCtaLinkType] = useState<HeroCtaLinkType>(DEFAULT_THEME_CONFIG.heroCtaLinkType)
   const [heroCtaCategoryId, setHeroCtaCategoryId] = useState('')
   const [heroCtaCustomUrl, setHeroCtaCustomUrl] = useState('')
+  const [heroSecondaryCtaEnabled, setHeroSecondaryCtaEnabled] = useState(DEFAULT_THEME_CONFIG.heroSecondaryCtaEnabled)
+  const [heroSecondaryCtaText, setHeroSecondaryCtaText] = useState('')
+  const [heroSecondaryCtaLinkType, setHeroSecondaryCtaLinkType] = useState<HeroCtaLinkType>(DEFAULT_THEME_CONFIG.heroSecondaryCtaLinkType)
+  const [heroSecondaryCtaCategoryId, setHeroSecondaryCtaCategoryId] = useState('')
+  const [heroSecondaryCtaCustomUrl, setHeroSecondaryCtaCustomUrl] = useState('')
+  const [heroKenBurnsEnabled, setHeroKenBurnsEnabled] = useState(DEFAULT_THEME_CONFIG.heroKenBurnsEnabled)
+  const [heroScrollIndicatorEnabled, setHeroScrollIndicatorEnabled] = useState(DEFAULT_THEME_CONFIG.heroScrollIndicatorEnabled)
   const [seoTagline, setSeoTagline] = useState('')
   const [seoDescription, setSeoDescription] = useState('')
   const [contactEmail, setContactEmail] = useState('')
@@ -424,10 +615,12 @@ export default function StoreDesignPage() {
   const [headerBackgroundColor, setHeaderBackgroundColor] = useState(DEFAULT_THEME_CONFIG.headerBackgroundColor)
   const [heroSlides, setHeroSlides] = useState(DEFAULT_THEME_CONFIG.heroSlides)
   const [heroSlideUploading, setHeroSlideUploading] = useState<Record<number, boolean>>({})
+  const [heroSlideVideoUploading, setHeroSlideVideoUploading] = useState<Record<number, boolean>>({})
   const [logoUploading, setLogoUploading] = useState(false)
   const [faviconUploading, setFaviconUploading] = useState(false)
   const [socialImageUploading, setSocialImageUploading] = useState(false)
   const [heroImageUploading, setHeroImageUploading] = useState(false)
+  const [heroVideoUploading, setHeroVideoUploading] = useState(false)
   const [bannerUploading, setBannerUploading] = useState(false)
   const [saved, setSaved] = useState(false)
 
@@ -444,11 +637,18 @@ export default function StoreDesignPage() {
     setThemeId(isThemeId(store.themeId) ? store.themeId : 'minimal')
     setAccentColor(parsed.accentColor)
     setFont(parsed.font)
+    setCornerRadius(parsed.cornerRadius)
+    setSectionBackgroundColors(parsed.sectionBackgroundColors)
+    setLayoutWidth(parsed.layoutWidth)
+    setBoxedMaxWidth(parsed.boxedMaxWidth)
+    setBoxedBackgroundColor(parsed.boxedBackgroundColor)
     setLogoUrl(parsed.logoUrl)
     setFaviconUrl(parsed.faviconUrl)
     setSocialImageUrl(parsed.socialImageUrl)
     setShowStoreName(parsed.showStoreName)
     setHeroImageUrl(parsed.heroImageUrl)
+    setHeroVideoUrl(parsed.heroVideoUrl)
+    setHeroVideoMobileEnabled(parsed.heroVideoMobileEnabled)
     setHeroImageFit(parsed.heroImageFit)
     setHeroImagePosition(parsed.heroImagePosition)
     setBannerType(parsed.bannerType)
@@ -475,6 +675,13 @@ export default function StoreDesignPage() {
     setHeroCtaLinkType(parsed.heroCtaLinkType)
     setHeroCtaCategoryId(parsed.heroCtaCategoryId)
     setHeroCtaCustomUrl(parsed.heroCtaCustomUrl)
+    setHeroSecondaryCtaEnabled(parsed.heroSecondaryCtaEnabled)
+    setHeroSecondaryCtaText(parsed.heroSecondaryCtaText)
+    setHeroSecondaryCtaLinkType(parsed.heroSecondaryCtaLinkType)
+    setHeroSecondaryCtaCategoryId(parsed.heroSecondaryCtaCategoryId)
+    setHeroSecondaryCtaCustomUrl(parsed.heroSecondaryCtaCustomUrl)
+    setHeroKenBurnsEnabled(parsed.heroKenBurnsEnabled)
+    setHeroScrollIndicatorEnabled(parsed.heroScrollIndicatorEnabled)
     setSeoTagline(parsed.seoTagline)
     setSeoDescription(parsed.seoDescription)
     setContactEmail(parsed.contactEmail)
@@ -643,9 +850,21 @@ export default function StoreDesignPage() {
     }
   }
 
+  async function handleHeroVideoFile(file: File) {
+    setHeroVideoUploading(true)
+    try {
+      setHeroVideoUrl(await uploadVideo(file))
+    } catch {
+      // keep previous hero video on failure
+    } finally {
+      setHeroVideoUploading(false)
+    }
+  }
+
   function addHeroSlide() {
     setHeroSlides(prev => [...prev, {
       imageUrl: '',
+      videoUrl: '',
       eyebrow: '',
       headline: '',
       subheadline: '',
@@ -654,6 +873,11 @@ export default function StoreDesignPage() {
       ctaLinkType: 'products',
       ctaCategoryId: '',
       ctaCustomUrl: '',
+      secondaryCtaEnabled: false,
+      secondaryCtaText: '',
+      secondaryCtaLinkType: 'products',
+      secondaryCtaCategoryId: '',
+      secondaryCtaCustomUrl: '',
     }])
   }
 
@@ -687,6 +911,18 @@ export default function StoreDesignPage() {
     }
   }
 
+  async function handleHeroSlideVideoFile(index: number, file: File) {
+    setHeroSlideVideoUploading(prev => ({ ...prev, [index]: true }))
+    try {
+      const url = await uploadVideo(file)
+      updateHeroSlide(index, 'videoUrl', url)
+    } catch {
+      // keep previous slide video on failure
+    } finally {
+      setHeroSlideVideoUploading(prev => ({ ...prev, [index]: false }))
+    }
+  }
+
   async function handleBannerFile(file: File) {
     setBannerUploading(true)
     try {
@@ -705,9 +941,16 @@ export default function StoreDesignPage() {
         themeConfig: JSON.stringify({
           accentColor,
           font,
+          cornerRadius,
+          sectionBackgroundColors,
+          layoutWidth,
+          boxedMaxWidth,
+          boxedBackgroundColor,
           logoUrl,
           showStoreName,
           heroImageUrl,
+          heroVideoUrl,
+          heroVideoMobileEnabled,
           heroImageFit,
           heroImagePosition,
           bannerType,
@@ -734,6 +977,13 @@ export default function StoreDesignPage() {
           heroCtaLinkType,
           heroCtaCategoryId,
           heroCtaCustomUrl: heroCtaCustomUrl.trim() || undefined,
+          heroSecondaryCtaEnabled,
+          heroSecondaryCtaText,
+          heroSecondaryCtaLinkType,
+          heroSecondaryCtaCategoryId,
+          heroSecondaryCtaCustomUrl: heroSecondaryCtaCustomUrl.trim() || undefined,
+          heroKenBurnsEnabled,
+          heroScrollIndicatorEnabled,
           seoTagline: seoTagline.trim() || undefined,
           seoDescription: seoDescription.trim() || undefined,
           contactEmail,
@@ -857,9 +1107,16 @@ export default function StoreDesignPage() {
   const tokens: Required<ThemeConfig> = {
     accentColor,
     font,
+    cornerRadius,
+    sectionBackgroundColors,
+    layoutWidth,
+    boxedMaxWidth,
+    boxedBackgroundColor,
     logoUrl,
     showStoreName,
     heroImageUrl,
+    heroVideoUrl,
+    heroVideoMobileEnabled,
     heroImageFit,
     heroImagePosition,
     bannerType,
@@ -886,6 +1143,13 @@ export default function StoreDesignPage() {
     heroCtaLinkType,
     heroCtaCategoryId,
     heroCtaCustomUrl,
+    heroSecondaryCtaEnabled,
+    heroSecondaryCtaText,
+    heroSecondaryCtaLinkType,
+    heroSecondaryCtaCategoryId,
+    heroSecondaryCtaCustomUrl,
+    heroKenBurnsEnabled,
+    heroScrollIndicatorEnabled,
     seoTagline,
     seoDescription,
     contactEmail,
@@ -1008,20 +1272,22 @@ export default function StoreDesignPage() {
   const HomePreview = HOMES[themeId]
 
   const previewContent = (
-    <StorefrontCartProvider slug={store.slug} preview>
-      <AnnouncementBar slug={store.slug} tokens={tokens} />
-      <HeaderPreview slug={store.slug} storeName={store.name} categories={categories ?? []} pages={pages ?? []} tokens={tokens} />
-      <HomePreview
-        slug={store.slug}
-        store={store}
-        categories={categories ?? []}
-        collections={collections ?? []}
-        collectionProducts={collectionProducts}
-        products={previewProducts}
-        tokens={tokens}
-      />
-      <FooterPreview slug={store.slug} storeName={store.name} tokens={tokens} pages={pages ?? []} />
-    </StorefrontCartProvider>
+    <div className={ALL_FONT_VARIABLE_CLASSES} style={{ fontFamily: getFontOption(font).fontFamily }}>
+      <StorefrontCartProvider slug={store.slug} preview>
+        <AnnouncementBar slug={store.slug} tokens={tokens} />
+        <HeaderPreview slug={store.slug} storeName={store.name} categories={categories ?? []} pages={pages ?? []} tokens={tokens} />
+        <HomePreview
+          slug={store.slug}
+          store={store}
+          categories={categories ?? []}
+          collections={collections ?? []}
+          collectionProducts={collectionProducts}
+          products={previewProducts}
+          tokens={tokens}
+        />
+        <FooterPreview slug={store.slug} storeName={store.name} tokens={tokens} pages={pages ?? []} />
+      </StorefrontCartProvider>
+    </div>
   )
 
   const previewControls = (
@@ -1180,15 +1446,36 @@ export default function StoreDesignPage() {
 
             <div className="fieldset gap-2">
               <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Font</label>
-              <select
-                value={font}
-                onChange={e => setFont(e.target.value as Required<ThemeConfig>['font'])}
-                className="select w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
-              >
-                <option value="sans">Sans-serif</option>
-                <option value="serif">Serif</option>
-                <option value="mono">Monospace</option>
-              </select>
+              <FontPicker value={font} onChange={setFont} />
+            </div>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Corner Radius</label>
+              <div className="grid grid-cols-4 gap-2">
+                {([
+                  { value: 'theme', label: 'Theme' },
+                  { value: 'none', label: 'Sharp' },
+                  { value: 'md', label: 'Soft' },
+                  { value: '2xl', label: 'Round' },
+                ] as { value: Required<ThemeConfig>['cornerRadius']; label: string }[]).map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setCornerRadius(opt.value)}
+                    className={[
+                      'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                      cornerRadius === opt.value
+                        ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                        : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                    ].join(' ')}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-white/30 text-xs mt-1">
+                Only affects the Cart, Checkout, Bundles, and Contact pages — the rest of the storefront keeps this theme&apos;s own look.
+              </p>
             </div>
           </div>
 
@@ -1493,6 +1780,53 @@ export default function StoreDesignPage() {
               </div>
             )}
 
+            {heroLayout === 'background' && heroImageUrl && (
+              <div className="rounded-xl border border-white/7 bg-white/2 p-4 flex flex-col gap-3">
+                <div>
+                  <p className="text-sm font-medium text-white">Hero video background</p>
+                  <p className="text-white/30 text-xs mt-0.5">Plays muted and looped in place of the photo. The photo above still serves as the poster frame and the mobile fallback.</p>
+                </div>
+                <VideoField label="Video" value={heroVideoUrl} uploading={heroVideoUploading} onFile={handleHeroVideoFile} onClear={() => setHeroVideoUrl('')} />
+                {heroVideoUrl && (
+                  <label className="flex items-center justify-between gap-3 cursor-pointer">
+                    <span className="text-sm text-white/70">Also autoplay on mobile</span>
+                    <input
+                      type="checkbox"
+                      checked={heroVideoMobileEnabled}
+                      onChange={e => setHeroVideoMobileEnabled(e.target.checked)}
+                      className={`toggle toggle-sm ${heroVideoMobileEnabled ? 'toggle-success' : ''}`}
+                    />
+                  </label>
+                )}
+                {!heroVideoUrl && (
+                  <label className="flex items-center justify-between gap-3 cursor-pointer">
+                    <span className="text-sm text-white/70">Slow zoom effect (Ken Burns)</span>
+                    <input
+                      type="checkbox"
+                      checked={heroKenBurnsEnabled}
+                      onChange={e => setHeroKenBurnsEnabled(e.target.checked)}
+                      className={`toggle toggle-sm ${heroKenBurnsEnabled ? 'toggle-success' : ''}`}
+                    />
+                  </label>
+                )}
+              </div>
+            )}
+
+            {heroLayout === 'background' && heroImageUrl && (
+              <label className="flex items-center justify-between gap-3 cursor-pointer">
+                <div>
+                  <p className="text-sm text-white/70">Scroll-down indicator</p>
+                  <p className="text-white/30 text-xs mt-0.5">A small animated chevron at the bottom of the hero.</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={heroScrollIndicatorEnabled}
+                  onChange={e => setHeroScrollIndicatorEnabled(e.target.checked)}
+                  className={`toggle toggle-sm shrink-0 ${heroScrollIndicatorEnabled ? 'toggle-success' : ''}`}
+                />
+              </label>
+            )}
+
             <div className="fieldset gap-2">
               <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Text Color</label>
               <div className="grid grid-cols-3 gap-2">
@@ -1769,6 +2103,82 @@ export default function StoreDesignPage() {
           </div>
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Hero Secondary Button</h2>
+              <input
+                type="checkbox"
+                checked={heroSecondaryCtaEnabled}
+                onChange={e => setHeroSecondaryCtaEnabled(e.target.checked)}
+                className={`toggle toggle-sm ${heroSecondaryCtaEnabled ? 'toggle-success' : 'toggle-error'}`}
+              />
+            </div>
+
+            {heroSecondaryCtaEnabled && (
+              <>
+                <div className="fieldset gap-2">
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Button Text</label>
+                  <input
+                    type="text"
+                    value={heroSecondaryCtaText}
+                    onChange={e => setHeroSecondaryCtaText(e.target.value)}
+                    placeholder="მეტის ნახვა"
+                    className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                  />
+                  <p className="text-white/30 text-xs">Leave blank to use the default text.</p>
+                </div>
+
+                <div className="fieldset gap-2">
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Sends visitors to</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([
+                      { value: 'products', label: 'All products' },
+                      { value: 'category', label: 'A category' },
+                      { value: 'custom', label: 'Custom link' },
+                    ] as { value: HeroCtaLinkType; label: string }[]).map(opt => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setHeroSecondaryCtaLinkType(opt.value)}
+                        className={[
+                          'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                          heroSecondaryCtaLinkType === opt.value
+                            ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                            : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                        ].join(' ')}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {heroSecondaryCtaLinkType === 'category' && (
+                    <select
+                      value={heroSecondaryCtaCategoryId}
+                      onChange={e => setHeroSecondaryCtaCategoryId(e.target.value)}
+                      className="select w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 mt-1"
+                    >
+                      <option value="">Choose a category…</option>
+                      {(categories ?? []).map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
+                  )}
+
+                  {heroSecondaryCtaLinkType === 'custom' && (
+                    <input
+                      type="text"
+                      value={heroSecondaryCtaCustomUrl}
+                      onChange={e => setHeroSecondaryCtaCustomUrl(e.target.value)}
+                      placeholder="/products/category/shoes or https://…"
+                      className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 mt-1"
+                    />
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div>
               <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Hero Slides</h2>
               <p className="text-white/30 text-xs mt-1">
@@ -1788,6 +2198,8 @@ export default function StoreDesignPage() {
                     categories={categories ?? []}
                     uploading={!!heroSlideUploading[i]}
                     onFile={file => handleHeroSlideImageFile(i, file)}
+                    videoUploading={!!heroSlideVideoUploading[i]}
+                    onVideoFile={file => handleHeroSlideVideoFile(i, file)}
                     onChange={(field, value) => updateHeroSlide(i, field, value)}
                     onMove={direction => moveHeroSlide(i, direction)}
                     onRemove={() => removeHeroSlide(i)}
