@@ -15,6 +15,7 @@ import type {
   CreateProductOptionValueRequest,
   CreateProductRequest,
   CreateProductVariantRequest,
+  CreateStoreDiscountCodeRequest,
   MonthlyOrderSummary,
   NewOrderCountResponse,
   OrderDetailResponse,
@@ -30,6 +31,7 @@ import type {
   SetCollectionProductsRequest,
   SetRelatedProductsRequest,
   SetStoreDomainRequest,
+  StoreDiscountCodeResponse,
   StoreDomainResponse,
   StorePageResponse,
   StoreResponse,
@@ -40,6 +42,7 @@ import type {
   UpdateCollectionRequest,
   UpdateProductRequest,
   UpdateProductVariantRequest,
+  UpdateStoreDiscountCodeRequest,
   UpdateStorePageRequest,
   UpdateStoreRequest,
 } from '@/lib/types'
@@ -258,6 +261,63 @@ export function useSetCollectionProducts(collectionId: string) {
       })
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'collection', collectionId, 'products'] }),
+  })
+}
+
+// --- Discount Codes ---
+
+export function useMyDiscountCodes() {
+  const { getToken } = useAuth()
+  const { isLoaded, isSignedIn } = useUser()
+  return useQuery({
+    queryKey: ['storefront-admin', 'discount-codes'],
+    queryFn: async () => {
+      const token = await getToken()
+      return apiFetch<StoreDiscountCodeResponse[]>('/api/stores/me/discount-codes', token)
+    },
+    enabled: isLoaded && !!isSignedIn,
+  })
+}
+
+export function useCreateDiscountCode() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (body: CreateStoreDiscountCodeRequest) => {
+      const token = await getToken()
+      return apiFetch<StoreDiscountCodeResponse>('/api/stores/me/discount-codes', token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'discount-codes'] }),
+  })
+}
+
+export function useUpdateDiscountCode() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, body }: { id: string; body: UpdateStoreDiscountCodeRequest }) => {
+      const token = await getToken()
+      return apiFetch<StoreDiscountCodeResponse>(`/api/stores/me/discount-codes/${id}`, token, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'discount-codes'] }),
+  })
+}
+
+export function useDeleteDiscountCode() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const token = await getToken()
+      await apiFetch<void>(`/api/stores/me/discount-codes/${id}`, token, { method: 'DELETE' })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'discount-codes'] }),
   })
 }
 

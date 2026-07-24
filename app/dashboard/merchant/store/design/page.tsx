@@ -407,6 +407,12 @@ export default function StoreDesignPage() {
   const [showStickyMobileCta, setShowStickyMobileCta] = useState(DEFAULT_THEME_CONFIG.showStickyMobileCta)
   const [storeHoursEnabled, setStoreHoursEnabled] = useState(DEFAULT_THEME_CONFIG.storeHoursEnabled)
   const [storeHours, setStoreHours] = useState(DEFAULT_THEME_CONFIG.storeHours)
+  const [saleCountdownEnabled, setSaleCountdownEnabled] = useState(DEFAULT_THEME_CONFIG.saleCountdownEnabled)
+  const [saleCountdownEndsAt, setSaleCountdownEndsAt] = useState(DEFAULT_THEME_CONFIG.saleCountdownEndsAt)
+  const [saleCountdownText, setSaleCountdownText] = useState(DEFAULT_THEME_CONFIG.saleCountdownText)
+  const [facebookPixelId, setFacebookPixelId] = useState(DEFAULT_THEME_CONFIG.facebookPixelId)
+  const [googleAnalyticsId, setGoogleAnalyticsId] = useState(DEFAULT_THEME_CONFIG.googleAnalyticsId)
+  const [tiktokPixelId, setTiktokPixelId] = useState(DEFAULT_THEME_CONFIG.tiktokPixelId)
   // Edited here on this page (Header + Hero Slides sections below).
   const [headerSticky, setHeaderSticky] = useState(DEFAULT_THEME_CONFIG.headerSticky)
   const [headerBackgroundColor, setHeaderBackgroundColor] = useState(DEFAULT_THEME_CONFIG.headerBackgroundColor)
@@ -551,6 +557,12 @@ export default function StoreDesignPage() {
     setShowStickyMobileCta(parsed.showStickyMobileCta)
     setStoreHoursEnabled(parsed.storeHoursEnabled)
     setStoreHours(parsed.storeHours)
+    setSaleCountdownEnabled(parsed.saleCountdownEnabled)
+    setSaleCountdownEndsAt(parsed.saleCountdownEndsAt)
+    setSaleCountdownText(parsed.saleCountdownText)
+    setFacebookPixelId(parsed.facebookPixelId)
+    setGoogleAnalyticsId(parsed.googleAnalyticsId)
+    setTiktokPixelId(parsed.tiktokPixelId)
     setHeaderSticky(parsed.headerSticky)
     setHeaderBackgroundColor(parsed.headerBackgroundColor)
     setHeroSlides(parsed.heroSlides)
@@ -798,6 +810,12 @@ export default function StoreDesignPage() {
           showStickyMobileCta,
           storeHoursEnabled,
           storeHours,
+          saleCountdownEnabled,
+          saleCountdownEndsAt,
+          saleCountdownText: saleCountdownText.trim() || undefined,
+          facebookPixelId: facebookPixelId.trim() || undefined,
+          googleAnalyticsId: googleAnalyticsId.trim() || undefined,
+          tiktokPixelId: tiktokPixelId.trim() || undefined,
           headerSticky,
           headerBackgroundColor,
           heroSlides,
@@ -938,6 +956,12 @@ export default function StoreDesignPage() {
     showStickyMobileCta,
     storeHoursEnabled,
     storeHours,
+    saleCountdownEnabled,
+    saleCountdownEndsAt,
+    saleCountdownText,
+    facebookPixelId,
+    googleAnalyticsId,
+    tiktokPixelId,
     headerSticky,
     headerBackgroundColor,
     heroSlides,

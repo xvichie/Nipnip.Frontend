@@ -126,6 +126,7 @@ export const ka = {
     storeOrders: 'შეკვეთები',
     storeCategories: 'კატეგორიები',
     storeCollections: 'კოლექციები',
+    storeDiscountCodes: 'ფასდაკლების კოდები',
     storePages: 'გვერდები',
     storeDesign: 'დიზაინი',
     storeLayout: 'განლაგება',

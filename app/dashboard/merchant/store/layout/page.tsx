@@ -186,6 +186,12 @@ export default function StoreLayoutPage() {
   const [showStickyMobileCta, setShowStickyMobileCta] = useState(DEFAULT_THEME_CONFIG.showStickyMobileCta)
   const [storeHoursEnabled, setStoreHoursEnabled] = useState(DEFAULT_THEME_CONFIG.storeHoursEnabled)
   const [storeHours, setStoreHours] = useState(DEFAULT_THEME_CONFIG.storeHours)
+  const [saleCountdownEnabled, setSaleCountdownEnabled] = useState(DEFAULT_THEME_CONFIG.saleCountdownEnabled)
+  const [saleCountdownEndsAt, setSaleCountdownEndsAt] = useState(DEFAULT_THEME_CONFIG.saleCountdownEndsAt)
+  const [saleCountdownText, setSaleCountdownText] = useState(DEFAULT_THEME_CONFIG.saleCountdownText)
+  const [facebookPixelId, setFacebookPixelId] = useState(DEFAULT_THEME_CONFIG.facebookPixelId)
+  const [googleAnalyticsId, setGoogleAnalyticsId] = useState(DEFAULT_THEME_CONFIG.googleAnalyticsId)
+  const [tiktokPixelId, setTiktokPixelId] = useState(DEFAULT_THEME_CONFIG.tiktokPixelId)
   const [saved, setSaved] = useState(false)
 
   // "Adjust state during render" instead of an effect — hydrates once from the fetched
@@ -253,6 +259,12 @@ export default function StoreLayoutPage() {
     setShowStickyMobileCta(parsed.showStickyMobileCta)
     setStoreHoursEnabled(parsed.storeHoursEnabled)
     setStoreHours(parsed.storeHours)
+    setSaleCountdownEnabled(parsed.saleCountdownEnabled)
+    setSaleCountdownEndsAt(parsed.saleCountdownEndsAt)
+    setSaleCountdownText(parsed.saleCountdownText)
+    setFacebookPixelId(parsed.facebookPixelId)
+    setGoogleAnalyticsId(parsed.googleAnalyticsId)
+    setTiktokPixelId(parsed.tiktokPixelId)
   }
 
   useEffect(() => {
@@ -434,6 +446,12 @@ export default function StoreLayoutPage() {
           showStickyMobileCta,
           storeHoursEnabled,
           storeHours,
+          saleCountdownEnabled,
+          saleCountdownEndsAt,
+          saleCountdownText: saleCountdownText.trim() || undefined,
+          facebookPixelId: facebookPixelId.trim() || undefined,
+          googleAnalyticsId: googleAnalyticsId.trim() || undefined,
+          tiktokPixelId: tiktokPixelId.trim() || undefined,
         }),
       },
       { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
@@ -507,6 +525,12 @@ export default function StoreLayoutPage() {
     showStickyMobileCta,
     storeHoursEnabled,
     storeHours,
+    saleCountdownEnabled,
+    saleCountdownEndsAt,
+    saleCountdownText,
+    facebookPixelId,
+    googleAnalyticsId,
+    tiktokPixelId,
   }
 
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
@@ -1684,6 +1708,87 @@ export default function StoreLayoutPage() {
                 ))}
               </div>
             )}
+          </div>
+
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+            <label className="flex items-center justify-between gap-3 cursor-pointer">
+              <div>
+                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Sale Countdown</h2>
+                <p className="text-white/30 text-xs mt-1">An urgency bar counting down to a set end time — great for flash sales.</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={saleCountdownEnabled}
+                onChange={e => setSaleCountdownEnabled(e.target.checked)}
+                className={`toggle toggle-sm shrink-0 ${saleCountdownEnabled ? 'toggle-success' : 'toggle-error'}`}
+              />
+            </label>
+
+            {saleCountdownEnabled && (
+              <>
+                <div className="fieldset gap-2">
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Ends at</label>
+                  <input
+                    type="datetime-local"
+                    value={saleCountdownEndsAt ?? ''}
+                    onChange={e => setSaleCountdownEndsAt(e.target.value || null)}
+                    className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                  />
+                  <p className="text-white/30 text-xs">The bar disappears on its own once this time passes.</p>
+                </div>
+
+                <div className="fieldset gap-2">
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Message</label>
+                  <input
+                    type="text"
+                    value={saleCountdownText}
+                    onChange={e => setSaleCountdownText(e.target.value)}
+                    placeholder="🔥 Sale ends in"
+                    className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                  />
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+            <div>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Marketing &amp; Tracking</h2>
+              <p className="text-white/30 text-xs mt-1">Fires standard page-view and purchase events for your own ad campaigns.</p>
+            </div>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Facebook Pixel ID</label>
+              <input
+                type="text"
+                value={facebookPixelId}
+                onChange={e => setFacebookPixelId(e.target.value)}
+                placeholder="1234567890123456"
+                className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+              />
+            </div>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Google Analytics Measurement ID</label>
+              <input
+                type="text"
+                value={googleAnalyticsId}
+                onChange={e => setGoogleAnalyticsId(e.target.value)}
+                placeholder="G-XXXXXXXXXX"
+                className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+              />
+            </div>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">TikTok Pixel ID</label>
+              <input
+                type="text"
+                value={tiktokPixelId}
+                onChange={e => setTiktokPixelId(e.target.value)}
+                placeholder="CXXXXXXXXXXXXXXXXXXX"
+                className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+              />
+            </div>
           </div>
 
         </div>

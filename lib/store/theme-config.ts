@@ -134,6 +134,12 @@ export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
     { day: 6, open: '09:00', close: '18:00', closed: false },
   ],
   heroSlides: [],
+  facebookPixelId: '',
+  googleAnalyticsId: '',
+  tiktokPixelId: '',
+  saleCountdownEnabled: false,
+  saleCountdownEndsAt: null,
+  saleCountdownText: '',
 }
 
 export function parseThemeConfig(raw: string): Required<ThemeConfig> {

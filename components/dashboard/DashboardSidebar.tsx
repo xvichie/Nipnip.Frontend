@@ -148,6 +148,12 @@ const LAYERS_ICON = (
     <path d="M1.5 11 8 14.5 14.5 11" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 )
+const DISCOUNT_ICON = (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+    <path d="M2 8.3 8.3 2h4.2a1.5 1.5 0 0 1 1.5 1.5v4.2L7.7 14 2 8.3Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+    <circle cx="10.3" cy="5.7" r="1.1" stroke="currentColor" strokeWidth="1.3"/>
+  </svg>
+)
 const MAIL_ICON = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
     <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
@@ -258,6 +264,7 @@ const STORE_NAV_ICONS: Record<string, React.ReactNode> = {
   '/dashboard/merchant/store/collections': LAYERS_ICON,
   '/dashboard/merchant/store/products': BOX_ICON,
   '/dashboard/merchant/store/orders': BAG_ICON,
+  '/dashboard/merchant/store/discount-codes': DISCOUNT_ICON,
   '/dashboard/merchant/store/payments': PAYMENT_ICON,
   '/dashboard/merchant/store/delivery': DELIVERY_ICON,
   '/dashboard/merchant/store/domain': DOMAIN_ICON,

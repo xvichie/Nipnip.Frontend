@@ -21,6 +21,8 @@ import type {
   StorePageResponse,
   StoreResponse,
   UpdateCartItemRequest,
+  ValidateDiscountCodeRequest,
+  ValidateDiscountCodeResponse,
 } from '@/lib/types/storefront'
 
 export function useStore(slug: string) {
@@ -201,6 +203,16 @@ export function useSubmitContactMessage(slug: string) {
   return useMutation({
     mutationFn: (body: CreateContactMessageRequest) =>
       apiFetch<ContactMessageResponse>(`/api/stores/${slug}/contact-messages`, null, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+  })
+}
+
+export function useValidateDiscountCode(slug: string) {
+  return useMutation({
+    mutationFn: (body: ValidateDiscountCodeRequest) =>
+      apiFetch<ValidateDiscountCodeResponse>(`/api/stores/${slug}/discount-codes/validate`, null, {
         method: 'POST',
         body: JSON.stringify(body),
       }),

@@ -183,6 +183,14 @@ export interface ThemeConfig {
   storeHoursEnabled?: boolean
   storeHours?: StoreHoursDay[]
   heroSlides?: HeroSlide[]
+  facebookPixelId?: string
+  googleAnalyticsId?: string
+  tiktokPixelId?: string
+  saleCountdownEnabled?: boolean
+  /** ISO datetime string — the bar hides itself once this passes. */
+  saleCountdownEndsAt?: string | null
+  /** Empty falls back to the theme's default "Sale ends in" copy. */
+  saleCountdownText?: string
 }
 
 export type OfflineMode = 'closed' | 'comingSoon'
@@ -545,6 +553,7 @@ export interface CheckoutRequest {
   shippingZoneId?: string | null
   ref?: string | null
   customerNote?: string | null
+  discountCode?: string | null
 }
 
 export interface OrderResponse {
@@ -563,6 +572,8 @@ export interface OrderResponse {
   createdAt: string
   redirectUrl: string | null
   customerNote: string | null
+  discountCode: string | null
+  discountAmount: number
 }
 
 export interface OrderItemResponse {
@@ -605,6 +616,54 @@ export interface OrderDetailResponse {
   quickShipperTrackingUrl: string | null
   quickShipperDeliveryFee: number | null
   customerNote: string | null
+  discountCode: string | null
+  discountAmount: number
+}
+
+export type DiscountCodeType = 'Percentage' | 'FixedAmount'
+
+export interface StoreDiscountCodeResponse {
+  id: string
+  code: string
+  type: DiscountCodeType
+  value: number
+  minOrderAmount: number | null
+  maxUses: number | null
+  usesCount: number
+  expiresAt: string | null
+  isActive: boolean
+  createdAt: string
+}
+
+export interface CreateStoreDiscountCodeRequest {
+  code: string
+  type: DiscountCodeType
+  value: number
+  minOrderAmount?: number | null
+  maxUses?: number | null
+  expiresAt?: string | null
+}
+
+export interface UpdateStoreDiscountCodeRequest {
+  code: string
+  type: DiscountCodeType
+  value: number
+  minOrderAmount: number | null
+  maxUses: number | null
+  expiresAt: string | null
+  isActive: boolean
+}
+
+export interface ValidateDiscountCodeRequest {
+  code: string
+  subtotal: number
+}
+
+export interface ValidateDiscountCodeResponse {
+  valid: boolean
+  discountAmount: number
+  errorCode: 'not_found' | 'inactive' | 'expired' | 'max_uses' | 'min_order' | null
+  minOrderAmount: number | null
 }
 
 export interface UpdateOrderStatusRequest {

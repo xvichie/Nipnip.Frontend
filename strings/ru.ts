@@ -128,6 +128,7 @@ export const ru: Strings = {
     storeOrders: 'Заказы',
     storeCategories: 'Категории',
     storeCollections: 'Коллекции',
+    storeDiscountCodes: 'Промокоды',
     storePages: 'Страницы',
     storeDesign: 'Дизайн',
     storeLayout: 'Макет',

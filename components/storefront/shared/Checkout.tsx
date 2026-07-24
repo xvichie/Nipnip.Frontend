@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useCheckout } from '@/lib/queries/storefront'
+import { useCheckout, useValidateDiscountCode } from '@/lib/queries/storefront'
 import { getStoreRef } from '@/lib/store/referral'
+import { trackPurchase } from '@/lib/store/tracking-pixels'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { getThemeDefinition, RADIUS_CLASS, SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { LocationPicker } from './LocationPicker'
@@ -79,6 +80,13 @@ const PAYMENT_OPTIONS: { id: PaymentMethod; label: string; icon: React.ReactNode
   },
 ]
 
+const DISCOUNT_ERROR_MESSAGES: Record<string, string> = {
+  not_found: 'კოდი არასწორია.',
+  inactive: 'კოდი აღარ არის აქტიური.',
+  expired: 'კოდის ვადა ამოიწურა.',
+  max_uses: 'კოდი აღარ არის ხელმისაწვდომი.',
+}
+
 function Section({
   title,
   children,
@@ -111,6 +119,7 @@ export function Checkout({
 }) {
   const { cart } = useStorefrontCart()
   const checkout = useCheckout(slug)
+  const validateDiscount = useValidateDiscountCode(slug)
   const surface = SURFACE_CLASSES[themeId]
   const radius = RADIUS_CLASS[getThemeDefinition(themeId).radius]
 
@@ -122,6 +131,9 @@ export function Checkout({
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
   const [orderNote, setOrderNote] = useState('')
   const [tosAccepted, setTosAccepted] = useState(false)
+  const [discountCodeInput, setDiscountCodeInput] = useState('')
+  const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; amount: number } | null>(null)
+  const [discountError, setDiscountError] = useState<string | null>(null)
 
   const tosPage = tokens.checkoutTosEnabled ? pages.find(p => p.id === tokens.checkoutTosPageId) : undefined
   const tosRequired = tokens.checkoutTosEnabled && !!tosPage
@@ -155,9 +167,39 @@ export function Checkout({
   const qualifiesForFreeShipping =
     tokens.freeShippingThreshold != null && cartTotal >= tokens.freeShippingThreshold
   const shippingFee = hasShippingZones && !qualifiesForFreeShipping ? selectedZone?.price ?? 0 : 0
-  const orderTotal = cartTotal + shippingFee
+  const discountAmount = appliedDiscount?.amount ?? 0
+  const orderTotal = Math.max(0, cartTotal + shippingFee - discountAmount)
 
   const fullName = `${firstName} ${lastName}`.trim()
+
+  function handleApplyDiscountCode() {
+    const trimmed = discountCodeInput.trim()
+    if (!trimmed) return
+    validateDiscount.mutate(
+      { code: trimmed, subtotal: cartTotal },
+      {
+        onSuccess: result => {
+          if (result.valid) {
+            setAppliedDiscount({ code: trimmed.toUpperCase(), amount: result.discountAmount })
+            setDiscountError(null)
+          } else {
+            setAppliedDiscount(null)
+            setDiscountError(
+              result.errorCode === 'min_order' && result.minOrderAmount != null
+                ? `მინიმალური შეკვეთა კოდის გამოსაყენებლად: ₾${result.minOrderAmount.toFixed(2)}`
+                : DISCOUNT_ERROR_MESSAGES[result.errorCode ?? 'not_found']
+            )
+          }
+        },
+      }
+    )
+  }
+
+  function handleRemoveDiscountCode() {
+    setAppliedDiscount(null)
+    setDiscountError(null)
+    setDiscountCodeInput('')
+  }
 
   const inputClass = `w-full border ${surface.border} ${surface.inputBg} ${surface.text} ${radius} px-4 py-3 text-sm placeholder:opacity-40 focus:outline-none transition-colors`
   const labelClass = `block text-xs font-semibold uppercase tracking-wider mb-1.5 ${surface.muted}`
@@ -169,6 +211,15 @@ export function Checkout({
   useEffect(() => {
     if (redirectUrl) window.location.href = redirectUrl
   }, [redirectUrl])
+
+  // Only fires for orders actually placed (COD/bank transfer) — a hosted-checkout redirect
+  // isn't a confirmed sale yet, so it must not count as a "Purchase" conversion here.
+  useEffect(() => {
+    if (checkout.isSuccess && !checkout.data.redirectUrl) {
+      trackPurchase(tokens, checkout.data.id, checkout.data.total)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkout.isSuccess])
 
   if (redirectUrl) {
     return (
@@ -197,6 +248,11 @@ export function Checkout({
               {checkout.data.shippingZoneName && (
                 <span className={`font-normal ${surface.muted}`}>
                   {' '}(მათ შორის მიწოდება{checkout.data.shippingFee > 0 ? ` — ₾${checkout.data.shippingFee.toFixed(2)}` : ' — უფასო'}, {checkout.data.shippingZoneName})
+                </span>
+              )}
+              {checkout.data.discountAmount > 0 && (
+                <span className="font-normal text-emerald-500">
+                  {' '}(ფასდაკლება{checkout.data.discountCode ? ` ${checkout.data.discountCode}` : ''} −₾{checkout.data.discountAmount.toFixed(2)})
                 </span>
               )}
             </p>
@@ -264,6 +320,7 @@ export function Checkout({
                 shippingZoneId: hasShippingZones ? shippingZoneId : null,
                 ref: getStoreRef(slug),
                 customerNote: tokens.checkoutNotesEnabled ? orderNote.trim() || null : null,
+                discountCode: appliedDiscount?.code ?? null,
               })
             }}
           >
@@ -449,7 +506,49 @@ export function Checkout({
                     <span>{shippingFee === 0 ? 'უფასო' : `₾${shippingFee.toFixed(2)}`}</span>
                   </div>
                 )}
+                {appliedDiscount && (
+                  <div className="flex justify-between text-sm text-emerald-500">
+                    <span>ფასდაკლება ({appliedDiscount.code})</span>
+                    <span>−₾{discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
               </div>
+
+              <div className="mb-4">
+                {appliedDiscount ? (
+                  <div className={`flex items-center justify-between gap-2 px-3 py-2 border ${surface.border} ${radius}`}>
+                    <span className={`text-xs font-mono font-semibold ${surface.text}`}>{appliedDiscount.code}</span>
+                    <button
+                      type="button"
+                      onClick={handleRemoveDiscountCode}
+                      className={`text-xs underline underline-offset-2 ${surface.muted} hover:opacity-80`}
+                    >
+                      წაშლა
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={discountCodeInput}
+                      onChange={e => setDiscountCodeInput(e.target.value)}
+                      placeholder="ფასდაკლების კოდი"
+                      className={`${inputClass} flex-1 uppercase`}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyDiscountCode}
+                      disabled={validateDiscount.isPending || !discountCodeInput.trim()}
+                      className={`px-4 text-xs font-semibold shrink-0 border ${surface.border} ${radius} disabled:opacity-40`}
+                      style={{ color: tokens.accentColor }}
+                    >
+                      {validateDiscount.isPending ? '...' : 'გააქტიურება'}
+                    </button>
+                  </div>
+                )}
+                {discountError && <p className="text-xs text-red-400 mt-1.5">{discountError}</p>}
+              </div>
+
               <div className={`border-t ${surface.border} pt-4 flex justify-between font-black text-base ${surface.text}`}>
                 <span>სულ</span>
                 <span>₾{orderTotal.toFixed(2)}</span>

@@ -24,6 +24,8 @@ import { Header as EditorialHeader } from '@/components/storefront/themes/editor
 import { Footer as EditorialFooter } from '@/components/storefront/themes/editorial/Footer'
 import { SocialBar } from '@/components/storefront/shared/SocialBar'
 import { AnnouncementBar } from '@/components/storefront/shared/AnnouncementBar'
+import { SaleCountdownBar } from '@/components/storefront/shared/SaleCountdownBar'
+import { TrackingScripts } from '@/components/storefront/shared/TrackingScripts'
 import { StoreOfflinePage } from '@/components/storefront/shared/StoreOfflinePage'
 import { isCurrentUserAdmin } from '@/lib/server/is-admin'
 import type { CategoryResponse, StorePageResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
@@ -119,9 +121,11 @@ export default async function StoreLayout({
     <div className={`min-h-screen flex flex-col ${SURFACE_CLASSES[themeId].page} ${SURFACE_CLASSES[themeId].text}`}>
       <JsonLd data={buildStoreJsonLd(slug, store, tokens)} />
       <PageViewTracker slug={slug} />
+      <TrackingScripts tokens={tokens} />
       {override.customCss && <style dangerouslySetInnerHTML={{ __html: override.customCss }} />}
       {override.announcementHtml && <div dangerouslySetInnerHTML={{ __html: override.announcementHtml }} />}
       <AnnouncementBar slug={slug} tokens={tokens} />
+      <SaleCountdownBar tokens={tokens} />
       <StorefrontToastProvider>
         <StorefrontCartProvider slug={slug}>
           {showTopBar && <SocialBar themeId={themeId} tokens={tokens} edge="top" />}
