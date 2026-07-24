@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
 import { LanguageProvider } from '@/lib/i18n'
+import { OnboardingGate } from '@/components/OnboardingGate'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -18,7 +19,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <LanguageProvider>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <OnboardingGate>{children}</OnboardingGate>
+      </QueryClientProvider>
     </LanguageProvider>
   )
 }

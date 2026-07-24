@@ -33,6 +33,10 @@ export function SiteFooter() {
     <footer className="border-t border-white/5 bg-[#08080d] pt-16 pb-8 px-6">
       <div className="max-w-6xl mx-auto">
 
+        <div className="pb-10 mb-10 border-b border-white/5">
+          <WebsiteInquiryForm />
+        </div>
+
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-10 mb-14">
 
           {/* Brand */}
@@ -87,10 +91,6 @@ export function SiteFooter() {
             </ul>
           </div>
 
-        </div>
-
-        <div className="border-t border-white/5 pt-10 pb-4">
-          <WebsiteInquiryForm />
         </div>
 
         <div className="border-t border-white/5 pt-8 flex flex-col gap-6">

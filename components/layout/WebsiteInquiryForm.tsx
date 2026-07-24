@@ -44,14 +44,14 @@ export function WebsiteInquiryForm() {
   }
 
   return (
-    <div>
+    <div className="flex flex-col items-center text-center">
       <p className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-1.5">
         {t.websiteInquiry.heading}
       </p>
       <p className="text-white/30 text-sm mb-4 max-w-md">{t.websiteInquiry.subheading}</p>
 
       {isSuccess ? (
-        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] px-5 py-4 max-w-md">
+        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] px-5 py-4 max-w-md w-full">
           <p className="text-emerald-400 text-sm font-medium">{t.websiteInquiry.success}</p>
           <button
             type="button"
@@ -62,7 +62,7 @@ export function WebsiteInquiryForm() {
           </button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-2.5 max-w-md">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2.5 max-w-md w-full text-left">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <input
               type="text"
