@@ -2,50 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { useCollectionProducts, useMyProducts, useSetCollectionProducts } from '@/lib/queries/storefront-admin'
+import { IconButton } from '@/components/ui/IconButton'
+import { ReorderButtons } from '@/components/ui/ReorderButtons'
+import { XIcon } from '@/components/ui/icons'
 import type { ProductSummaryResponse } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
 
 function priceLabel(product: ProductSummaryResponse): string {
   return product.salePrice != null ? `${product.salePrice} ₾` : `${product.basePrice} ₾`
-}
-
-function ReorderButtons({
-  disabledUp,
-  disabledDown,
-  onUp,
-  onDown,
-}: {
-  disabledUp: boolean
-  disabledDown: boolean
-  onUp: () => void
-  onDown: () => void
-}) {
-  return (
-    <div className="flex flex-col gap-0.5 shrink-0">
-      <button
-        type="button"
-        onClick={onUp}
-        disabled={disabledUp}
-        aria-label="Move up"
-        className="w-5 h-4 flex items-center justify-center rounded text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-20 disabled:hover:text-white/40 disabled:hover:bg-transparent transition-colors"
-      >
-        <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden>
-          <path d="M2 6.5L5 3.5L8 6.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
-      <button
-        type="button"
-        onClick={onDown}
-        disabled={disabledDown}
-        aria-label="Move down"
-        className="w-5 h-4 flex items-center justify-center rounded text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-20 disabled:hover:text-white/40 disabled:hover:bg-transparent transition-colors"
-      >
-        <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden>
-          <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
-    </div>
-  )
 }
 
 // Merchant's "add products individually" entry point onto a collection — this is the
@@ -113,39 +77,6 @@ export function CollectionProductsPicker({ collectionId }: { collectionId: strin
         დაამატეთ ან მოაწესრიგეთ პროდუქტები ამ კოლექციაში — ეს რიგი ჩანს მთავარ გვერდზე ჰორიზონტალურ სექციაში.
       </p>
 
-      {picks.length > 0 ? (
-        <div className="flex flex-col gap-2">
-          {picks.map((product, index) => (
-            <div key={product.id} className="flex items-center gap-2 rounded-xl bg-white/2 border border-white/5 px-3 py-2">
-              <ReorderButtons
-                disabledUp={index === 0}
-                disabledDown={index === picks.length - 1}
-                onUp={() => movePick(product.id, -1)}
-                onDown={() => movePick(product.id, 1)}
-              />
-              <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/8 overflow-hidden shrink-0">
-                {product.thumbnailUrl && (
-                  <CImg src={product.thumbnailUrl} alt="" className="w-full h-full object-cover" />
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-white truncate">{product.name}</p>
-                <p className="text-white/40 text-xs">{priceLabel(product)}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => removePick(product.id)}
-                className="btn btn-xs btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white shrink-0"
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-white/30 text-sm">ამ კოლექციაში პროდუქტები ჯერ არ არის.</p>
-      )}
-
       <div className="relative">
         <input
           type="text"
@@ -155,7 +86,7 @@ export function CollectionProductsPicker({ collectionId }: { collectionId: strin
           className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
         />
         {search && candidates.length > 0 && (
-          <div className="absolute z-10 top-full left-0 right-0 mt-1 rounded-xl border border-white/10 bg-[#0f0f18] shadow-2xl shadow-black/60 overflow-hidden">
+          <div className="absolute z-10 top-full left-0 right-0 mt-1 rounded-xl border border-white/10 bg-[#0f0f18] shadow-2xl shadow-black/60 overflow-hidden max-h-64 overflow-y-auto">
             {candidates.map(product => (
               <button
                 key={product.id}
@@ -177,6 +108,33 @@ export function CollectionProductsPicker({ collectionId }: { collectionId: strin
           </div>
         )}
       </div>
+
+      {picks.length > 0 ? (
+        <div className="flex flex-col gap-2">
+          {picks.map((product, index) => (
+            <div key={product.id} className="flex items-center gap-2 rounded-xl bg-white/2 border border-white/5 px-3 py-2">
+              <ReorderButtons
+                disabledUp={index === 0}
+                disabledDown={index === picks.length - 1}
+                onUp={() => movePick(product.id, -1)}
+                onDown={() => movePick(product.id, 1)}
+              />
+              <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/8 overflow-hidden shrink-0">
+                {product.thumbnailUrl && (
+                  <CImg src={product.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-white truncate">{product.name}</p>
+                <p className="text-white/40 text-xs">{priceLabel(product)}</p>
+              </div>
+              <IconButton icon={<XIcon />} label="წაშლა" onClick={() => removePick(product.id)} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-white/30 text-sm">ამ კოლექციაში პროდუქტები ჯერ არ არის.</p>
+      )}
 
       <div className="flex items-center gap-3">
         <button

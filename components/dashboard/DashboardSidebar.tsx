@@ -8,7 +8,7 @@ import { UserButton } from '@clerk/nextjs'
 import { useLanguage } from '@/lib/i18n'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { NipNipLogo } from '@/components/NipNipLogo'
-import { STORE_NAV_ITEMS } from '@/lib/dashboard/store-nav'
+import { STORE_NAV_GROUP_LABEL_KEYS, STORE_NAV_GROUP_ORDER, STORE_NAV_ITEMS, type StoreNavGroup } from '@/lib/dashboard/store-nav'
 import { AI_AGENT_NAV_ITEMS } from '@/lib/dashboard/ai-agent-nav'
 import { MEDIA_TOOL_NAV_ITEMS } from '@/lib/dashboard/media-tools-nav'
 import { SIDEBAR_COLLAPSED_EVENT, SIDEBAR_COLLAPSED_KEY } from '@/lib/dashboard/sidebar-state'
@@ -282,7 +282,7 @@ const STORE_NAV_ICONS: Record<string, React.ReactNode> = {
   '/dashboard/merchant/store/integrations': PLUG_ICON,
 }
 
-type NavLink = { href: string; label: string; exact: boolean; icon: React.ReactNode }
+type NavLink = { href: string; label: string; exact: boolean; icon: React.ReactNode; group?: StoreNavGroup }
 type NavDivider = { divider: true }
 type NavItem = NavLink | NavDivider
 
@@ -318,8 +318,8 @@ function NavRow({ item, active, collapsed }: { item: NavLink; active: boolean; c
         onMouseEnter={e => { if (collapsed) setTooltipRect(e.currentTarget.getBoundingClientRect()) }}
         onMouseLeave={() => setTooltipRect(null)}
         className={[
-          'flex items-center rounded-xl text-sm font-medium transition-colors',
-          collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5',
+          'flex items-center rounded-lg text-sm font-medium transition-colors',
+          collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-1.5',
           active ? 'bg-violet-500/15 text-violet-300' : 'text-white/50 hover:text-white hover:bg-white/5',
         ].join(' ')}
       >
@@ -376,7 +376,7 @@ function SectionSelector({
         title={collapsed ? sectionMeta[activeSection].label : undefined}
         className={[
           'flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-fuchsia-500/10 to-violet-500/10 border border-white/10 text-white/85 hover:border-fuchsia-500/30 hover:from-fuchsia-500/15 hover:to-violet-500/15 transition-all text-sm font-semibold cursor-pointer select-none',
-          collapsed ? 'w-full justify-center px-0 py-2.5' : 'w-full px-3 py-2.5',
+          collapsed ? 'w-full justify-center px-0 py-2' : 'w-full px-3 py-2',
         ].join(' ')}
       >
         <span className="text-fuchsia-400 shrink-0">{sectionMeta[activeSection].icon}</span>
@@ -470,6 +470,7 @@ export function DashboardSidebar() {
       label: t.sidebar[item.labelKey],
       exact: item.exact,
       icon: STORE_NAV_ICONS[item.href] ?? STORE_ICON,
+      group: item.group,
     })),
     'ai-agents': AI_AGENT_NAV_ITEMS.map(item => ({
       href: item.href,
@@ -518,15 +519,26 @@ export function DashboardSidebar() {
       collapsed ? 'w-[68px]' : 'w-60',
     ].join(' ')}>
 
-      {/* Logo + collapse toggle */}
+      {/* Logo + role badge + collapse toggle */}
       <div className={[
         'h-16 flex items-center border-b border-white/6 shrink-0',
         collapsed ? 'justify-center px-2' : 'justify-between px-5',
       ].join(' ')}>
         {!collapsed && (
-          <Link href="/" className="hover:opacity-80 transition-opacity select-none" aria-label="NipNip">
-            <NipNipLogo className="h-7" />
-          </Link>
+          <div className="flex items-center gap-2 min-w-0">
+            <Link href="/" className="hover:opacity-80 transition-opacity select-none shrink-0" aria-label="NipNip">
+              <NipNipLogo className="h-7" />
+            </Link>
+            <span className={[
+              'inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md border shrink-0',
+              isMerchant
+                ? 'bg-fuchsia-500/10 border-fuchsia-500/20 text-fuchsia-400'
+                : 'bg-violet-500/10 border-violet-500/20 text-violet-400',
+            ].join(' ')}>
+              <span className="w-1 h-1 rounded-full bg-current opacity-70" />
+              {isMerchant ? t.sidebar.merchantBadge : t.sidebar.creatorBadge}
+            </span>
+          </div>
         )}
         <button
           type="button"
@@ -539,25 +551,10 @@ export function DashboardSidebar() {
         </button>
       </div>
 
-      {/* Role badge */}
-      {!collapsed && (
-        <div className="px-4 pt-4 pb-1 shrink-0">
-          <span className={[
-            'inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg border',
-            isMerchant
-              ? 'bg-fuchsia-500/10 border-fuchsia-500/20 text-fuchsia-400'
-              : 'bg-violet-500/10 border-violet-500/20 text-violet-400',
-          ].join(' ')}>
-            <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
-            {isMerchant ? t.sidebar.merchantBadge : t.sidebar.creatorBadge}
-          </span>
-        </div>
-      )}
-
       {isMerchant ? (
         <>
           {/* Section selector */}
-          <div className={collapsed ? 'px-2 pt-3 pb-2 shrink-0' : 'px-3 pt-3 pb-2 shrink-0'}>
+          <div className={collapsed ? 'px-2 pt-2 pb-1.5 shrink-0' : 'px-3 pt-2 pb-1.5 shrink-0'}>
             <SectionSelector
               activeSection={activeSection}
               sectionMeta={SECTION_META}
@@ -567,15 +564,43 @@ export function DashboardSidebar() {
           </div>
           <div className="mx-4 border-t border-white/6 shrink-0" />
 
-          <nav className={['flex-1 flex flex-col gap-0.5 overflow-y-auto', collapsed ? 'p-2' : 'p-3'].join(' ')}>
-            {MERCHANT_SECTIONS[activeSection].map(item => (
-              <NavRow
-                key={item.href}
-                item={item}
-                active={item.exact ? pathname === item.href : pathname.startsWith(item.href)}
-                collapsed={collapsed}
-              />
-            ))}
+          <nav className={['flex-1 flex flex-col overflow-y-auto', collapsed ? 'p-2' : 'p-3'].join(' ')}>
+            {activeSection === 'store' ? (
+              STORE_NAV_GROUP_ORDER.map(group => {
+                const itemsInGroup = MERCHANT_SECTIONS.store.filter(item => item.group === group)
+                if (itemsInGroup.length === 0) return null
+                return (
+                  <div key={group} className="flex flex-col gap-0.5">
+                    {!collapsed ? (
+                      <p className="px-3 pt-2.5 pb-1 text-[10px] font-semibold text-white/25 uppercase tracking-widest">
+                        {t.sidebar[STORE_NAV_GROUP_LABEL_KEYS[group]]}
+                      </p>
+                    ) : group !== STORE_NAV_GROUP_ORDER[0] && (
+                      <div className="my-1.5 border-t border-white/6" />
+                    )}
+                    {itemsInGroup.map(item => (
+                      <NavRow
+                        key={item.href}
+                        item={item}
+                        active={item.exact ? pathname === item.href : pathname.startsWith(item.href)}
+                        collapsed={collapsed}
+                      />
+                    ))}
+                  </div>
+                )
+              })
+            ) : (
+              <div className="flex flex-col gap-0.5">
+                {MERCHANT_SECTIONS[activeSection].map(item => (
+                  <NavRow
+                    key={item.href}
+                    item={item}
+                    active={item.exact ? pathname === item.href : pathname.startsWith(item.href)}
+                    collapsed={collapsed}
+                  />
+                ))}
+              </div>
+            )}
 
             <div className="my-2 border-t border-white/6" />
 

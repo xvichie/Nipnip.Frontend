@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { useCreateCollection, useDeleteCollection, useMyCollections, useUpdateCollection } from '@/lib/queries/storefront-admin'
 import { CollectionProductsPicker } from './CollectionProductsPicker'
+import { IconButton } from '@/components/ui/IconButton'
+import { CheckIcon, EditIcon, GridIcon, PlusIcon, TrashIcon, XIcon } from '@/components/ui/icons'
 import type { CollectionResponse } from '@/lib/types/storefront'
 
 function CollectionRow({ collection }: { collection: CollectionResponse }) {
@@ -34,30 +36,24 @@ function CollectionRow({ collection }: { collection: CollectionResponse }) {
 
   if (isEditing) {
     return (
-      <div className="flex flex-col gap-2 rounded-xl bg-white/2 border border-fuchsia-500/30 px-4 py-3">
+      <div className="flex items-center gap-2 rounded-xl bg-white/2 border border-fuchsia-500/30 px-4 py-2.5">
         <input
           autoFocus
           type="text"
           value={name}
           onChange={e => setName(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleSave() } if (e.key === 'Escape') setIsEditing(false) }}
           className="input input-xs bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 flex-1"
         />
-        <div className="flex gap-2 pt-1">
-          <button
-            type="button"
+        <div className="flex gap-1.5 shrink-0">
+          <IconButton
+            icon={isSaving ? <span className="loading loading-spinner loading-xs" /> : <CheckIcon />}
+            label="შენახვა"
             onClick={handleSave}
             disabled={isSaving || !name.trim()}
-            className="btn btn-xs bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
-          >
-            {isSaving ? <span className="loading loading-spinner loading-xs" /> : 'შენახვა'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsEditing(false)}
-            className="btn btn-xs bg-white/4 border-white/10 text-white/60 hover:text-white"
-          >
-            გაუქმება
-          </button>
+            variant="accent"
+          />
+          <IconButton icon={<XIcon />} label="გაუქმება" onClick={() => setIsEditing(false)} />
         </div>
       </div>
     )
@@ -70,34 +66,15 @@ function CollectionRow({ collection }: { collection: CollectionResponse }) {
           <span className="text-sm font-medium text-white">{collection.name}</span>
           <span className="text-white/25 text-xs ml-1.5">/{collection.slug}</span>
         </div>
-        <div className="flex gap-2 shrink-0">
-          <button
-            type="button"
+        <div className="flex gap-1.5 shrink-0">
+          <IconButton
+            icon={<GridIcon />}
+            label="პროდუქტების მართვა"
             onClick={() => setShowProducts(v => !v)}
-            className={[
-              'btn btn-xs',
-              showProducts
-                ? 'bg-fuchsia-500/15 border-fuchsia-500/30 text-fuchsia-300'
-                : 'bg-white/4 border-white/10 text-white/60 hover:text-white',
-            ].join(' ')}
-          >
-            პროდუქტები
-          </button>
-          <button
-            type="button"
-            onClick={startEditing}
-            className="btn btn-xs bg-white/4 border-white/10 text-white/60 hover:text-white"
-          >
-            რედაქტირება
-          </button>
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="btn btn-xs bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40"
-          >
-            წაშლა
-          </button>
+            active={showProducts}
+          />
+          <IconButton icon={<EditIcon />} label="რედაქტირება" onClick={startEditing} />
+          <IconButton icon={<TrashIcon />} label="წაშლა" onClick={handleDelete} disabled={isDeleting} variant="danger" />
         </div>
       </div>
       {showProducts && <CollectionProductsPicker collectionId={collection.id} />}
@@ -138,23 +115,25 @@ export function CollectionManager() {
         <p className="text-white/30 text-sm">კოლექციები ჯერ არ გაქვთ.</p>
       )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3 pt-2 border-t border-white/5">
-        <input
-          type="text"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          placeholder="ახალი კოლექციის სახელი"
-          className="input input-sm bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 flex-1"
-          required
-        />
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2 pt-2 border-t border-white/5">
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="ახალი კოლექციის სახელი"
+            className="input input-sm bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 flex-1"
+            required
+          />
+          <button
+            type="submit"
+            disabled={isCreating || !name.trim()}
+            className="btn btn-sm gap-1.5 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40 shrink-0"
+          >
+            {isCreating ? <span className="loading loading-spinner loading-xs" /> : <><PlusIcon /> დამატება</>}
+          </button>
+        </div>
         {createError && <p className="text-error text-xs">კოლექციის შექმნა ვერ მოხერხდა.</p>}
-        <button
-          type="submit"
-          disabled={isCreating || !name.trim()}
-          className="btn btn-sm self-start bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
-        >
-          {isCreating ? <span className="loading loading-spinner loading-xs" /> : 'კოლექციის დამატება'}
-        </button>
       </form>
     </div>
   )

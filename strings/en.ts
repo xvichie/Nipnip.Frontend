@@ -140,6 +140,12 @@ export const en: Strings = {
     storeDelivery: 'Delivery',
     storeDomain: 'Domain',
     storeIntegrations: 'Integrations',
+    navGroupOverview: 'Overview',
+    navGroupDesign: 'Design',
+    navGroupProducts: 'Products',
+    navGroupOrders: 'Orders',
+    navGroupPromotions: 'Promotions',
+    navGroupSettings: 'Settings',
   },
   admin: {
     badge: 'Admin',

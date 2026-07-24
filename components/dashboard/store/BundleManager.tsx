@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useCreateBundle, useDeleteBundle, useMyBundles, useMyProducts, useUpdateBundle } from '@/lib/queries/storefront-admin'
+import { IconButton } from '@/components/ui/IconButton'
+import { EditIcon, PlusIcon, TrashIcon, XIcon } from '@/components/ui/icons'
 import type { BundleItemInput, ProductBundleResponse, ProductSummaryResponse } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
 
@@ -130,13 +132,7 @@ function BundleForm({
                 onChange={e => updateQuantity(item.productId, Number(e.target.value))}
                 className="input input-xs w-16 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 text-center"
               />
-              <button
-                type="button"
-                onClick={() => removeItem(item.productId)}
-                className="btn btn-xs btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white shrink-0"
-              >
-                ✕
-              </button>
+              <IconButton icon={<XIcon />} label="წაშლა" onClick={() => removeItem(item.productId)} className="shrink-0" />
             </div>
           ))}
           <p className="text-white/30 text-xs">ჩვეულებრივი ჯამი: ₾{regularTotal.toFixed(2)}</p>
@@ -175,7 +171,7 @@ function BundleForm({
 
       {error != null && <p className="text-error text-xs">ვერ შეინახა — გადაამოწმეთ ველები.</p>}
 
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         <button
           type="submit"
           disabled={isPending || !name.trim() || !bundlePrice.trim() || items.length === 0}
@@ -183,11 +179,7 @@ function BundleForm({
         >
           {isPending ? <span className="loading loading-spinner loading-xs" /> : submitLabel}
         </button>
-        {onCancel && (
-          <button type="button" onClick={onCancel} className="btn btn-sm bg-white/4 border-white/10 text-white/60 hover:text-white">
-            გაუქმება
-          </button>
-        )}
+        {onCancel && <IconButton icon={<XIcon />} label="გაუქმება" onClick={onCancel} size="sm" />}
       </div>
     </form>
   )
@@ -255,17 +247,8 @@ function BundleRow({ bundle }: { bundle: ProductBundleResponse }) {
           className={`toggle toggle-xs ${bundle.isActive ? 'toggle-success' : ''}`}
           title="აქტიური"
         />
-        <button type="button" onClick={() => setIsEditing(true)} className="btn btn-xs bg-white/4 border-white/10 text-white/60 hover:text-white">
-          რედაქტირება
-        </button>
-        <button
-          type="button"
-          onClick={handleDelete}
-          disabled={isDeleting}
-          className="btn btn-xs bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40"
-        >
-          წაშლა
-        </button>
+        <IconButton icon={<EditIcon />} label="რედაქტირება" onClick={() => setIsEditing(true)} />
+        <IconButton icon={<TrashIcon />} label="წაშლა" onClick={handleDelete} disabled={isDeleting} variant="danger" />
       </div>
     </div>
   )
@@ -316,9 +299,9 @@ export function BundleManager() {
         <button
           type="button"
           onClick={() => setShowCreateForm(true)}
-          className="btn btn-sm self-start bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white"
+          className="btn btn-sm gap-1.5 self-start bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white"
         >
-          ბანდლის დამატება
+          <PlusIcon /> ბანდლის დამატება
         </button>
       )}
     </div>

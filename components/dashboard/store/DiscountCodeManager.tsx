@@ -7,6 +7,8 @@ import {
   useMyDiscountCodes,
   useUpdateDiscountCode,
 } from '@/lib/queries/storefront-admin'
+import { IconButton } from '@/components/ui/IconButton'
+import { CheckIcon, EditIcon, PlusIcon, TrashIcon, XIcon } from '@/components/ui/icons'
 import type { DiscountCodeType, StoreDiscountCodeResponse } from '@/lib/types/storefront'
 
 const inputClass = 'input input-xs bg-neutral-900 border-white/10 focus:border-fuchsia-500/60'
@@ -141,22 +143,15 @@ function DiscountCodeRow({ code }: { code: StoreDiscountCodeResponse }) {
           />
         </div>
         {updateError && <p className="text-error text-xs">კოდის შენახვა ვერ მოხერხდა.</p>}
-        <div className="flex gap-2 pt-1">
-          <button
-            type="button"
+        <div className="flex gap-1.5 pt-1">
+          <IconButton
+            icon={isSaving ? <span className="loading loading-spinner loading-xs" /> : <CheckIcon />}
+            label="შენახვა"
             onClick={handleSave}
             disabled={isSaving}
-            className="btn btn-xs bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
-          >
-            {isSaving ? <span className="loading loading-spinner loading-xs" /> : 'შენახვა'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsEditing(false)}
-            className="btn btn-xs bg-white/4 border-white/10 text-white/60 hover:text-white"
-          >
-            გაუქმება
-          </button>
+            variant="accent"
+          />
+          <IconButton icon={<XIcon />} label="გაუქმება" onClick={() => setIsEditing(false)} />
         </div>
       </div>
     )
@@ -186,21 +181,8 @@ function DiscountCodeRow({ code }: { code: StoreDiscountCodeResponse }) {
           className={`toggle toggle-xs ${code.isActive ? 'toggle-success' : ''}`}
           title="აქტიური"
         />
-        <button
-          type="button"
-          onClick={startEditing}
-          className="btn btn-xs bg-white/4 border-white/10 text-white/60 hover:text-white"
-        >
-          რედაქტირება
-        </button>
-        <button
-          type="button"
-          onClick={handleDelete}
-          disabled={isDeleting}
-          className="btn btn-xs bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40"
-        >
-          წაშლა
-        </button>
+        <IconButton icon={<EditIcon />} label="რედაქტირება" onClick={startEditing} />
+        <IconButton icon={<TrashIcon />} label="წაშლა" onClick={handleDelete} disabled={isDeleting} variant="danger" />
       </div>
     </div>
   )
@@ -322,9 +304,9 @@ export function DiscountCodeManager() {
         <button
           type="submit"
           disabled={isCreating || !code.trim() || !value.trim()}
-          className="btn btn-sm self-start bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
+          className="btn btn-sm gap-1.5 self-start bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
         >
-          {isCreating ? <span className="loading loading-spinner loading-xs" /> : 'კოდის დამატება'}
+          {isCreating ? <span className="loading loading-spinner loading-xs" /> : <><PlusIcon /> კოდის დამატება</>}
         </button>
       </form>
     </div>

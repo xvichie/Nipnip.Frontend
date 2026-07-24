@@ -35,6 +35,7 @@ const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], weight: ['400', '600', 
 
 const alkSanet = localFont({ src: './fonts/georgian/alk-sanet.ttf', variable: '--font-alk-sanet' })
 const bpgArial2009 = localFont({ src: './fonts/georgian/bpg-arial-2009.ttf', variable: '--font-bpg-arial' })
+const bpgExtrasquareMtavruli = localFont({ src: '../public/fonts/bpg_extrasquare_mtavruli_2009.ttf', variable: '--font-bpg-extrasquare-mtavruli' })
 const bpgGlaho = localFont({ src: './fonts/georgian/bpg-glaho.ttf', variable: '--font-bpg-glaho' })
 const bpgGlahoSylfaen = localFont({ src: './fonts/georgian/bpg-glaho-sylfaen.ttf', variable: '--font-bpg-glaho-sylfaen' })
 const bpgMrgvlovaniCaps = localFont({ src: './fonts/georgian/bpg-mrgvlovani-caps-2010.ttf', variable: '--font-bpg-mrgvlovani-caps' })
@@ -61,6 +62,7 @@ export const FONT_OPTIONS: FontOption[] = [
 
   { key: 'alk-sanet', label: 'Alk Sanet', category: 'georgian', fontFamily: 'var(--font-alk-sanet)', variableClassName: alkSanet.variable, sampleText: 'მაღაზიის სახელი' },
   { key: 'bpg-arial', label: 'BPG Arial 2009', category: 'georgian', fontFamily: 'var(--font-bpg-arial)', variableClassName: bpgArial2009.variable, sampleText: 'მაღაზიის სახელი' },
+  { key: 'bpg-extrasquare-mtavruli', label: 'BPG ExtraSquare Mtavruli', category: 'georgian', fontFamily: 'var(--font-bpg-extrasquare-mtavruli)', variableClassName: bpgExtrasquareMtavruli.variable, sampleText: 'მაღაზიის სახელი' },
   { key: 'bpg-glaho', label: 'BPG Glaho', category: 'georgian', fontFamily: 'var(--font-bpg-glaho)', variableClassName: bpgGlaho.variable, sampleText: 'მაღაზიის სახელი' },
   { key: 'bpg-glaho-sylfaen', label: 'BPG Glaho Sylfaen', category: 'georgian', fontFamily: 'var(--font-bpg-glaho-sylfaen)', variableClassName: bpgGlahoSylfaen.variable, sampleText: 'მაღაზიის სახელი' },
   { key: 'bpg-mrgvlovani-caps', label: 'BPG Mrgvlovani Caps', category: 'georgian', fontFamily: 'var(--font-bpg-mrgvlovani-caps)', variableClassName: bpgMrgvlovaniCaps.variable, sampleText: 'მაღაზიის სახელი' },

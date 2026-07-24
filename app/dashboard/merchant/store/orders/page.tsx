@@ -9,6 +9,8 @@ import { QuickShipperOrderModal } from '@/components/dashboard/store/QuickShippe
 import { printPackingSlip } from '@/lib/store/print-packing-slip'
 import type { OrderDetailResponse, OrderStatus } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
+import { IconButton } from '@/components/ui/IconButton'
+import { ExternalLinkIcon, PlusIcon, PrintIcon, RefreshIcon } from '@/components/ui/icons'
 
 const PAGE_SIZE = 20
 
@@ -143,14 +145,13 @@ function OrderDetailsModal({
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-white">{order.customerName}</h2>
           <div className="flex items-center gap-3">
+            <IconButton icon={<PrintIcon />} label="ბეჭდვა" onClick={() => printPackingSlip(order)} />
             <button
-              type="button"
-              onClick={() => printPackingSlip(order)}
-              className="btn btn-xs bg-white/4 border-white/10 text-white/60 hover:text-white"
+              onClick={onClose}
+              className="tooltip tooltip-top text-white/30 hover:text-white"
+              aria-label="დახურვა"
+              data-tip="დახურვა"
             >
-              ბეჭდვა
-            </button>
-            <button onClick={onClose} className="text-white/30 hover:text-white" aria-label="დახურვა">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
                 <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
               </svg>
@@ -325,22 +326,22 @@ function OrderDetailsModal({
                 <CImg src="/quickshipper-logo.jpg" alt="" className="w-3.5 h-3.5 rounded object-cover" />
                 QuickShipper #{order.quickShipperOrderId}{order.quickShipperStatus ? ` · ${order.quickShipperStatus}` : ''}
               </span>
-              <button
-                type="button"
-                disabled={refreshingQuickShipper}
+              <IconButton
+                icon={refreshingQuickShipper ? <span className="loading loading-spinner loading-xs" /> : <RefreshIcon />}
+                label="განახლება"
                 onClick={() => refreshQuickShipper(order.id)}
-                className="btn btn-xs bg-white/4 border-white/8 text-white/50 hover:text-white disabled:opacity-40"
-              >
-                {refreshingQuickShipper ? <span className="loading loading-spinner loading-xs" /> : 'განახლება'}
-              </button>
+                disabled={refreshingQuickShipper}
+              />
               {order.quickShipperTrackingUrl && (
                 <a
                   href={order.quickShipperTrackingUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn btn-xs bg-white/4 border-white/8 text-white/50 hover:text-white"
+                  aria-label="თრექინგის მთლიანად ჩვენება"
+                  data-tip="თრექინგის მთლიანად ჩვენება"
+                  className="tooltip tooltip-top btn btn-xs btn-square bg-white/4 border-white/8 text-white/50 hover:text-white"
                 >
-                  თრექინგის მთლიანად ჩვენება
+                  <ExternalLinkIcon />
                 </a>
               )}
               {order.quickShipperTrackingUrl && (
@@ -459,14 +460,15 @@ function OrderDetailsModal({
               rows={2}
               className="flex-1 rounded-xl bg-white/4 border border-white/10 focus:border-fuchsia-500/60 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none resize-none transition-colors"
             />
-            <button
-              type="button"
+            <IconButton
+              icon={notePending ? <span className="loading loading-spinner loading-xs" /> : <PlusIcon />}
+              label="დამატება"
               onClick={handleAddNote}
               disabled={notePending || !noteText.trim()}
-              className="btn btn-sm bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40 shrink-0"
-            >
-              დამატება
-            </button>
+              variant="accent"
+              size="sm"
+              className="shrink-0"
+            />
           </div>
         </div>
       </div>

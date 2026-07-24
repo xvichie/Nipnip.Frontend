@@ -138,6 +138,12 @@ export const ka = {
     storeDelivery: 'მიწოდება',
     storeDomain: 'დომენი',
     storeIntegrations: 'ინტეგრაციები',
+    navGroupOverview: 'მთავარი',
+    navGroupDesign: 'დიზაინი',
+    navGroupProducts: 'პროდუქტები',
+    navGroupOrders: 'შეკვეთები',
+    navGroupPromotions: 'აქციები',
+    navGroupSettings: 'პარამეტრები',
   },
   admin: {
     badge: 'Admin',

@@ -140,6 +140,12 @@ export const ru: Strings = {
     storeDelivery: 'Доставка',
     storeDomain: 'Домен',
     storeIntegrations: 'Интеграции',
+    navGroupOverview: 'Обзор',
+    navGroupDesign: 'Дизайн',
+    navGroupProducts: 'Товары',
+    navGroupOrders: 'Заказы',
+    navGroupPromotions: 'Акции',
+    navGroupSettings: 'Настройки',
   },
   admin: {
     badge: 'Admin',

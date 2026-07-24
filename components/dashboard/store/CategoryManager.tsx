@@ -5,6 +5,8 @@ import { useCreateCategory, useDeleteCategory, useMyCategories, useUpdateCategor
 import { IconPicker, type IconValue } from './IconPicker'
 import { StagedOptionsEditor, type StagedOption } from './StagedOptionsEditor'
 import { defaultOptionsToStaged, stagedToDefaultOptionsJson } from '@/lib/store/category-default-options'
+import { IconButton } from '@/components/ui/IconButton'
+import { CheckIcon, EditIcon, PlusIcon, SlidersIcon, TrashIcon, XIcon } from '@/components/ui/icons'
 import type { CategoryResponse } from '@/lib/types/storefront'
 
 function iconValueOf(category: CategoryResponse): IconValue {
@@ -127,22 +129,15 @@ function CategoryRow({
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
-        <div className="flex gap-2 pt-1">
-          <button
-            type="button"
+        <div className="flex gap-1.5 pt-1">
+          <IconButton
+            icon={isSaving ? <span className="loading loading-spinner loading-xs" /> : <CheckIcon />}
+            label="შენახვა"
             onClick={handleSave}
             disabled={isSaving || !name.trim()}
-            className="btn btn-xs bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
-          >
-            {isSaving ? <span className="loading loading-spinner loading-xs" /> : 'შენახვა'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsEditing(false)}
-            className="btn btn-xs bg-white/4 border-white/10 text-white/60 hover:text-white"
-          >
-            გაუქმება
-          </button>
+            variant="accent"
+          />
+          <IconButton icon={<XIcon />} label="გაუქმება" onClick={() => setIsEditing(false)} />
         </div>
       </div>
     )
@@ -158,34 +153,15 @@ function CategoryRow({
             <span className="text-white/25 text-xs ml-1.5">/{category.slug}</span>
           </div>
         </div>
-        <div className="flex gap-2 shrink-0">
-          <button
-            type="button"
+        <div className="flex gap-1.5 shrink-0">
+          <IconButton
+            icon={<SlidersIcon />}
+            label="ნაგულისხმევი პარამეტრები"
             onClick={() => setShowDefaultOptions(v => !v)}
-            className={[
-              'btn btn-xs',
-              showDefaultOptions
-                ? 'bg-fuchsia-500/15 border-fuchsia-500/30 text-fuchsia-300'
-                : 'bg-white/4 border-white/10 text-white/60 hover:text-white',
-            ].join(' ')}
-          >
-            ნაგულისხმევი პარამეტრები
-          </button>
-          <button
-            type="button"
-            onClick={startEditing}
-            className="btn btn-xs bg-white/4 border-white/10 text-white/60 hover:text-white"
-          >
-            რედაქტირება
-          </button>
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="btn btn-xs bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40"
-          >
-            წაშლა
-          </button>
+            active={showDefaultOptions}
+          />
+          <IconButton icon={<EditIcon />} label="რედაქტირება" onClick={startEditing} />
+          <IconButton icon={<TrashIcon />} label="წაშლა" onClick={handleDelete} disabled={isDeleting} variant="danger" />
         </div>
       </div>
       {showDefaultOptions && <CategoryDefaultOptionsPanel category={category} />}
@@ -261,9 +237,9 @@ export function CategoryManager() {
         <button
           type="submit"
           disabled={isCreating || !name.trim()}
-          className="btn btn-sm self-start bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
+          className="btn btn-sm gap-1.5 self-start bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
         >
-          {isCreating ? <span className="loading loading-spinner loading-xs" /> : 'კატეგორიის დამატება'}
+          {isCreating ? <span className="loading loading-spinner loading-xs" /> : <><PlusIcon /> კატეგორიის დამატება</>}
         </button>
       </form>
     </div>

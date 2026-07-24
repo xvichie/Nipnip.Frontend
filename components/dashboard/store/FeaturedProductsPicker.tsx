@@ -2,53 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { useMyProducts } from '@/lib/queries/storefront-admin'
+import { IconButton } from '@/components/ui/IconButton'
+import { ReorderButtons } from '@/components/ui/ReorderButtons'
+import { XIcon } from '@/components/ui/icons'
 import type { ProductSummaryResponse } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
 
 function priceLabel(product: ProductSummaryResponse): string {
   return product.salePrice != null ? `${product.salePrice} ₾` : `${product.basePrice} ₾`
-}
-
-// Reordering only — picks stay a plain string[] of ids (the actual saved value) so a product
-// missing from `resolveMap` (still loading, or outside the fetch page) never gets silently
-// dropped from what's saved, only from what's currently shown.
-function ReorderButtons({
-  disabledUp,
-  disabledDown,
-  onUp,
-  onDown,
-}: {
-  disabledUp: boolean
-  disabledDown: boolean
-  onUp: () => void
-  onDown: () => void
-}) {
-  return (
-    <div className="flex flex-col gap-0.5 shrink-0">
-      <button
-        type="button"
-        onClick={onUp}
-        disabled={disabledUp}
-        aria-label="ზემოთ გადატანა"
-        className="w-5 h-4 flex items-center justify-center rounded text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-20 disabled:hover:text-white/40 disabled:hover:bg-transparent transition-colors"
-      >
-        <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden>
-          <path d="M2 6.5L5 3.5L8 6.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
-      <button
-        type="button"
-        onClick={onDown}
-        disabled={disabledDown}
-        aria-label="ქვემოთ გადატანა"
-        className="w-5 h-4 flex items-center justify-center rounded text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-20 disabled:hover:text-white/40 disabled:hover:bg-transparent transition-colors"
-      >
-        <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden>
-          <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
-    </div>
-  )
 }
 
 export function FeaturedProductsPicker({
@@ -122,13 +83,7 @@ export function FeaturedProductsPicker({
                   <p className="text-sm font-medium text-white truncate">{product?.name ?? 'იტვირთება…'}</p>
                   {product && <p className="text-white/40 text-xs">{priceLabel(product)}</p>}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => removePick(id)}
-                  className="btn btn-xs btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white shrink-0"
-                >
-                  ✕
-                </button>
+                <IconButton icon={<XIcon />} label="წაშლა" onClick={() => removePick(id)} className="shrink-0" />
               </div>
             )
           })}

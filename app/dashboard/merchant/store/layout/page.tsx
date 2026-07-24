@@ -13,6 +13,9 @@ import { PreviewFrame, type PreviewMode } from '@/components/dashboard/store/Pre
 import { AnnouncementBar } from '@/components/storefront/shared/AnnouncementBar'
 import { FeaturedProductsPicker } from '@/components/dashboard/store/FeaturedProductsPicker'
 import { CImg } from '@/components/ui/CImg'
+import { IconButton } from '@/components/ui/IconButton'
+import { ReorderButtons } from '@/components/ui/ReorderButtons'
+import { PlusIcon, XIcon } from '@/components/ui/icons'
 import { Header as MinimalHeader } from '@/components/storefront/themes/minimal/Header'
 import { Footer as MinimalFooter } from '@/components/storefront/themes/minimal/Footer'
 import { Home as MinimalHome } from '@/components/storefront/themes/minimal/Home'
@@ -79,45 +82,6 @@ const SOCIALS_POSITION_OPTIONS: { value: SocialsPosition; label: string }[] = [
   { value: 'both', label: 'თავში და ბოლოში' },
   { value: 'footer', label: 'ქვედა კოლონტიტულში' },
 ]
-
-function UpDownButtons({
-  disabledUp,
-  disabledDown,
-  onUp,
-  onDown,
-}: {
-  disabledUp: boolean
-  disabledDown: boolean
-  onUp: () => void
-  onDown: () => void
-}) {
-  return (
-    <div className="flex flex-col gap-1 shrink-0">
-      <button
-        type="button"
-        onClick={onUp}
-        disabled={disabledUp}
-        aria-label="ზემოთ გადატანა"
-        className="w-6 h-5 flex items-center justify-center rounded text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-20 disabled:hover:text-white/40 disabled:hover:bg-transparent transition-colors"
-      >
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
-          <path d="M2 6.5L5 3.5L8 6.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
-      <button
-        type="button"
-        onClick={onDown}
-        disabled={disabledDown}
-        aria-label="ქვემოთ გადატანა"
-        className="w-6 h-5 flex items-center justify-center rounded text-white/40 hover:text-white hover:bg-white/5 disabled:opacity-20 disabled:hover:text-white/40 disabled:hover:bg-transparent transition-colors"
-      >
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
-          <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
-    </div>
-  )
-}
 
 export default function StoreLayoutPage() {
   const { data: store, isLoading } = useMyStore()
@@ -705,7 +669,7 @@ export default function StoreLayoutPage() {
                       enabled ? 'border-white/10 bg-white/2' : 'border-white/5 bg-white/[0.01] opacity-60',
                     ].join(' ')}
                   >
-                    <UpDownButtons
+                    <ReorderButtons
                       disabledUp={!enabled || posInEnabled === 0}
                       disabledDown={!enabled || posInEnabled === homeSectionOrder.length - 1}
                       onUp={() => moveSection(key, -1)}
@@ -821,7 +785,7 @@ export default function StoreLayoutPage() {
                   className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
                 {sectionBackgroundColors.products && (
-                  <button type="button" onClick={() => updateSectionBackgroundColor('products', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">გასუფთავება</button>
+                  <IconButton icon={<XIcon />} label="ფონის ფერის გასუფთავება" onClick={() => updateSectionBackgroundColor('products', '')} />
                 )}
               </div>
             </div>
@@ -882,7 +846,7 @@ export default function StoreLayoutPage() {
                   className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
                 {sectionBackgroundColors.content && (
-                  <button type="button" onClick={() => updateSectionBackgroundColor('content', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">გასუფთავება</button>
+                  <IconButton icon={<XIcon />} label="ფონის ფერის გასუფთავება" onClick={() => updateSectionBackgroundColor('content', '')} />
                 )}
               </div>
             </div>
@@ -1142,7 +1106,7 @@ export default function StoreLayoutPage() {
                   className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
                 {sectionBackgroundColors.categories && (
-                  <button type="button" onClick={() => updateSectionBackgroundColor('categories', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">გასუფთავება</button>
+                  <IconButton icon={<XIcon />} label="ფონის ფერის გასუფთავება" onClick={() => updateSectionBackgroundColor('categories', '')} />
                 )}
               </div>
             </div>
@@ -1267,7 +1231,7 @@ export default function StoreLayoutPage() {
                   className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
                 {sectionBackgroundColors.collections && (
-                  <button type="button" onClick={() => updateSectionBackgroundColor('collections', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">გასუფთავება</button>
+                  <IconButton icon={<XIcon />} label="ფონის ფერის გასუფთავება" onClick={() => updateSectionBackgroundColor('collections', '')} />
                 )}
               </div>
             </div>
@@ -1329,7 +1293,7 @@ export default function StoreLayoutPage() {
                     <div className="flex flex-col gap-2">
                       {visibleCollections.map((collection, index) => (
                         <div key={collection.id} className="flex items-center gap-2 rounded-xl bg-white/2 border border-white/5 px-3 py-2">
-                          <UpDownButtons
+                          <ReorderButtons
                             disabledUp={index === 0}
                             disabledDown={index === visibleCollections.length - 1}
                             onUp={() => moveLandingCollection(collection.id, -1, visibleCollections.map(c => c.id))}
@@ -1493,13 +1457,7 @@ export default function StoreLayoutPage() {
                         placeholder="სვეტის სათაური (მაგ. მაღაზია)"
                         className="input input-xs flex-1 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
                       />
-                      <button
-                        type="button"
-                        onClick={() => removeFooterLinkColumn(columnIndex)}
-                        className="btn btn-xs btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white shrink-0"
-                      >
-                        ✕
-                      </button>
+                      <IconButton icon={<XIcon />} label="სვეტის წაშლა" onClick={() => removeFooterLinkColumn(columnIndex)} className="shrink-0" />
                     </div>
                     {column.links.map((link, linkIndex) => (
                       <div key={linkIndex} className="flex items-center gap-2 pl-3">
@@ -1517,32 +1475,14 @@ export default function StoreLayoutPage() {
                           placeholder="https://…"
                           className="input input-xs flex-1 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
                         />
-                        <button
-                          type="button"
-                          onClick={() => removeFooterLink(columnIndex, linkIndex)}
-                          className="btn btn-xs btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white shrink-0"
-                        >
-                          ✕
-                        </button>
+                        <IconButton icon={<XIcon />} label="ბმულის წაშლა" onClick={() => removeFooterLink(columnIndex, linkIndex)} className="shrink-0" />
                       </div>
                     ))}
-                    <button
-                      type="button"
-                      onClick={() => addFooterLink(columnIndex)}
-                      className="btn btn-xs self-start bg-white/4 border-white/10 text-white/60 hover:text-white"
-                    >
-                      + ბმული
-                    </button>
+                    <IconButton icon={<PlusIcon />} label="ბმულის დამატება" onClick={() => addFooterLink(columnIndex)} className="self-start" />
                   </div>
                 ))}
               </div>
-              <button
-                type="button"
-                onClick={addFooterLinkColumn}
-                className="btn btn-xs self-start bg-white/4 border-white/10 text-white/60 hover:text-white"
-              >
-                + სვეტი
-              </button>
+              <IconButton icon={<PlusIcon />} label="სვეტის დამატება" onClick={addFooterLinkColumn} className="self-start" />
             </div>
           </div>
 
@@ -1633,23 +1573,11 @@ export default function StoreLayoutPage() {
                       placeholder="100% ორიგინალი"
                       className="input input-sm flex-1 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
                     />
-                    <button
-                      type="button"
-                      onClick={() => removeTrustBadge(i)}
-                      className="btn btn-xs btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white shrink-0"
-                    >
-                      ✕
-                    </button>
+                    <IconButton icon={<XIcon />} label="ბეჯის წაშლა" onClick={() => removeTrustBadge(i)} className="shrink-0" />
                   </div>
                 ))}
               </div>
-              <button
-                type="button"
-                onClick={addTrustBadge}
-                className="btn btn-xs self-start bg-white/4 border-white/10 text-white/60 hover:text-white"
-              >
-                + ბეჯი
-              </button>
+              <IconButton icon={<PlusIcon />} label="ბეჯის დამატება" onClick={addTrustBadge} className="self-start" />
             </div>
 
             <div className="fieldset gap-2">
@@ -1778,7 +1706,7 @@ export default function StoreLayoutPage() {
                   className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
                 {sectionBackgroundColors.faq && (
-                  <button type="button" onClick={() => updateSectionBackgroundColor('faq', '')} className="btn btn-xs bg-white/4 border-white/10 text-white/50 hover:text-white">გასუფთავება</button>
+                  <IconButton icon={<XIcon />} label="ფონის ფერის გასუფთავება" onClick={() => updateSectionBackgroundColor('faq', '')} />
                 )}
               </div>
             </div>
@@ -1807,13 +1735,7 @@ export default function StoreLayoutPage() {
                           placeholder="კითხვა"
                           className="input input-sm flex-1 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
                         />
-                        <button
-                          type="button"
-                          onClick={() => removeFaqItem(index)}
-                          className="btn btn-xs btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white shrink-0"
-                        >
-                          ✕
-                        </button>
+                        <IconButton icon={<XIcon />} label="კითხვის წაშლა" onClick={() => removeFaqItem(index)} className="shrink-0" />
                       </div>
                       <textarea
                         value={item.answer}
@@ -1825,13 +1747,7 @@ export default function StoreLayoutPage() {
                     </div>
                   ))}
                 </div>
-                <button
-                  type="button"
-                  onClick={addFaqItem}
-                  className="btn btn-xs self-start bg-white/4 border-white/10 text-white/60 hover:text-white"
-                >
-                  + კითხვა
-                </button>
+                <IconButton icon={<PlusIcon />} label="კითხვის დამატება" onClick={addFaqItem} className="self-start" />
               </>
             )}
           </div>

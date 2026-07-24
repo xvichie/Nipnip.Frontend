@@ -18,7 +18,7 @@ export function AuthRedirect() {
     } else if (role === 'creator') {
       router.replace('/dashboard/creator')
     } else if (role === 'merchant') {
-      router.replace('/dashboard/merchant/affiliate')
+      router.replace('/dashboard/merchant/store')
     }
   }, [isLoaded, isSignedIn, role, router])
 

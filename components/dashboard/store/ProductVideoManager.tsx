@@ -3,6 +3,8 @@
 import { useRef, useState } from 'react'
 import { uploadVideo } from '@/lib/uploadImage'
 import { useUpdateProduct } from '@/lib/queries/storefront-admin'
+import { IconButton } from '@/components/ui/IconButton'
+import { EditIcon, PlusIcon, TrashIcon } from '@/components/ui/icons'
 
 export function ProductVideoManager({ productId, videoUrl }: { productId: string; videoUrl: string | null }) {
   const { mutate: updateProduct, isPending } = useUpdateProduct(productId)
@@ -36,23 +38,14 @@ export function ProductVideoManager({ productId, videoUrl }: { productId: string
       {videoUrl ? (
         <div className="flex flex-col gap-3">
           <video src={videoUrl} controls className="w-full max-w-xs rounded-xl border border-white/10 bg-black" />
-          <div className="flex gap-2">
-            <button
-              type="button"
+          <div className="flex gap-1.5">
+            <IconButton
+              icon={busy ? <span className="loading loading-spinner loading-xs" /> : <EditIcon />}
+              label="შეცვლა"
               onClick={() => fileRef.current?.click()}
               disabled={busy}
-              className="btn btn-xs bg-white/4 border-white/10 text-white/70 hover:text-white disabled:opacity-40"
-            >
-              {busy ? <span className="loading loading-spinner loading-xs" /> : 'შეცვლა'}
-            </button>
-            <button
-              type="button"
-              onClick={handleRemove}
-              disabled={busy}
-              className="btn btn-xs bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40"
-            >
-              წაშლა
-            </button>
+            />
+            <IconButton icon={<TrashIcon />} label="წაშლა" onClick={handleRemove} disabled={busy} variant="danger" />
           </div>
         </div>
       ) : (
@@ -60,9 +53,9 @@ export function ProductVideoManager({ productId, videoUrl }: { productId: string
           type="button"
           onClick={() => fileRef.current?.click()}
           disabled={busy}
-          className="w-full h-24 rounded-xl border border-dashed border-white/12 bg-white/2 hover:border-fuchsia-500/40 hover:bg-fuchsia-500/5 flex items-center justify-center text-white/30 text-sm disabled:opacity-40"
+          className="w-full h-24 rounded-xl border border-dashed border-white/12 bg-white/2 hover:border-fuchsia-500/40 hover:bg-fuchsia-500/5 flex items-center justify-center gap-1.5 text-white/30 text-sm disabled:opacity-40"
         >
-          {busy ? <span className="loading loading-spinner loading-sm text-fuchsia-400" /> : '+ პროდუქტის ვიდეოს ატვირთვა'}
+          {busy ? <span className="loading loading-spinner loading-sm text-fuchsia-400" /> : <><PlusIcon /> პროდუქტის ვიდეოს ატვირთვა</>}
         </button>
       )}
 

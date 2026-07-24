@@ -9,6 +9,8 @@ import { getThemeDefinition, isThemeId, SURFACE_CLASSES, THEMES } from '@/lib/st
 import { StorefrontCartProvider } from '@/lib/store/storefront-cart-context'
 import { PreviewFrame, type PreviewMode } from '@/components/dashboard/store/PreviewFrame'
 import { AnnouncementBar } from '@/components/storefront/shared/AnnouncementBar'
+import { IconButton } from '@/components/ui/IconButton'
+import { ChevronDownIcon, ChevronUpIcon, PlusIcon, XIcon } from '@/components/ui/icons'
 import { Header as MinimalHeader } from '@/components/storefront/themes/minimal/Header'
 import { Footer as MinimalFooter } from '@/components/storefront/themes/minimal/Footer'
 import { Home as MinimalHome } from '@/components/storefront/themes/minimal/Home'
@@ -278,9 +280,9 @@ function HeroSlideFields({
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-white/40 uppercase tracking-wider">სლაიდი {index + 1}</span>
         <div className="flex items-center gap-1">
-          <button type="button" onClick={() => onMove(-1)} disabled={index === 0} className="btn btn-xs btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white disabled:opacity-20">↑</button>
-          <button type="button" onClick={() => onMove(1)} disabled={index === total - 1} className="btn btn-xs btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white disabled:opacity-20">↓</button>
-          <button type="button" onClick={onRemove} className="btn btn-xs btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white">✕</button>
+          <IconButton icon={<ChevronUpIcon />} label="ზემოთ გადატანა" onClick={() => onMove(-1)} disabled={index === 0} />
+          <IconButton icon={<ChevronDownIcon />} label="ქვემოთ გადატანა" onClick={() => onMove(1)} disabled={index === total - 1} />
+          <IconButton icon={<XIcon />} label="სლაიდის წაშლა" onClick={onRemove} variant="danger" />
         </div>
       </div>
 
@@ -1590,13 +1592,13 @@ export default function StoreDesignPage() {
                   className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
                 {headerBackgroundColor && (
-                  <button
-                    type="button"
+                  <IconButton
+                    icon={<XIcon />}
+                    label="ფონის ფერის გასუფთავება"
                     onClick={() => setHeaderBackgroundColor('')}
-                    className="btn btn-sm btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white shrink-0"
-                  >
-                    ✕
-                  </button>
+                    size="sm"
+                    className="shrink-0"
+                  />
                 )}
               </div>
             </div>
@@ -2208,13 +2210,7 @@ export default function StoreDesignPage() {
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={addHeroSlide}
-              className="btn btn-sm self-start bg-white/4 border-white/10 text-white/60 hover:text-white"
-            >
-              + სლაიდი
-            </button>
+            <IconButton icon={<PlusIcon />} label="სლაიდის დამატება" onClick={addHeroSlide} size="sm" className="self-start" />
           </div>
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">

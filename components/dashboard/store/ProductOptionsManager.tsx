@@ -7,6 +7,8 @@ import {
   useDeleteProductOption,
   useDeleteProductOptionValue,
 } from '@/lib/queries/storefront-admin'
+import { IconButton } from '@/components/ui/IconButton'
+import { PlusIcon, TrashIcon, XIcon } from '@/components/ui/icons'
 import type { ProductOptionResponse } from '@/lib/types/storefront'
 import { sortOptionValueObjects } from '@/lib/sortOptionValues'
 
@@ -26,13 +28,12 @@ function OptionRow({ productId, option }: { productId: string; option: ProductOp
     <div className="rounded-xl bg-white/2 border border-white/5 px-4 py-3 flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-white">{option.name}</span>
-        <button
-          type="button"
+        <IconButton
+          icon={<TrashIcon />}
+          label="პარამეტრის წაშლა"
           onClick={() => { if (confirm(`წავშალო პარამეტრი „${option.name}“?`)) deleteOption(option.id) }}
-          className="btn btn-xs bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20"
-        >
-          პარამეტრის წაშლა
-        </button>
+          variant="danger"
+        />
       </div>
       <div className="flex flex-wrap gap-2">
         {sortOptionValueObjects(option.values).map(v => (
@@ -41,7 +42,15 @@ function OptionRow({ productId, option }: { productId: string; option: ProductOp
             className="inline-flex items-center gap-1.5 rounded-lg border border-white/8 bg-white/4 px-2 py-1 text-xs text-white/70"
           >
             {v.value}
-            <button type="button" onClick={() => deleteValue(v.id)} className="text-white/30 hover:text-red-400">×</button>
+            <button
+              type="button"
+              onClick={() => deleteValue(v.id)}
+              aria-label="წაშლა"
+              data-tip="წაშლა"
+              className="tooltip tooltip-top text-white/30 hover:text-red-400"
+            >
+              <XIcon className="w-2.5 h-2.5" />
+            </button>
           </span>
         ))}
       </div>
@@ -53,13 +62,13 @@ function OptionRow({ productId, option }: { productId: string; option: ProductOp
           placeholder="ახალი მნიშვნელობა (მაგ. Large)"
           className="input input-xs flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
         />
-        <button
+        <IconButton
+          icon={<PlusIcon />}
+          label="დამატება"
           type="submit"
           disabled={isPending || !value.trim()}
-          className="btn btn-xs bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 text-white disabled:opacity-40"
-        >
-          დამატება
-        </button>
+          variant="accent"
+        />
       </form>
     </div>
   )
@@ -100,9 +109,9 @@ export function ProductOptionsManager({ productId, options }: { productId: strin
         <button
           type="submit"
           disabled={isPending || !name.trim()}
-          className="btn btn-sm bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 text-white disabled:opacity-40"
+          className="btn btn-sm gap-1.5 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 text-white disabled:opacity-40"
         >
-          პარამეტრის დამატება
+          <PlusIcon /> პარამეტრის დამატება
         </button>
       </form>
       {error && <p className="text-error text-xs">პარამეტრის შექმნა ვერ მოხერხდა.</p>}

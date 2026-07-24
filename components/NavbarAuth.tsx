@@ -19,7 +19,7 @@ export function NavbarAuth({ fullWidth = false }: { fullWidth?: boolean }) {
   if (isSignedIn) {
     const dashboardHref =
       role === 'creator' ? '/dashboard/creator' :
-      role === 'merchant' ? '/dashboard/merchant/affiliate' :
+      role === 'merchant' ? '/dashboard/merchant/store' :
       '/onboarding'
 
     const isAdmin =

@@ -6,6 +6,7 @@ import { useCreateProductImage, useDeleteProductImage, useReorderProductImages }
 import type { ProductImageResponse } from '@/lib/types/storefront'
 import { viewTransitionNameFor, withViewTransition } from '@/lib/viewTransition'
 import { CImg } from '@/components/ui/CImg'
+import { ChevronLeftIcon, ChevronRightIcon, PlusIcon, StarIcon, TrashIcon } from '@/components/ui/icons'
 
 export function ProductImagesManager({ productId, images }: { productId: string; images: ProductImageResponse[] }) {
   const { mutate: createImage, isPending: isCreating } = useCreateProductImage(productId)
@@ -104,35 +105,41 @@ export function ProductImagesManager({ productId, images }: { productId: string;
                   onClick={() => handleMove(index, -1)}
                   disabled={index === 0}
                   aria-label="მარცხნივ გადატანა"
-                  className="text-white/70 hover:text-white disabled:opacity-20 text-xs px-1"
+                  data-tip="მარცხნივ გადატანა"
+                  className="tooltip tooltip-top text-white/70 hover:text-white disabled:opacity-20 px-1"
                 >
-                  ‹
+                  <ChevronLeftIcon />
                 </button>
                 <button
                   type="button"
                   onClick={() => handleMove(index, 1)}
                   disabled={index === order.length - 1}
                   aria-label="მარჯვნივ გადატანა"
-                  className="text-white/70 hover:text-white disabled:opacity-20 text-xs px-1"
+                  data-tip="მარჯვნივ გადატანა"
+                  className="tooltip tooltip-top text-white/70 hover:text-white disabled:opacity-20 px-1"
                 >
-                  ›
+                  <ChevronRightIcon />
                 </button>
               </div>
               {index !== 0 && (
                 <button
                   type="button"
                   onClick={() => handleSetCover(image.id)}
-                  className="text-[10px] text-white/80 hover:text-white"
+                  aria-label="ყდად დაყენება"
+                  data-tip="ყდად დაყენება"
+                  className="tooltip tooltip-top text-white/80 hover:text-white"
                 >
-                  ყდად დაყენება
+                  <StarIcon />
                 </button>
               )}
               <button
                 type="button"
                 onClick={() => deleteImage(image.id)}
-                className="text-xs text-red-300 hover:text-red-200"
+                aria-label="წაშლა"
+                data-tip="წაშლა"
+                className="tooltip tooltip-top text-red-300 hover:text-red-200"
               >
-                წაშლა
+                <TrashIcon />
               </button>
             </div>
           </div>
@@ -149,9 +156,11 @@ export function ProductImagesManager({ productId, images }: { productId: string;
           type="button"
           onClick={() => fileRef.current?.click()}
           disabled={uploading || isCreating}
-          className="w-20 h-20 rounded-xl border border-dashed border-white/12 bg-white/2 hover:border-fuchsia-500/40 hover:bg-fuchsia-500/5 flex items-center justify-center text-white/30 disabled:opacity-40"
+          aria-label="სურათის დამატება"
+          data-tip="სურათის დამატება"
+          className="tooltip tooltip-top w-20 h-20 rounded-xl border border-dashed border-white/12 bg-white/2 hover:border-fuchsia-500/40 hover:bg-fuchsia-500/5 flex items-center justify-center text-white/30 disabled:opacity-40"
         >
-          {uploading || isCreating ? <span className="loading loading-spinner loading-sm text-fuchsia-400" /> : '+ დამატება'}
+          {uploading || isCreating ? <span className="loading loading-spinner loading-sm text-fuchsia-400" /> : <PlusIcon />}
         </button>
       </div>
 

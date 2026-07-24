@@ -23,6 +23,8 @@ import { BetaBadge } from '@/components/dashboard/store/BetaBadge'
 import { SoonBadge } from '@/components/dashboard/store/SoonBadge'
 import { PickupLocationPicker } from '@/components/dashboard/store/PickupLocationPicker'
 import { CImg } from '@/components/ui/CImg'
+import { IconButton } from '@/components/ui/IconButton'
+import { XIcon } from '@/components/ui/icons'
 
 function HowToConnect({ children }: { children: React.ReactNode }) {
   return (
@@ -134,13 +136,13 @@ function IntegrationsPageContent() {
       {ttBanner === 'connected' && (
         <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-400 flex items-center justify-between gap-3">
           TikTok ანგარიში დაკავშირებულია — ახლა შეგიძლიათ პროდუქტის ექსპორტი პირდაპირ TikTok-ზე.
-          <button type="button" onClick={() => setTtBanner(null)} className="text-emerald-400/60 hover:text-emerald-400 shrink-0">✕</button>
+          <IconButton icon={<XIcon />} label="დახურვა" onClick={() => setTtBanner(null)} variant="ghost" className="shrink-0" />
         </div>
       )}
       {ttBanner === 'error' && (
         <div className="rounded-2xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error flex items-center justify-between gap-3">
           თქვენი TikTok ანგარიშის დაკავშირება ვერ მოხერხდა. გთხოვთ სცადოთ თავიდან.
-          <button type="button" onClick={() => setTtBanner(null)} className="text-error/60 hover:text-error shrink-0">✕</button>
+          <IconButton icon={<XIcon />} label="დახურვა" onClick={() => setTtBanner(null)} variant="ghost" className="shrink-0" />
         </div>
       )}
 

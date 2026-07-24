@@ -11,7 +11,7 @@ const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? '')
   .split(',').map(e => e.trim()).filter(Boolean)
 
 const ROLES: { role: 'merchant' | 'creator'; label: string; redirect: string }[] = [
-  { role: 'merchant', label: 'Demo Merchant', redirect: '/dashboard/merchant/affiliate' },
+  { role: 'merchant', label: 'Demo Merchant', redirect: '/dashboard/merchant/store' },
   { role: 'creator', label: 'Demo Creator', redirect: '/dashboard/creator' },
 ]
 

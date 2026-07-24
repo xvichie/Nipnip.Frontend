@@ -7,6 +7,8 @@ import {
   useUpdateProductVariant,
 } from '@/lib/queries/storefront-admin'
 import { BulkVariantGenerator } from './BulkVariantGenerator'
+import { IconButton } from '@/components/ui/IconButton'
+import { PlusIcon, TrashIcon } from '@/components/ui/icons'
 import type { ProductOptionResponse, ProductVariantResponse } from '@/lib/types/storefront'
 import { sortOptionValueObjects } from '@/lib/sortOptionValues'
 
@@ -64,13 +66,12 @@ function VariantRow({ productId, variant }: { productId: string; variant: Produc
           className="input input-xs w-16 bg-white/4 border-white/10 focus:border-fuchsia-500/60 tabular-nums"
         />
         <span className="text-white/25 text-xs">{stock.trim() === '' ? 'შეუზღუდავი' : 'მარაგშია'}</span>
-        <button
-          type="button"
+        <IconButton
+          icon={<TrashIcon />}
+          label="წაშლა"
           onClick={() => { if (confirm('წავშალო ეს ვარიაცია?')) deleteVariant(variant.id) }}
-          className="btn btn-xs bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20"
-        >
-          წაშლა
-        </button>
+          variant="danger"
+        />
       </div>
     </div>
   )
@@ -204,9 +205,9 @@ export function ProductVariantsManager({
         <button
           type="submit"
           disabled={isPending || !sku.trim() || !price || !allOptionsSelected}
-          className="btn btn-sm self-start bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
+          className="btn btn-sm gap-1.5 self-start bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
         >
-          {isPending ? <span className="loading loading-spinner loading-xs" /> : 'ვარიაციის დამატება'}
+          {isPending ? <span className="loading loading-spinner loading-xs" /> : <><PlusIcon /> ვარიაციის დამატება</>}
         </button>
       </form>
     </div>

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useMyProducts } from '@/lib/queries/storefront-admin'
+import { IconButton } from '@/components/ui/IconButton'
+import { XIcon } from '@/components/ui/icons'
 import type { ProductSummaryResponse } from '@/lib/types'
 import { CImg } from '@/components/ui/CImg'
 
@@ -68,13 +70,7 @@ export function RelatedProductsManager({
                 <p className="text-sm font-medium text-white truncate">{product.name}</p>
                 <p className="text-white/40 text-xs">{priceLabel(product)}</p>
               </div>
-              <button
-                type="button"
-                onClick={() => removePick(product.id)}
-                className="btn btn-xs btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white shrink-0"
-              >
-                ✕
-              </button>
+              <IconButton icon={<XIcon />} label="წაშლა" onClick={() => removePick(product.id)} className="shrink-0" />
             </div>
           ))}
         </div>

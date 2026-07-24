@@ -54,7 +54,7 @@ export function QuickShipperOrderModal({ orderId, onClose }: QuickShipperOrderMo
       >
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-white">QuickShipper-ით გაგზავნა</h2>
-          <button onClick={onClose} className="text-white/30 hover:text-white" aria-label="დახურვა">
+          <button onClick={onClose} className="tooltip tooltip-top text-white/30 hover:text-white" aria-label="დახურვა" data-tip="დახურვა">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
               <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
             </svg>
