@@ -45,7 +45,7 @@ export type FooterContactFormPosition = 'off' | 'above' | 'below'
 
 export type LandingCategoryColumns = 2 | 3 | 4 | 6
 
-export type HomeSectionKey = 'hero' | 'categories' | 'products' | 'content'
+export type HomeSectionKey = 'hero' | 'categories' | 'products' | 'collections' | 'faq' | 'content'
 
 export type FeaturedProductsMode = 'latest' | 'curated'
 
@@ -105,6 +105,14 @@ export interface ThemeConfig {
   landingCategoryScope?: CategoryMenuScope
   landingCategorySelectedIds?: string[]
   landingCategoryColumns?: LandingCategoryColumns
+  showLandingCollections?: boolean
+  landingCollectionScope?: CategoryMenuScope
+  landingCollectionSelectedIds?: string[]
+  /** Display order among selected/visible collections — same "absence filtered out" idiom as homeSectionOrder. */
+  landingCollectionOrder?: string[]
+  /** Optional per-collection heading override; falls back to the collection's own name. */
+  landingCollectionTitleOverrides?: Record<string, string>
+  landingCollectionProductLimit?: number
   footerContactForm?: FooterContactFormPosition
   showContactInNav?: boolean
   contactLabel?: string
@@ -140,6 +148,72 @@ export interface ThemeConfig {
   cityPayEnabled?: boolean
   shippingZones?: ShippingZone[]
   freeShippingThreshold?: number | null
+  /** Empty means keep the auto "© {year} {storeName}" line. */
+  footerCopyrightText?: string
+  showPlatformAttribution?: boolean
+  footerShowPaymentIcons?: boolean
+  footerShowLogo?: boolean
+  faviconUrl?: string
+  socialImageUrl?: string
+  footerLinkColumns?: FooterLinkColumn[]
+  /** null disables the low-stock message entirely. */
+  lowStockThreshold?: number | null
+  /** Supports a {n} placeholder for the actual stock count. */
+  lowStockMessage?: string
+  showRelatedProducts?: boolean
+  /** Empty falls back to the theme's default heading. */
+  relatedProductsHeading?: string
+  deliveryEstimateText?: string
+  trustBadges?: string[]
+  sizeGuideContent?: string
+  offlineMode?: OfflineMode
+  offlineMessage?: string
+  offlineReopenDate?: string | null
+  checkoutNotesEnabled?: boolean
+  checkoutTosEnabled?: boolean
+  checkoutTosPageId?: string
+  checkoutThankYouHeading?: string
+  checkoutThankYouMessage?: string
+  headerSticky?: boolean
+  headerBackgroundColor?: string
+  showFaqSection?: boolean
+  faqHeading?: string
+  faqItems?: FaqItem[]
+  showStickyMobileCta?: boolean
+  storeHoursEnabled?: boolean
+  storeHours?: StoreHoursDay[]
+  heroSlides?: HeroSlide[]
+}
+
+export type OfflineMode = 'closed' | 'comingSoon'
+
+export interface FaqItem {
+  question: string
+  answer: string
+}
+
+export interface StoreHoursDay {
+  day: number
+  open: string
+  close: string
+  closed: boolean
+}
+
+export interface HeroSlide {
+  imageUrl: string
+  eyebrow: string
+  headline: string
+  subheadline: string
+  ctaEnabled: boolean
+  ctaText: string
+  ctaLinkType: HeroCtaLinkType
+  ctaCategoryId: string
+  ctaCustomUrl: string
+}
+
+export interface FooterLinkColumn {
+  title: string
+  links: { label: string; url: string }[]
 }
 
 export interface ShippingZone {
@@ -229,6 +303,25 @@ export interface UpdateCategoryRequest {
   defaultOptions?: string | null
 }
 
+export interface CollectionResponse {
+  id: string
+  name: string
+  slug: string
+}
+
+export interface CreateCollectionRequest {
+  name: string
+}
+
+export interface UpdateCollectionRequest {
+  name?: string | null
+}
+
+/** Full ordered replace of a collection's product membership — mirrors SetRelatedProductsRequest. */
+export interface SetCollectionProductsRequest {
+  productIds: string[]
+}
+
 export interface StorePageResponse {
   id: string
   title: string
@@ -279,6 +372,7 @@ export interface ProductSummaryResponse {
   thumbnailUrl: string | null
   secondImageUrl?: string | null
   createdAt: string
+  collectionIds: string[]
 }
 
 export interface ProductPriceRangeResponse {
@@ -373,6 +467,7 @@ export interface ProductDetailResponse {
   options: ProductOptionResponse[]
   variants: ProductVariantResponse[]
   relatedProducts: ProductSummaryResponse[]
+  collectionIds: string[]
 }
 
 export interface SetRelatedProductsRequest {
@@ -386,6 +481,7 @@ export interface CreateProductRequest {
   basePrice: number
   salePrice?: number | null
   categoryId?: string | null
+  collectionIds?: string[] | null
 }
 
 export interface UpdateProductRequest {
@@ -397,6 +493,8 @@ export interface UpdateProductRequest {
   salePrice?: number | null
   categoryId?: string | null
   isActive?: boolean | null
+  /** Omit to leave collection membership unchanged; pass a list (possibly empty) to replace it outright. */
+  collectionIds?: string[] | null
 }
 
 export interface CartItemOptionResponse {
@@ -446,6 +544,7 @@ export interface CheckoutRequest {
   paymentMethod: PaymentMethod
   shippingZoneId?: string | null
   ref?: string | null
+  customerNote?: string | null
 }
 
 export interface OrderResponse {
@@ -463,6 +562,7 @@ export interface OrderResponse {
   shippingZoneName: string | null
   createdAt: string
   redirectUrl: string | null
+  customerNote: string | null
 }
 
 export interface OrderItemResponse {
@@ -504,6 +604,7 @@ export interface OrderDetailResponse {
   quickShipperStatus: string | null
   quickShipperTrackingUrl: string | null
   quickShipperDeliveryFee: number | null
+  customerNote: string | null
 }
 
 export interface UpdateOrderStatusRequest {

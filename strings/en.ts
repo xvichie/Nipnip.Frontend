@@ -127,6 +127,7 @@ export const en: Strings = {
     storeAnalytics: 'Analytics',
     storeOrders: 'Orders',
     storeCategories: 'Categories',
+    storeCollections: 'Collections',
     storePages: 'Pages',
     storeDesign: 'Design',
     storeLayout: 'Layout',

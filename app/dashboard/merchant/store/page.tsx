@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
-import { parseThemeConfig } from '@/lib/store/theme-config'
+import { DEFAULT_THEME_CONFIG, parseThemeConfig } from '@/lib/store/theme-config'
 import { getStoreDescription, getStoreTitle } from '@/lib/store/seo'
+import type { OfflineMode } from '@/lib/types/storefront'
 
 export default function MerchantStorePage() {
   const { data: store, isLoading, isError } = useMyStore()
@@ -16,6 +17,9 @@ export default function MerchantStorePage() {
   const [contactAddress, setContactAddress] = useState('')
   const [seoTagline, setSeoTagline] = useState('')
   const [seoDescription, setSeoDescription] = useState('')
+  const [offlineMode, setOfflineMode] = useState<OfflineMode>(DEFAULT_THEME_CONFIG.offlineMode)
+  const [offlineMessage, setOfflineMessage] = useState(DEFAULT_THEME_CONFIG.offlineMessage)
+  const [offlineReopenDate, setOfflineReopenDate] = useState(DEFAULT_THEME_CONFIG.offlineReopenDate)
   const [saved, setSaved] = useState(false)
 
   // "Adjust state during render" instead of an effect — hydrates once from the fetched
@@ -35,6 +39,9 @@ export default function MerchantStorePage() {
     setContactAddress(parsed.contactAddress)
     setSeoTagline(parsed.seoTagline)
     setSeoDescription(parsed.seoDescription)
+    setOfflineMode(parsed.offlineMode)
+    setOfflineMessage(parsed.offlineMessage)
+    setOfflineReopenDate(parsed.offlineReopenDate)
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -52,6 +59,9 @@ export default function MerchantStorePage() {
           contactAddress,
           seoTagline: seoTagline.trim() || undefined,
           seoDescription: seoDescription.trim() || undefined,
+          offlineMode,
+          offlineMessage: offlineMessage.trim() || undefined,
+          offlineReopenDate: offlineReopenDate || null,
         }),
       },
       { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
@@ -105,6 +115,62 @@ export default function MerchantStorePage() {
             />
             <span className="text-sm text-white/70">მაღაზია აქტიურია</span>
           </label>
+
+          {!isActive && (
+            <div className="rounded-xl border border-white/8 bg-white/2 p-4 flex flex-col gap-4">
+              <p className="text-white/40 text-xs">
+                სანამ მაღაზია გამორთულია, ვიზიტორები ნახავენ ამ შეტყობინებას ცარიელი გვერდის ნაცვლად.
+              </p>
+
+              <div className="grid grid-cols-2 gap-2">
+                {([
+                  { value: 'closed', label: 'დროებით დაკეტილია' },
+                  { value: 'comingSoon', label: 'მალე გაიხსნება' },
+                ] as { value: OfflineMode; label: string }[]).map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setOfflineMode(opt.value)}
+                    className={[
+                      'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                      offlineMode === opt.value
+                        ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                        : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                    ].join(' ')}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="fieldset gap-2">
+                <label htmlFor="offline-message" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                  შეტყობინება
+                </label>
+                <textarea
+                  id="offline-message"
+                  value={offlineMessage}
+                  onChange={e => setOfflineMessage(e.target.value)}
+                  rows={2}
+                  placeholder="მალე დავბრუნდებით — მადლობთ მოთმინებისთვის!"
+                  className="textarea w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 resize-none"
+                />
+              </div>
+
+              <div className="fieldset gap-2">
+                <label htmlFor="offline-reopen-date" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                  გახსნის თარიღი (არასავალდებულო)
+                </label>
+                <input
+                  id="offline-reopen-date"
+                  type="date"
+                  value={offlineReopenDate ?? ''}
+                  onChange={e => setOfflineReopenDate(e.target.value || null)}
+                  className="input w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
+                />
+              </div>
+            </div>
+          )}
 
           <div className="pt-2 border-t border-white/7 flex flex-col gap-5">
             <div>

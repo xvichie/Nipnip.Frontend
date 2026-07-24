@@ -1,10 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { VariantSelector } from '../../VariantSelector'
 import { ImageLightbox } from '../../ImageLightbox'
 import { Breadcrumbs } from '@/components/storefront/shared/Breadcrumbs'
+import { SizeGuideModal } from '@/components/storefront/shared/SizeGuideModal'
+import { StickyAddToCartBar } from '@/components/storefront/shared/StickyAddToCartBar'
 import { ProductCard } from './ProductCard'
 import type { CategoryResponse, ProductDetailResponse, ThemeConfig } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
@@ -27,6 +29,8 @@ export function ProductDetail({
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [added, setAdded] = useState(false)
   const [addError, setAddError] = useState(false)
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
+  const addToCartButtonRef = useRef<HTMLButtonElement>(null)
 
   const purchasableOptions = product.options.filter(option => option.values.length > 0)
 
@@ -55,6 +59,8 @@ export function ProductDetail({
   const price = matchedVariant?.price ?? product.basePrice
   const salePrice = matchedVariant ? matchedVariant.salePrice : product.salePrice
   const images = product.images
+  const isLowStock = tokens.lowStockThreshold != null && stock !== null && stock > 0 && stock <= tokens.lowStockThreshold
+  const lowStockText = isLowStock ? (tokens.lowStockMessage || 'მხოლოდ {n} ცალია დარჩენილი!').replace('{n}', String(stock)) : null
 
   async function handleAddToCart() {
     if (!canAddToCart) return
@@ -148,6 +154,16 @@ export function ProductDetail({
               radiusClass="rounded-md"
             />
 
+            {tokens.sizeGuideContent && (
+              <button
+                type="button"
+                onClick={() => setSizeGuideOpen(true)}
+                className="text-xs text-slate-400 hover:text-slate-900 underline underline-offset-2 mb-4 text-left w-fit"
+              >
+                საზომი ცხრილი
+              </button>
+            )}
+
             <div className="flex items-center gap-3 mb-4">
               <div className="flex items-center rounded-md border border-slate-200 bg-white">
                 <button
@@ -167,13 +183,14 @@ export function ProductDetail({
                 </button>
               </div>
               {selectionComplete && stock !== null && (
-                <span className="text-xs text-slate-400">
-                  {stock > 0 ? `მარაგშია: ${stock} ცალი` : 'არ არის მარაგში'}
+                <span className={`text-xs ${isLowStock ? 'text-red-600 font-medium' : 'text-slate-400'}`}>
+                  {stock > 0 ? (lowStockText ?? `მარაგშია: ${stock} ცალი`) : 'არ არის მარაგში'}
                 </span>
               )}
             </div>
 
             <button
+              ref={addToCartButtonRef}
               type="button"
               disabled={!canAddToCart}
               onClick={handleAddToCart}
@@ -193,6 +210,18 @@ export function ProductDetail({
               <p className="text-red-500 text-sm -mt-6 mb-8">დაფიქსირდა შეცდომა. სცადეთ თავიდან.</p>
             )}
 
+            {tokens.deliveryEstimateText && (
+              <p className="text-xs text-slate-400 mb-4">{tokens.deliveryEstimateText}</p>
+            )}
+
+            {tokens.trustBadges.length > 0 && (
+              <div className="flex flex-wrap gap-x-4 gap-y-1 mb-8">
+                {tokens.trustBadges.map((badge, i) => (
+                  <span key={i} className="text-xs text-slate-400">✓ {badge}</span>
+                ))}
+              </div>
+            )}
+
             {product.description && (
               <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">აღწერა</p>
@@ -209,9 +238,9 @@ export function ProductDetail({
           </div>
         </div>
 
-        {product.relatedProducts.length > 0 && (
+        {tokens.showRelatedProducts && product.relatedProducts.length > 0 && (
           <div className="mt-14 pt-8 border-t border-slate-200">
-            <h2 className="font-black text-2xl text-slate-900 tracking-tight mb-6">მსგავსი პროდუქტები</h2>
+            <h2 className="font-black text-2xl text-slate-900 tracking-tight mb-6">{tokens.relatedProductsHeading || 'მსგავსი პროდუქტები'}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {product.relatedProducts.map(related => (
                 <ProductCard key={related.id} slug={slug} product={related} tokens={tokens} />
@@ -228,6 +257,23 @@ export function ProductDetail({
           activeIndex={activeImage}
           onIndexChange={setActiveImage}
           onClose={() => setLightboxOpen(false)}
+        />
+      )}
+
+      {sizeGuideOpen && tokens.sizeGuideContent && (
+        <SizeGuideModal content={tokens.sizeGuideContent} onClose={() => setSizeGuideOpen(false)} />
+      )}
+
+      {tokens.showStickyMobileCta && (
+        <StickyAddToCartBar
+          triggerRef={addToCartButtonRef}
+          productName={product.name}
+          priceLabel={salePrice !== null ? `₾${salePrice.toFixed(2)}` : `₾${price.toFixed(2)}`}
+          disabled={!canAddToCart}
+          addedLabel={added ? '✓ დაემატა კალათაში' : null}
+          label={!selectionComplete ? 'აირჩიეთ ვარიანტი' : stock !== null && stock < 1 ? 'არ არის მარაგში' : 'კალათაში დამატება'}
+          onAdd={handleAddToCart}
+          accentColor={tokens.accentColor}
         />
       )}
     </div>

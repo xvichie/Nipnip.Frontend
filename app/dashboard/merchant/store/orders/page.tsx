@@ -382,6 +382,12 @@ function OrderDetailsModal({
               )}
             </div>
           </div>
+          {order.customerNote && (
+            <div className="rounded-xl bg-fuchsia-500/8 border border-fuchsia-500/15 p-4">
+              <p className="text-xs font-semibold text-fuchsia-300 uppercase tracking-widest mb-1.5">შენიშვნა მომხმარებლისგან</p>
+              <p className="text-sm text-white/80 whitespace-pre-wrap">{order.customerNote}</p>
+            </div>
+          )}
           {order.latitude && order.longitude && (
             <div className="rounded-xl overflow-hidden border border-white/10 h-52">
               <iframe

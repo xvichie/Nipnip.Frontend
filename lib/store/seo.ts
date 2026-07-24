@@ -23,7 +23,7 @@ export function truncateDescription(text: string, maxLength = 160): string {
 }
 
 export function getStoreOgImage(tokens: Required<ThemeConfig>): string | undefined {
-  return tokens.heroImageUrl || tokens.logoUrl || undefined
+  return tokens.socialImageUrl || tokens.heroImageUrl || tokens.logoUrl || undefined
 }
 
 export function getStoreTitle(store: StoreResponse, tokens: Required<ThemeConfig>): string {

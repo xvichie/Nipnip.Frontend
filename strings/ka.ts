@@ -125,6 +125,7 @@ export const ka = {
     storeAnalytics: 'ანალიტიკა',
     storeOrders: 'შეკვეთები',
     storeCategories: 'კატეგორიები',
+    storeCollections: 'კოლექციები',
     storePages: 'გვერდები',
     storeDesign: 'დიზაინი',
     storeLayout: 'განლაგება',

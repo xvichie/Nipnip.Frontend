@@ -7,7 +7,7 @@ import { getStoreRef } from '@/lib/store/referral'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { getThemeDefinition, RADIUS_CLASS, SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { LocationPicker } from './LocationPicker'
-import type { PaymentMethod, ThemeConfig, ThemeId } from '@/lib/types/storefront'
+import type { PaymentMethod, StorePageResponse, ThemeConfig, ThemeId } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
 
 const PAYMENT_OPTIONS: { id: PaymentMethod; label: string; icon: React.ReactNode }[] = [
@@ -102,10 +102,12 @@ export function Checkout({
   slug,
   themeId,
   tokens,
+  pages,
 }: {
   slug: string
   themeId: ThemeId
   tokens: Required<ThemeConfig>
+  pages: StorePageResponse[]
 }) {
   const { cart } = useStorefrontCart()
   const checkout = useCheckout(slug)
@@ -118,6 +120,11 @@ export function Checkout({
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
+  const [orderNote, setOrderNote] = useState('')
+  const [tosAccepted, setTosAccepted] = useState(false)
+
+  const tosPage = tokens.checkoutTosEnabled ? pages.find(p => p.id === tokens.checkoutTosPageId) : undefined
+  const tosRequired = tokens.checkoutTosEnabled && !!tosPage
 
   // Flitt/TBC/BOG/CityPay have no buyer-facing notes — all are automatic hosted-checkout
   // redirects, unlike COD/bank transfer which need manual instructions (courier cash, IBAN, etc).
@@ -181,9 +188,9 @@ export function Checkout({
             </svg>
           </div>
           <div>
-            <h1 className={`font-black text-3xl mb-2 ${surface.text}`}>შეკვეთა გაფორმდა!</h1>
+            <h1 className={`font-black text-3xl mb-2 ${surface.text}`}>{tokens.checkoutThankYouHeading || 'შეკვეთა გაფორმდა!'}</h1>
             <p className={`text-sm break-words ${surface.muted}`}>
-              გმადლობთ, {fullName}. თქვენი შეკვეთა #{checkout.data.id.slice(0, 8)} მიღებულია. დეტალები გამოგზავნილია {email}-ზე.
+              {tokens.checkoutThankYouMessage || `გმადლობთ, ${fullName}. თქვენი შეკვეთა #${checkout.data.id.slice(0, 8)} მიღებულია. დეტალები გამოგზავნილია ${email}-ზე.`}
             </p>
             <p className={`text-sm font-bold mt-3 ${surface.text}`}>
               სულ: ₾{checkout.data.total.toFixed(2)}
@@ -256,6 +263,7 @@ export function Checkout({
                 paymentMethod,
                 shippingZoneId: hasShippingZones ? shippingZoneId : null,
                 ref: getStoreRef(slug),
+                customerNote: tokens.checkoutNotesEnabled ? orderNote.trim() || null : null,
               })
             }}
           >
@@ -362,11 +370,41 @@ export function Checkout({
               </div>
             </Section>
 
+            {tokens.checkoutNotesEnabled && (
+              <Section title="შენიშვნა შეკვეთაზე" surface={surface} radius={radius}>
+                <textarea
+                  value={orderNote}
+                  onChange={e => setOrderNote(e.target.value)}
+                  rows={3}
+                  placeholder="მაგ. კარიბჭის კოდი, მიწოდების მოსახერხებელი დრო..."
+                  className={`${inputClass} resize-none`}
+                />
+              </Section>
+            )}
+
+            {tosRequired && tosPage && (
+              <label className={`flex items-start gap-3 text-sm cursor-pointer ${surface.text}`}>
+                <input
+                  type="checkbox"
+                  required
+                  checked={tosAccepted}
+                  onChange={e => setTosAccepted(e.target.checked)}
+                  className="mt-0.5 shrink-0"
+                />
+                <span>
+                  ვეთანხმები{' '}
+                  <Link href={`/pages/${tosPage.slug}`} target="_blank" className="underline underline-offset-2">
+                    {tosPage.title}
+                  </Link>
+                </span>
+              </label>
+            )}
+
             {checkout.isError && <p className="text-red-400 text-sm">დაფიქსირდა შეცდომა. სცადეთ თავიდან.</p>}
 
             <button
               type="submit"
-              disabled={checkout.isPending}
+              disabled={checkout.isPending || (tosRequired && !tosAccepted)}
               className={`py-4 text-white text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-90 disabled:opacity-40 ${radius}`}
               style={{ backgroundColor: tokens.accentColor }}
             >

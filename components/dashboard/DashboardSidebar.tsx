@@ -141,6 +141,13 @@ const BOX_ICON = (
     <path d="M1.5 4.8 8 8m0 0 6.5-3.2M8 8v6.5" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
   </svg>
 )
+const LAYERS_ICON = (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+    <path d="M8 1.5 14.5 5 8 8.5 1.5 5 8 1.5Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+    <path d="M1.5 8 8 11.5 14.5 8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M1.5 11 8 14.5 14.5 11" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)
 const MAIL_ICON = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
     <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
@@ -248,6 +255,7 @@ const STORE_NAV_ICONS: Record<string, React.ReactNode> = {
   '/dashboard/merchant/store/design': PALETTE_ICON,
   '/dashboard/merchant/store/layout': LAYOUT_ICON,
   '/dashboard/merchant/store/categories': TAG_ICON,
+  '/dashboard/merchant/store/collections': LAYERS_ICON,
   '/dashboard/merchant/store/products': BOX_ICON,
   '/dashboard/merchant/store/orders': BAG_ICON,
   '/dashboard/merchant/store/payments': PAYMENT_ICON,

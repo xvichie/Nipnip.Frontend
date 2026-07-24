@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@clerk/nextjs'
 import { useQueryClient } from '@tanstack/react-query'
 import { apiFetch } from '@/lib/api'
-import { useMyCategories, useMyProduct, useRelatedProducts, useSetRelatedProducts, useUpdateProduct } from '@/lib/queries/storefront-admin'
+import { useMyCategories, useMyCollections, useMyProduct, useRelatedProducts, useSetRelatedProducts, useUpdateProduct } from '@/lib/queries/storefront-admin'
 import { ProductImagesManager } from '@/components/dashboard/store/ProductImagesManager'
 import { ProductVideoManager } from '@/components/dashboard/store/ProductVideoManager'
 import { ProductOptionsManager } from '@/components/dashboard/store/ProductOptionsManager'
@@ -23,6 +23,7 @@ export default function EditProductPage() {
   const queryClient = useQueryClient()
   const { data: product, isLoading, isError } = useMyProduct(productId)
   const { data: categories } = useMyCategories()
+  const { data: collections } = useMyCollections()
   const { mutateAsync: updateProduct, isPending, error } = useUpdateProduct(productId)
   const { data: relatedProducts, isLoading: relatedLoading } = useRelatedProducts(productId)
   const { mutateAsync: setRelated, isPending: isSavingRelated } = useSetRelatedProducts(productId)
@@ -33,6 +34,7 @@ export default function EditProductPage() {
   const [basePrice, setBasePrice] = useState('')
   const [salePrice, setSalePrice] = useState('')
   const [categoryId, setCategoryId] = useState('')
+  const [collectionIds, setCollectionIds] = useState<string[]>([])
   const [isActive, setIsActive] = useState(true)
   const [relatedPicks, setRelatedPicks] = useState<ProductSummaryResponse[]>([])
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
@@ -58,7 +60,12 @@ export default function EditProductPage() {
     setBasePrice(String(product.basePrice))
     setSalePrice(product.salePrice !== null ? String(product.salePrice) : '')
     setCategoryId(product.categoryId ?? '')
+    setCollectionIds(product.collectionIds)
     setIsActive(product.isActive)
+  }
+
+  function toggleCollection(id: string) {
+    setCollectionIds(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]))
   }
 
   const [prevRelatedId, setPrevRelatedId] = useState<string | null>(null)
@@ -79,6 +86,7 @@ export default function EditProductPage() {
           basePrice: isNaN(price) ? null : price,
           salePrice: salePrice.trim() ? (isNaN(parsedSalePrice) ? null : parsedSalePrice) : null,
           categoryId: categoryId || null,
+          collectionIds,
           isActive,
         }),
         setRelated({ productIds: relatedPicks.map(p => p.id) }),
@@ -248,6 +256,28 @@ export default function EditProductPage() {
                   <option key={category.id} value={category.id}>{category.name}</option>
                 ))}
               </select>
+            </div>
+          )}
+
+          {collections && collections.length > 0 && (
+            <div className="fieldset gap-2">
+              <span className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Collections</span>
+              <div className="flex flex-col gap-1.5">
+                {collections.map(collection => (
+                  <label
+                    key={collection.id}
+                    className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer"
+                  >
+                    <span className="text-sm text-white/70">{collection.name}</span>
+                    <input
+                      type="checkbox"
+                      checked={collectionIds.includes(collection.id)}
+                      onChange={() => toggleCollection(collection.id)}
+                      className="toggle toggle-sm"
+                    />
+                  </label>
+                ))}
+              </div>
             </div>
           )}
 

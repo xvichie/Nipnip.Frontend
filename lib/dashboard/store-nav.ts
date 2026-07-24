@@ -15,6 +15,7 @@ export const STORE_NAV_ITEMS: StoreNavItem[] = [
   { href: '/dashboard/merchant/store/design', exact: false, labelKey: 'storeDesign' },
   { href: '/dashboard/merchant/store/layout', exact: false, labelKey: 'storeLayout' },
   { href: '/dashboard/merchant/store/categories', exact: false, labelKey: 'storeCategories' },
+  { href: '/dashboard/merchant/store/collections', exact: false, labelKey: 'storeCollections' },
   { href: '/dashboard/merchant/store/products', exact: false, labelKey: 'storeProducts' },
   { href: '/dashboard/merchant/store/orders', exact: false, labelKey: 'storeOrders' },
   { href: '/dashboard/merchant/store/payments', exact: false, labelKey: 'storePayments' },

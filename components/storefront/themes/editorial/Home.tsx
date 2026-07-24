@@ -1,114 +1,146 @@
 import Link from 'next/link'
 import { ProductCard } from './ProductCard'
 import { CategoryIcon } from '@/components/storefront/shared/CategoryIcon'
+import { ProductScrollRow } from '@/components/storefront/shared/ProductScrollRow'
+import { HeroCarousel } from '@/components/storefront/shared/HeroCarousel'
 import { getBannerBackgroundStyle, getHeroBackgroundImageClass, getHeroCtaHref, getHeroCtaLabel, getHeroImageClass, getHeroOverlayStyle, getHeroTextAlignClass, getHeroTextColorClass, getHomeSectionOrder, hasBanner, hasContentBlock, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
 import { getLandingCategories } from '@/lib/store/landing-categories'
+import { getLandingCollections } from '@/lib/store/landing-collections'
 import { ContentBlock } from '@/components/storefront/shared/ContentBlock'
-import type { CategoryResponse, HomeSectionKey, ProductSummaryResponse, StoreResponse, ThemeConfig } from '@/lib/types/storefront'
+import { FaqAccordion } from '@/components/storefront/shared/FaqAccordion'
+import type { CategoryResponse, CollectionResponse, HomeSectionKey, ProductSummaryResponse, StoreResponse, ThemeConfig } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
 
 export function Home({
   slug,
   store,
   categories,
+  collections,
+  collectionProducts,
   products,
   tokens,
 }: {
   slug: string
   store: StoreResponse
   categories: CategoryResponse[]
+  collections: CollectionResponse[]
+  collectionProducts: Map<string, ProductSummaryResponse[]>
   products: ProductSummaryResponse[]
   tokens: Required<ThemeConfig>
 }) {
   const categoryNames = new Map(categories.map(c => [c.id, c.name]))
   const landingCategories = getLandingCategories(categories, tokens)
-  const isSplitHero = (tokens.heroLayout === 'imageLeft' || tokens.heroLayout === 'imageRight') && !!tokens.heroImageUrl
-  const isBackgroundHero = tokens.heroLayout === 'background' && !!tokens.heroImageUrl
-  const heightClass = HERO_HEIGHT_CLASS[tokens.heroHeight]
-  const bannerActive = hasBanner(tokens)
-  const bannerStyle = getBannerBackgroundStyle(tokens)
-  const sectionBanner = bannerActive && !isBackgroundHero && (!isSplitHero || tokens.bannerPlacement === 'section')
-  const imageBanner = bannerActive && isSplitHero && tokens.bannerPlacement === 'behindImage'
-  const overlayStyle = getHeroOverlayStyle(tokens)
-  const sectionStyle = sectionBanner
-    ? tokens.bannerType === 'image'
-      ? {
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.75),rgba(255,255,255,0.92)), url(${tokens.bannerUrl})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }
-      : bannerStyle
-    : {}
-  const pos = HERO_TEXT_POSITION_CLASS[tokens.heroTextPosition]
-  const desktopImageFirst = tokens.heroLayout === 'imageLeft'
-  const mobileImageFirst = tokens.heroMobileImagePosition === 'inherit'
-    ? desktopImageFirst
-    : tokens.heroMobileImagePosition === 'top'
-  const imageOrderClass = `${mobileImageFirst ? 'order-1' : 'order-2'} ${desktopImageFirst ? 'md:order-1' : 'md:order-2'}`
-  const textOrderClass = `${mobileImageFirst ? 'order-2' : 'order-1'} ${desktopImageFirst ? 'md:order-2' : 'md:order-1'}`
-  const heroImageHiddenMobile = tokens.heroMobileImage === 'hide'
-  const textAlignClass = getHeroTextAlignClass(tokens)
+  const landingCollections = getLandingCollections(collections, tokens)
+  function buildHero(t: Required<ThemeConfig>) {
+    const isSplitHero = (t.heroLayout === 'imageLeft' || t.heroLayout === 'imageRight') && !!t.heroImageUrl
+    const isBackgroundHero = t.heroLayout === 'background' && !!t.heroImageUrl
+    const heightClass = HERO_HEIGHT_CLASS[t.heroHeight]
+    const bannerActive = hasBanner(t)
+    const bannerStyle = getBannerBackgroundStyle(t)
+    const sectionBanner = bannerActive && !isBackgroundHero && (!isSplitHero || t.bannerPlacement === 'section')
+    const imageBanner = bannerActive && isSplitHero && t.bannerPlacement === 'behindImage'
+    const overlayStyle = getHeroOverlayStyle(t)
+    const sectionStyle = sectionBanner
+      ? t.bannerType === 'image'
+        ? {
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.75),rgba(255,255,255,0.92)), url(${t.bannerUrl})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }
+        : bannerStyle
+      : {}
+    const pos = HERO_TEXT_POSITION_CLASS[t.heroTextPosition]
+    const desktopImageFirst = t.heroLayout === 'imageLeft'
+    const mobileImageFirst = t.heroMobileImagePosition === 'inherit'
+      ? desktopImageFirst
+      : t.heroMobileImagePosition === 'top'
+    const imageOrderClass = `${mobileImageFirst ? 'order-1' : 'order-2'} ${desktopImageFirst ? 'md:order-1' : 'md:order-2'}`
+    const textOrderClass = `${mobileImageFirst ? 'order-2' : 'order-1'} ${desktopImageFirst ? 'md:order-2' : 'md:order-1'}`
+    const heroImageHiddenMobile = t.heroMobileImage === 'hide'
+    const textAlignClass = getHeroTextAlignClass(t)
 
-  const heroText = (
-    <div className={`w-full max-w-xl ${textAlignClass}`}>
-      {tokens.heroEyebrow && (
-        <p className={`italic font-serif ${HERO_EYEBROW_SIZE_CLASS[tokens.heroEyebrowSize]} ${getHeroTextColorClass(tokens, 'eyebrow', 'text-[#767676]')} mb-4`}>{tokens.heroEyebrow}</p>
-      )}
-      <h1 className={`font-serif tracking-tight leading-[0.95] mb-6 ${getHeroTextColorClass(tokens, 'headline', 'text-[#111111]')} ${HERO_HEADLINE_SIZE_CLASS[tokens.heroHeadlineSize]}`}>
-        {tokens.heroHeadline || store.name}
-      </h1>
-      {tokens.heroSubheadline && (
-        <p className={`${getHeroTextColorClass(tokens, 'subheadline', 'text-[#767676]')} ${HERO_SUBHEADLINE_SIZE_CLASS[tokens.heroSubheadlineSize]} mb-9`}>{tokens.heroSubheadline}</p>
-      )}
-      {tokens.heroCtaEnabled && (
-        <Link
-          href={getHeroCtaHref(tokens, categories)}
-          className={`inline-flex items-center justify-center gap-2 border-2 text-xs uppercase tracking-widest font-medium px-8 py-3.5 transition-colors ${
-            tokens.heroTextTheme === 'light'
-              ? 'border-white text-white hover:bg-white hover:text-black'
-              : 'border-black text-[#111111] hover:bg-black hover:text-white'
-          }`}
-        >
-          {getHeroCtaLabel(tokens, 'ყველა პროდუქტის ნახვა')}
-        </Link>
-      )}
-    </div>
-  )
-
-  const heroImage = (
-    <div className={`relative h-full ${imageOrderClass} ${heroImageHiddenMobile ? 'hidden md:block' : ''}`}>
-      {imageBanner && <div className="absolute -inset-4 sm:-inset-6" style={bannerStyle} />}
-      <div className="relative h-full flex items-center justify-center overflow-hidden">
-        <CImg src={tokens.heroImageUrl} cldWidth={1400} alt={tokens.heroHeadline || store.name} className={getHeroImageClass(tokens)} />
+    const heroText = (
+      <div className={`w-full max-w-xl ${textAlignClass}`}>
+        {t.heroEyebrow && (
+          <p className={`italic font-serif ${HERO_EYEBROW_SIZE_CLASS[t.heroEyebrowSize]} ${getHeroTextColorClass(t, 'eyebrow', 'text-[#767676]')} mb-4`}>{t.heroEyebrow}</p>
+        )}
+        <h1 className={`font-serif tracking-tight leading-[0.95] mb-6 ${getHeroTextColorClass(t, 'headline', 'text-[#111111]')} ${HERO_HEADLINE_SIZE_CLASS[t.heroHeadlineSize]}`}>
+          {t.heroHeadline || store.name}
+        </h1>
+        {t.heroSubheadline && (
+          <p className={`${getHeroTextColorClass(t, 'subheadline', 'text-[#767676]')} ${HERO_SUBHEADLINE_SIZE_CLASS[t.heroSubheadlineSize]} mb-9`}>{t.heroSubheadline}</p>
+        )}
+        {t.heroCtaEnabled && (
+          <Link
+            href={getHeroCtaHref(t, categories)}
+            className={`inline-flex items-center justify-center gap-2 border-2 text-xs uppercase tracking-widest font-medium px-8 py-3.5 transition-colors ${
+              t.heroTextTheme === 'light'
+                ? 'border-white text-white hover:bg-white hover:text-black'
+                : 'border-black text-[#111111] hover:bg-black hover:text-white'
+            }`}
+          >
+            {getHeroCtaLabel(t, 'ყველა პროდუქტის ნახვა')}
+          </Link>
+        )}
       </div>
-    </div>
-  )
+    )
+
+    const heroImage = (
+      <div className={`relative h-full ${imageOrderClass} ${heroImageHiddenMobile ? 'hidden md:block' : ''}`}>
+        {imageBanner && <div className="absolute -inset-4 sm:-inset-6" style={bannerStyle} />}
+        <div className="relative h-full flex items-center justify-center overflow-hidden">
+          <CImg src={t.heroImageUrl} cldWidth={1400} alt={t.heroHeadline || store.name} className={getHeroImageClass(t)} />
+        </div>
+      </div>
+    )
+
+    return (
+      <section className="relative overflow-hidden" style={sectionStyle}>
+        {isBackgroundHero ? (
+          <div className={`relative flex flex-col ${pos.wrapper} ${heightClass}`}>
+            <div className="absolute inset-0">
+              <CImg src={t.heroImageUrl} cldWidth={1800} alt={t.heroHeadline || store.name} className={getHeroBackgroundImageClass(t)} />
+              {overlayStyle && <div className="absolute inset-0" style={overlayStyle} />}
+            </div>
+            <div className="relative max-w-6xl mx-auto px-4 sm:px-6 w-full">
+              {heroText}
+            </div>
+          </div>
+        ) : isSplitHero ? (
+          <div className={`relative max-w-6xl mx-auto px-4 sm:px-6 grid md:grid-cols-2 gap-10 md:gap-14 ${heightClass}`}>
+            {heroImage}
+            <div className={`h-full flex flex-col ${pos.wrapper} ${textOrderClass}`}>{heroText}</div>
+          </div>
+        ) : (
+          <div className={`relative max-w-6xl mx-auto px-4 sm:px-6 flex flex-col ${pos.wrapper} ${heightClass}`}>
+            {heroText}
+          </div>
+        )}
+      </section>
+    )
+  }
 
   const featuredProducts = products.slice(0, 8)
 
+  const heroSlideConfigs = tokens.heroSlides.length > 0
+    ? tokens.heroSlides.map(slide => ({
+        ...tokens,
+        heroImageUrl: slide.imageUrl,
+        heroEyebrow: slide.eyebrow,
+        heroHeadline: slide.headline,
+        heroSubheadline: slide.subheadline,
+        heroCtaEnabled: slide.ctaEnabled,
+        heroCtaText: slide.ctaText,
+        heroCtaLinkType: slide.ctaLinkType,
+        heroCtaCategoryId: slide.ctaCategoryId,
+        heroCtaCustomUrl: slide.ctaCustomUrl,
+      }))
+    : [tokens]
+
   const heroSection = (
-    <section key="hero" className="relative overflow-hidden" style={sectionStyle}>
-      {isBackgroundHero ? (
-        <div className={`relative flex flex-col ${pos.wrapper} ${heightClass}`}>
-          <div className="absolute inset-0">
-            <CImg src={tokens.heroImageUrl} cldWidth={1800} alt={tokens.heroHeadline || store.name} className={getHeroBackgroundImageClass(tokens)} />
-            {overlayStyle && <div className="absolute inset-0" style={overlayStyle} />}
-          </div>
-          <div className="relative max-w-6xl mx-auto px-4 sm:px-6 w-full">
-            {heroText}
-          </div>
-        </div>
-      ) : isSplitHero ? (
-        <div className={`relative max-w-6xl mx-auto px-4 sm:px-6 grid md:grid-cols-2 gap-10 md:gap-14 ${heightClass}`}>
-          {heroImage}
-          <div className={`h-full flex flex-col ${pos.wrapper} ${textOrderClass}`}>{heroText}</div>
-        </div>
-      ) : (
-        <div className={`relative max-w-6xl mx-auto px-4 sm:px-6 flex flex-col ${pos.wrapper} ${heightClass}`}>
-          {heroText}
-        </div>
-      )}
-    </section>
+    <div key="hero">
+      <HeroCarousel slides={heroSlideConfigs.map(buildHero)} />
+    </div>
   )
 
   const categoriesSection = landingCategories.length > 0 && (
@@ -165,6 +197,35 @@ export function Home({
     </section>
   )
 
+  const collectionsSection = landingCollections.length > 0 && (
+    <section key="collections" className="border-t border-black/10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 flex flex-col gap-16">
+        {landingCollections.map(collection => (
+          <ProductScrollRow
+            key={collection.id}
+            title={tokens.landingCollectionTitleOverrides[collection.id] || collection.name}
+            viewAllHref={`/products/collection/${collection.slug}`}
+            items={collectionProducts.get(collection.id) ?? []}
+            keyOf={product => product.id}
+            titleClassName="font-serif italic text-3xl text-[#111111]"
+            viewAllClassName="text-xs uppercase tracking-widest text-[#111111] hover:underline underline-offset-4"
+            emptyMessageClassName="text-[#767676] text-sm py-16 text-center"
+            renderItem={product => (
+              <div className="w-48 sm:w-56">
+                <ProductCard
+                  slug={slug}
+                  product={product}
+                  categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
+                  tokens={tokens}
+                />
+              </div>
+            )}
+          />
+        ))}
+      </div>
+    </section>
+  )
+
   const contentSection = hasContentBlock(tokens) && (
     <section key="content" className="border-t border-black/10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
@@ -178,10 +239,26 @@ export function Home({
     </section>
   )
 
+  const faqSection = tokens.showFaqSection && tokens.faqItems.length > 0 && (
+    <section key="faq" className="border-t border-black/10">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
+        <FaqAccordion
+          tokens={tokens}
+          headingClassName="font-serif italic text-2xl sm:text-3xl text-[#111111] mb-6"
+          questionClassName="text-sm text-[#111111]"
+          answerClassName="text-sm text-[#767676] leading-relaxed"
+          borderClassName="divide-black/10"
+        />
+      </div>
+    </section>
+  )
+
   const sections: Record<HomeSectionKey, React.ReactNode> = {
     hero: heroSection,
     categories: categoriesSection,
     products: productsSection,
+    collections: collectionsSection,
+    faq: faqSection,
     content: contentSection,
   }
 

@@ -9,24 +9,29 @@ import { useProductFacets, useProductPriceRange, useProducts } from '@/lib/queri
 import { padPriceBounds, SORT_OPTIONS, sortOptionToQuery, type ProductSortOption } from '@/lib/store/product-search'
 import { useProductListUrlState } from '@/lib/store/use-product-list-url-state'
 import { getSidebarCategories } from '@/lib/store/nav-menu'
-import type { CategoryResponse, ThemeConfig } from '@/lib/types/storefront'
+import type { CategoryResponse, CollectionResponse, ThemeConfig } from '@/lib/types/storefront'
 
 const PAGE_SIZE = 20
 
 export function ProductGrid({
   slug,
   categories,
+  collections = [],
   activeCategorySlug,
+  activeCollectionSlug,
   tokens,
 }: {
   slug: string
   categories: CategoryResponse[]
+  collections?: CollectionResponse[]
   activeCategorySlug?: string
+  activeCollectionSlug?: string
   tokens: Required<ThemeConfig>
 }) {
   const categoryNames = new Map(categories.map(c => [c.id, c.name]))
   const displayCategories = getSidebarCategories(categories, tokens)
   const activeCategoryName = activeCategorySlug ? displayCategories.find(c => c.slug === activeCategorySlug)?.name : undefined
+  const activeCollectionName = activeCollectionSlug ? collections.find(c => c.slug === activeCollectionSlug)?.name : undefined
 
   const {
     searchInput,
@@ -49,6 +54,7 @@ export function ProductGrid({
 
   const { data, isLoading } = useProducts(slug, {
     categorySlug: activeCategorySlug,
+    collectionSlug: activeCollectionSlug,
     page,
     pageSize: PAGE_SIZE,
     search: debouncedSearch || undefined,
@@ -69,7 +75,7 @@ export function ProductGrid({
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">კოლექცია</p>
           <h1 className="flex items-center gap-2 font-black text-3xl text-slate-900 tracking-tight">
             <span className="inline-block w-1.5 h-1.5 shrink-0" style={{ backgroundColor: tokens.accentColor }} aria-hidden />
-            {activeCategoryName ?? 'ყველა პროდუქტი'}
+            {activeCategoryName ?? activeCollectionName ?? 'ყველა პროდუქტი'}
           </h1>
         </div>
 

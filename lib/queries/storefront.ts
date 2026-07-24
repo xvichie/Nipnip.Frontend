@@ -9,6 +9,7 @@ import type {
   CartResponse,
   CategoryResponse,
   CheckoutRequest,
+  CollectionResponse,
   ContactMessageResponse,
   CreateContactMessageRequest,
   OptionFilterInput,
@@ -17,6 +18,7 @@ import type {
   ProductFacetResponse,
   ProductPriceRangeResponse,
   ProductSummaryResponse,
+  StorePageResponse,
   StoreResponse,
   UpdateCartItemRequest,
 } from '@/lib/types/storefront'
@@ -37,8 +39,25 @@ export function useCategories(slug: string) {
   })
 }
 
+export function useCollections(slug: string) {
+  return useQuery({
+    queryKey: ['storefront', slug, 'collections'],
+    queryFn: () => apiFetch<CollectionResponse[]>(`/api/stores/${slug}/collections`, null),
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function usePages(slug: string) {
+  return useQuery({
+    queryKey: ['storefront', slug, 'pages'],
+    queryFn: () => apiFetch<StorePageResponse[]>(`/api/stores/${slug}/pages`, null),
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
 export interface ProductListParams {
   categorySlug?: string
+  collectionSlug?: string
   page?: number
   pageSize?: number
   search?: string
@@ -51,14 +70,15 @@ export interface ProductListParams {
 }
 
 export function useProducts(slug: string, params: ProductListParams = {}) {
-  const { categorySlug, page = 1, pageSize = 20, search, minPrice, maxPrice, sortBy, sortDir, optionFilters } = params
+  const { categorySlug, collectionSlug, page = 1, pageSize = 20, search, minPrice, maxPrice, sortBy, sortDir, optionFilters } = params
   const activeFilters = (optionFilters ?? []).filter(f => f.values.length > 0)
 
   return useQuery({
-    queryKey: ['storefront', slug, 'products', categorySlug, page, pageSize, search, minPrice, maxPrice, sortBy, sortDir, activeFilters],
+    queryKey: ['storefront', slug, 'products', categorySlug, collectionSlug, page, pageSize, search, minPrice, maxPrice, sortBy, sortDir, activeFilters],
     queryFn: () => {
       const qs = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
       if (categorySlug) qs.set('categorySlug', categorySlug)
+      if (collectionSlug) qs.set('collectionSlug', collectionSlug)
       if (search) qs.set('search', search)
       if (minPrice != null) qs.set('minPrice', String(minPrice))
       if (maxPrice != null) qs.set('maxPrice', String(maxPrice))

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { apiFetch } from '@/lib/api'
 import { parseThemeConfig } from '@/lib/store/theme-config'
+import { getLandingCollections } from '@/lib/store/landing-collections'
 import { isThemeId } from '@/lib/storefront-themes'
 import { getStoreUrl } from '@/lib/store/seo'
 import { Home as MinimalHome } from '@/components/storefront/themes/minimal/Home'
@@ -11,7 +12,7 @@ import { Home as VibrantHome } from '@/components/storefront/themes/vibrant/Home
 import { Home as CommerceHome } from '@/components/storefront/themes/commerce/Home'
 import { Home as EditorialHome } from '@/components/storefront/themes/editorial/Home'
 import type { PaginatedResult } from '@/lib/types/shared'
-import type { CategoryResponse, ProductSummaryResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
+import type { CategoryResponse, CollectionResponse, ProductSummaryResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
 const HOME_COMPONENTS = { minimal: MinimalHome, bold: BoldHome, classic: ClassicHome, luxury: LuxuryHome, vibrant: VibrantHome, commerce: CommerceHome, editorial: EditorialHome }
 
@@ -24,9 +25,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function StoreHomePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
 
-  const [store, categories] = await Promise.all([
+  const [store, categories, collections] = await Promise.all([
     apiFetch<StoreResponse>(`/api/stores/${slug}`, null),
     apiFetch<CategoryResponse[]>(`/api/stores/${slug}/categories`, null),
+    apiFetch<CollectionResponse[]>(`/api/stores/${slug}/collections`, null),
   ])
   const tokens = parseThemeConfig(store.themeConfig)
 
@@ -41,8 +43,31 @@ export default async function StoreHomePage({ params }: { params: Promise<{ slug
     products = productsPage.items
   }
 
+  const landingCollections = getLandingCollections(collections, tokens)
+  const collectionProductLists = await Promise.all(
+    landingCollections.map(collection =>
+      apiFetch<PaginatedResult<ProductSummaryResponse>>(
+        `/api/stores/${slug}/products?collectionSlug=${collection.slug}&pageSize=${tokens.landingCollectionProductLimit}`,
+        null
+      )
+    )
+  )
+  const collectionProducts = new Map(
+    landingCollections.map((collection, i) => [collection.id, collectionProductLists[i].items])
+  )
+
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
   const HomeComponent = HOME_COMPONENTS[themeId]
 
-  return <HomeComponent slug={slug} store={store} categories={categories} products={products} tokens={tokens} />
+  return (
+    <HomeComponent
+      slug={slug}
+      store={store}
+      categories={categories}
+      collections={collections}
+      collectionProducts={collectionProducts}
+      products={products}
+      tokens={tokens}
+    />
+  )
 }

@@ -141,6 +141,22 @@ export function Cart({
                 <span className={surface.muted}>სულ</span>
                 <span className={`font-black text-lg ${surface.text}`}>₾{cart.total.toFixed(2)}</span>
               </div>
+              {tokens.freeShippingThreshold != null && cart.total < tokens.freeShippingThreshold && (
+                <div className="mb-6">
+                  <p className={`text-xs mb-2 ${surface.muted}`}>
+                    დაამატეთ კიდევ ₾{(tokens.freeShippingThreshold - cart.total).toFixed(2)} და მიწოდება იქნება უფასო
+                  </p>
+                  <div className={`h-1.5 rounded-full overflow-hidden ${surface.border} border`}>
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{
+                        width: `${Math.min(100, (cart.total / tokens.freeShippingThreshold) * 100)}%`,
+                        backgroundColor: tokens.accentColor,
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
               {hasStockIssue ? (
                 <>
                   <button

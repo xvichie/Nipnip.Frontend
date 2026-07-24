@@ -9,24 +9,29 @@ import { useProductFacets, useProductPriceRange, useProducts } from '@/lib/queri
 import { padPriceBounds, SORT_OPTIONS, sortOptionToQuery, type ProductSortOption } from '@/lib/store/product-search'
 import { useProductListUrlState } from '@/lib/store/use-product-list-url-state'
 import { getSidebarCategories } from '@/lib/store/nav-menu'
-import type { CategoryResponse, ThemeConfig } from '@/lib/types/storefront'
+import type { CategoryResponse, CollectionResponse, ThemeConfig } from '@/lib/types/storefront'
 
 const PAGE_SIZE = 20
 
 export function ProductGrid({
   slug,
   categories,
+  collections = [],
   activeCategorySlug,
+  activeCollectionSlug,
   tokens,
 }: {
   slug: string
   categories: CategoryResponse[]
+  collections?: CollectionResponse[]
   activeCategorySlug?: string
+  activeCollectionSlug?: string
   tokens: Required<ThemeConfig>
 }) {
   const categoryNames = new Map(categories.map(c => [c.id, c.name]))
   const displayCategories = getSidebarCategories(categories, tokens)
   const activeCategoryName = activeCategorySlug ? displayCategories.find(c => c.slug === activeCategorySlug)?.name : undefined
+  const activeCollectionName = activeCollectionSlug ? collections.find(c => c.slug === activeCollectionSlug)?.name : undefined
 
   const {
     searchInput,
@@ -49,6 +54,7 @@ export function ProductGrid({
 
   const { data, isLoading } = useProducts(slug, {
     categorySlug: activeCategorySlug,
+    collectionSlug: activeCollectionSlug,
     page,
     pageSize: PAGE_SIZE,
     search: debouncedSearch || undefined,
@@ -67,7 +73,7 @@ export function ProductGrid({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 pb-24">
         <div className="mb-8">
           <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: tokens.accentColor }}>კოლექცია</p>
-          <h1 className="font-black text-3xl text-[#1a1a1a] tracking-tight">{activeCategoryName ?? 'ყველა პროდუქტი'}</h1>
+          <h1 className="font-black text-3xl text-[#1a1a1a] tracking-tight">{activeCategoryName ?? activeCollectionName ?? 'ყველა პროდუქტი'}</h1>
         </div>
 
         <div className="flex flex-col md:flex-row gap-8">

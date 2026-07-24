@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useMyCategories, useMyPages, useMyProducts, useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
+import { useMyCategories, useMyCollections, useMyPages, useMyProducts, useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { uploadImage } from '@/lib/uploadImage'
 import { BANNER_PATTERNS, DEFAULT_THEME_CONFIG, HERO_TEXT_POSITIONS, parseThemeConfig } from '@/lib/store/theme-config'
 import { getThemeDefinition, isThemeId, SURFACE_CLASSES, THEMES } from '@/lib/storefront-themes'
@@ -35,10 +35,12 @@ import type {
   BannerPlacement,
   BannerType,
   CategoryMenuMode,
+  CategoryResponse,
   CategoryMenuScope,
   FooterContactFormPosition,
   HeroCtaLinkType,
   HeroHeight,
+  HeroSlide,
   HeroImageFit,
   HeroImagePosition,
   HeroLayout,
@@ -60,10 +62,10 @@ const FOOTERS = { minimal: MinimalFooter, bold: BoldFooter, classic: ClassicFoot
 const HOMES = { minimal: MinimalHome, bold: BoldHome, classic: ClassicHome, luxury: LuxuryHome, vibrant: VibrantHome, commerce: CommerceHome, editorial: EditorialHome }
 
 const PLACEHOLDER_PRODUCTS: ProductSummaryResponse[] = [
-  { id: 'preview-1', slug: 'preview-1', categoryId: null, name: 'Sample Product', basePrice: 49.99, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString() },
-  { id: 'preview-2', slug: 'preview-2', categoryId: null, name: 'Another Item', basePrice: 89, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString() },
-  { id: 'preview-3', slug: 'preview-3', categoryId: null, name: 'Best Seller', basePrice: 129.5, salePrice: 99.5, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString() },
-  { id: 'preview-4', slug: 'preview-4', categoryId: null, name: 'New Arrival', basePrice: 34, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString() },
+  { id: 'preview-1', slug: 'preview-1', categoryId: null, name: 'Sample Product', basePrice: 49.99, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
+  { id: 'preview-2', slug: 'preview-2', categoryId: null, name: 'Another Item', basePrice: 89, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
+  { id: 'preview-3', slug: 'preview-3', categoryId: null, name: 'Best Seller', basePrice: 129.5, salePrice: 99.5, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
+  { id: 'preview-4', slug: 'preview-4', categoryId: null, name: 'New Arrival', basePrice: 34, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
 ]
 
 function ImageField({
@@ -142,9 +144,129 @@ function HeroTextSizePicker({ value, onChange }: { value: HeroTextSize; onChange
   )
 }
 
+function HeroSlideFields({
+  slide,
+  index,
+  total,
+  categories,
+  uploading,
+  onFile,
+  onChange,
+  onMove,
+  onRemove,
+}: {
+  slide: HeroSlide
+  index: number
+  total: number
+  categories: CategoryResponse[]
+  uploading: boolean
+  onFile: (file: File) => void
+  onChange: <K extends keyof HeroSlide>(field: K, value: HeroSlide[K]) => void
+  onMove: (direction: -1 | 1) => void
+  onRemove: () => void
+}) {
+  return (
+    <div className="rounded-xl border border-white/7 bg-white/2 p-4 flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-white/40 uppercase tracking-wider">Slide {index + 1}</span>
+        <div className="flex items-center gap-1">
+          <button type="button" onClick={() => onMove(-1)} disabled={index === 0} className="btn btn-xs btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white disabled:opacity-20">↑</button>
+          <button type="button" onClick={() => onMove(1)} disabled={index === total - 1} className="btn btn-xs btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white disabled:opacity-20">↓</button>
+          <button type="button" onClick={onRemove} className="btn btn-xs btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white">✕</button>
+        </div>
+      </div>
+
+      <ImageField label="Image" value={slide.imageUrl} uploading={uploading} onFile={onFile} onClear={() => onChange('imageUrl', '')} />
+
+      <div className="fieldset gap-2">
+        <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Eyebrow</label>
+        <input type="text" value={slide.eyebrow} onChange={e => onChange('eyebrow', e.target.value)} className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60" />
+      </div>
+
+      <div className="fieldset gap-2">
+        <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Headline</label>
+        <input type="text" value={slide.headline} onChange={e => onChange('headline', e.target.value)} className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60" />
+      </div>
+
+      <div className="fieldset gap-2">
+        <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Subheadline</label>
+        <textarea value={slide.subheadline} onChange={e => onChange('subheadline', e.target.value)} rows={2} className="textarea textarea-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 resize-none" />
+      </div>
+
+      <label className="flex items-center justify-between gap-3 cursor-pointer">
+        <span className="text-sm text-white/70">Show button</span>
+        <input
+          type="checkbox"
+          checked={slide.ctaEnabled}
+          onChange={e => onChange('ctaEnabled', e.target.checked)}
+          className={`toggle toggle-sm ${slide.ctaEnabled ? 'toggle-success' : 'toggle-error'}`}
+        />
+      </label>
+
+      {slide.ctaEnabled && (
+        <>
+          <div className="fieldset gap-2">
+            <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Button text</label>
+            <input type="text" value={slide.ctaText} onChange={e => onChange('ctaText', e.target.value)} placeholder="ყველა პროდუქტის ნახვა" className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60" />
+          </div>
+
+          <div className="fieldset gap-2">
+            <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Sends visitors to</label>
+            <div className="grid grid-cols-3 gap-2">
+              {([
+                { value: 'products', label: 'All products' },
+                { value: 'category', label: 'A category' },
+                { value: 'custom', label: 'Custom link' },
+              ] as { value: HeroCtaLinkType; label: string }[]).map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => onChange('ctaLinkType', opt.value)}
+                  className={[
+                    'rounded-lg border px-2 py-1.5 text-[11px] font-medium text-center transition-colors',
+                    slide.ctaLinkType === opt.value
+                      ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                      : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                  ].join(' ')}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {slide.ctaLinkType === 'category' && (
+              <select
+                value={slide.ctaCategoryId}
+                onChange={e => onChange('ctaCategoryId', e.target.value)}
+                className="select select-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 mt-1"
+              >
+                <option value="">Choose a category…</option>
+                {categories.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            )}
+
+            {slide.ctaLinkType === 'custom' && (
+              <input
+                type="text"
+                value={slide.ctaCustomUrl}
+                onChange={e => onChange('ctaCustomUrl', e.target.value)}
+                placeholder="/products/category/shoes or https://…"
+                className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 mt-1"
+              />
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
 export default function StoreDesignPage() {
   const { data: store, isLoading } = useMyStore()
   const { data: categories } = useMyCategories()
+  const { data: collections } = useMyCollections()
   const { data: pages } = useMyPages()
   const { data: productsPage, isLoading: productsLoading } = useMyProducts({ page: 1, pageSize: 8 })
   const { mutate: updateStore, isPending, error } = useUpdateMyStore()
@@ -158,6 +280,8 @@ export default function StoreDesignPage() {
   const [accentColor, setAccentColor] = useState(DEFAULT_THEME_CONFIG.accentColor)
   const [font, setFont] = useState<Required<ThemeConfig>['font']>(DEFAULT_THEME_CONFIG.font)
   const [logoUrl, setLogoUrl] = useState('')
+  const [faviconUrl, setFaviconUrl] = useState('')
+  const [socialImageUrl, setSocialImageUrl] = useState('')
   const [showStoreName, setShowStoreName] = useState(DEFAULT_THEME_CONFIG.showStoreName)
   const [heroImageUrl, setHeroImageUrl] = useState('')
   const [heroImageFit, setHeroImageFit] = useState<HeroImageFit>(DEFAULT_THEME_CONFIG.heroImageFit)
@@ -208,6 +332,14 @@ export default function StoreDesignPage() {
   const [landingCategoryScope, setLandingCategoryScope] = useState<CategoryMenuScope>(DEFAULT_THEME_CONFIG.landingCategoryScope)
   const [landingCategorySelectedIds, setLandingCategorySelectedIds] = useState<string[]>(DEFAULT_THEME_CONFIG.landingCategorySelectedIds)
   const [landingCategoryColumns, setLandingCategoryColumns] = useState<LandingCategoryColumns>(DEFAULT_THEME_CONFIG.landingCategoryColumns)
+  // Edited on the Layout tab, not here — kept in sync so this page's own preview/save still
+  // reflects it accurately.
+  const [showLandingCollections, setShowLandingCollections] = useState(DEFAULT_THEME_CONFIG.showLandingCollections)
+  const [landingCollectionScope, setLandingCollectionScope] = useState(DEFAULT_THEME_CONFIG.landingCollectionScope)
+  const [landingCollectionSelectedIds, setLandingCollectionSelectedIds] = useState(DEFAULT_THEME_CONFIG.landingCollectionSelectedIds)
+  const [landingCollectionOrder, setLandingCollectionOrder] = useState(DEFAULT_THEME_CONFIG.landingCollectionOrder)
+  const [landingCollectionTitleOverrides, setLandingCollectionTitleOverrides] = useState(DEFAULT_THEME_CONFIG.landingCollectionTitleOverrides)
+  const [landingCollectionProductLimit, setLandingCollectionProductLimit] = useState(DEFAULT_THEME_CONFIG.landingCollectionProductLimit)
   const [footerContactForm, setFooterContactForm] = useState<FooterContactFormPosition>(DEFAULT_THEME_CONFIG.footerContactForm)
   const [showContactInNav, setShowContactInNav] = useState(DEFAULT_THEME_CONFIG.showContactInNav)
   const [contactLabel, setContactLabel] = useState(DEFAULT_THEME_CONFIG.contactLabel)
@@ -245,7 +377,44 @@ export default function StoreDesignPage() {
   const [cityPayEnabled, setCityPayEnabled] = useState(DEFAULT_THEME_CONFIG.cityPayEnabled)
   const [shippingZones, setShippingZones] = useState(DEFAULT_THEME_CONFIG.shippingZones)
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(DEFAULT_THEME_CONFIG.freeShippingThreshold)
+  // Edited on the Layout tab, not here — kept in sync so this page's own preview/save still
+  // reflects it accurately.
+  const [footerCopyrightText, setFooterCopyrightText] = useState(DEFAULT_THEME_CONFIG.footerCopyrightText)
+  const [showPlatformAttribution, setShowPlatformAttribution] = useState(DEFAULT_THEME_CONFIG.showPlatformAttribution)
+  const [footerShowPaymentIcons, setFooterShowPaymentIcons] = useState(DEFAULT_THEME_CONFIG.footerShowPaymentIcons)
+  const [footerShowLogo, setFooterShowLogo] = useState(DEFAULT_THEME_CONFIG.footerShowLogo)
+  const [footerLinkColumns, setFooterLinkColumns] = useState(DEFAULT_THEME_CONFIG.footerLinkColumns)
+  const [lowStockThreshold, setLowStockThreshold] = useState(DEFAULT_THEME_CONFIG.lowStockThreshold)
+  const [lowStockMessage, setLowStockMessage] = useState(DEFAULT_THEME_CONFIG.lowStockMessage)
+  const [showRelatedProducts, setShowRelatedProducts] = useState(DEFAULT_THEME_CONFIG.showRelatedProducts)
+  const [relatedProductsHeading, setRelatedProductsHeading] = useState(DEFAULT_THEME_CONFIG.relatedProductsHeading)
+  const [deliveryEstimateText, setDeliveryEstimateText] = useState(DEFAULT_THEME_CONFIG.deliveryEstimateText)
+  const [trustBadges, setTrustBadges] = useState(DEFAULT_THEME_CONFIG.trustBadges)
+  const [sizeGuideContent, setSizeGuideContent] = useState(DEFAULT_THEME_CONFIG.sizeGuideContent)
+  const [offlineMode, setOfflineMode] = useState(DEFAULT_THEME_CONFIG.offlineMode)
+  const [offlineMessage, setOfflineMessage] = useState(DEFAULT_THEME_CONFIG.offlineMessage)
+  const [offlineReopenDate, setOfflineReopenDate] = useState(DEFAULT_THEME_CONFIG.offlineReopenDate)
+  // Edited on the Layout tab, not here — kept in sync so this page's own preview/save still
+  // reflects it accurately.
+  const [checkoutNotesEnabled, setCheckoutNotesEnabled] = useState(DEFAULT_THEME_CONFIG.checkoutNotesEnabled)
+  const [checkoutTosEnabled, setCheckoutTosEnabled] = useState(DEFAULT_THEME_CONFIG.checkoutTosEnabled)
+  const [checkoutTosPageId, setCheckoutTosPageId] = useState(DEFAULT_THEME_CONFIG.checkoutTosPageId)
+  const [checkoutThankYouHeading, setCheckoutThankYouHeading] = useState(DEFAULT_THEME_CONFIG.checkoutThankYouHeading)
+  const [checkoutThankYouMessage, setCheckoutThankYouMessage] = useState(DEFAULT_THEME_CONFIG.checkoutThankYouMessage)
+  const [showFaqSection, setShowFaqSection] = useState(DEFAULT_THEME_CONFIG.showFaqSection)
+  const [faqHeading, setFaqHeading] = useState(DEFAULT_THEME_CONFIG.faqHeading)
+  const [faqItems, setFaqItems] = useState(DEFAULT_THEME_CONFIG.faqItems)
+  const [showStickyMobileCta, setShowStickyMobileCta] = useState(DEFAULT_THEME_CONFIG.showStickyMobileCta)
+  const [storeHoursEnabled, setStoreHoursEnabled] = useState(DEFAULT_THEME_CONFIG.storeHoursEnabled)
+  const [storeHours, setStoreHours] = useState(DEFAULT_THEME_CONFIG.storeHours)
+  // Edited here on this page (Header + Hero Slides sections below).
+  const [headerSticky, setHeaderSticky] = useState(DEFAULT_THEME_CONFIG.headerSticky)
+  const [headerBackgroundColor, setHeaderBackgroundColor] = useState(DEFAULT_THEME_CONFIG.headerBackgroundColor)
+  const [heroSlides, setHeroSlides] = useState(DEFAULT_THEME_CONFIG.heroSlides)
+  const [heroSlideUploading, setHeroSlideUploading] = useState<Record<number, boolean>>({})
   const [logoUploading, setLogoUploading] = useState(false)
+  const [faviconUploading, setFaviconUploading] = useState(false)
+  const [socialImageUploading, setSocialImageUploading] = useState(false)
   const [heroImageUploading, setHeroImageUploading] = useState(false)
   const [bannerUploading, setBannerUploading] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -264,6 +433,8 @@ export default function StoreDesignPage() {
     setAccentColor(parsed.accentColor)
     setFont(parsed.font)
     setLogoUrl(parsed.logoUrl)
+    setFaviconUrl(parsed.faviconUrl)
+    setSocialImageUrl(parsed.socialImageUrl)
     setShowStoreName(parsed.showStoreName)
     setHeroImageUrl(parsed.heroImageUrl)
     setHeroImageFit(parsed.heroImageFit)
@@ -314,6 +485,12 @@ export default function StoreDesignPage() {
     setLandingCategoryScope(parsed.landingCategoryScope)
     setLandingCategorySelectedIds(parsed.landingCategorySelectedIds)
     setLandingCategoryColumns(parsed.landingCategoryColumns)
+    setShowLandingCollections(parsed.showLandingCollections)
+    setLandingCollectionScope(parsed.landingCollectionScope)
+    setLandingCollectionSelectedIds(parsed.landingCollectionSelectedIds)
+    setLandingCollectionOrder(parsed.landingCollectionOrder)
+    setLandingCollectionTitleOverrides(parsed.landingCollectionTitleOverrides)
+    setLandingCollectionProductLimit(parsed.landingCollectionProductLimit)
     setFooterContactForm(parsed.footerContactForm)
     setShowContactInNav(parsed.showContactInNav)
     setContactLabel(parsed.contactLabel)
@@ -348,6 +525,35 @@ export default function StoreDesignPage() {
     setCityPayEnabled(parsed.cityPayEnabled)
     setShippingZones(parsed.shippingZones)
     setFreeShippingThreshold(parsed.freeShippingThreshold)
+    setFooterCopyrightText(parsed.footerCopyrightText)
+    setShowPlatformAttribution(parsed.showPlatformAttribution)
+    setFooterShowPaymentIcons(parsed.footerShowPaymentIcons)
+    setFooterShowLogo(parsed.footerShowLogo)
+    setFooterLinkColumns(parsed.footerLinkColumns)
+    setLowStockThreshold(parsed.lowStockThreshold)
+    setLowStockMessage(parsed.lowStockMessage)
+    setShowRelatedProducts(parsed.showRelatedProducts)
+    setRelatedProductsHeading(parsed.relatedProductsHeading)
+    setDeliveryEstimateText(parsed.deliveryEstimateText)
+    setTrustBadges(parsed.trustBadges)
+    setSizeGuideContent(parsed.sizeGuideContent)
+    setOfflineMode(parsed.offlineMode)
+    setOfflineMessage(parsed.offlineMessage)
+    setOfflineReopenDate(parsed.offlineReopenDate)
+    setCheckoutNotesEnabled(parsed.checkoutNotesEnabled)
+    setCheckoutTosEnabled(parsed.checkoutTosEnabled)
+    setCheckoutTosPageId(parsed.checkoutTosPageId)
+    setCheckoutThankYouHeading(parsed.checkoutThankYouHeading)
+    setCheckoutThankYouMessage(parsed.checkoutThankYouMessage)
+    setShowFaqSection(parsed.showFaqSection)
+    setFaqHeading(parsed.faqHeading)
+    setFaqItems(parsed.faqItems)
+    setShowStickyMobileCta(parsed.showStickyMobileCta)
+    setStoreHoursEnabled(parsed.storeHoursEnabled)
+    setStoreHours(parsed.storeHours)
+    setHeaderSticky(parsed.headerSticky)
+    setHeaderBackgroundColor(parsed.headerBackgroundColor)
+    setHeroSlides(parsed.heroSlides)
   }
 
   useEffect(() => {
@@ -380,6 +586,28 @@ export default function StoreDesignPage() {
     }
   }
 
+  async function handleFaviconFile(file: File) {
+    setFaviconUploading(true)
+    try {
+      setFaviconUrl(await uploadImage(file))
+    } catch {
+      // keep previous favicon on failure
+    } finally {
+      setFaviconUploading(false)
+    }
+  }
+
+  async function handleSocialImageFile(file: File) {
+    setSocialImageUploading(true)
+    try {
+      setSocialImageUrl(await uploadImage(file))
+    } catch {
+      // keep previous image on failure
+    } finally {
+      setSocialImageUploading(false)
+    }
+  }
+
   async function handleHeroImageFile(file: File) {
     setHeroImageUploading(true)
     try {
@@ -388,6 +616,50 @@ export default function StoreDesignPage() {
       // keep previous hero image on failure
     } finally {
       setHeroImageUploading(false)
+    }
+  }
+
+  function addHeroSlide() {
+    setHeroSlides(prev => [...prev, {
+      imageUrl: '',
+      eyebrow: '',
+      headline: '',
+      subheadline: '',
+      ctaEnabled: true,
+      ctaText: '',
+      ctaLinkType: 'products',
+      ctaCategoryId: '',
+      ctaCustomUrl: '',
+    }])
+  }
+
+  function removeHeroSlide(index: number) {
+    setHeroSlides(prev => prev.filter((_, i) => i !== index))
+  }
+
+  function moveHeroSlide(index: number, direction: -1 | 1) {
+    setHeroSlides(prev => {
+      const nextIndex = index + direction
+      if (nextIndex < 0 || nextIndex >= prev.length) return prev
+      const next = [...prev]
+      ;[next[index], next[nextIndex]] = [next[nextIndex], next[index]]
+      return next
+    })
+  }
+
+  function updateHeroSlide<K extends keyof HeroSlide>(index: number, field: K, value: HeroSlide[K]) {
+    setHeroSlides(prev => prev.map((slide, i) => (i === index ? { ...slide, [field]: value } : slide)))
+  }
+
+  async function handleHeroSlideImageFile(index: number, file: File) {
+    setHeroSlideUploading(prev => ({ ...prev, [index]: true }))
+    try {
+      const url = await uploadImage(file)
+      updateHeroSlide(index, 'imageUrl', url)
+    } catch {
+      // keep previous slide image on failure
+    } finally {
+      setHeroSlideUploading(prev => ({ ...prev, [index]: false }))
     }
   }
 
@@ -460,6 +732,12 @@ export default function StoreDesignPage() {
           landingCategoryScope,
           landingCategorySelectedIds,
           landingCategoryColumns,
+          showLandingCollections,
+          landingCollectionScope,
+          landingCollectionSelectedIds,
+          landingCollectionOrder,
+          landingCollectionTitleOverrides,
+          landingCollectionProductLimit,
           footerContactForm,
           showContactInNav,
           contactLabel: contactLabel.trim() || undefined,
@@ -494,6 +772,37 @@ export default function StoreDesignPage() {
           cityPayEnabled,
           shippingZones,
           freeShippingThreshold,
+          footerCopyrightText: footerCopyrightText.trim() || undefined,
+          showPlatformAttribution,
+          footerShowPaymentIcons,
+          footerShowLogo,
+          footerLinkColumns,
+          lowStockThreshold,
+          lowStockMessage: lowStockMessage.trim() || undefined,
+          showRelatedProducts,
+          relatedProductsHeading: relatedProductsHeading.trim() || undefined,
+          deliveryEstimateText: deliveryEstimateText.trim() || undefined,
+          trustBadges,
+          sizeGuideContent: sizeGuideContent.trim() || undefined,
+          offlineMode,
+          offlineMessage: offlineMessage.trim() || undefined,
+          offlineReopenDate,
+          checkoutNotesEnabled,
+          checkoutTosEnabled,
+          checkoutTosPageId,
+          checkoutThankYouHeading: checkoutThankYouHeading.trim() || undefined,
+          checkoutThankYouMessage: checkoutThankYouMessage.trim() || undefined,
+          showFaqSection,
+          faqHeading: faqHeading.trim() || undefined,
+          faqItems,
+          showStickyMobileCta,
+          storeHoursEnabled,
+          storeHours,
+          headerSticky,
+          headerBackgroundColor,
+          heroSlides,
+          faviconUrl,
+          socialImageUrl,
         }),
       },
       { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
@@ -563,6 +872,12 @@ export default function StoreDesignPage() {
     landingCategoryScope,
     landingCategorySelectedIds,
     landingCategoryColumns,
+    showLandingCollections,
+    landingCollectionScope,
+    landingCollectionSelectedIds,
+    landingCollectionOrder,
+    landingCollectionTitleOverrides,
+    landingCollectionProductLimit,
     footerContactForm,
     showContactInNav,
     contactLabel,
@@ -597,10 +912,49 @@ export default function StoreDesignPage() {
     cityPayEnabled,
     shippingZones,
     freeShippingThreshold,
+    footerCopyrightText,
+    showPlatformAttribution,
+    footerShowPaymentIcons,
+    footerShowLogo,
+    footerLinkColumns,
+    lowStockThreshold,
+    lowStockMessage,
+    showRelatedProducts,
+    relatedProductsHeading,
+    deliveryEstimateText,
+    trustBadges,
+    sizeGuideContent,
+    offlineMode,
+    offlineMessage,
+    offlineReopenDate,
+    checkoutNotesEnabled,
+    checkoutTosEnabled,
+    checkoutTosPageId,
+    checkoutThankYouHeading,
+    checkoutThankYouMessage,
+    showFaqSection,
+    faqHeading,
+    faqItems,
+    showStickyMobileCta,
+    storeHoursEnabled,
+    storeHours,
+    headerSticky,
+    headerBackgroundColor,
+    heroSlides,
+    faviconUrl,
+    socialImageUrl,
   }
   const previewProducts = productsPage?.items.length
     ? productsPage.items
     : productsLoading ? [] : PLACEHOLDER_PRODUCTS
+  // Preview approximation only — built from the same small already-fetched page of products
+  // rather than a per-collection network request (Collections aren't configured on this tab).
+  const collectionProducts = new Map(
+    (collections ?? []).map(collection => [
+      collection.id,
+      previewProducts.filter(p => p.collectionIds.includes(collection.id)),
+    ])
+  )
   const HeaderPreview = HEADERS[themeId]
   const FooterPreview = FOOTERS[themeId]
   const HomePreview = HOMES[themeId]
@@ -613,6 +967,8 @@ export default function StoreDesignPage() {
         slug={store.slug}
         store={store}
         categories={categories ?? []}
+        collections={collections ?? []}
+        collectionProducts={collectionProducts}
         products={previewProducts}
         tokens={tokens}
       />
@@ -802,6 +1158,10 @@ export default function StoreDesignPage() {
                 <span className="text-sm text-white/70">Show store name next to logo</span>
               </label>
             )}
+            <ImageField label="Favicon" value={faviconUrl} uploading={faviconUploading} onFile={handleFaviconFile} onClear={() => setFaviconUrl('')} />
+            <p className="text-white/30 text-xs -mt-3">Browser-tab icon. Use a square image — falls back to your logo if left empty.</p>
+            <ImageField label="Social Share Image" value={socialImageUrl} uploading={socialImageUploading} onFile={handleSocialImageFile} onClear={() => setSocialImageUrl('')} />
+            <p className="text-white/30 text-xs -mt-3">Shown when your store link is shared on social media or messaging apps. Falls back to your hero image or logo if left empty.</p>
             <ImageField label="Hero Image" value={heroImageUrl} uploading={heroImageUploading} onFile={handleHeroImageFile} onClear={() => setHeroImageUrl('')} />
             <p className="text-white/30 text-xs -mt-3">Shown next to your hero text when Layout below is set to Image left/right.</p>
 
@@ -863,6 +1223,48 @@ export default function StoreDesignPage() {
                 )}
               </>
             )}
+          </div>
+
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Header</h2>
+
+            <label className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer">
+              <span className="text-sm text-white/70">Sticky header (stays visible while scrolling)</span>
+              <input
+                type="checkbox"
+                checked={headerSticky}
+                onChange={e => setHeaderSticky(e.target.checked)}
+                className={`toggle toggle-sm ${headerSticky ? 'toggle-success' : ''}`}
+              />
+            </label>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Header background color</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={/^#[0-9a-fA-F]{6}$/.test(headerBackgroundColor) ? headerBackgroundColor : '#ffffff'}
+                  onChange={e => setHeaderBackgroundColor(e.target.value)}
+                  className="w-9 h-9 rounded-lg border border-white/10 bg-transparent cursor-pointer shrink-0"
+                />
+                <input
+                  type="text"
+                  value={headerBackgroundColor}
+                  onChange={e => setHeaderBackgroundColor(e.target.value)}
+                  placeholder="Leave empty for the theme default"
+                  className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                />
+                {headerBackgroundColor && (
+                  <button
+                    type="button"
+                    onClick={() => setHeaderBackgroundColor('')}
+                    className="btn btn-sm btn-circle bg-white/4 border-white/10 text-white/50 hover:text-white shrink-0"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
@@ -1316,6 +1718,43 @@ export default function StoreDesignPage() {
                 </div>
               </>
             )}
+          </div>
+
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+            <div>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Hero Slides</h2>
+              <p className="text-white/30 text-xs mt-1">
+                Optional — add 2 or more slides to turn the hero above into an auto-advancing carousel. Layout, height, and
+                text position stay as set above; each slide gets its own image, text, and button.
+              </p>
+            </div>
+
+            {heroSlides.length > 0 && (
+              <div className="flex flex-col gap-3">
+                {heroSlides.map((slide, i) => (
+                  <HeroSlideFields
+                    key={i}
+                    slide={slide}
+                    index={i}
+                    total={heroSlides.length}
+                    categories={categories ?? []}
+                    uploading={!!heroSlideUploading[i]}
+                    onFile={file => handleHeroSlideImageFile(i, file)}
+                    onChange={(field, value) => updateHeroSlide(i, field, value)}
+                    onMove={direction => moveHeroSlide(i, direction)}
+                    onRemove={() => removeHeroSlide(i)}
+                  />
+                ))}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={addHeroSlide}
+              className="btn btn-sm self-start bg-white/4 border-white/10 text-white/60 hover:text-white"
+            >
+              + Slide
+            </button>
           </div>
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">

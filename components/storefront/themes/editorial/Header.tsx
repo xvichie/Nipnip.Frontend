@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { getNavCategories, getNavPages } from '@/lib/store/nav-menu'
+import { StoreHoursBadge } from '@/components/storefront/shared/StoreHoursBadge'
 import type { CategoryResponse, StorePageResponse, ThemeConfig } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
 
@@ -49,10 +50,14 @@ export function Header({
   const hasNav = navCategories.length > 0 || navPages.length > 0 || tokens.showContactInNav
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-black/10">
+    <header
+      className={`${tokens.headerSticky ? 'sticky top-0' : ''} z-50 bg-white border-b border-black/10`}
+      style={{ backgroundColor: tokens.headerBackgroundColor || undefined }}
+    >
       {/* thin utility row */}
       <div className="hidden sm:block border-b border-black/10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-8 flex items-center justify-end">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-8 flex items-center justify-end gap-4">
+          {tokens.storeHoursEnabled && <StoreHoursBadge tokens={tokens} />}
           <span className="text-[10px] uppercase tracking-widest text-[#767676]">{storeName}</span>
         </div>
       </div>

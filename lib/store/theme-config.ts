@@ -55,6 +55,12 @@ export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   landingCategoryScope: 'all',
   landingCategorySelectedIds: [],
   landingCategoryColumns: 4,
+  showLandingCollections: true,
+  landingCollectionScope: 'all',
+  landingCollectionSelectedIds: [],
+  landingCollectionOrder: [],
+  landingCollectionTitleOverrides: {},
+  landingCollectionProductLimit: 12,
   footerContactForm: 'off',
   showContactInNav: false,
   contactLabel: 'კონტაქტი',
@@ -89,6 +95,45 @@ export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   cityPayEnabled: false,
   shippingZones: [],
   freeShippingThreshold: null,
+  footerCopyrightText: '',
+  showPlatformAttribution: true,
+  footerShowPaymentIcons: false,
+  footerShowLogo: false,
+  faviconUrl: '',
+  socialImageUrl: '',
+  footerLinkColumns: [],
+  lowStockThreshold: null,
+  lowStockMessage: '',
+  showRelatedProducts: true,
+  relatedProductsHeading: '',
+  deliveryEstimateText: '',
+  trustBadges: [],
+  sizeGuideContent: '',
+  offlineMode: 'closed',
+  offlineMessage: '',
+  offlineReopenDate: null,
+  checkoutNotesEnabled: false,
+  checkoutTosEnabled: false,
+  checkoutTosPageId: '',
+  checkoutThankYouHeading: '',
+  checkoutThankYouMessage: '',
+  headerSticky: true,
+  headerBackgroundColor: '',
+  showFaqSection: false,
+  faqHeading: '',
+  faqItems: [],
+  showStickyMobileCta: true,
+  storeHoursEnabled: false,
+  storeHours: [
+    { day: 0, open: '09:00', close: '18:00', closed: false },
+    { day: 1, open: '09:00', close: '18:00', closed: false },
+    { day: 2, open: '09:00', close: '18:00', closed: false },
+    { day: 3, open: '09:00', close: '18:00', closed: false },
+    { day: 4, open: '09:00', close: '18:00', closed: false },
+    { day: 5, open: '09:00', close: '18:00', closed: false },
+    { day: 6, open: '09:00', close: '18:00', closed: false },
+  ],
+  heroSlides: [],
 }
 
 export function parseThemeConfig(raw: string): Required<ThemeConfig> {
@@ -100,7 +145,7 @@ export function parseThemeConfig(raw: string): Required<ThemeConfig> {
   }
 }
 
-export const HOME_SECTION_KEYS: Required<ThemeConfig>['homeSectionOrder'] = ['hero', 'categories', 'products', 'content']
+export const HOME_SECTION_KEYS: Required<ThemeConfig>['homeSectionOrder'] = ['hero', 'categories', 'products', 'collections', 'faq', 'content']
 
 // Sanitizes tokens.homeSectionOrder against unknown/duplicate entries (e.g. hand-edited JSON).
 // Deliberately does NOT re-add sections missing from the array — a section absent from the

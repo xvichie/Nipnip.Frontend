@@ -24,6 +24,7 @@ import { Header as EditorialHeader } from '@/components/storefront/themes/editor
 import { Footer as EditorialFooter } from '@/components/storefront/themes/editorial/Footer'
 import { SocialBar } from '@/components/storefront/shared/SocialBar'
 import { AnnouncementBar } from '@/components/storefront/shared/AnnouncementBar'
+import { StoreOfflinePage } from '@/components/storefront/shared/StoreOfflinePage'
 import { isCurrentUserAdmin } from '@/lib/server/is-admin'
 import type { CategoryResponse, StorePageResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
@@ -39,8 +40,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   } catch {
     return {}
   }
-  if (!store.isActive) return {}
   if (store.isProspect && !(await isCurrentUserAdmin())) return {}
+  if (!store.isActive) return { title: store.name, robots: { index: false, follow: false } }
 
   const tokens = parseThemeConfig(store.themeConfig)
   const url = getStoreOrigin(slug, store.customDomain)
@@ -65,7 +66,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description,
       images: ogImage ? [ogImage] : undefined,
     },
-    icons: tokens.logoUrl ? { icon: tokens.logoUrl } : undefined,
+    icons: (tokens.faviconUrl || tokens.logoUrl) ? { icon: tokens.faviconUrl || tokens.logoUrl } : undefined,
   }
 }
 
@@ -86,18 +87,24 @@ export default async function StoreLayout({
     throw err
   }
 
-  if (!store.isActive) notFound()
-
   // Admin sales-demo store — not a real customer yet, so it must never be reachable on its
   // real slug/subdomain (or the /preview alias, which rewrites here) by anyone but a signed-in
   // admin. This is the single authoritative check for both access paths.
   if (store.isProspect && !(await isCurrentUserAdmin())) notFound()
 
+  const tokens = parseThemeConfig(store.themeConfig)
+
+  // A branded "closed"/"coming soon" notice instead of a bare 404 — merchant-configurable via
+  // the Store Overview page. Skips the categories/pages fetch and the full Header/Footer/cart
+  // tree entirely, since there's no real storefront to browse while offline.
+  if (!store.isActive) {
+    return <StoreOfflinePage store={store} tokens={tokens} />
+  }
+
   const [categories, pages] = await Promise.all([
     apiFetch<CategoryResponse[]>(`/api/stores/${slug}/categories`, null),
     apiFetch<StorePageResponse[]>(`/api/stores/${slug}/pages`, null),
   ])
-  const tokens = parseThemeConfig(store.themeConfig)
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
   // Admin-authored only (written exclusively through the AdminOnly-gated admin API) — trusted
   // content, hence the raw <style>/dangerouslySetInnerHTML below.

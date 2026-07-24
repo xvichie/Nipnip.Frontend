@@ -5,8 +5,10 @@ import { useAuth, useUser } from '@clerk/nextjs'
 import { apiFetch } from '@/lib/api'
 import type {
   CategoryResponse,
+  CollectionResponse,
   ContactMessageResponse,
   CreateCategoryRequest,
+  CreateCollectionRequest,
   CreateOrderNoteRequest,
   CreateProductImageRequest,
   CreateProductOptionRequest,
@@ -25,6 +27,7 @@ import type {
   ProductSummaryResponse,
   ProductVariantResponse,
   ReorderProductImagesRequest,
+  SetCollectionProductsRequest,
   SetRelatedProductsRequest,
   SetStoreDomainRequest,
   StoreDomainResponse,
@@ -34,6 +37,7 @@ import type {
   UnreadContactMessageCountResponse,
   UpdatePaymentConfirmedRequest,
   UpdateCategoryRequest,
+  UpdateCollectionRequest,
   UpdateProductRequest,
   UpdateProductVariantRequest,
   UpdateStorePageRequest,
@@ -170,6 +174,90 @@ export function useDeleteCategory() {
       await apiFetch<void>(`/api/stores/me/categories/${id}`, token, { method: 'DELETE' })
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'categories'] }),
+  })
+}
+
+// --- Collections ---
+
+export function useMyCollections() {
+  const { getToken } = useAuth()
+  const { isLoaded, isSignedIn } = useUser()
+  return useQuery({
+    queryKey: ['storefront-admin', 'collections'],
+    queryFn: async () => {
+      const token = await getToken()
+      return apiFetch<CollectionResponse[]>('/api/stores/me/collections', token)
+    },
+    enabled: isLoaded && !!isSignedIn,
+  })
+}
+
+export function useCreateCollection() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (body: CreateCollectionRequest) => {
+      const token = await getToken()
+      return apiFetch<CollectionResponse>('/api/stores/me/collections', token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'collections'] }),
+  })
+}
+
+export function useUpdateCollection() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, body }: { id: string; body: UpdateCollectionRequest }) => {
+      const token = await getToken()
+      return apiFetch<CollectionResponse>(`/api/stores/me/collections/${id}`, token, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'collections'] }),
+  })
+}
+
+export function useDeleteCollection() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const token = await getToken()
+      await apiFetch<void>(`/api/stores/me/collections/${id}`, token, { method: 'DELETE' })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'collections'] }),
+  })
+}
+
+export function useCollectionProducts(collectionId: string) {
+  const { getToken } = useAuth()
+  return useQuery({
+    queryKey: ['storefront-admin', 'collection', collectionId, 'products'],
+    queryFn: async () => {
+      const token = await getToken()
+      return apiFetch<ProductSummaryResponse[]>(`/api/stores/me/collections/${collectionId}/products`, token)
+    },
+    enabled: !!collectionId,
+  })
+}
+
+export function useSetCollectionProducts(collectionId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (body: SetCollectionProductsRequest) => {
+      const token = await getToken()
+      return apiFetch<ProductSummaryResponse[]>(`/api/stores/me/collections/${collectionId}/products`, token, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'collection', collectionId, 'products'] }),
   })
 }
 
