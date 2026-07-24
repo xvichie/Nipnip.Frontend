@@ -28,11 +28,16 @@ export function SaleCountdownBar({ tokens }: { tokens: Required<ThemeConfig> }) 
 
   useEffect(() => {
     if (!tokens.saleCountdownEndsAt) return
+
     function update() {
-      setRemaining(getRemaining(tokens.saleCountdownEndsAt!))
+      const next = getRemaining(tokens.saleCountdownEndsAt!)
+      setRemaining(next)
+      // Stop ticking once the countdown ends instead of running a no-op timer forever.
+      if (next.done) clearInterval(interval)
     }
-    update()
+
     const interval = setInterval(update, 1000)
+    update()
     return () => clearInterval(interval)
   }, [tokens.saleCountdownEndsAt])
 
