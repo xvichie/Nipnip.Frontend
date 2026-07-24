@@ -26,7 +26,12 @@ export async function POST(req: Request) {
     })
     return NextResponse.json({ token: actorToken.token })
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Failed to create impersonation token'
+    // Clerk's SDK errors carry the useful detail in `.errors` (each with a `longMessage`), not
+    // in `.message` — `.message` alone is often just the generic HTTP reason phrase.
+    const clerkErrors = (err as { errors?: { message?: string; longMessage?: string }[] })?.errors
+    const detail = clerkErrors?.map(e => e.longMessage ?? e.message).filter(Boolean).join(' ')
+    const message = detail || (err instanceof Error ? err.message : 'Failed to create impersonation token')
+    console.error('[admin/impersonate] actorTokens.create failed:', JSON.stringify(err, null, 2))
     return NextResponse.json({ error: message }, { status: 400 })
   }
 }

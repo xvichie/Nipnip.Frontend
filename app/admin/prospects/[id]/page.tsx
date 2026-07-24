@@ -14,6 +14,7 @@ import {
   useAdminMerchantProducts,
   useAdminMerchantStore,
   useAdminPromoteProspect,
+  useAdminUpdateMerchant,
   useAdminUpdateMerchantStore,
 } from '@/lib/queries/admin'
 import { DEFAULT_THEME_CONFIG, parseThemeConfig } from '@/lib/store/theme-config'
@@ -32,6 +33,24 @@ export default function AdminProspectStudioPage({ params }: { params: Promise<{ 
   const { data: merchant, isLoading: merchantLoading } = useAdminMerchant(merchantId)
   const { data: store, isLoading: storeLoading } = useAdminMerchantStore(merchantId)
   const { mutate: updateStore, isPending: isSaving, error: saveError } = useAdminUpdateMerchantStore(merchantId)
+  const { mutate: updateMerchant, isPending: isSavingWebsite, error: websiteSaveError } = useAdminUpdateMerchant(merchantId)
+
+  // --- Website URL (plain external site — unrelated to affiliate tracking/redirects) ---
+  const [websiteUrl, setWebsiteUrl] = useState('')
+  const [websiteHydrated, setWebsiteHydrated] = useState(false)
+  const [websiteSaved, setWebsiteSaved] = useState(false)
+  if (merchant && !websiteHydrated) {
+    setWebsiteHydrated(true)
+    setWebsiteUrl(merchant.websiteUrl ?? '')
+  }
+
+  function handleSaveWebsite(e: React.FormEvent) {
+    e.preventDefault()
+    updateMerchant(
+      { websiteUrl: websiteUrl.trim() || null },
+      { onSuccess: () => { setWebsiteSaved(true); setTimeout(() => setWebsiteSaved(false), 3000) } }
+    )
+  }
 
   // --- Branding / theme ---
   const [themeId, setThemeId] = useState<ThemeId>('minimal')
@@ -250,6 +269,40 @@ export default function AdminProspectStudioPage({ params }: { params: Promise<{ 
           </button>
         </div>
       </div>
+
+      {/* Website URL */}
+      <section className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6 flex flex-col gap-4">
+        <div>
+          <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Website</h2>
+          <p className="text-white/30 text-xs mt-1">
+            Their own external site, if they have one — unrelated to affiliate tracking links.
+          </p>
+        </div>
+
+        <form onSubmit={handleSaveWebsite} className="flex flex-col gap-3">
+          <input
+            type="url"
+            value={websiteUrl}
+            onChange={e => setWebsiteUrl(e.target.value)}
+            placeholder="https://mystore.ge"
+            className="input w-full bg-white/4 border-white/10 focus:border-amber-500/60"
+          />
+
+          {websiteSaveError && (
+            <div className="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
+              {websiteSaveError instanceof Error ? websiteSaveError.message : 'Failed to save'}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isSavingWebsite}
+            className="btn btn-sm self-start gap-2 bg-amber-500/15 border-amber-500/25 text-amber-300 hover:bg-amber-500/25 disabled:opacity-40"
+          >
+            {isSavingWebsite ? <span className="loading loading-spinner loading-xs" /> : websiteSaved ? 'Saved ✓' : 'Save Website'}
+          </button>
+        </form>
+      </section>
 
       {/* Facebook import */}
       <section className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6 flex flex-col gap-4">

@@ -63,7 +63,16 @@ export function useImpersonate() {
         throw new Error('Sign-in did not complete')
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
+      // Clerk-js throws errors shaped like `{ errors: [{ message, longMessage }] }` for
+      // sign-in/actor-token failures — the useful detail lives there, not in `.message` (which is
+      // often just the generic HTTP reason phrase, e.g. "Unprocessable Entity"). The most common
+      // cause: the merchant/creator's stored ClerkUserId no longer matches a real Clerk account
+      // (deleted directly in the Clerk dashboard) — Clerk reports that as
+      // "The resource associated with the supplied user_id was not found."
+      const clerkErrors = (err as { errors?: { message?: string; longMessage?: string }[] })?.errors
+      const detail = clerkErrors?.map(e => e.longMessage ?? e.message).filter(Boolean).join(' ')
+      console.error('[useImpersonate] failed:', err)
+      setError(detail || (err instanceof Error ? err.message : 'Something went wrong'))
       setLoadingId(null)
     }
   }
