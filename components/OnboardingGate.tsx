@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import { useCurrentRole } from '@/hooks/useCurrentRole'
@@ -19,12 +19,14 @@ function isExempt(pathname: string): boolean {
   return EXEMPT_PREFIXES.some(p => pathname === p || pathname.startsWith(`${p}/`))
 }
 
-// Enforces the "must submit the onboarding lead form before anything else is usable" rule
-// (see app/onboarding/page.tsx) across the entire app — not just as a courtesy redirect on
-// first landing, but on every route, every time, for as long as the signed-in user has neither
-// a real Creator/Merchant account nor an already-submitted inquiry. Renders nothing (blocks the
-// page underneath) while that's being determined, so the gated page never flashes on screen
-// before the redirect lands.
+// Hard ceiling on how long this gate will block the page while it figures out whether the user
+// needs to onboard. Without this, a backend hiccup (role/inquiry check erroring or just never
+// resolving) turns into a total site lockout — an endless spinner with no way through, since
+// nothing else ever tells the gate to give up. A real user hit exactly that. Past this timeout
+// the page renders regardless; worst case a "new" user briefly sees a page before the next
+// render/navigation re-evaluates and catches them again.
+const MAX_BLOCK_MS = 4000
+
 export function OnboardingGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
@@ -41,15 +43,24 @@ export function OnboardingGate({ children }: { children: React.ReactNode }) {
 
   const roleLoading = gateActive && role === null
   const shouldCheckInquiry = gateActive && role === 'new'
-  const { data: myInquiry, isSuccess: inquiryChecked, isFetching: inquiryFetching } = useMyWebsiteInquiry(shouldCheckInquiry)
+  const { data: myInquiry, isLoading: inquiryLoading } = useMyWebsiteInquiry(shouldCheckInquiry)
 
-  // Only ever conclude "hasn't submitted yet" once the check has actually completed
-  // successfully — never while still fetching, and never on an error (a transient backend
-  // hiccup must not falsely lock a real account out of the whole app; it keeps showing the
-  // spinner and retries, rather than either wrongly redirecting or wrongly letting them through).
-  const mustSubmit = shouldCheckInquiry && inquiryChecked && !inquiryFetching && !myInquiry
-  const stillCheckingInquiry = shouldCheckInquiry && (!inquiryChecked || inquiryFetching)
-  const blocking = gateActive && (roleLoading || stillCheckingInquiry || mustSubmit)
+  const mustSubmit = shouldCheckInquiry && !inquiryLoading && !myInquiry
+  const wantsToBlock = gateActive && (roleLoading || (shouldCheckInquiry && inquiryLoading) || mustSubmit)
+
+  // Derived, not synced: comparing against the current path (rather than resetting a plain
+  // boolean back to false in the effect body) means a fresh block on a *different* path always
+  // gets its own full timeout, with no separate "reset" state write needed.
+  const [timedOutPath, setTimedOutPath] = useState<string | null>(null)
+  const timedOut = timedOutPath === pathname
+
+  useEffect(() => {
+    if (!wantsToBlock) return
+    const id = setTimeout(() => setTimedOutPath(pathname), MAX_BLOCK_MS)
+    return () => clearTimeout(id)
+  }, [wantsToBlock, pathname])
+
+  const blocking = wantsToBlock && !timedOut
 
   useEffect(() => {
     if (mustSubmit) router.replace('/onboarding')
