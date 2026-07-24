@@ -140,6 +140,12 @@ export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   saleCountdownEnabled: false,
   saleCountdownEndsAt: null,
   saleCountdownText: '',
+  minOrderAmount: null,
+  whatsappNumber: '',
+  viberNumber: '',
+  pickupEnabled: false,
+  pickupAddress: '',
+  pickupInstructions: '',
 }
 
 export function parseThemeConfig(raw: string): Required<ThemeConfig> {

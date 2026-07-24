@@ -1,7 +1,15 @@
 'use client'
 
 import { createContext, useContext } from 'react'
-import { useAddCartItem, useCart, useRemoveCartItem, useUpdateCartItem } from '@/lib/queries/storefront'
+import {
+  useAddBundleToCart,
+  useAddCartItem,
+  useCart,
+  useRemoveCartBundleItem,
+  useRemoveCartItem,
+  useUpdateCartBundleItem,
+  useUpdateCartItem,
+} from '@/lib/queries/storefront'
 import { useStorefrontToast } from '@/lib/store/storefront-toast-context'
 import type { CartResponse } from '@/lib/types/storefront'
 
@@ -13,6 +21,9 @@ type StorefrontCartContextValue = {
   addItem: (productId: string, optionValueIds: string[], quantity: number) => Promise<void>
   updateItem: (itemId: string, quantity: number) => void
   removeItem: (itemId: string) => void
+  addBundle: (bundleId: string, quantity: number) => Promise<void>
+  updateBundleItem: (itemId: string, quantity: number) => void
+  removeBundleItem: (itemId: string) => void
 }
 
 const StorefrontCartContext = createContext<StorefrontCartContextValue | null>(null)
@@ -30,9 +41,13 @@ export function StorefrontCartProvider({
   const addMutation = useAddCartItem(slug)
   const updateMutation = useUpdateCartItem(slug)
   const removeMutation = useRemoveCartItem(slug)
+  const addBundleMutation = useAddBundleToCart(slug)
+  const updateBundleMutation = useUpdateCartBundleItem(slug)
+  const removeBundleMutation = useRemoveCartBundleItem(slug)
   const { showToast } = useStorefrontToast()
 
-  const count = cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0
+  const count = (cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0)
+    + (cart?.bundleItems.reduce((sum, item) => sum + item.quantity, 0) ?? 0)
 
   return (
     <StorefrontCartContext.Provider
@@ -48,6 +63,13 @@ export function StorefrontCartProvider({
         },
         updateItem: (itemId, quantity) => { if (!preview) updateMutation.mutate({ itemId, body: { quantity } }) },
         removeItem: itemId => { if (!preview) removeMutation.mutate(itemId) },
+        addBundle: async (bundleId, quantity) => {
+          if (preview) return
+          await addBundleMutation.mutateAsync({ bundleId, quantity })
+          showToast('ბანდლი დაემატა კალათაში')
+        },
+        updateBundleItem: (itemId, quantity) => { if (!preview) updateBundleMutation.mutate({ itemId, body: { quantity } }) },
+        removeBundleItem: itemId => { if (!preview) removeBundleMutation.mutate(itemId) },
       }}
     >
       {children}

@@ -413,6 +413,12 @@ export default function StoreDesignPage() {
   const [facebookPixelId, setFacebookPixelId] = useState(DEFAULT_THEME_CONFIG.facebookPixelId)
   const [googleAnalyticsId, setGoogleAnalyticsId] = useState(DEFAULT_THEME_CONFIG.googleAnalyticsId)
   const [tiktokPixelId, setTiktokPixelId] = useState(DEFAULT_THEME_CONFIG.tiktokPixelId)
+  const [minOrderAmount, setMinOrderAmount] = useState(DEFAULT_THEME_CONFIG.minOrderAmount)
+  const [whatsappNumber, setWhatsappNumber] = useState(DEFAULT_THEME_CONFIG.whatsappNumber)
+  const [viberNumber, setViberNumber] = useState(DEFAULT_THEME_CONFIG.viberNumber)
+  const [pickupEnabled, setPickupEnabled] = useState(DEFAULT_THEME_CONFIG.pickupEnabled)
+  const [pickupAddress, setPickupAddress] = useState(DEFAULT_THEME_CONFIG.pickupAddress)
+  const [pickupInstructions, setPickupInstructions] = useState(DEFAULT_THEME_CONFIG.pickupInstructions)
   // Edited here on this page (Header + Hero Slides sections below).
   const [headerSticky, setHeaderSticky] = useState(DEFAULT_THEME_CONFIG.headerSticky)
   const [headerBackgroundColor, setHeaderBackgroundColor] = useState(DEFAULT_THEME_CONFIG.headerBackgroundColor)
@@ -563,6 +569,12 @@ export default function StoreDesignPage() {
     setFacebookPixelId(parsed.facebookPixelId)
     setGoogleAnalyticsId(parsed.googleAnalyticsId)
     setTiktokPixelId(parsed.tiktokPixelId)
+    setMinOrderAmount(parsed.minOrderAmount)
+    setWhatsappNumber(parsed.whatsappNumber)
+    setViberNumber(parsed.viberNumber)
+    setPickupEnabled(parsed.pickupEnabled)
+    setPickupAddress(parsed.pickupAddress)
+    setPickupInstructions(parsed.pickupInstructions)
     setHeaderSticky(parsed.headerSticky)
     setHeaderBackgroundColor(parsed.headerBackgroundColor)
     setHeroSlides(parsed.heroSlides)
@@ -816,6 +828,12 @@ export default function StoreDesignPage() {
           facebookPixelId: facebookPixelId.trim() || undefined,
           googleAnalyticsId: googleAnalyticsId.trim() || undefined,
           tiktokPixelId: tiktokPixelId.trim() || undefined,
+          minOrderAmount,
+          whatsappNumber: whatsappNumber.trim() || undefined,
+          viberNumber: viberNumber.trim() || undefined,
+          pickupEnabled,
+          pickupAddress: pickupAddress.trim() || undefined,
+          pickupInstructions: pickupInstructions.trim() || undefined,
           headerSticky,
           headerBackgroundColor,
           heroSlides,
@@ -962,6 +980,12 @@ export default function StoreDesignPage() {
     facebookPixelId,
     googleAnalyticsId,
     tiktokPixelId,
+    minOrderAmount,
+    whatsappNumber,
+    viberNumber,
+    pickupEnabled,
+    pickupAddress,
+    pickupInstructions,
     headerSticky,
     headerBackgroundColor,
     heroSlides,

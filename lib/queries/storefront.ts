@@ -5,6 +5,7 @@ import { apiFetch } from '@/lib/api'
 import { getCartSessionId, setCartSessionId } from '@/lib/store/cart-session'
 import type { PaginatedResult } from '@/lib/types/shared'
 import type {
+  AddBundleToCartRequest,
   AddCartItemRequest,
   CartResponse,
   CategoryResponse,
@@ -14,12 +15,14 @@ import type {
   CreateContactMessageRequest,
   OptionFilterInput,
   OrderResponse,
+  ProductBundleResponse,
   ProductDetailResponse,
   ProductFacetResponse,
   ProductPriceRangeResponse,
   ProductSummaryResponse,
   StorePageResponse,
   StoreResponse,
+  UpdateCartBundleItemRequest,
   UpdateCartItemRequest,
   ValidateDiscountCodeRequest,
   ValidateDiscountCodeResponse,
@@ -46,6 +49,22 @@ export function useCollections(slug: string) {
     queryKey: ['storefront', slug, 'collections'],
     queryFn: () => apiFetch<CollectionResponse[]>(`/api/stores/${slug}/collections`, null),
     staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useBundles(slug: string) {
+  return useQuery({
+    queryKey: ['storefront', slug, 'bundles'],
+    queryFn: () => apiFetch<ProductBundleResponse[]>(`/api/stores/${slug}/bundles`, null),
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useBundle(slug: string, bundleSlug: string) {
+  return useQuery({
+    queryKey: ['storefront', slug, 'bundles', bundleSlug],
+    queryFn: () => apiFetch<ProductBundleResponse>(`/api/stores/${slug}/bundles/${bundleSlug}`, null),
+    enabled: !!bundleSlug,
   })
 }
 
@@ -188,6 +207,59 @@ export function useRemoveCartItem(slug: string) {
   return useMutation({
     mutationFn: async (itemId: string) => {
       const cart = await apiFetch<CartResponse>(`/api/stores/${slug}/cart/items/${itemId}`, null, {
+        method: 'DELETE',
+        headers: cartHeaders(slug),
+      })
+      return onCartResponse(slug, cart)
+    },
+    onSuccess: cart => {
+      queryClient.setQueryData(['storefront', slug, 'cart'], cart)
+    },
+  })
+}
+
+export function useAddBundleToCart(slug: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (body: AddBundleToCartRequest) => {
+      const cart = await apiFetch<CartResponse>(`/api/stores/${slug}/cart/bundles`, null, {
+        method: 'POST',
+        headers: cartHeaders(slug),
+        body: JSON.stringify(body),
+      })
+      return onCartResponse(slug, cart)
+    },
+    onSuccess: cart => {
+      queryClient.setQueryData(['storefront', slug, 'cart'], cart)
+    },
+  })
+}
+
+export function useUpdateCartBundleItem(slug: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ itemId, body }: { itemId: string; body: UpdateCartBundleItemRequest }) => {
+      const cart = await apiFetch<CartResponse>(`/api/stores/${slug}/cart/bundles/${itemId}`, null, {
+        method: 'PUT',
+        headers: cartHeaders(slug),
+        body: JSON.stringify(body),
+      })
+      return onCartResponse(slug, cart)
+    },
+    onSuccess: cart => {
+      queryClient.setQueryData(['storefront', slug, 'cart'], cart)
+    },
+  })
+}
+
+export function useRemoveCartBundleItem(slug: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (itemId: string) => {
+      const cart = await apiFetch<CartResponse>(`/api/stores/${slug}/cart/bundles/${itemId}`, null, {
         method: 'DELETE',
         headers: cartHeaders(slug),
       })

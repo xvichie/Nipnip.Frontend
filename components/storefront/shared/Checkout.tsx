@@ -158,6 +158,9 @@ export function Checkout({
     () => enabledPaymentOptions[0]?.id ?? 'CashOnDelivery'
   )
 
+  const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery')
+  const isPickup = tokens.pickupEnabled && deliveryMethod === 'pickup'
+
   const hasShippingZones = tokens.shippingZones.length > 0
   const [shippingZoneId, setShippingZoneId] = useState<string | null>(
     () => tokens.shippingZones[0]?.id ?? null
@@ -166,9 +169,10 @@ export function Checkout({
   const cartTotal = cart?.total ?? 0
   const qualifiesForFreeShipping =
     tokens.freeShippingThreshold != null && cartTotal >= tokens.freeShippingThreshold
-  const shippingFee = hasShippingZones && !qualifiesForFreeShipping ? selectedZone?.price ?? 0 : 0
+  const shippingFee = hasShippingZones && !qualifiesForFreeShipping && !isPickup ? selectedZone?.price ?? 0 : 0
   const discountAmount = appliedDiscount?.amount ?? 0
   const orderTotal = Math.max(0, cartTotal + shippingFee - discountAmount)
+  const meetsMinOrder = tokens.minOrderAmount == null || cartTotal >= tokens.minOrderAmount
 
   const fullName = `${firstName} ${lastName}`.trim()
 
@@ -257,6 +261,15 @@ export function Checkout({
               )}
             </p>
           </div>
+          {checkout.data.isPickup && (
+            <div className={`w-full text-left border ${surface.border} ${surface.card} ${radius} p-5`}>
+              <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${surface.muted}`}>თვითგატანის მისამართი</p>
+              <p className={`text-sm ${surface.text}`}>{tokens.pickupAddress}</p>
+              {tokens.pickupInstructions && (
+                <p className={`text-xs whitespace-pre-line mt-1 ${surface.muted}`}>{tokens.pickupInstructions}</p>
+              )}
+            </div>
+          )}
           {paymentNotes[checkout.data.paymentMethod] && (
             <div className={`w-full text-left border ${surface.border} ${surface.card} ${radius} p-5`}>
               <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${surface.muted}`}>
@@ -277,7 +290,7 @@ export function Checkout({
     )
   }
 
-  if (!cart || cart.items.length === 0) {
+  if (!cart || (cart.items.length === 0 && cart.bundleItems.length === 0)) {
     return (
       <div className={`${surface.page} min-h-screen`}>
         <div className="max-w-lg mx-auto px-4 sm:px-6 py-24 text-center">
@@ -313,14 +326,15 @@ export function Checkout({
                 customerName: fullName,
                 email,
                 phone,
-                address,
-                latitude: coords?.lat ?? null,
-                longitude: coords?.lng ?? null,
+                address: isPickup ? tokens.pickupAddress : address,
+                latitude: isPickup ? null : coords?.lat ?? null,
+                longitude: isPickup ? null : coords?.lng ?? null,
                 paymentMethod,
-                shippingZoneId: hasShippingZones ? shippingZoneId : null,
+                shippingZoneId: hasShippingZones && !isPickup ? shippingZoneId : null,
                 ref: getStoreRef(slug),
                 customerNote: tokens.checkoutNotesEnabled ? orderNote.trim() || null : null,
                 discountCode: appliedDiscount?.code ?? null,
+                isPickup,
               })
             }}
           >
@@ -345,22 +359,52 @@ export function Checkout({
               </div>
             </Section>
 
-            <Section title="მიწოდების მისამართი" surface={surface} radius={radius}>
-              <div>
-                <label className={labelClass}>მისამართი <span className="text-red-400">*</span></label>
-                <input required value={address} onChange={e => setAddress(e.target.value)} placeholder="ქუჩა, ქალაქი" className={inputClass} />
-              </div>
-              <LocationPicker
-                surface={surface}
-                radius={radius}
-                onLocationChange={loc => {
-                  setAddress(loc.address)
-                  setCoords({ lat: loc.lat, lng: loc.lng })
-                }}
-              />
-            </Section>
+            {tokens.pickupEnabled && (
+              <Section title="მიწოდების მეთოდი" surface={surface} radius={radius}>
+                <div className="grid grid-cols-2 gap-3">
+                  {(['delivery', 'pickup'] as const).map(method => {
+                    const isSelected = deliveryMethod === method
+                    return (
+                      <button
+                        key={method}
+                        type="button"
+                        onClick={() => setDeliveryMethod(method)}
+                        className={`flex items-center justify-center gap-2 p-4 border-2 transition-colors text-sm font-semibold ${radius} ${surface.card}`}
+                        style={{ borderColor: isSelected ? tokens.accentColor : undefined, color: isSelected ? tokens.accentColor : undefined }}
+                      >
+                        {method === 'delivery' ? 'მიწოდება' : 'თვითგატანა'}
+                      </button>
+                    )
+                  })}
+                </div>
+              </Section>
+            )}
 
-            {hasShippingZones && (
+            {isPickup ? (
+              <Section title="თვითგატანის მისამართი" surface={surface} radius={radius}>
+                <p className={`text-sm font-medium ${surface.text}`}>{tokens.pickupAddress}</p>
+                {tokens.pickupInstructions && (
+                  <p className={`text-xs whitespace-pre-line ${surface.muted}`}>{tokens.pickupInstructions}</p>
+                )}
+              </Section>
+            ) : (
+              <Section title="მიწოდების მისამართი" surface={surface} radius={radius}>
+                <div>
+                  <label className={labelClass}>მისამართი <span className="text-red-400">*</span></label>
+                  <input required value={address} onChange={e => setAddress(e.target.value)} placeholder="ქუჩა, ქალაქი" className={inputClass} />
+                </div>
+                <LocationPicker
+                  surface={surface}
+                  radius={radius}
+                  onLocationChange={loc => {
+                    setAddress(loc.address)
+                    setCoords({ lat: loc.lat, lng: loc.lng })
+                  }}
+                />
+              </Section>
+            )}
+
+            {hasShippingZones && !isPickup && (
               <Section title="მიწოდების არეალი" surface={surface} radius={radius}>
                 <div className="flex flex-col gap-2">
                   {tokens.shippingZones.map(zone => {
@@ -457,11 +501,17 @@ export function Checkout({
               </label>
             )}
 
+            {!meetsMinOrder && tokens.minOrderAmount != null && (
+              <p className="text-amber-500 text-sm">
+                მინიმალური შეკვეთის ოდენობაა ₾{tokens.minOrderAmount.toFixed(2)} — დაამატეთ კიდევ ₾{(tokens.minOrderAmount - cartTotal).toFixed(2)}.
+              </p>
+            )}
+
             {checkout.isError && <p className="text-red-400 text-sm">დაფიქსირდა შეცდომა. სცადეთ თავიდან.</p>}
 
             <button
               type="submit"
-              disabled={checkout.isPending || (tosRequired && !tosAccepted)}
+              disabled={checkout.isPending || (tosRequired && !tosAccepted) || !meetsMinOrder}
               className={`py-4 text-white text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-90 disabled:opacity-40 ${radius}`}
               style={{ backgroundColor: tokens.accentColor }}
             >
@@ -473,6 +523,22 @@ export function Checkout({
             <div className={`${surface.card} border ${surface.border} ${radius} p-5 lg:sticky lg:top-20`}>
               <h3 className={`font-bold text-sm mb-4 pb-4 border-b ${surface.border} ${surface.text}`}>შეკვეთის შეჯამება</h3>
               <div className={`flex flex-col divide-y ${surface.border} mb-4`}>
+                {cart.bundleItems.map(item => (
+                  <div key={item.id} className="flex items-center gap-3 py-3">
+                    <div className={`w-11 h-11 shrink-0 overflow-hidden ${radius} ${surface.border} border`}>
+                      {item.imageUrl ? (
+                        <CImg src={item.imageUrl} alt={item.bundleName} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className={`w-full h-full flex items-center justify-center text-[8px] ${surface.muted}`}>—</div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-xs font-semibold truncate ${surface.text}`}>{item.bundleName} <span className="font-normal opacity-60">(ბანდლი)</span></p>
+                      <p className={`text-[10px] ${surface.muted}`}>×{item.quantity}</p>
+                    </div>
+                    <span className={`text-xs font-bold shrink-0 ${surface.text}`}>₾{(item.bundlePrice * item.quantity).toFixed(2)}</span>
+                  </div>
+                ))}
                 {cart.items.map(item => (
                   <div key={item.id} className="flex items-center gap-3 py-3">
                     <div className={`w-11 h-11 shrink-0 overflow-hidden ${radius} ${surface.border} border`}>
@@ -500,7 +566,12 @@ export function Checkout({
                   <span>ჯამი</span>
                   <span>₾{cart.total.toFixed(2)}</span>
                 </div>
-                {hasShippingZones && (
+                {isPickup ? (
+                  <div className={`flex justify-between text-sm ${surface.muted}`}>
+                    <span>მიწოდება</span>
+                    <span>თვითგატანა</span>
+                  </div>
+                ) : hasShippingZones && (
                   <div className={`flex justify-between text-sm ${surface.muted}`}>
                     <span>მიწოდება{selectedZone ? ` (${selectedZone.name})` : ''}</span>
                     <span>{shippingFee === 0 ? 'უფასო' : `₾${shippingFee.toFixed(2)}`}</span>

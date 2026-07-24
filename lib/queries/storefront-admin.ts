@@ -3,6 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth, useUser } from '@clerk/nextjs'
 import { apiFetch } from '@/lib/api'
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ''
 import type {
   CategoryResponse,
   CollectionResponse,
@@ -23,6 +25,10 @@ import type {
   PaginatedResult,
   ProductDetailResponse,
   ProductImageResponse,
+  ProductBundleResponse,
+  CreateProductBundleRequest,
+  UpdateProductBundleRequest,
+  ProductImportResult,
   ProductOptionResponse,
   ProductOptionValueResponse,
   ProductSummaryResponse,
@@ -261,6 +267,63 @@ export function useSetCollectionProducts(collectionId: string) {
       })
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'collection', collectionId, 'products'] }),
+  })
+}
+
+// --- Product Bundles ---
+
+export function useMyBundles() {
+  const { getToken } = useAuth()
+  const { isLoaded, isSignedIn } = useUser()
+  return useQuery({
+    queryKey: ['storefront-admin', 'bundles'],
+    queryFn: async () => {
+      const token = await getToken()
+      return apiFetch<ProductBundleResponse[]>('/api/stores/me/bundles', token)
+    },
+    enabled: isLoaded && !!isSignedIn,
+  })
+}
+
+export function useCreateBundle() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (body: CreateProductBundleRequest) => {
+      const token = await getToken()
+      return apiFetch<ProductBundleResponse>('/api/stores/me/bundles', token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'bundles'] }),
+  })
+}
+
+export function useUpdateBundle() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, body }: { id: string; body: UpdateProductBundleRequest }) => {
+      const token = await getToken()
+      return apiFetch<ProductBundleResponse>(`/api/stores/me/bundles/${id}`, token, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'bundles'] }),
+  })
+}
+
+export function useDeleteBundle() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const token = await getToken()
+      await apiFetch<void>(`/api/stores/me/bundles/${id}`, token, { method: 'DELETE' })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'bundles'] }),
   })
 }
 
@@ -619,6 +682,47 @@ export function useDuplicateProduct() {
     mutationFn: async (id: string) => {
       const token = await getToken()
       return apiFetch<ProductDetailResponse>(`/api/stores/me/products/${id}/duplicate`, token, { method: 'POST' })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'products'] }),
+  })
+}
+
+export function useExportProductsCsv() {
+  const { getToken } = useAuth()
+  return async function exportProductsCsv() {
+    const token = await getToken()
+    const res = await fetch(`${API_BASE}/api/stores/me/products/export`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+    if (!res.ok) throw new Error('Export failed.')
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'products.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+}
+
+export function useImportProductsCsv() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const token = await getToken()
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch(`${API_BASE}/api/stores/me/products/import`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      })
+      if (!res.ok) {
+        const detail = await res.json().then((b: { detail?: string }) => b.detail, () => undefined)
+        throw new Error(detail || 'Import failed.')
+      }
+      return res.json() as Promise<ProductImportResult>
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'products'] }),
   })

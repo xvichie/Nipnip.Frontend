@@ -128,6 +128,7 @@ export const en: Strings = {
     storeOrders: 'Orders',
     storeCategories: 'Categories',
     storeCollections: 'Collections',
+    storeBundles: 'Bundles',
     storeDiscountCodes: 'Discount Codes',
     storePages: 'Pages',
     storeDesign: 'Design',

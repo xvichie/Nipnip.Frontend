@@ -6,6 +6,7 @@ import { useAddOrderNote, useMyOrders, useMyOrdersMonthly, useUpdateOrderStatus,
 import { useQuickShipperStatus, useRefreshQuickShipperOrder } from '@/lib/queries/quickshipper'
 import { MonthlyBarChart } from '@/components/dashboard/MonthlyBarChart'
 import { QuickShipperOrderModal } from '@/components/dashboard/store/QuickShipperOrderModal'
+import { printPackingSlip } from '@/lib/store/print-packing-slip'
 import type { OrderDetailResponse, OrderStatus } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
 
@@ -141,15 +142,38 @@ function OrderDetailsModal({
       >
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-white">{order.customerName}</h2>
-          <button onClick={onClose} className="text-white/30 hover:text-white" aria-label="დახურვა">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-              <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => printPackingSlip(order)}
+              className="btn btn-xs bg-white/4 border-white/10 text-white/60 hover:text-white"
+            >
+              ბეჭდვა
+            </button>
+            <button onClick={onClose} className="text-white/30 hover:text-white" aria-label="დახურვა">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+                <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Items */}
         <div className="flex flex-col gap-2">
+          {order.bundleItems.map(item => (
+            <div
+              key={item.id}
+              className="flex items-center gap-3 rounded-xl bg-fuchsia-500/5 border border-fuchsia-500/15 px-4 py-2.5"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-sm text-white truncate">{item.bundleName} <span className="text-white/40 text-xs">(ბანდლი)</span></p>
+              </div>
+              <p className="text-white/40 text-xs shrink-0">×{item.quantity}</p>
+              <p className="text-white/70 text-sm font-medium shrink-0 w-16 text-right">
+                {(item.priceAtPurchase * item.quantity).toFixed(2)} ₾
+              </p>
+            </div>
+          ))}
           {order.items.map(item => (
             <Link
               key={item.id}
@@ -358,6 +382,9 @@ function OrderDetailsModal({
         <div className="flex flex-col gap-2">
           <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">მომხმარებელი</p>
           <div className="rounded-xl bg-white/2 border border-white/5 p-4 flex flex-col gap-2.5">
+            {order.isPickup && (
+              <span className="self-start badge badge-sm bg-amber-500/15 border-none text-amber-400">თვითგატანა</span>
+            )}
             <a href={`mailto:${order.email}`} className="flex items-center gap-2.5 text-sm text-white/70 hover:text-white transition-colors">
               <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0 text-white/30">
                 <rect x="2" y="3.5" width="12" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>

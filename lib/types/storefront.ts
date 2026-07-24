@@ -191,6 +191,13 @@ export interface ThemeConfig {
   saleCountdownEndsAt?: string | null
   /** Empty falls back to the theme's default "Sale ends in" copy. */
   saleCountdownText?: string
+  /** null disables the floor entirely. Distinct from freeShippingThreshold, which only affects the shipping fee. */
+  minOrderAmount?: number | null
+  whatsappNumber?: string
+  viberNumber?: string
+  pickupEnabled?: boolean
+  pickupAddress?: string
+  pickupInstructions?: string
 }
 
 export type OfflineMode = 'closed' | 'comingSoon'
@@ -323,6 +330,61 @@ export interface CreateCollectionRequest {
 
 export interface UpdateCollectionRequest {
   name?: string | null
+}
+
+export interface BundleItemResponse {
+  productId: string
+  productName: string
+  productSlug: string
+  imageUrl: string | null
+  productPrice: number
+  quantity: number
+}
+
+export interface ProductBundleResponse {
+  id: string
+  name: string
+  slug: string
+  bundlePrice: number
+  imageUrl: string | null
+  isActive: boolean
+  /** Sum of each item's current effective price × quantity — for a "you save ₾X" display. */
+  regularTotal: number
+  items: BundleItemResponse[]
+}
+
+export interface BundleItemInput {
+  productId: string
+  quantity: number
+}
+
+export interface CreateProductBundleRequest {
+  name: string
+  bundlePrice: number
+  imageUrl?: string | null
+  items: BundleItemInput[]
+}
+
+export interface UpdateProductBundleRequest {
+  name?: string | null
+  bundlePrice?: number | null
+  imageUrl?: string | null
+  isActive?: boolean | null
+  items?: BundleItemInput[] | null
+}
+
+export interface ProductImportRowResult {
+  rowNumber: number
+  name: string
+  action: 'created' | 'updated' | 'skipped' | 'warning'
+  message: string | null
+}
+
+export interface ProductImportResult {
+  created: number
+  updated: number
+  skipped: number
+  rows: ProductImportRowResult[]
 }
 
 /** Full ordered replace of a collection's product membership — mirrors SetRelatedProductsRequest. */
@@ -524,11 +586,22 @@ export interface CartItemResponse {
   options: CartItemOptionResponse[]
 }
 
+export interface CartBundleItemResponse {
+  id: string
+  bundleId: string
+  bundleName: string
+  bundleSlug: string
+  imageUrl: string | null
+  bundlePrice: number
+  quantity: number
+}
+
 export interface CartResponse {
   id: string
   sessionId: string
   items: CartItemResponse[]
   total: number
+  bundleItems: CartBundleItemResponse[]
 }
 
 export interface AddCartItemRequest {
@@ -539,6 +612,15 @@ export interface AddCartItemRequest {
 }
 
 export interface UpdateCartItemRequest {
+  quantity: number
+}
+
+export interface AddBundleToCartRequest {
+  bundleId: string
+  quantity: number
+}
+
+export interface UpdateCartBundleItemRequest {
   quantity: number
 }
 
@@ -554,6 +636,7 @@ export interface CheckoutRequest {
   ref?: string | null
   customerNote?: string | null
   discountCode?: string | null
+  isPickup?: boolean
 }
 
 export interface OrderResponse {
@@ -574,6 +657,7 @@ export interface OrderResponse {
   customerNote: string | null
   discountCode: string | null
   discountAmount: number
+  isPickup: boolean
 }
 
 export interface OrderItemResponse {
@@ -594,6 +678,14 @@ export interface OrderNoteResponse {
   createdAt: string
 }
 
+export interface OrderBundleItemResponse {
+  id: string
+  bundleId: string
+  bundleName: string
+  quantity: number
+  priceAtPurchase: number
+}
+
 export interface OrderDetailResponse {
   id: string
   customerName: string
@@ -610,6 +702,7 @@ export interface OrderDetailResponse {
   createdAt: string
   paymentConfirmedAt: string | null
   items: OrderItemResponse[]
+  bundleItems: OrderBundleItemResponse[]
   notes: OrderNoteResponse[]
   quickShipperOrderId: number | null
   quickShipperStatus: string | null
@@ -618,6 +711,7 @@ export interface OrderDetailResponse {
   customerNote: string | null
   discountCode: string | null
   discountAmount: number
+  isPickup: boolean
 }
 
 export type DiscountCodeType = 'Percentage' | 'FixedAmount'

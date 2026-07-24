@@ -192,6 +192,12 @@ export default function StoreLayoutPage() {
   const [facebookPixelId, setFacebookPixelId] = useState(DEFAULT_THEME_CONFIG.facebookPixelId)
   const [googleAnalyticsId, setGoogleAnalyticsId] = useState(DEFAULT_THEME_CONFIG.googleAnalyticsId)
   const [tiktokPixelId, setTiktokPixelId] = useState(DEFAULT_THEME_CONFIG.tiktokPixelId)
+  const [minOrderAmount, setMinOrderAmount] = useState(DEFAULT_THEME_CONFIG.minOrderAmount)
+  const [whatsappNumber, setWhatsappNumber] = useState(DEFAULT_THEME_CONFIG.whatsappNumber)
+  const [viberNumber, setViberNumber] = useState(DEFAULT_THEME_CONFIG.viberNumber)
+  const [pickupEnabled, setPickupEnabled] = useState(DEFAULT_THEME_CONFIG.pickupEnabled)
+  const [pickupAddress, setPickupAddress] = useState(DEFAULT_THEME_CONFIG.pickupAddress)
+  const [pickupInstructions, setPickupInstructions] = useState(DEFAULT_THEME_CONFIG.pickupInstructions)
   const [saved, setSaved] = useState(false)
 
   // "Adjust state during render" instead of an effect — hydrates once from the fetched
@@ -265,6 +271,12 @@ export default function StoreLayoutPage() {
     setFacebookPixelId(parsed.facebookPixelId)
     setGoogleAnalyticsId(parsed.googleAnalyticsId)
     setTiktokPixelId(parsed.tiktokPixelId)
+    setMinOrderAmount(parsed.minOrderAmount)
+    setWhatsappNumber(parsed.whatsappNumber)
+    setViberNumber(parsed.viberNumber)
+    setPickupEnabled(parsed.pickupEnabled)
+    setPickupAddress(parsed.pickupAddress)
+    setPickupInstructions(parsed.pickupInstructions)
   }
 
   useEffect(() => {
@@ -452,6 +464,12 @@ export default function StoreLayoutPage() {
           facebookPixelId: facebookPixelId.trim() || undefined,
           googleAnalyticsId: googleAnalyticsId.trim() || undefined,
           tiktokPixelId: tiktokPixelId.trim() || undefined,
+          minOrderAmount,
+          whatsappNumber: whatsappNumber.trim() || undefined,
+          viberNumber: viberNumber.trim() || undefined,
+          pickupEnabled,
+          pickupAddress: pickupAddress.trim() || undefined,
+          pickupInstructions: pickupInstructions.trim() || undefined,
         }),
       },
       { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
@@ -531,6 +549,12 @@ export default function StoreLayoutPage() {
     facebookPixelId,
     googleAnalyticsId,
     tiktokPixelId,
+    minOrderAmount,
+    whatsappNumber,
+    viberNumber,
+    pickupEnabled,
+    pickupAddress,
+    pickupInstructions,
   }
 
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
@@ -1531,6 +1555,20 @@ export default function StoreLayoutPage() {
               <p className="text-white/30 text-xs mt-1">A buyer note field, a Terms-of-Service checkbox, and the order-confirmation message.</p>
             </div>
 
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Minimum order amount (₾)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={minOrderAmount ?? ''}
+                onChange={e => setMinOrderAmount(e.target.value.trim() ? Number(e.target.value) : null)}
+                placeholder="No minimum"
+                className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+              />
+              <p className="text-white/30 text-xs">Checkout is blocked below this cart total. Separate from the free-shipping threshold, which only affects the shipping fee.</p>
+            </div>
+
             <label className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer">
               <span className="text-sm text-white/70">Let buyers leave a note at checkout</span>
               <input
@@ -1786,6 +1824,75 @@ export default function StoreLayoutPage() {
                 value={tiktokPixelId}
                 onChange={e => setTiktokPixelId(e.target.value)}
                 placeholder="CXXXXXXXXXXXXXXXXXXX"
+                className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+              />
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+            <label className="flex items-center justify-between gap-3 cursor-pointer">
+              <div>
+                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Local Pickup</h2>
+                <p className="text-white/30 text-xs mt-1">Lets buyers choose to pick up their order in person instead of delivery, at no shipping fee.</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={pickupEnabled}
+                onChange={e => setPickupEnabled(e.target.checked)}
+                className={`toggle toggle-sm shrink-0 ${pickupEnabled ? 'toggle-success' : 'toggle-error'}`}
+              />
+            </label>
+
+            {pickupEnabled && (
+              <>
+                <div className="fieldset gap-2">
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Pickup address</label>
+                  <input
+                    type="text"
+                    value={pickupAddress}
+                    onChange={e => setPickupAddress(e.target.value)}
+                    placeholder="Vazha-Pshavela Ave 71, Tbilisi"
+                    className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                  />
+                </div>
+                <div className="fieldset gap-2">
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Pickup instructions (optional)</label>
+                  <textarea
+                    value={pickupInstructions}
+                    onChange={e => setPickupInstructions(e.target.value)}
+                    rows={2}
+                    placeholder="Open 10:00–19:00, ring the bell at the side door"
+                    className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 resize-none"
+                  />
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+            <div>
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Floating Contact Button</h2>
+              <p className="text-white/30 text-xs mt-1">Shows a floating WhatsApp/Viber chat bubble on every storefront page. Leave both empty to hide it.</p>
+            </div>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">WhatsApp number</label>
+              <input
+                type="text"
+                value={whatsappNumber}
+                onChange={e => setWhatsappNumber(e.target.value)}
+                placeholder="+995555123456"
+                className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+              />
+            </div>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Viber number</label>
+              <input
+                type="text"
+                value={viberNumber}
+                onChange={e => setViberNumber(e.target.value)}
+                placeholder="+995555123456"
                 className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
               />
             </div>

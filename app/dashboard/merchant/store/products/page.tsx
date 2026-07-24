@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useDeleteProduct, useDuplicateProduct, useMyCategories, useMyProducts } from '@/lib/queries/storefront-admin'
 import { ImportProductModal } from '@/components/dashboard/store/ImportProductModal'
+import { CsvImportExportModal } from '@/components/dashboard/store/CsvImportExportModal'
 import { CImg } from '@/components/ui/CImg'
 
 const SORT_OPTIONS = [
@@ -68,6 +69,7 @@ export default function MerchantProductsPage() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <ImportProductModal />
+          <CsvImportExportModal />
           <Link
             href="/dashboard/merchant/store/products/new"
             className="btn btn-sm gap-2 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white"

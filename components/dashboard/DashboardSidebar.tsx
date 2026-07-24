@@ -148,6 +148,13 @@ const LAYERS_ICON = (
     <path d="M1.5 11 8 14.5 14.5 11" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 )
+const BUNDLE_ICON = (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+    <rect x="2" y="6" width="5" height="8" rx="1" stroke="currentColor" strokeWidth="1.4"/>
+    <rect x="9" y="3" width="5" height="11" rx="1" stroke="currentColor" strokeWidth="1.4"/>
+    <path d="M4.5 6V4.5a1 1 0 0 1 1-1H6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+  </svg>
+)
 const DISCOUNT_ICON = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
     <path d="M2 8.3 8.3 2h4.2a1.5 1.5 0 0 1 1.5 1.5v4.2L7.7 14 2 8.3Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
@@ -262,6 +269,7 @@ const STORE_NAV_ICONS: Record<string, React.ReactNode> = {
   '/dashboard/merchant/store/layout': LAYOUT_ICON,
   '/dashboard/merchant/store/categories': TAG_ICON,
   '/dashboard/merchant/store/collections': LAYERS_ICON,
+  '/dashboard/merchant/store/bundles': BUNDLE_ICON,
   '/dashboard/merchant/store/products': BOX_ICON,
   '/dashboard/merchant/store/orders': BAG_ICON,
   '/dashboard/merchant/store/discount-codes': DISCOUNT_ICON,

@@ -25,6 +25,7 @@ import { Footer as EditorialFooter } from '@/components/storefront/themes/editor
 import { SocialBar } from '@/components/storefront/shared/SocialBar'
 import { AnnouncementBar } from '@/components/storefront/shared/AnnouncementBar'
 import { SaleCountdownBar } from '@/components/storefront/shared/SaleCountdownBar'
+import { FloatingContactButton } from '@/components/storefront/shared/FloatingContactButton'
 import { TrackingScripts } from '@/components/storefront/shared/TrackingScripts'
 import { StoreOfflinePage } from '@/components/storefront/shared/StoreOfflinePage'
 import { isCurrentUserAdmin } from '@/lib/server/is-admin'
@@ -136,6 +137,7 @@ export default async function StoreLayout({
         </StorefrontCartProvider>
       </StorefrontToastProvider>
       {override.footerExtraHtml && <div dangerouslySetInnerHTML={{ __html: override.footerExtraHtml }} />}
+      <FloatingContactButton tokens={tokens} />
     </div>
   )
 }
