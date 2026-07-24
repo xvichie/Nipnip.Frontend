@@ -3,7 +3,7 @@ import { ProductCard } from './ProductCard'
 import { CategoryIcon } from '@/components/storefront/shared/CategoryIcon'
 import { ProductScrollRow } from '@/components/storefront/shared/ProductScrollRow'
 import { HeroCarousel } from '@/components/storefront/shared/HeroCarousel'
-import { getBannerBackgroundStyle, getHeroBackgroundImageClass, getHeroCtaHref, getHeroCtaLabel, getHeroImageClass, getHeroOverlayStyle, getHeroSecondaryCtaHref, getHeroSecondaryCtaLabel, getHeroTextAlignClass, getHeroTextColorClass, getHomeSectionOrder, getSectionBackgroundStyle, glowShadow, hasBanner, hasContentBlock, hasHeroVideo, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS, shadeColor } from '@/lib/store/theme-config'
+import { getBannerBackgroundStyle, getHeroBackgroundImageClass, getHeroButtonRowClass, getHeroCtaHref, getHeroCtaLabel, getHeroImageClass, getHeroOverlayStyle, getHeroSecondaryCtaHref, getHeroSecondaryCtaLabel, getHeroTextAlignClass, getHeroTextColorClass, getHomeSectionOrder, getSectionBackgroundStyle, glowShadow, hasBanner, hasContentBlock, hasHeroVideo, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS, shadeColor } from '@/lib/store/theme-config'
 import { ScrollIndicator } from '@/components/storefront/shared/ScrollIndicator'
 import { getLandingCategories } from '@/lib/store/landing-categories'
 import { getLandingCollections } from '@/lib/store/landing-collections'
@@ -67,7 +67,7 @@ export function Home({
           <p className={`${getHeroTextColorClass(t, 'subheadline', 'text-white/80')} ${HERO_SUBHEADLINE_SIZE_CLASS[t.heroSubheadlineSize]} mb-10`}>{t.heroSubheadline}</p>
         )}
         {(t.heroCtaEnabled || t.heroSecondaryCtaEnabled) && (
-          <div className="flex flex-wrap items-center gap-3">
+          <div className={`flex flex-wrap items-center gap-3 ${getHeroButtonRowClass(t)}`}>
             {t.heroCtaEnabled && (
               <Link
                 href={getHeroCtaHref(t, categories)}

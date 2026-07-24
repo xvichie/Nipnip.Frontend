@@ -245,6 +245,31 @@ export function getHeroTextAlignClass(tokens: Required<ThemeConfig>): string {
   return `${HERO_ALIGN_CLASS[tokens.heroMobileTextAlign]} ${HERO_ALIGN_CLASS_MD[desktopHorizontal]}`
 }
 
+const HERO_JUSTIFY_CLASS: Record<HeroHorizontalAlign, string> = {
+  left: 'justify-start',
+  center: 'justify-center',
+  right: 'justify-end',
+}
+
+const HERO_JUSTIFY_CLASS_MD: Record<HeroHorizontalAlign, string> = {
+  left: 'md:justify-start',
+  center: 'md:justify-center',
+  right: 'md:justify-end',
+}
+
+// Companion to getHeroTextAlignClass for the CTA button row — that row is a flex container,
+// so the text-align classes above (which only affect inline/block content) don't touch it;
+// without a matching justify-content it always sits flush-left regardless of heroTextPosition.
+export function getHeroButtonRowClass(tokens: Required<ThemeConfig>): string {
+  const desktopHorizontal = tokens.heroTextPosition.split('-')[1] as HeroHorizontalAlign
+
+  if (tokens.heroMobileTextAlign === 'inherit') {
+    return HERO_JUSTIFY_CLASS[desktopHorizontal]
+  }
+
+  return `${HERO_JUSTIFY_CLASS[tokens.heroMobileTextAlign]} ${HERO_JUSTIFY_CLASS_MD[desktopHorizontal]}`
+}
+
 export const HERO_IMAGE_POSITION_CLASS: Record<Required<ThemeConfig>['heroImagePosition'], string> = {
   center: 'object-center',
   top: 'object-top',
