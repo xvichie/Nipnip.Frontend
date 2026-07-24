@@ -26,10 +26,12 @@ import type {
   PromoteProspectRequest,
   ProspectResponse,
   StoreResponse,
+  UnreadWebsiteInquiryCountResponse,
   UpdateCategoryRequest,
   UpdateMerchantRequest,
   UpdateProductRequest,
   UpdateStoreRequest,
+  WebsiteInquiryResponse,
 } from '@/lib/types'
 
 export function useAdminStats() {
@@ -305,6 +307,46 @@ export function useAdminConversions({
       return apiFetch<PaginatedResult<AdminConversionEntry>>(`/api/admin/conversions?${params}`, token)
     },
     placeholderData: prev => prev,
+  })
+}
+
+// --- Website inquiries ("I want a website" leads from the marketing site footer) ---
+
+export function useAdminWebsiteInquiries(page = 1, pageSize = 50) {
+  const { getToken } = useAuth()
+  return useQuery({
+    queryKey: ['admin', 'website-inquiries', page, pageSize],
+    queryFn: async () => {
+      const token = await getToken()
+      const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
+      return apiFetch<PaginatedResult<WebsiteInquiryResponse>>(`/api/admin/website-inquiries?${params}`, token)
+    },
+    placeholderData: prev => prev,
+  })
+}
+
+export function useAdminMarkWebsiteInquiryRead() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const token = await getToken()
+      return apiFetch<WebsiteInquiryResponse>(`/api/admin/website-inquiries/${id}/read`, token, { method: 'POST' })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'website-inquiries'] })
+    },
+  })
+}
+
+export function useAdminUnreadWebsiteInquiryCount() {
+  const { getToken } = useAuth()
+  return useQuery({
+    queryKey: ['admin', 'website-inquiries', 'unread-count'],
+    queryFn: async () => {
+      const token = await getToken()
+      return apiFetch<UnreadWebsiteInquiryCountResponse>('/api/admin/website-inquiries/unread-count', token)
+    },
   })
 }
 

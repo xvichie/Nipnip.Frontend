@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useLanguage } from '@/lib/i18n'
 import { NipNipLogo } from '@/components/NipNipLogo'
 import { CImg } from '@/components/ui/CImg'
+import { WebsiteInquiryForm } from '@/components/layout/WebsiteInquiryForm'
 
 export function SiteFooter() {
   const { t } = useLanguage()
@@ -86,6 +87,10 @@ export function SiteFooter() {
             </ul>
           </div>
 
+        </div>
+
+        <div className="border-t border-white/5 pt-10 pb-4">
+          <WebsiteInquiryForm />
         </div>
 
         <div className="border-t border-white/5 pt-8 flex flex-col gap-6">

@@ -83,3 +83,31 @@ export interface AdminMerchantOwnerResponse {
     lastName: string | null
   } | null
 }
+
+/**
+ * An "I want a website" lead — either from the marketing site's anonymous footer form, or from a
+ * freshly signed-up user going through /onboarding in place of the old self-serve creator
+ * registration form (storeName is only ever set by that second flow).
+ */
+export interface WebsiteInquiryResponse {
+  id: string
+  name: string
+  storeName: string | null
+  email: string | null
+  phone: string | null
+  message: string
+  isRead: boolean
+  createdAt: string
+}
+
+export interface CreateWebsiteInquiryRequest {
+  name: string
+  storeName?: string | null
+  email?: string | null
+  phone?: string | null
+  message: string
+}
+
+export interface UnreadWebsiteInquiryCountResponse {
+  count: number
+}

@@ -2,43 +2,108 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth, useUser } from '@clerk/nextjs'
-import { useQueryClient } from '@tanstack/react-query'
-import { apiFetch, ApiError } from '@/lib/api'
+import { useUser } from '@clerk/nextjs'
 import { useCurrentRole } from '@/hooks/useCurrentRole'
 import { useLanguage } from '@/lib/i18n'
-import type { RegisterCreatorRequest } from '@/lib/types'
+import { useMyWebsiteInquiry, useSubmitOnboardingInquiry } from '@/lib/queries/website-inquiries'
 
-const SLUG_RE = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-function toSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
+const FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61588723170626'
+const INSTAGRAM_URL = 'https://www.instagram.com/nipnip.ge/'
+
+function SuccessGraphic() {
+  return (
+    <div className="relative w-24 h-24 mx-auto mb-2">
+      <div className="absolute inset-0 rounded-full bg-emerald-500/20 blur-2xl" />
+      <div className="relative w-24 h-24 rounded-full bg-linear-to-br from-emerald-500/20 to-violet-500/20 border border-emerald-400/30 flex items-center justify-center">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden>
+          <circle cx="20" cy="20" r="18" stroke="url(#successGrad)" strokeWidth="2" />
+          <path d="M12 20.5l5.5 5.5L28.5 14" stroke="url(#successGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          <defs>
+            <linearGradient id="successGrad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#34d399" />
+              <stop offset="1" stopColor="#a78bfa" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+    </div>
+  )
 }
 
-type SlugStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid'
+function SuccessScreen({ storeName }: { storeName?: string }) {
+  const { t } = useLanguage()
+
+  return (
+    <div className="w-full max-w-md text-center">
+      <SuccessGraphic />
+
+      <h1 className="font-display text-3xl font-black tracking-tight mb-3">
+        {t.onboarding.successTitle}
+      </h1>
+      <p className="text-white/50 text-base leading-relaxed mb-1">
+        {t.onboarding.successBody}
+      </p>
+      {storeName && (
+        <p className="text-white/30 text-sm mb-8">{storeName}</p>
+      )}
+      {!storeName && <div className="mb-8" />}
+
+      <div className="rounded-2xl border border-white/7 bg-white/2 p-6">
+        <p className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-2">
+          {t.onboarding.meanwhileTitle}
+        </p>
+        <p className="text-white/40 text-sm leading-relaxed mb-5">
+          {t.onboarding.meanwhileBody}
+        </p>
+        <div className="flex items-center justify-center gap-3">
+          <a
+            href={FACEBOOK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-sm gap-2 bg-white/4 border-white/8 text-white/70 hover:text-white hover:bg-white/8"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+              <path d="M10.5 5.5H9a1 1 0 0 0-1 1V8h2.4l-.3 2H8v5H6V10H4.5V8H6V6.2C6 4.4 7.1 3 9 3h1.5v2.5Z" fill="currentColor" />
+            </svg>
+            Facebook
+          </a>
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-sm gap-2 bg-white/4 border-white/8 text-white/70 hover:text-white hover:bg-white/8"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+              <rect x="2" y="2" width="12" height="12" rx="3.5" stroke="currentColor" strokeWidth="1.4" />
+              <circle cx="8" cy="8" r="2.7" stroke="currentColor" strokeWidth="1.4" />
+              <circle cx="11.3" cy="4.7" r="0.8" fill="currentColor" />
+            </svg>
+            Instagram
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function OnboardingPage() {
   const router = useRouter()
-  const { getToken } = useAuth()
   const { isLoaded, isSignedIn } = useUser()
   const role = useCurrentRole()
-  const queryClient = useQueryClient()
   const { t } = useLanguage()
 
   const [name, setName] = useState('')
-  const [slug, setSlug] = useState('')
-  const [slugDerived, setSlugDerived] = useState(true)
-  const [instagram, setInstagram] = useState('')
-  const [tiktok, setTiktok] = useState('')
-  const [slugStatus, setSlugStatus] = useState<SlugStatus>('idle')
-  const [submitting, setSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [storeName, setStoreName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [message, setMessage] = useState('')
+  const [validationError, setValidationError] = useState('')
+
+  const isNew = isLoaded && isSignedIn && role === 'new'
+  const { data: myInquiry, isLoading: myInquiryLoading } = useMyWebsiteInquiry(isNew)
+  const { mutate: submit, isPending, isSuccess, error: submitError, data: submitted } = useSubmitOnboardingInquiry()
 
   useEffect(() => {
     if (!isLoaded) return
@@ -47,61 +112,41 @@ export default function OnboardingPage() {
     else if (role === 'merchant') router.replace('/dashboard/merchant')
   }, [isLoaded, isSignedIn, role, router])
 
-  function handleNameChange(value: string) {
-    setName(value)
-    if (slugDerived) setSlug(toSlug(value))
-  }
-
-  function handleSlugChange(value: string) {
-    setSlugDerived(false)
-    setSlug(value.toLowerCase())
-  }
-
-  useEffect(() => {
-    if (!slug) { setSlugStatus('idle'); return }
-    if (!SLUG_RE.test(slug)) { setSlugStatus('invalid'); return }
-
-    setSlugStatus('checking')
-    const id = setTimeout(async () => {
-      try {
-        const token = await getToken()
-        await apiFetch(`/api/creators/${slug}`, token)
-        setSlugStatus('taken')
-      } catch (e) {
-        if (e instanceof ApiError) {
-          setSlugStatus(e.status === 404 ? 'available' : 'idle')
-        } else {
-          setSlugStatus('available')
-        }
-      }
-    }, 500)
-    return () => clearTimeout(id)
-  }, [slug, getToken])
-
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (slugStatus !== 'available' || !name.trim() || submitting) return
-    setSubmitting(true)
-    setSubmitError(null)
-    try {
-      const token = await getToken()
-      const body: RegisterCreatorRequest = {
-        name: name.trim(),
-        slug,
-        instagramHandle: instagram.trim() || null,
-        tiktokHandle: tiktok.trim() || null,
-      }
-      await apiFetch('/api/creators', token, { method: 'POST', body: JSON.stringify(body) })
-      await queryClient.invalidateQueries({ queryKey: ['current-role'] })
-      router.push('/dashboard/creator')
-    } catch {
-      setSubmitError(t.onboarding.error)
-    } finally {
-      setSubmitting(false)
+    setValidationError('')
+
+    if (!name.trim()) {
+      setValidationError(t.onboarding.errorName)
+      return
     }
+    if (!message.trim()) {
+      setValidationError(t.onboarding.errorMessage)
+      return
+    }
+    if (!email.trim() && !phone.trim()) {
+      setValidationError(t.onboarding.errorContact)
+      return
+    }
+    if (email.trim() && !EMAIL_PATTERN.test(email.trim())) {
+      setValidationError(t.onboarding.errorEmail)
+      return
+    }
+
+    submit({
+      name: name.trim(),
+      storeName: storeName.trim() || null,
+      email: email.trim() || null,
+      phone: phone.trim() || null,
+      message: message.trim(),
+    })
   }
 
-  if (!isLoaded || !isSignedIn || (role && role !== 'new')) {
+  const showLoading = !isLoaded || !isSignedIn || (role && role !== 'new') || (isNew && myInquiryLoading)
+  const alreadySubmitted = isNew && !!myInquiry
+  const showSuccess = isSuccess || alreadySubmitted
+
+  if (showLoading) {
     return (
       <div className="bg-[#08080d] min-h-screen flex items-center justify-center">
         <span className="loading loading-spinner loading-lg text-primary" />
@@ -109,14 +154,7 @@ export default function OnboardingPage() {
     )
   }
 
-  const slugHint =
-    slugStatus === 'available' ? '✓' :
-    slugStatus === 'taken'     ? t.onboarding.slugHint :
-    slugStatus === 'invalid'   ? t.onboarding.slugHint :
-    slugStatus === 'checking'  ? t.common.loading :
-    t.onboarding.slugHint
-
-  const canSubmit = name.trim().length > 0 && slugStatus === 'available' && !submitting
+  const canSubmit = name.trim().length > 0 && message.trim().length > 0 && !isPending
 
   return (
     <div className="bg-[#08080d] text-white min-h-screen flex flex-col selection:bg-violet-500/30">
@@ -133,136 +171,129 @@ export default function OnboardingPage() {
           <div className="mt-16 h-100 w-150 rounded-full bg-violet-600/10 blur-[120px]" />
         </div>
 
-        <div className="w-full max-w-lg">
+        {showSuccess ? (
+          <SuccessScreen storeName={submitted?.storeName ?? myInquiry?.storeName ?? undefined} />
+        ) : (
+          <div className="w-full max-w-lg">
 
-          <p className="text-violet-400 text-xs font-semibold uppercase tracking-widest mb-4">
-            ✦ {t.onboarding.title}
-          </p>
+            <p className="text-violet-400 text-xs font-semibold uppercase tracking-widest mb-4">
+              ✦ {t.onboarding.title}
+            </p>
 
-          <h1 className="font-display text-4xl font-black tracking-tight mb-2 leading-tight">
-            {t.onboarding.title}
-          </h1>
-          <p className="text-white/40 text-sm mb-10 leading-relaxed">
-            {t.onboarding.subtitle}
-          </p>
+            <h1 className="font-display text-4xl font-black tracking-tight mb-2 leading-tight">
+              {t.onboarding.title}
+            </h1>
+            <p className="text-white/40 text-sm mb-10 leading-relaxed">
+              {t.onboarding.subtitle}
+            </p>
 
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 lg:p-8">
-            <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
+            <div className="rounded-2xl border border-white/7 bg-white/2 p-6 lg:p-8">
+              <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
 
-              <div className="fieldset gap-2">
-                <label htmlFor="name" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                  {t.onboarding.nameLabel} <span className="text-error">*</span>
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  className="input w-full bg-white/4 border-white/10 focus:border-violet-500/60"
-                  placeholder={t.onboarding.namePlaceholder}
-                  value={name}
-                  onChange={(e) => handleNameChange(e.target.value)}
-                  autoComplete="name"
-                  required
-                />
-              </div>
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <div className="fieldset gap-2">
+                    <label htmlFor="name" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                      {t.onboarding.nameLabel} <span className="text-error">*</span>
+                    </label>
+                    <input
+                      id="name"
+                      type="text"
+                      className="input w-full bg-white/4 border-white/10 focus:border-violet-500/60"
+                      placeholder={t.onboarding.namePlaceholder}
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                      autoComplete="name"
+                      required
+                    />
+                  </div>
 
-              <div className="fieldset gap-2">
-                <label htmlFor="slug" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                  {t.onboarding.slugLabel} <span className="text-error">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    id="slug"
-                    type="text"
-                    className={[
-                      'input w-full bg-white/4 pr-10',
-                      slugStatus === 'available' ? 'input-success' :
-                      slugStatus === 'taken' || slugStatus === 'invalid' ? 'input-error' :
-                      'border-white/10',
-                    ].join(' ')}
-                    placeholder={t.onboarding.slugPlaceholder}
-                    value={slug}
-                    onChange={(e) => handleSlugChange(e.target.value)}
-                    autoComplete="off"
+                  <div className="fieldset gap-2">
+                    <label htmlFor="store-name" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                      {t.onboarding.storeNameLabel}
+                    </label>
+                    <input
+                      id="store-name"
+                      type="text"
+                      className="input w-full bg-white/4 border-white/10 focus:border-violet-500/60"
+                      placeholder={t.onboarding.storeNamePlaceholder}
+                      value={storeName}
+                      onChange={e => setStoreName(e.target.value)}
+                      autoComplete="organization"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <div className="fieldset gap-2">
+                    <label htmlFor="email" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                      {t.onboarding.emailLabel}
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      className="input w-full bg-white/4 border-white/10 focus:border-violet-500/60"
+                      placeholder={t.onboarding.emailPlaceholder}
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      autoComplete="email"
+                    />
+                  </div>
+
+                  <div className="fieldset gap-2">
+                    <label htmlFor="phone" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                      {t.onboarding.phoneLabel}
+                    </label>
+                    <input
+                      id="phone"
+                      type="tel"
+                      className="input w-full bg-white/4 border-white/10 focus:border-violet-500/60"
+                      placeholder={t.onboarding.phonePlaceholder}
+                      value={phone}
+                      onChange={e => setPhone(e.target.value)}
+                      autoComplete="tel"
+                    />
+                  </div>
+                </div>
+                <p className="fieldset-label text-white/30 -mt-4">{t.onboarding.contactHint}</p>
+
+                <div className="fieldset gap-2">
+                  <label htmlFor="message" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                    {t.onboarding.messageLabel} <span className="text-error">*</span>
+                  </label>
+                  <textarea
+                    id="message"
+                    className="textarea w-full bg-white/4 border-white/10 focus:border-violet-500/60 resize-none"
+                    placeholder={t.onboarding.messagePlaceholder}
+                    rows={4}
+                    value={message}
+                    onChange={e => setMessage(e.target.value)}
                     required
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-sm leading-none">
-                    {slugStatus === 'checking'  && <span className="loading loading-spinner loading-xs text-white/40" />}
-                    {slugStatus === 'available' && <span className="text-success">✓</span>}
-                    {(slugStatus === 'taken' || slugStatus === 'invalid') && <span className="text-error">✗</span>}
-                  </span>
                 </div>
-                <p className={[
-                  'fieldset-label',
-                  slugStatus === 'available' ? 'text-success' :
-                  slugStatus === 'taken' || slugStatus === 'invalid' ? 'text-error' :
-                  'text-white/30',
-                ].join(' ')}>
-                  {slugHint}
-                </p>
-              </div>
 
-              <div className="fieldset gap-2">
-                <label htmlFor="instagram" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                  {t.onboarding.instagramLabel}
-                </label>
-                <div className="flex">
-                  <span className="flex items-center px-3 text-white/30 text-sm bg-white/3 border border-r-0 border-white/10 rounded-l-(--radius-field) select-none shrink-0">
-                    @
-                  </span>
-                  <input
-                    id="instagram"
-                    type="text"
-                    className="input flex-1 bg-white/4 border-white/10 rounded-l-none focus:border-violet-500/60 min-w-0"
-                    placeholder={t.onboarding.instagramPlaceholder.replace('@', '')}
-                    value={instagram}
-                    onChange={(e) => setInstagram(e.target.value)}
-                    autoComplete="off"
-                  />
-                </div>
-              </div>
-
-              <div className="fieldset gap-2">
-                <label htmlFor="tiktok" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                  {t.onboarding.tiktokLabel}
-                </label>
-                <div className="flex">
-                  <span className="flex items-center px-3 text-white/30 text-sm bg-white/3 border border-r-0 border-white/10 rounded-l-(--radius-field) select-none shrink-0">
-                    @
-                  </span>
-                  <input
-                    id="tiktok"
-                    type="text"
-                    className="input flex-1 bg-white/4 border-white/10 rounded-l-none focus:border-violet-500/60 min-w-0"
-                    placeholder={t.onboarding.tiktokPlaceholder.replace('@', '')}
-                    value={tiktok}
-                    onChange={(e) => setTiktok(e.target.value)}
-                    autoComplete="off"
-                  />
-                </div>
-              </div>
-
-              {submitError && (
-                <div className="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
-                  {submitError}
-                </div>
-              )}
-
-              <button type="submit" disabled={!canSubmit} className="btn btn-primary w-full mt-1 gap-2">
-                {submitting ? (
-                  <span className="loading loading-spinner loading-sm" />
-                ) : (
-                  <>
-                    {t.onboarding.submit}
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-                      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </>
+                {(validationError || submitError) && (
+                  <div className="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
+                    {validationError || t.onboarding.error}
+                  </div>
                 )}
-              </button>
 
-            </form>
+                <button type="submit" disabled={!canSubmit} className="btn btn-primary w-full mt-1 gap-2">
+                  {isPending ? (
+                    <span className="loading loading-spinner loading-sm" />
+                  ) : (
+                    <>
+                      {t.onboarding.submit}
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </>
+                  )}
+                </button>
+
+              </form>
+            </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   )
