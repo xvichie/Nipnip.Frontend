@@ -1,9 +1,20 @@
 import type { ThemeId } from '@/lib/types/storefront'
 
+export type ThemeCategory = 'general' | 'flowers' | 'kids' | 'sports' | 'food'
+
+export const THEME_CATEGORIES: { id: ThemeCategory; label: string }[] = [
+  { id: 'general', label: 'ზოგადი' },
+  { id: 'flowers', label: 'ყვავილები და საჩუქრები' },
+  { id: 'kids', label: 'ბავშვები და სათამაშოები' },
+  { id: 'sports', label: 'სპორტი' },
+  { id: 'food', label: 'საკვები და დელიკატესები' },
+]
+
 export interface ThemeDefinition {
   id: ThemeId
   label: string
   description: string
+  category: ThemeCategory
   swatch: string[]
   radius: 'none' | 'md' | '2xl'
   defaultAccentColor: string
@@ -13,8 +24,9 @@ export interface ThemeDefinition {
 export const THEMES: ThemeDefinition[] = [
   {
     id: 'minimal',
-    label: 'Minimal',
-    description: 'Clean editorial look — white background, sharp lines, uppercase labels.',
+    label: 'მინიმალური',
+    description: 'სუფთა, მკაფიო დიზაინი — თეთრი ფონი, მარტივი ხაზები, დიდი ასოებით წარწერები.',
+    category: 'general',
     swatch: ['#ffffff', '#111111', '#e5e5e5'],
     radius: 'none',
     defaultAccentColor: '#111111',
@@ -22,8 +34,9 @@ export const THEMES: ThemeDefinition[] = [
   },
   {
     id: 'bold',
-    label: 'Bold',
-    description: 'Dark background with vibrant accent glow, rounded cards, big imagery.',
+    label: 'თამამი',
+    description: 'მუქი ფონი კაშკაშა აქცენტით, მომრგვალო ბარათები და დიდი სურათები.',
+    category: 'general',
     swatch: ['#0a0a0a', '#a855f7', '#ffffff'],
     radius: '2xl',
     defaultAccentColor: '#a855f7',
@@ -31,8 +44,9 @@ export const THEMES: ThemeDefinition[] = [
   },
   {
     id: 'classic',
-    label: 'Classic',
-    description: 'Soft neutral background, gentle shadows, traditional catalog grid.',
+    label: 'კლასიკური',
+    description: 'რბილი, ნეიტრალური ფონი, ნაზი ჩრდილები — ტრადიციული კატალოგის ბადე.',
+    category: 'general',
     swatch: ['#fafafa', '#111111', '#ffffff'],
     radius: 'md',
     defaultAccentColor: '#111111',
@@ -40,8 +54,9 @@ export const THEMES: ThemeDefinition[] = [
   },
   {
     id: 'luxury',
-    label: 'Luxury',
-    description: 'Ivory background, serif type, thin gold accents — boutique fashion feel.',
+    label: 'ლუქსი',
+    description: 'სპილენძისფერი ფონი, სერიფული შრიფტი, წვრილი ოქროსფერი აქცენტები — ბუტიკის განწყობა.',
+    category: 'general',
     swatch: ['#faf7f2', '#1c1a17', '#9c7a4a'],
     radius: 'none',
     defaultAccentColor: '#9c7a4a',
@@ -49,8 +64,9 @@ export const THEMES: ThemeDefinition[] = [
   },
   {
     id: 'vibrant',
-    label: 'Vibrant',
-    description: 'Playful colorful marketplace — pill-shaped chips, punchy coral accent.',
+    label: 'ცოცხალი',
+    description: 'მხიარული, ფერადი მარკეტი — მომრგვალო ჭიპები, ენერგიული, კორალისფერი აქცენტი.',
+    category: 'general',
     swatch: ['#fffaf5', '#ff5a3c', '#111111'],
     radius: '2xl',
     defaultAccentColor: '#ff5a3c',
@@ -58,8 +74,9 @@ export const THEMES: ThemeDefinition[] = [
   },
   {
     id: 'commerce',
-    label: 'Commerce',
-    description: 'Dense catalog grid with sale badges and a filter sidebar — built for stores with many products.',
+    label: 'კომერცია',
+    description: 'მკვრივი კატალოგის ბადე ფასდაკლების ბეჯებითა და ფილტრის პანელით — მრავალპროდუქტიანი მაღაზიებისთვის.',
+    category: 'general',
     swatch: ['#ffffff', '#0f172a', '#2563eb'],
     radius: 'md',
     defaultAccentColor: '#2563eb',
@@ -67,8 +84,9 @@ export const THEMES: ThemeDefinition[] = [
   },
   {
     id: 'editorial',
-    label: 'Editorial',
-    description: 'Magazine-style layout with a featured hero product and asymmetric grid — built for visual storytelling.',
+    label: 'სარედაქციო',
+    description: 'ჟურნალის სტილის განლაგება გამორჩეული პროდუქტით — ვიზუალური თხრობისთვის.',
+    category: 'general',
     swatch: ['#ffffff', '#111111', '#c81e3a'],
     radius: 'none',
     defaultAccentColor: '#c81e3a',
@@ -76,8 +94,9 @@ export const THEMES: ThemeDefinition[] = [
   },
   {
     id: 'flower',
-    label: 'Flower',
-    description: 'Soft blush-and-cream palette with rounded, romantic shapes — built for florists and gift shops.',
+    label: 'ყვავილები',
+    description: 'რბილი, ვარდისფერ-კრემისფერი პალიტრა მომრგვალო ფორმებით — ყვავილებისა და საჩუქრების მაღაზიებისთვის.',
+    category: 'flowers',
     swatch: ['#fdf6f2', '#c65d7b', '#7c9473'],
     radius: '2xl',
     defaultAccentColor: '#c65d7b',
@@ -85,8 +104,9 @@ export const THEMES: ThemeDefinition[] = [
   },
   {
     id: 'kids',
-    label: 'Kids',
-    description: 'Playful candy-colored palette with bubbly rounded shapes — built for toy and children’s clothing stores.',
+    label: 'ბავშვები',
+    description: 'მხიარული, კანფეტისფერი პალიტრა ბუშტისებრი, მომრგვალო ფორმებით — სათამაშოებისა და საბავშვო ტანსაცმლის მაღაზიებისთვის.',
+    category: 'kids',
     swatch: ['#fffbea', '#ff6fae', '#3fc5f0'],
     radius: '2xl',
     defaultAccentColor: '#ff6fae',
@@ -94,8 +114,9 @@ export const THEMES: ThemeDefinition[] = [
   },
   {
     id: 'sports',
-    label: 'Sports',
-    description: 'Sharp, high-contrast dark theme with bold uppercase type and a neon accent — built for athletic and sportswear stores.',
+    label: 'სპორტი',
+    description: 'მკვეთრი, მაღალი კონტრასტის მუქი თემა თამამი წარწერებითა და ნეონისფერი აქცენტით — სპორტული საქონლისთვის.',
+    category: 'sports',
     swatch: ['#0d0f0d', '#c8ff00', '#ffffff'],
     radius: 'none',
     defaultAccentColor: '#c8ff00',
@@ -103,8 +124,9 @@ export const THEMES: ThemeDefinition[] = [
   },
   {
     id: 'chocolate',
-    label: 'Chocolate',
-    description: 'Warm cocoa-and-cream palette with serif type and a caramel-gold accent — built for chocolatiers and gourmet food shops.',
+    label: 'შოკოლადი',
+    description: 'თბილი კაკაოსა და კრემისფერი პალიტრა სერიფული შრიფტით — შოკოლადისა და დელიკატესების მაღაზიებისთვის.',
+    category: 'food',
     swatch: ['#f7ede0', '#3b2418', '#b5651d'],
     radius: 'none',
     defaultAccentColor: '#b5651d',

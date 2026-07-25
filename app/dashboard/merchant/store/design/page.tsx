@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useMyCategories, useMyCollections, useMyPages, useMyProducts, useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { uploadImage, uploadVideo } from '@/lib/uploadImage'
 import { BANNER_PATTERNS, DEFAULT_THEME_CONFIG, HERO_TEXT_POSITIONS, parseThemeConfig } from '@/lib/store/theme-config'
 import { ALL_FONT_VARIABLE_CLASSES, FONT_OPTIONS, getFontOption, type FontCategory } from '@/lib/storefront-fonts'
-import { getThemeDefinition, isThemeId, SURFACE_CLASSES, THEMES } from '@/lib/storefront-themes'
+import { getThemeDefinition, isThemeId, SURFACE_CLASSES, THEME_CATEGORIES, THEMES, type ThemeCategory } from '@/lib/storefront-themes'
 import { StorefrontCartProvider } from '@/lib/store/storefront-cart-context'
 import { PreviewFrame, type PreviewMode } from '@/components/dashboard/store/PreviewFrame'
 import { AnnouncementBar } from '@/components/storefront/shared/AnnouncementBar'
@@ -465,7 +465,7 @@ export default function StoreDesignPage() {
 
   const [themeId, setThemeId] = useState<ThemeId>('minimal')
   const [themePickerOpen, setThemePickerOpen] = useState(false)
-  const themePickerRef = useRef<HTMLDivElement>(null)
+  const [themeCategoryFilter, setThemeCategoryFilter] = useState<ThemeCategory | 'all'>('all')
   const [previewMode, setPreviewMode] = useState<PreviewMode>('desktop')
   const [previewFullscreen, setPreviewFullscreen] = useState(false)
   const [accentColor, setAccentColor] = useState(DEFAULT_THEME_CONFIG.accentColor)
@@ -802,16 +802,6 @@ export default function StoreDesignPage() {
   }
 
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (themePickerRef.current && !themePickerRef.current.contains(e.target as Node)) {
-        setThemePickerOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  useEffect(() => {
     if (!previewFullscreen) return
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') setPreviewFullscreen(false)
@@ -819,6 +809,15 @@ export default function StoreDesignPage() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [previewFullscreen])
+
+  useEffect(() => {
+    if (!themePickerOpen) return
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setThemePickerOpen(false)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [themePickerOpen])
 
   async function handleLogoFile(file: File) {
     setLogoUploading(true)
@@ -1381,32 +1380,75 @@ export default function StoreDesignPage() {
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
             <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">თემა</h2>
 
-            <div className="relative" ref={themePickerRef}>
-              <button
-                type="button"
-                onClick={() => setThemePickerOpen(v => !v)}
-                className="w-full flex items-center gap-3 rounded-xl border border-white/10 bg-[#14141c] px-3 py-2.5 text-left hover:border-white/25 transition-colors"
+            <button
+              type="button"
+              onClick={() => setThemePickerOpen(true)}
+              className="w-full flex items-center gap-3 rounded-xl border border-white/10 bg-[#14141c] px-3 py-2.5 text-left hover:border-white/25 transition-colors"
+            >
+              <div className="flex gap-1 shrink-0">
+                {getThemeDefinition(themeId).swatch.map((color, i) => (
+                  <div key={i} className="w-4 h-4 rounded-full border border-white/10" style={{ backgroundColor: color }} />
+                ))}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-white">{getThemeDefinition(themeId).label}</p>
+                <p className="text-white/40 text-xs leading-snug truncate">{getThemeDefinition(themeId).description}</p>
+              </div>
+              <svg width="12" height="12" viewBox="0 0 10 10" fill="none" aria-hidden className="shrink-0 text-white/40">
+                <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
+
+          {themePickerOpen && (
+            <div
+              className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4"
+              onClick={() => setThemePickerOpen(false)}
+            >
+              <div
+                className="w-full max-w-2xl max-h-[85vh] rounded-2xl border border-white/10 bg-[#14141c] shadow-2xl flex flex-col overflow-hidden"
+                onClick={e => e.stopPropagation()}
               >
-                <div className="flex gap-1 shrink-0">
-                  {getThemeDefinition(themeId).swatch.map((color, i) => (
-                    <div key={i} className="w-4 h-4 rounded-full border border-white/10" style={{ backgroundColor: color }} />
+                <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0">
+                  <h3 className="text-sm font-bold text-white">აირჩიეთ თემა</h3>
+                  <button
+                    type="button"
+                    onClick={() => setThemePickerOpen(false)}
+                    aria-label="დახურვა"
+                    className="w-8 h-8 flex items-center justify-center rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                  >
+                    <XIcon className="w-3 h-3" />
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap gap-2 px-5 py-3 border-b border-white/10 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setThemeCategoryFilter('all')}
+                    className={[
+                      'px-3 py-1.5 rounded-full text-xs font-semibold transition-colors',
+                      themeCategoryFilter === 'all' ? 'bg-fuchsia-500 text-white' : 'bg-white/5 text-white/60 hover:bg-white/10',
+                    ].join(' ')}
+                  >
+                    ყველა
+                  </button>
+                  {THEME_CATEGORIES.map(cat => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setThemeCategoryFilter(cat.id)}
+                      className={[
+                        'px-3 py-1.5 rounded-full text-xs font-semibold transition-colors',
+                        themeCategoryFilter === cat.id ? 'bg-fuchsia-500 text-white' : 'bg-white/5 text-white/60 hover:bg-white/10',
+                      ].join(' ')}
+                    >
+                      {cat.label}
+                    </button>
                   ))}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white">{getThemeDefinition(themeId).label}</p>
-                  <p className="text-white/40 text-xs leading-snug truncate">{getThemeDefinition(themeId).description}</p>
-                </div>
-                <svg
-                  width="12" height="12" viewBox="0 0 10 10" fill="none" aria-hidden
-                  className={`shrink-0 text-white/40 transition-transform ${themePickerOpen ? 'rotate-180' : ''}`}
-                >
-                  <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
 
-              {themePickerOpen && (
-                <div className="absolute z-20 top-full left-0 right-0 mt-2 rounded-xl border border-white/10 bg-[#14141c] shadow-xl overflow-hidden">
-                  {THEMES.map(theme => (
+                <div className="overflow-y-auto p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {THEMES.filter(theme => themeCategoryFilter === 'all' || theme.category === themeCategoryFilter).map(theme => (
                     <button
                       key={theme.id}
                       type="button"
@@ -1417,25 +1459,30 @@ export default function StoreDesignPage() {
                         setThemePickerOpen(false)
                       }}
                       className={[
-                        'w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors',
-                        themeId === theme.id ? 'bg-fuchsia-500/10' : 'hover:bg-white/5',
+                        'flex items-start gap-3 rounded-xl border p-3 text-left transition-colors',
+                        themeId === theme.id ? 'border-fuchsia-500 bg-fuchsia-500/10' : 'border-white/10 hover:border-white/25 hover:bg-white/5',
                       ].join(' ')}
                     >
-                      <div className="flex gap-1 shrink-0">
+                      <div className="flex gap-1 shrink-0 mt-0.5">
                         {theme.swatch.map((color, i) => (
                           <div key={i} className="w-4 h-4 rounded-full border border-white/10" style={{ backgroundColor: color }} />
                         ))}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-white">{theme.label}</p>
-                        <p className="text-white/40 text-xs leading-snug">{theme.description}</p>
+                        <p className="text-white/40 text-xs leading-snug mt-0.5">{theme.description}</p>
                       </div>
+                      {themeId === theme.id && (
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0 text-fuchsia-400 mt-0.5">
+                          <path d="M3 8.5l3.5 3.5L13 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
                     </button>
                   ))}
                 </div>
-              )}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ფერები და ფონტი</h2>
