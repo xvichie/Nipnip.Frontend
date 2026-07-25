@@ -105,7 +105,8 @@ export interface CreateWebsiteInquiryRequest {
   storeName?: string | null
   email?: string | null
   phone?: string | null
-  message: string
+  /** Optional — the onboarding-replacement flow doesn't collect one at all. */
+  message?: string | null
 }
 
 export interface UnreadWebsiteInquiryCountResponse {

@@ -94,11 +94,11 @@ export default function OnboardingPage() {
   const role = useCurrentRole()
   const { t } = useLanguage()
 
+  const [step, setStep] = useState<1 | 2>(1)
   const [name, setName] = useState('')
-  const [storeName, setStoreName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
-  const [message, setMessage] = useState('')
+  const [storeName, setStoreName] = useState('')
   const [validationError, setValidationError] = useState('')
 
   const isNew = isLoaded && isSignedIn && role === 'new'
@@ -112,33 +112,43 @@ export default function OnboardingPage() {
     else if (role === 'merchant') router.replace('/dashboard/merchant')
   }, [isLoaded, isSignedIn, role, router])
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setValidationError('')
-
+  function validateStep1(): boolean {
     if (!name.trim()) {
       setValidationError(t.onboarding.errorName)
-      return
-    }
-    if (!message.trim()) {
-      setValidationError(t.onboarding.errorMessage)
-      return
+      return false
     }
     if (!email.trim() && !phone.trim()) {
       setValidationError(t.onboarding.errorContact)
-      return
+      return false
     }
     if (email.trim() && !EMAIL_PATTERN.test(email.trim())) {
       setValidationError(t.onboarding.errorEmail)
-      return
+      return false
     }
+    return true
+  }
+
+  function handleNext(e: React.FormEvent) {
+    e.preventDefault()
+    setValidationError('')
+    if (validateStep1()) setStep(2)
+  }
+
+  function handleBack() {
+    setValidationError('')
+    setStep(1)
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setValidationError('')
+    if (!validateStep1()) { setStep(1); return }
 
     submit({
       name: name.trim(),
       storeName: storeName.trim() || null,
       email: email.trim() || null,
       phone: phone.trim() || null,
-      message: message.trim(),
     })
   }
 
@@ -153,8 +163,6 @@ export default function OnboardingPage() {
       </div>
     )
   }
-
-  const canSubmit = name.trim().length > 0 && message.trim().length > 0 && !isPending
 
   return (
     <div className="bg-[#08080d] text-white min-h-screen flex flex-col selection:bg-violet-500/30">
@@ -174,23 +182,45 @@ export default function OnboardingPage() {
         {showSuccess ? (
           <SuccessScreen storeName={submitted?.storeName ?? myInquiry?.storeName ?? undefined} />
         ) : (
-          <div className="w-full max-w-lg">
+          <div className="w-full max-w-lg flex flex-col items-center">
 
-            <p className="text-violet-400 text-xs font-semibold uppercase tracking-widest mb-4">
-              ✦ {t.onboarding.title}
-            </p>
+            {/* Hero — pushy, benefit-led */}
+            <div className="text-center mb-10">
+              <h1 className="font-display text-4xl sm:text-5xl font-black tracking-tight leading-[1.1] mb-4">
+                {t.onboarding.heroHeadline}
+              </h1>
+              <p className="text-white/50 text-lg leading-relaxed max-w-md mx-auto mb-5">
+                {t.onboarding.heroSubheadline}
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-2.5">
+                <span className="rounded-full border border-violet-500/25 bg-violet-500/10 px-3.5 py-1.5 text-sm font-medium text-violet-200">
+                  {t.onboarding.benefit1}
+                </span>
+                <span className="rounded-full border border-violet-500/25 bg-violet-500/10 px-3.5 py-1.5 text-sm font-medium text-violet-200">
+                  {t.onboarding.benefit2}
+                </span>
+                <span className="rounded-full border border-violet-500/25 bg-violet-500/10 px-3.5 py-1.5 text-sm font-medium text-violet-200">
+                  {t.onboarding.benefit3}
+                </span>
+              </div>
+            </div>
 
-            <h1 className="font-display text-4xl font-black tracking-tight mb-2 leading-tight">
-              {t.onboarding.title}
-            </h1>
-            <p className="text-white/40 text-sm mb-10 leading-relaxed">
-              {t.onboarding.subtitle}
-            </p>
+            {/* Form card */}
+            <div className="w-full rounded-2xl border border-white/7 bg-white/2 p-6 lg:p-8">
 
-            <div className="rounded-2xl border border-white/7 bg-white/2 p-6 lg:p-8">
-              <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
+              <div className="flex items-center justify-between mb-6">
+                <p className="text-violet-400 text-xs font-semibold uppercase tracking-widest">
+                  {step === 1 ? t.onboarding.step1Label : t.onboarding.step2Label}
+                </p>
+                <div className="flex items-center gap-1.5">
+                  <span className={`h-1.5 rounded-full transition-all ${step === 1 ? 'w-6 bg-violet-400' : 'w-1.5 bg-white/15'}`} />
+                  <span className={`h-1.5 rounded-full transition-all ${step === 2 ? 'w-6 bg-violet-400' : 'w-1.5 bg-white/15'}`} />
+                </div>
+              </div>
 
-                <div className="grid sm:grid-cols-2 gap-6">
+              {step === 1 ? (
+                <form onSubmit={handleNext} noValidate className="flex flex-col gap-6">
+
                   <div className="fieldset gap-2">
                     <label htmlFor="name" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
                       {t.onboarding.nameLabel} <span className="text-error">*</span>
@@ -198,14 +228,65 @@ export default function OnboardingPage() {
                     <input
                       id="name"
                       type="text"
-                      className="input w-full bg-white/4 border-white/10 focus:border-violet-500/60"
+                      className="input input-lg w-full bg-white/4 border-white/10 focus:border-violet-500/60"
                       placeholder={t.onboarding.namePlaceholder}
                       value={name}
                       onChange={e => setName(e.target.value)}
                       autoComplete="name"
+                      autoFocus
                       required
                     />
                   </div>
+
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    <div className="fieldset gap-2">
+                      <label htmlFor="email" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                        {t.onboarding.emailLabel}
+                      </label>
+                      <input
+                        id="email"
+                        type="email"
+                        className="input input-lg w-full bg-white/4 border-white/10 focus:border-violet-500/60"
+                        placeholder={t.onboarding.emailPlaceholder}
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        autoComplete="email"
+                      />
+                    </div>
+
+                    <div className="fieldset gap-2">
+                      <label htmlFor="phone" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                        {t.onboarding.phoneLabel}
+                      </label>
+                      <input
+                        id="phone"
+                        type="tel"
+                        className="input input-lg w-full bg-white/4 border-white/10 focus:border-violet-500/60"
+                        placeholder={t.onboarding.phonePlaceholder}
+                        value={phone}
+                        onChange={e => setPhone(e.target.value)}
+                        autoComplete="tel"
+                      />
+                    </div>
+                  </div>
+                  <p className="fieldset-label text-white/30 -mt-4">{t.onboarding.contactHint}</p>
+
+                  {validationError && (
+                    <div className="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
+                      {validationError}
+                    </div>
+                  )}
+
+                  <button type="submit" className="btn btn-primary btn-lg w-full mt-1 gap-2">
+                    {t.onboarding.next}
+                    <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden>
+                      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+
+                </form>
+              ) : (
+                <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
 
                   <div className="fieldset gap-2">
                     <label htmlFor="store-name" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
@@ -214,83 +295,49 @@ export default function OnboardingPage() {
                     <input
                       id="store-name"
                       type="text"
-                      className="input w-full bg-white/4 border-white/10 focus:border-violet-500/60"
+                      className="input input-lg w-full bg-white/4 border-white/10 focus:border-violet-500/60"
                       placeholder={t.onboarding.storeNamePlaceholder}
                       value={storeName}
                       onChange={e => setStoreName(e.target.value)}
                       autoComplete="organization"
+                      autoFocus
                     />
-                  </div>
-                </div>
-
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <div className="fieldset gap-2">
-                    <label htmlFor="email" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                      {t.onboarding.emailLabel}
-                    </label>
-                    <input
-                      id="email"
-                      type="email"
-                      className="input w-full bg-white/4 border-white/10 focus:border-violet-500/60"
-                      placeholder={t.onboarding.emailPlaceholder}
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      autoComplete="email"
-                    />
+                    <p className="fieldset-label text-white/30">{t.onboarding.storeNameHint}</p>
                   </div>
 
-                  <div className="fieldset gap-2">
-                    <label htmlFor="phone" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                      {t.onboarding.phoneLabel}
-                    </label>
-                    <input
-                      id="phone"
-                      type="tel"
-                      className="input w-full bg-white/4 border-white/10 focus:border-violet-500/60"
-                      placeholder={t.onboarding.phonePlaceholder}
-                      value={phone}
-                      onChange={e => setPhone(e.target.value)}
-                      autoComplete="tel"
-                    />
-                  </div>
-                </div>
-                <p className="fieldset-label text-white/30 -mt-4">{t.onboarding.contactHint}</p>
-
-                <div className="fieldset gap-2">
-                  <label htmlFor="message" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-                    {t.onboarding.messageLabel} <span className="text-error">*</span>
-                  </label>
-                  <textarea
-                    id="message"
-                    className="textarea w-full bg-white/4 border-white/10 focus:border-violet-500/60 resize-none"
-                    placeholder={t.onboarding.messagePlaceholder}
-                    rows={4}
-                    value={message}
-                    onChange={e => setMessage(e.target.value)}
-                    required
-                  />
-                </div>
-
-                {(validationError || submitError) && (
-                  <div className="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
-                    {validationError || t.onboarding.error}
-                  </div>
-                )}
-
-                <button type="submit" disabled={!canSubmit} className="btn btn-primary w-full mt-1 gap-2">
-                  {isPending ? (
-                    <span className="loading loading-spinner loading-sm" />
-                  ) : (
-                    <>
-                      {t.onboarding.submit}
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-                        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </>
+                  {(validationError || submitError) && (
+                    <div className="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
+                      {validationError || t.onboarding.error}
+                    </div>
                   )}
-                </button>
 
-              </form>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={handleBack}
+                      className="btn btn-lg gap-2 bg-white/4 border-white/8 text-white/60 hover:text-white"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                        <path d="M10 13L5 8l5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      {t.onboarding.back}
+                    </button>
+                    <button type="submit" disabled={isPending} className="btn btn-primary btn-lg flex-1 gap-2">
+                      {isPending ? (
+                        <span className="loading loading-spinner loading-sm" />
+                      ) : (
+                        <>
+                          {t.onboarding.submit}
+                          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden>
+                            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                </form>
+              )}
             </div>
           </div>
         )}
