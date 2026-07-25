@@ -23,6 +23,9 @@ const DETAIL_COMPONENTS = {
   kids: dynamic(() => import('@/components/storefront/themes/kids/ProductDetail').then(m => m.ProductDetail)),
   sports: dynamic(() => import('@/components/storefront/themes/sports/ProductDetail').then(m => m.ProductDetail)),
   chocolate: dynamic(() => import('@/components/storefront/themes/chocolate/ProductDetail').then(m => m.ProductDetail)),
+  athletic: dynamic(() => import('@/components/storefront/themes/athletic/ProductDetail').then(m => m.ProductDetail)),
+  handmade: dynamic(() => import('@/components/storefront/themes/handmade/ProductDetail').then(m => m.ProductDetail)),
+  furniture: dynamic(() => import('@/components/storefront/themes/furniture/ProductDetail').then(m => m.ProductDetail)),
 }
 
 export async function generateMetadata({

@@ -22,6 +22,9 @@ const GRID_COMPONENTS = {
   kids: dynamic(() => import('@/components/storefront/themes/kids/ProductGrid').then(m => m.ProductGrid)),
   sports: dynamic(() => import('@/components/storefront/themes/sports/ProductGrid').then(m => m.ProductGrid)),
   chocolate: dynamic(() => import('@/components/storefront/themes/chocolate/ProductGrid').then(m => m.ProductGrid)),
+  athletic: dynamic(() => import('@/components/storefront/themes/athletic/ProductGrid').then(m => m.ProductGrid)),
+  handmade: dynamic(() => import('@/components/storefront/themes/handmade/ProductGrid').then(m => m.ProductGrid)),
+  furniture: dynamic(() => import('@/components/storefront/themes/furniture/ProductGrid').then(m => m.ProductGrid)),
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

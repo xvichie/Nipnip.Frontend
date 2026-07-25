@@ -1,6 +1,6 @@
 import type { ThemeId } from '@/lib/types/storefront'
 
-export type ThemeCategory = 'general' | 'flowers' | 'kids' | 'sports' | 'food'
+export type ThemeCategory = 'general' | 'flowers' | 'kids' | 'sports' | 'food' | 'handmade' | 'furniture'
 
 export const THEME_CATEGORIES: { id: ThemeCategory; label: string }[] = [
   { id: 'general', label: 'ზოგადი' },
@@ -8,6 +8,8 @@ export const THEME_CATEGORIES: { id: ThemeCategory; label: string }[] = [
   { id: 'kids', label: 'ბავშვები და სათამაშოები' },
   { id: 'sports', label: 'სპორტი' },
   { id: 'food', label: 'საკვები და დელიკატესები' },
+  { id: 'handmade', label: 'ხელნაკეთი ნივთები' },
+  { id: 'furniture', label: 'ავეჯი და დეკორი' },
 ]
 
 export interface ThemeDefinition {
@@ -132,6 +134,36 @@ export const THEMES: ThemeDefinition[] = [
     defaultAccentColor: '#b5651d',
     dark: false,
   },
+  {
+    id: 'athletic',
+    label: 'ატლეტიკა',
+    description: 'თეთრი ფონი მკვეთრი წითელი აქცენტით, მკვრივი კატალოგი და ფასდაკლების ბეჯები — სპორტული აღჭურვილობისა და ტანსაცმლის მაღაზიებისთვის.',
+    category: 'sports',
+    swatch: ['#ffffff', '#0f0f0f', '#ff3b30'],
+    radius: 'none',
+    defaultAccentColor: '#ff3b30',
+    dark: false,
+  },
+  {
+    id: 'handmade',
+    label: 'ხელნაკეთი',
+    description: 'თბილი crafts-სტილის პალიტრა თიხისფერი აქცენტით — ხელნაკეთი ნივთების, კერამიკისა და ხელოსნური ნაწარმის მაღაზიებისთვის.',
+    category: 'handmade',
+    swatch: ['#f4ede3', '#2b2420', '#a1512e'],
+    radius: 'none',
+    defaultAccentColor: '#a1512e',
+    dark: false,
+  },
+  {
+    id: 'furniture',
+    label: 'ავეჯი',
+    description: 'თბილი, ნეიტრალური ფონი კაკლის ხისფერი აქცენტით და სუფთა ხაზებით — ავეჯისა და საშინაო დეკორის მაღაზიებისთვის.',
+    category: 'furniture',
+    swatch: ['#f6f4f1', '#1f1d1b', '#7a5233'],
+    radius: 'none',
+    defaultAccentColor: '#7a5233',
+    dark: false,
+  },
 ]
 
 export function getThemeDefinition(themeId: string): ThemeDefinition {
@@ -245,5 +277,29 @@ export const SURFACE_CLASSES: Record<ThemeId, SurfaceClasses> = {
     muted: 'text-[#a68a6d]',
     border: 'border-[#3b2418]/10',
     inputBg: 'bg-white',
+  },
+  athletic: {
+    page: 'bg-white',
+    card: 'bg-white',
+    text: 'text-[#0f0f0f]',
+    muted: 'text-[#8a8a8a]',
+    border: 'border-[#e8e8e8]',
+    inputBg: 'bg-white',
+  },
+  handmade: {
+    page: 'bg-[#f4ede3]',
+    card: 'bg-[#f4ede3]',
+    text: 'text-[#2b2420]',
+    muted: 'text-[#8f8274]',
+    border: 'border-[#2b2420]/10',
+    inputBg: 'bg-[#f4ede3]',
+  },
+  furniture: {
+    page: 'bg-[#f6f4f1]',
+    card: 'bg-[#f6f4f1]',
+    text: 'text-[#1f1d1b]',
+    muted: 'text-[#8c877e]',
+    border: 'border-[#e6e1d9]',
+    inputBg: 'bg-[#f6f4f1]',
   },
 }
