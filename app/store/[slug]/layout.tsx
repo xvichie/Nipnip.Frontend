@@ -22,6 +22,10 @@ import { Header as CommerceHeader } from '@/components/storefront/themes/commerc
 import { Footer as CommerceFooter } from '@/components/storefront/themes/commerce/Footer'
 import { Header as EditorialHeader } from '@/components/storefront/themes/editorial/Header'
 import { Footer as EditorialFooter } from '@/components/storefront/themes/editorial/Footer'
+import { Header as FlowerHeader } from '@/components/storefront/themes/flower/Header'
+import { Footer as FlowerFooter } from '@/components/storefront/themes/flower/Footer'
+import { Header as KidsHeader } from '@/components/storefront/themes/kids/Header'
+import { Footer as KidsFooter } from '@/components/storefront/themes/kids/Footer'
 import { SocialBar } from '@/components/storefront/shared/SocialBar'
 import { AnnouncementBar } from '@/components/storefront/shared/AnnouncementBar'
 import { SaleCountdownBar } from '@/components/storefront/shared/SaleCountdownBar'
@@ -32,8 +36,8 @@ import { ALL_FONT_VARIABLE_CLASSES, getFontFamily } from '@/lib/storefront-fonts
 import { isCurrentUserAdmin } from '@/lib/server/is-admin'
 import type { CategoryResponse, StorePageResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
-const HEADERS = { minimal: MinimalHeader, bold: BoldHeader, classic: ClassicHeader, luxury: LuxuryHeader, vibrant: VibrantHeader, commerce: CommerceHeader, editorial: EditorialHeader }
-const FOOTERS = { minimal: MinimalFooter, bold: BoldFooter, classic: ClassicFooter, luxury: LuxuryFooter, vibrant: VibrantFooter, commerce: CommerceFooter, editorial: EditorialFooter }
+const HEADERS = { minimal: MinimalHeader, bold: BoldHeader, classic: ClassicHeader, luxury: LuxuryHeader, vibrant: VibrantHeader, commerce: CommerceHeader, editorial: EditorialHeader, flower: FlowerHeader, kids: KidsHeader }
+const FOOTERS = { minimal: MinimalFooter, bold: BoldFooter, classic: ClassicFooter, luxury: LuxuryFooter, vibrant: VibrantFooter, commerce: CommerceFooter, editorial: EditorialFooter, flower: FlowerFooter, kids: KidsFooter }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params

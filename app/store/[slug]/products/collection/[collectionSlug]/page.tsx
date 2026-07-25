@@ -11,9 +11,11 @@ import { ProductGrid as LuxuryProductGrid } from '@/components/storefront/themes
 import { ProductGrid as VibrantProductGrid } from '@/components/storefront/themes/vibrant/ProductGrid'
 import { ProductGrid as CommerceProductGrid } from '@/components/storefront/themes/commerce/ProductGrid'
 import { ProductGrid as EditorialProductGrid } from '@/components/storefront/themes/editorial/ProductGrid'
+import { ProductGrid as FlowerProductGrid } from '@/components/storefront/themes/flower/ProductGrid'
+import { ProductGrid as KidsProductGrid } from '@/components/storefront/themes/kids/ProductGrid'
 import type { CategoryResponse, CollectionResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
-const GRID_COMPONENTS = { minimal: MinimalProductGrid, bold: BoldProductGrid, classic: ClassicProductGrid, luxury: LuxuryProductGrid, vibrant: VibrantProductGrid, commerce: CommerceProductGrid, editorial: EditorialProductGrid }
+const GRID_COMPONENTS = { minimal: MinimalProductGrid, bold: BoldProductGrid, classic: ClassicProductGrid, luxury: LuxuryProductGrid, vibrant: VibrantProductGrid, commerce: CommerceProductGrid, editorial: EditorialProductGrid, flower: FlowerProductGrid, kids: KidsProductGrid }
 
 export async function generateMetadata({
   params,

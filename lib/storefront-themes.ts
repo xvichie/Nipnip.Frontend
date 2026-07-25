@@ -74,6 +74,24 @@ export const THEMES: ThemeDefinition[] = [
     defaultAccentColor: '#c81e3a',
     dark: false,
   },
+  {
+    id: 'flower',
+    label: 'Flower',
+    description: 'Soft blush-and-cream palette with rounded, romantic shapes — built for florists and gift shops.',
+    swatch: ['#fdf6f2', '#c65d7b', '#7c9473'],
+    radius: '2xl',
+    defaultAccentColor: '#c65d7b',
+    dark: false,
+  },
+  {
+    id: 'kids',
+    label: 'Kids',
+    description: 'Playful candy-colored palette with bubbly rounded shapes — built for toy and children’s clothing stores.',
+    swatch: ['#fffbea', '#ff6fae', '#3fc5f0'],
+    radius: '2xl',
+    defaultAccentColor: '#ff6fae',
+    dark: false,
+  },
 ]
 
 export function getThemeDefinition(themeId: string): ThemeDefinition {
@@ -154,6 +172,22 @@ export const SURFACE_CLASSES: Record<ThemeId, SurfaceClasses> = {
     text: 'text-[#111111]',
     muted: 'text-[#767676]',
     border: 'border-black/10',
+    inputBg: 'bg-white',
+  },
+  flower: {
+    page: 'bg-[#fdf6f2]',
+    card: 'bg-white',
+    text: 'text-[#3d2b28]',
+    muted: 'text-[#a4897f]',
+    border: 'border-[#f3e3de]',
+    inputBg: 'bg-white',
+  },
+  kids: {
+    page: 'bg-[#fffbea]',
+    card: 'bg-white',
+    text: 'text-[#2b2b2b]',
+    muted: 'text-[#9a9a9a]',
+    border: 'border-[#ffe9d2]',
     inputBg: 'bg-white',
   },
 }

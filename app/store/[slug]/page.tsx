@@ -11,10 +11,12 @@ import { Home as LuxuryHome } from '@/components/storefront/themes/luxury/Home'
 import { Home as VibrantHome } from '@/components/storefront/themes/vibrant/Home'
 import { Home as CommerceHome } from '@/components/storefront/themes/commerce/Home'
 import { Home as EditorialHome } from '@/components/storefront/themes/editorial/Home'
+import { Home as FlowerHome } from '@/components/storefront/themes/flower/Home'
+import { Home as KidsHome } from '@/components/storefront/themes/kids/Home'
 import type { PaginatedResult } from '@/lib/types/shared'
 import type { CategoryResponse, CollectionResponse, ProductSummaryResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
-const HOME_COMPONENTS = { minimal: MinimalHome, bold: BoldHome, classic: ClassicHome, luxury: LuxuryHome, vibrant: VibrantHome, commerce: CommerceHome, editorial: EditorialHome }
+const HOME_COMPONENTS = { minimal: MinimalHome, bold: BoldHome, classic: ClassicHome, luxury: LuxuryHome, vibrant: VibrantHome, commerce: CommerceHome, editorial: EditorialHome, flower: FlowerHome, kids: KidsHome }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params

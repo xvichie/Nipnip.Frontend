@@ -12,9 +12,11 @@ import { ProductDetail as LuxuryProductDetail } from '@/components/storefront/th
 import { ProductDetail as VibrantProductDetail } from '@/components/storefront/themes/vibrant/ProductDetail'
 import { ProductDetail as CommerceProductDetail } from '@/components/storefront/themes/commerce/ProductDetail'
 import { ProductDetail as EditorialProductDetail } from '@/components/storefront/themes/editorial/ProductDetail'
+import { ProductDetail as FlowerProductDetail } from '@/components/storefront/themes/flower/ProductDetail'
+import { ProductDetail as KidsProductDetail } from '@/components/storefront/themes/kids/ProductDetail'
 import type { CategoryResponse, ProductDetailResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
-const DETAIL_COMPONENTS = { minimal: MinimalProductDetail, bold: BoldProductDetail, classic: ClassicProductDetail, luxury: LuxuryProductDetail, vibrant: VibrantProductDetail, commerce: CommerceProductDetail, editorial: EditorialProductDetail }
+const DETAIL_COMPONENTS = { minimal: MinimalProductDetail, bold: BoldProductDetail, classic: ClassicProductDetail, luxury: LuxuryProductDetail, vibrant: VibrantProductDetail, commerce: CommerceProductDetail, editorial: EditorialProductDetail, flower: FlowerProductDetail, kids: KidsProductDetail }
 
 export async function generateMetadata({
   params,
