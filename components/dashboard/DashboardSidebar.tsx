@@ -262,6 +262,15 @@ function getCollapsedServerSnapshot() {
   return false
 }
 
+const STORE_NAV_GROUP_ICONS: Record<StoreNavGroup, React.ReactNode> = {
+  overview: GRID_ICON,
+  design: PALETTE_ICON,
+  products: BOX_ICON,
+  orders: BAG_ICON,
+  promotions: DISCOUNT_ICON,
+  settings: SETTINGS_ICON,
+}
+
 const STORE_NAV_ICONS: Record<string, React.ReactNode> = {
   '/dashboard/merchant/store': STORE_ICON,
   '/dashboard/merchant/store/analytics': ANALYTICS_ICON,
@@ -572,9 +581,14 @@ export function DashboardSidebar() {
                 return (
                   <div key={group} className="flex flex-col gap-0.5">
                     {!collapsed ? (
-                      <p className="px-3 pt-2.5 pb-1 text-[10px] font-semibold text-white/25 uppercase tracking-widest">
-                        {t.sidebar[STORE_NAV_GROUP_LABEL_KEYS[group]]}
-                      </p>
+                      <div className="flex items-center gap-2 px-3 pt-3.5 pb-2">
+                        <span className="text-white/30 shrink-0 [&>svg]:w-3 [&>svg]:h-3">
+                          {STORE_NAV_GROUP_ICONS[group]}
+                        </span>
+                        <p className="text-[10px] font-semibold text-white/25 uppercase tracking-widest">
+                          {t.sidebar[STORE_NAV_GROUP_LABEL_KEYS[group]]}
+                        </p>
+                      </div>
                     ) : group !== STORE_NAV_GROUP_ORDER[0] && (
                       <div className="my-1.5 border-t border-white/6" />
                     )}

@@ -45,10 +45,10 @@ export function WebsiteInquiryForm() {
 
   return (
     <div className="flex flex-col items-center text-center">
-      <p className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-1.5">
+      <h2 className="font-display text-3xl sm:text-4xl font-black tracking-tight mb-2">
         {t.websiteInquiry.heading}
-      </p>
-      <p className="text-white/30 text-sm mb-4 max-w-md">{t.websiteInquiry.subheading}</p>
+      </h2>
+      <p className="text-white/40 text-sm mb-5 max-w-md">{t.websiteInquiry.subheading}</p>
 
       {isSuccess ? (
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] px-5 py-4 max-w-md w-full">
