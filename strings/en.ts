@@ -477,7 +477,6 @@ export const en: Strings = {
     heroHeadline: 'NipNip — launch your store in 15 minutes',
     heroSubheadline: "Leave your contact and our team will call you today — we'll build your online store for you, start to finish.",
     benefit1: '⚡ Ready in 15 minutes',
-    benefit2: '🎁 Completely free',
     benefit3: '🤝 Personal support from day one',
     title: 'Get started now',
     subtitle: 'Just 2 quick steps.',

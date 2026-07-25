@@ -173,7 +173,7 @@ export default function OnboardingPage() {
         </span>
       </header>
 
-      <main className="flex-1 flex items-center justify-center px-6 py-16">
+      <main className="flex-1 flex items-start justify-center px-6 pt-10 pb-10">
 
         <div className="pointer-events-none fixed inset-0 flex items-start justify-center -z-10">
           <div className="mt-16 h-100 w-150 rounded-full bg-violet-600/10 blur-[120px]" />
@@ -185,30 +185,27 @@ export default function OnboardingPage() {
           <div className="w-full max-w-lg flex flex-col items-center">
 
             {/* Hero — pushy, benefit-led */}
-            <div className="text-center mb-10">
-              <h1 className="font-display text-4xl sm:text-5xl font-black tracking-tight leading-[1.1] mb-4">
+            <div className="text-center mb-6">
+              <h1 className="font-display text-3xl sm:text-4xl font-black tracking-tight leading-[1.15] mb-3">
                 {t.onboarding.heroHeadline}
               </h1>
-              <p className="text-white/50 text-lg leading-relaxed max-w-md mx-auto mb-5">
+              <p className="text-white/50 text-base leading-relaxed max-w-md mx-auto mb-3">
                 {t.onboarding.heroSubheadline}
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-2.5">
-                <span className="rounded-full border border-violet-500/25 bg-violet-500/10 px-3.5 py-1.5 text-sm font-medium text-violet-200">
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <span className="rounded-full border border-violet-500/25 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-200">
                   {t.onboarding.benefit1}
                 </span>
-                <span className="rounded-full border border-violet-500/25 bg-violet-500/10 px-3.5 py-1.5 text-sm font-medium text-violet-200">
-                  {t.onboarding.benefit2}
-                </span>
-                <span className="rounded-full border border-violet-500/25 bg-violet-500/10 px-3.5 py-1.5 text-sm font-medium text-violet-200">
+                <span className="rounded-full border border-violet-500/25 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-200">
                   {t.onboarding.benefit3}
                 </span>
               </div>
             </div>
 
             {/* Form card */}
-            <div className="w-full rounded-2xl border border-white/7 bg-white/2 p-6 lg:p-8">
+            <div className="w-full rounded-2xl border border-white/7 bg-white/2 p-5 sm:p-6">
 
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4">
                 <p className="text-violet-400 text-xs font-semibold uppercase tracking-widest">
                   {step === 1 ? t.onboarding.step1Label : t.onboarding.step2Label}
                 </p>
@@ -219,16 +216,16 @@ export default function OnboardingPage() {
               </div>
 
               {step === 1 ? (
-                <form onSubmit={handleNext} noValidate className="flex flex-col gap-6">
+                <form onSubmit={handleNext} noValidate className="flex flex-col gap-4">
 
-                  <div className="fieldset gap-2">
+                  <div className="fieldset gap-1.5">
                     <label htmlFor="name" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
                       {t.onboarding.nameLabel} <span className="text-error">*</span>
                     </label>
                     <input
                       id="name"
                       type="text"
-                      className="input input-lg w-full bg-white/4 border-white/10 focus:border-violet-500/60"
+                      className="input w-full bg-white/4 border-white/10 focus:border-violet-500/60"
                       placeholder={t.onboarding.namePlaceholder}
                       value={name}
                       onChange={e => setName(e.target.value)}
@@ -238,15 +235,15 @@ export default function OnboardingPage() {
                     />
                   </div>
 
-                  <div className="grid sm:grid-cols-2 gap-6">
-                    <div className="fieldset gap-2">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="fieldset gap-1.5">
                       <label htmlFor="email" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
                         {t.onboarding.emailLabel}
                       </label>
                       <input
                         id="email"
                         type="email"
-                        className="input input-lg w-full bg-white/4 border-white/10 focus:border-violet-500/60"
+                        className="input w-full bg-white/4 border-white/10 focus:border-violet-500/60"
                         placeholder={t.onboarding.emailPlaceholder}
                         value={email}
                         onChange={e => setEmail(e.target.value)}
@@ -254,14 +251,14 @@ export default function OnboardingPage() {
                       />
                     </div>
 
-                    <div className="fieldset gap-2">
+                    <div className="fieldset gap-1.5">
                       <label htmlFor="phone" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
                         {t.onboarding.phoneLabel}
                       </label>
                       <input
                         id="phone"
                         type="tel"
-                        className="input input-lg w-full bg-white/4 border-white/10 focus:border-violet-500/60"
+                        className="input w-full bg-white/4 border-white/10 focus:border-violet-500/60"
                         placeholder={t.onboarding.phonePlaceholder}
                         value={phone}
                         onChange={e => setPhone(e.target.value)}
@@ -269,7 +266,7 @@ export default function OnboardingPage() {
                       />
                     </div>
                   </div>
-                  <p className="fieldset-label text-white/30 -mt-4">{t.onboarding.contactHint}</p>
+                  <p className="fieldset-label text-white/30 -mt-2">{t.onboarding.contactHint}</p>
 
                   {validationError && (
                     <div className="rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
@@ -277,25 +274,25 @@ export default function OnboardingPage() {
                     </div>
                   )}
 
-                  <button type="submit" className="btn btn-primary btn-lg w-full mt-1 gap-2">
+                  <button type="submit" className="btn btn-primary w-full mt-1 gap-2">
                     {t.onboarding.next}
-                    <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
                       <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </button>
 
                 </form>
               ) : (
-                <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
+                <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
 
-                  <div className="fieldset gap-2">
+                  <div className="fieldset gap-1.5">
                     <label htmlFor="store-name" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
                       {t.onboarding.storeNameLabel}
                     </label>
                     <input
                       id="store-name"
                       type="text"
-                      className="input input-lg w-full bg-white/4 border-white/10 focus:border-violet-500/60"
+                      className="input w-full bg-white/4 border-white/10 focus:border-violet-500/60"
                       placeholder={t.onboarding.storeNamePlaceholder}
                       value={storeName}
                       onChange={e => setStoreName(e.target.value)}
@@ -315,20 +312,20 @@ export default function OnboardingPage() {
                     <button
                       type="button"
                       onClick={handleBack}
-                      className="btn btn-lg gap-2 bg-white/4 border-white/8 text-white/60 hover:text-white"
+                      className="btn gap-2 bg-white/4 border-white/8 text-white/60 hover:text-white"
                     >
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
                         <path d="M10 13L5 8l5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                       {t.onboarding.back}
                     </button>
-                    <button type="submit" disabled={isPending} className="btn btn-primary btn-lg flex-1 gap-2">
+                    <button type="submit" disabled={isPending} className="btn btn-primary flex-1 gap-2">
                       {isPending ? (
                         <span className="loading loading-spinner loading-sm" />
                       ) : (
                         <>
                           {t.onboarding.submit}
-                          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden>
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
                             <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
                         </>
