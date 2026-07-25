@@ -21,6 +21,8 @@ const DETAIL_COMPONENTS = {
   editorial: dynamic(() => import('@/components/storefront/themes/editorial/ProductDetail').then(m => m.ProductDetail)),
   flower: dynamic(() => import('@/components/storefront/themes/flower/ProductDetail').then(m => m.ProductDetail)),
   kids: dynamic(() => import('@/components/storefront/themes/kids/ProductDetail').then(m => m.ProductDetail)),
+  sports: dynamic(() => import('@/components/storefront/themes/sports/ProductDetail').then(m => m.ProductDetail)),
+  chocolate: dynamic(() => import('@/components/storefront/themes/chocolate/ProductDetail').then(m => m.ProductDetail)),
 }
 
 export async function generateMetadata({

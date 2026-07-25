@@ -18,6 +18,8 @@ import { Footer as CommerceFooter } from '@/components/storefront/themes/commerc
 import { Footer as EditorialFooter } from '@/components/storefront/themes/editorial/Footer'
 import { Footer as FlowerFooter } from '@/components/storefront/themes/flower/Footer'
 import { Footer as KidsFooter } from '@/components/storefront/themes/kids/Footer'
+import { Footer as SportsFooter } from '@/components/storefront/themes/sports/Footer'
+import { Footer as ChocolateFooter } from '@/components/storefront/themes/chocolate/Footer'
 import { SocialBar } from '@/components/storefront/shared/SocialBar'
 import { AnnouncementBar } from '@/components/storefront/shared/AnnouncementBar'
 import { SaleCountdownBar } from '@/components/storefront/shared/SaleCountdownBar'
@@ -42,8 +44,10 @@ const HEADERS = {
   editorial: dynamic(() => import('@/components/storefront/themes/editorial/Header').then(m => m.Header)),
   flower: dynamic(() => import('@/components/storefront/themes/flower/Header').then(m => m.Header)),
   kids: dynamic(() => import('@/components/storefront/themes/kids/Header').then(m => m.Header)),
+  sports: dynamic(() => import('@/components/storefront/themes/sports/Header').then(m => m.Header)),
+  chocolate: dynamic(() => import('@/components/storefront/themes/chocolate/Header').then(m => m.Header)),
 }
-const FOOTERS = { minimal: MinimalFooter, bold: BoldFooter, classic: ClassicFooter, luxury: LuxuryFooter, vibrant: VibrantFooter, commerce: CommerceFooter, editorial: EditorialFooter, flower: FlowerFooter, kids: KidsFooter }
+const FOOTERS = { minimal: MinimalFooter, bold: BoldFooter, classic: ClassicFooter, luxury: LuxuryFooter, vibrant: VibrantFooter, commerce: CommerceFooter, editorial: EditorialFooter, flower: FlowerFooter, kids: KidsFooter, sports: SportsFooter, chocolate: ChocolateFooter }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params

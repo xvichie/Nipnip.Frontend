@@ -92,6 +92,24 @@ export const THEMES: ThemeDefinition[] = [
     defaultAccentColor: '#ff6fae',
     dark: false,
   },
+  {
+    id: 'sports',
+    label: 'Sports',
+    description: 'Sharp, high-contrast dark theme with bold uppercase type and a neon accent — built for athletic and sportswear stores.',
+    swatch: ['#0d0f0d', '#c8ff00', '#ffffff'],
+    radius: 'none',
+    defaultAccentColor: '#c8ff00',
+    dark: true,
+  },
+  {
+    id: 'chocolate',
+    label: 'Chocolate',
+    description: 'Warm cocoa-and-cream palette with serif type and a caramel-gold accent — built for chocolatiers and gourmet food shops.',
+    swatch: ['#f7ede0', '#3b2418', '#b5651d'],
+    radius: 'none',
+    defaultAccentColor: '#b5651d',
+    dark: false,
+  },
 ]
 
 export function getThemeDefinition(themeId: string): ThemeDefinition {
@@ -188,6 +206,22 @@ export const SURFACE_CLASSES: Record<ThemeId, SurfaceClasses> = {
     text: 'text-[#2b2b2b]',
     muted: 'text-[#9a9a9a]',
     border: 'border-[#ffe9d2]',
+    inputBg: 'bg-white',
+  },
+  sports: {
+    page: 'bg-[#0d0f0d]',
+    card: 'bg-white/[0.04]',
+    text: 'text-white',
+    muted: 'text-white/40',
+    border: 'border-white/10',
+    inputBg: 'bg-white/[0.06]',
+  },
+  chocolate: {
+    page: 'bg-[#f7ede0]',
+    card: 'bg-white',
+    text: 'text-[#3b2418]',
+    muted: 'text-[#a68a6d]',
+    border: 'border-[#3b2418]/10',
     inputBg: 'bg-white',
   },
 }

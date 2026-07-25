@@ -43,6 +43,12 @@ import { Home as FlowerHome } from '@/components/storefront/themes/flower/Home'
 import { Header as KidsHeader } from '@/components/storefront/themes/kids/Header'
 import { Footer as KidsFooter } from '@/components/storefront/themes/kids/Footer'
 import { Home as KidsHome } from '@/components/storefront/themes/kids/Home'
+import { Header as SportsHeader } from '@/components/storefront/themes/sports/Header'
+import { Footer as SportsFooter } from '@/components/storefront/themes/sports/Footer'
+import { Home as SportsHome } from '@/components/storefront/themes/sports/Home'
+import { Header as ChocolateHeader } from '@/components/storefront/themes/chocolate/Header'
+import { Footer as ChocolateFooter } from '@/components/storefront/themes/chocolate/Footer'
+import { Home as ChocolateHome } from '@/components/storefront/themes/chocolate/Home'
 import type {
   CategoryMenuMode,
   CategoryMenuScope,
@@ -62,9 +68,9 @@ const LANDING_COLLECTION_PRODUCT_LIMITS = [6, 8, 12, 16] as const
 
 const DAY_LABELS = ['კვირა', 'ორშაბათი', 'სამშაბათი', 'ოთხშაბათი', 'ხუთშაბათი', 'პარასკევი', 'შაბათი']
 
-const HEADERS = { minimal: MinimalHeader, bold: BoldHeader, classic: ClassicHeader, luxury: LuxuryHeader, vibrant: VibrantHeader, commerce: CommerceHeader, editorial: EditorialHeader, flower: FlowerHeader, kids: KidsHeader }
-const FOOTERS = { minimal: MinimalFooter, bold: BoldFooter, classic: ClassicFooter, luxury: LuxuryFooter, vibrant: VibrantFooter, commerce: CommerceFooter, editorial: EditorialFooter, flower: FlowerFooter, kids: KidsFooter }
-const HOMES = { minimal: MinimalHome, bold: BoldHome, classic: ClassicHome, luxury: LuxuryHome, vibrant: VibrantHome, commerce: CommerceHome, editorial: EditorialHome, flower: FlowerHome, kids: KidsHome }
+const HEADERS = { minimal: MinimalHeader, bold: BoldHeader, classic: ClassicHeader, luxury: LuxuryHeader, vibrant: VibrantHeader, commerce: CommerceHeader, editorial: EditorialHeader, flower: FlowerHeader, kids: KidsHeader, sports: SportsHeader, chocolate: ChocolateHeader }
+const FOOTERS = { minimal: MinimalFooter, bold: BoldFooter, classic: ClassicFooter, luxury: LuxuryFooter, vibrant: VibrantFooter, commerce: CommerceFooter, editorial: EditorialFooter, flower: FlowerFooter, kids: KidsFooter, sports: SportsFooter, chocolate: ChocolateFooter }
+const HOMES = { minimal: MinimalHome, bold: BoldHome, classic: ClassicHome, luxury: LuxuryHome, vibrant: VibrantHome, commerce: CommerceHome, editorial: EditorialHome, flower: FlowerHome, kids: KidsHome, sports: SportsHome, chocolate: ChocolateHome }
 
 const PLACEHOLDER_PRODUCTS: ProductSummaryResponse[] = [
   { id: 'preview-1', slug: 'preview-1', categoryId: null, name: 'ნიმუშის პროდუქტი', basePrice: 49.99, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },

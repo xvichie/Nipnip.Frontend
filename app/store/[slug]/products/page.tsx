@@ -20,6 +20,8 @@ const GRID_COMPONENTS = {
   editorial: dynamic(() => import('@/components/storefront/themes/editorial/ProductGrid').then(m => m.ProductGrid)),
   flower: dynamic(() => import('@/components/storefront/themes/flower/ProductGrid').then(m => m.ProductGrid)),
   kids: dynamic(() => import('@/components/storefront/themes/kids/ProductGrid').then(m => m.ProductGrid)),
+  sports: dynamic(() => import('@/components/storefront/themes/sports/ProductGrid').then(m => m.ProductGrid)),
+  chocolate: dynamic(() => import('@/components/storefront/themes/chocolate/ProductGrid').then(m => m.ProductGrid)),
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

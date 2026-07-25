@@ -1,0 +1,79 @@
+import Link from 'next/link'
+import { getProductBadge } from '@/lib/store/theme-config'
+import { QuickAddButton } from '@/components/storefront/shared/QuickAddButton'
+import type { ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
+import { CImg } from '@/components/ui/CImg'
+
+export function ProductCard({
+  slug,
+  product,
+  categoryName,
+  tokens,
+}: {
+  slug: string
+  product: ProductSummaryResponse
+  categoryName?: string
+  tokens: Required<ThemeConfig>
+}) {
+  const badge = getProductBadge(tokens, product)
+  return (
+    <Link href={`/products/${product.slug}`} className="group block h-full">
+      <div className="bg-white border border-[#3b2418]/10 group-hover:border-[#3b2418]/25 transition-colors overflow-hidden h-full flex flex-col">
+        <div className="relative aspect-[4/5] bg-[#efe0c9] overflow-hidden">
+          {badge && (
+            <span
+              className="absolute top-2 left-2 z-10 text-white text-[9px] font-medium uppercase tracking-widest px-2 py-1"
+              style={{ backgroundColor: badge.color }}
+            >
+              {badge.text}
+            </span>
+          )}
+          {product.thumbnailUrl ? (
+            <>
+              <CImg
+                src={product.thumbnailUrl}
+                cldWidth={600}
+                alt={product.name}
+                className={[
+                  'absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105',
+                  product.secondImageUrl ? 'group-hover:opacity-0' : '',
+                ].join(' ')}
+              />
+              {product.secondImageUrl && (
+                <CImg
+                  src={product.secondImageUrl}
+                  cldWidth={600}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-700 ease-out group-hover:opacity-100 group-hover:scale-105"
+                />
+              )}
+            </>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-[#a68a6d] text-[10px] uppercase tracking-widest">სურათი არ არის</div>
+          )}
+          <QuickAddButton
+            slug={slug}
+            productSlug={product.slug}
+            className="absolute inset-x-0 bottom-0 z-10 w-full py-3 flex items-center justify-center gap-1.5 bg-white text-[#3b2418] text-[11px] uppercase tracking-widest opacity-100 translate-y-0 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:translate-y-full [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 transition-all duration-300 disabled:opacity-60"
+          />
+        </div>
+        <div className="p-4 flex flex-col flex-1">
+          {categoryName && (
+            <p className="text-[#a68a6d] text-[10px] uppercase tracking-widest mb-1.5">{categoryName}</p>
+          )}
+          <h3 className="text-[#3b2418] font-serif text-base leading-snug mb-2">{product.name}</h3>
+          <div className="mt-auto">
+            {product.salePrice !== null ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium" style={{ color: tokens.accentColor }}>₾{product.salePrice.toFixed(2)}</span>
+                <span className="text-[#a68a6d] text-xs line-through">₾{product.basePrice.toFixed(2)}</span>
+              </div>
+            ) : (
+              <span className="text-sm font-medium" style={{ color: tokens.accentColor }}>₾{product.basePrice.toFixed(2)}</span>
+            )}
+          </div>
+        </div>
+      </div>
+    </Link>
+  )
+}
