@@ -26,6 +26,9 @@ const DETAIL_COMPONENTS = {
   athletic: dynamic(() => import('@/components/storefront/themes/athletic/ProductDetail').then(m => m.ProductDetail)),
   handmade: dynamic(() => import('@/components/storefront/themes/handmade/ProductDetail').then(m => m.ProductDetail)),
   furniture: dynamic(() => import('@/components/storefront/themes/furniture/ProductDetail').then(m => m.ProductDetail)),
+  varsity: dynamic(() => import('@/components/storefront/themes/varsity/ProductDetail').then(m => m.ProductDetail)),
+  wooden: dynamic(() => import('@/components/storefront/themes/wooden/ProductDetail').then(m => m.ProductDetail)),
+  industrial: dynamic(() => import('@/components/storefront/themes/industrial/ProductDetail').then(m => m.ProductDetail)),
 }
 
 export async function generateMetadata({

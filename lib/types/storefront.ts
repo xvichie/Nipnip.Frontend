@@ -2,7 +2,7 @@ export type PaymentMethod = 'CashOnDelivery' | 'BankTransfer' | 'Flitt' | 'Tbc' 
 
 export type OrderStatus = 'Pending' | 'Confirmed' | 'Shipped' | 'Delivered' | 'Cancelled'
 
-export type ThemeId = 'minimal' | 'bold' | 'classic' | 'luxury' | 'vibrant' | 'commerce' | 'editorial' | 'flower' | 'kids' | 'sports' | 'chocolate' | 'athletic' | 'handmade' | 'furniture'
+export type ThemeId = 'minimal' | 'bold' | 'classic' | 'luxury' | 'vibrant' | 'commerce' | 'editorial' | 'flower' | 'kids' | 'sports' | 'chocolate' | 'athletic' | 'handmade' | 'furniture' | 'varsity' | 'wooden' | 'industrial'
 
 export type SocialsPosition = 'top' | 'bottom' | 'both' | 'footer'
 

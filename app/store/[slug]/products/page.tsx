@@ -25,6 +25,9 @@ const GRID_COMPONENTS = {
   athletic: dynamic(() => import('@/components/storefront/themes/athletic/ProductGrid').then(m => m.ProductGrid)),
   handmade: dynamic(() => import('@/components/storefront/themes/handmade/ProductGrid').then(m => m.ProductGrid)),
   furniture: dynamic(() => import('@/components/storefront/themes/furniture/ProductGrid').then(m => m.ProductGrid)),
+  varsity: dynamic(() => import('@/components/storefront/themes/varsity/ProductGrid').then(m => m.ProductGrid)),
+  wooden: dynamic(() => import('@/components/storefront/themes/wooden/ProductGrid').then(m => m.ProductGrid)),
+  industrial: dynamic(() => import('@/components/storefront/themes/industrial/ProductGrid').then(m => m.ProductGrid)),
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

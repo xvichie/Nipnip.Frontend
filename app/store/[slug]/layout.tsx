@@ -23,6 +23,9 @@ import { Footer as ChocolateFooter } from '@/components/storefront/themes/chocol
 import { Footer as AthleticFooter } from '@/components/storefront/themes/athletic/Footer'
 import { Footer as HandmadeFooter } from '@/components/storefront/themes/handmade/Footer'
 import { Footer as FurnitureFooter } from '@/components/storefront/themes/furniture/Footer'
+import { Footer as VarsityFooter } from '@/components/storefront/themes/varsity/Footer'
+import { Footer as WoodenFooter } from '@/components/storefront/themes/wooden/Footer'
+import { Footer as IndustrialFooter } from '@/components/storefront/themes/industrial/Footer'
 import { SocialBar } from '@/components/storefront/shared/SocialBar'
 import { AnnouncementBar } from '@/components/storefront/shared/AnnouncementBar'
 import { SaleCountdownBar } from '@/components/storefront/shared/SaleCountdownBar'
@@ -52,8 +55,11 @@ const HEADERS = {
   athletic: dynamic(() => import('@/components/storefront/themes/athletic/Header').then(m => m.Header)),
   handmade: dynamic(() => import('@/components/storefront/themes/handmade/Header').then(m => m.Header)),
   furniture: dynamic(() => import('@/components/storefront/themes/furniture/Header').then(m => m.Header)),
+  varsity: dynamic(() => import('@/components/storefront/themes/varsity/Header').then(m => m.Header)),
+  wooden: dynamic(() => import('@/components/storefront/themes/wooden/Header').then(m => m.Header)),
+  industrial: dynamic(() => import('@/components/storefront/themes/industrial/Header').then(m => m.Header)),
 }
-const FOOTERS = { minimal: MinimalFooter, bold: BoldFooter, classic: ClassicFooter, luxury: LuxuryFooter, vibrant: VibrantFooter, commerce: CommerceFooter, editorial: EditorialFooter, flower: FlowerFooter, kids: KidsFooter, sports: SportsFooter, chocolate: ChocolateFooter, athletic: AthleticFooter, handmade: HandmadeFooter, furniture: FurnitureFooter }
+const FOOTERS = { minimal: MinimalFooter, bold: BoldFooter, classic: ClassicFooter, luxury: LuxuryFooter, vibrant: VibrantFooter, commerce: CommerceFooter, editorial: EditorialFooter, flower: FlowerFooter, kids: KidsFooter, sports: SportsFooter, chocolate: ChocolateFooter, athletic: AthleticFooter, handmade: HandmadeFooter, furniture: FurnitureFooter, varsity: VarsityFooter, wooden: WoodenFooter, industrial: IndustrialFooter }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params

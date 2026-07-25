@@ -18,10 +18,13 @@ import { Home as ChocolateHome } from '@/components/storefront/themes/chocolate/
 import { Home as AthleticHome } from '@/components/storefront/themes/athletic/Home'
 import { Home as HandmadeHome } from '@/components/storefront/themes/handmade/Home'
 import { Home as FurnitureHome } from '@/components/storefront/themes/furniture/Home'
+import { Home as VarsityHome } from '@/components/storefront/themes/varsity/Home'
+import { Home as WoodenHome } from '@/components/storefront/themes/wooden/Home'
+import { Home as IndustrialHome } from '@/components/storefront/themes/industrial/Home'
 import type { PaginatedResult } from '@/lib/types/shared'
 import type { CategoryResponse, CollectionResponse, ProductSummaryResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
-const HOME_COMPONENTS = { minimal: MinimalHome, bold: BoldHome, classic: ClassicHome, luxury: LuxuryHome, vibrant: VibrantHome, commerce: CommerceHome, editorial: EditorialHome, flower: FlowerHome, kids: KidsHome, sports: SportsHome, chocolate: ChocolateHome, athletic: AthleticHome, handmade: HandmadeHome, furniture: FurnitureHome }
+const HOME_COMPONENTS = { minimal: MinimalHome, bold: BoldHome, classic: ClassicHome, luxury: LuxuryHome, vibrant: VibrantHome, commerce: CommerceHome, editorial: EditorialHome, flower: FlowerHome, kids: KidsHome, sports: SportsHome, chocolate: ChocolateHome, athletic: AthleticHome, handmade: HandmadeHome, furniture: FurnitureHome, varsity: VarsityHome, wooden: WoodenHome, industrial: IndustrialHome }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
