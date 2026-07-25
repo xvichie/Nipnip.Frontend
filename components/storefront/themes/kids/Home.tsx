@@ -110,7 +110,7 @@ export function Home({
           className={`relative h-full flex items-center justify-center overflow-hidden rounded-[2rem] ${imageBanner || sectionBanner ? '' : 'bg-white'}`}
           style={{ boxShadow: `0 24px 60px -20px ${t.accentColor}40` }}
         >
-          <CImg src={t.heroImageUrl} cldWidth={1400} alt={t.heroHeadline || store.name} className={getHeroImageClass(t)} />
+          <CImg src={t.heroImageUrl} cldWidth={1400} alt={t.heroHeadline || store.name} className={getHeroImageClass(t)} fetchPriority="high" />
         </div>
       </div>
     )
@@ -135,11 +135,11 @@ export function Home({
                     <source src={t.heroVideoUrl} />
                   </video>
                   {!t.heroVideoMobileEnabled && (
-                    <CImg src={t.heroImageUrl} cldWidth={1800} alt={t.heroHeadline || store.name} className={`${getHeroBackgroundImageClass(t)} md:hidden`} />
+                    <CImg src={t.heroImageUrl} cldWidth={1800} alt={t.heroHeadline || store.name} className={`${getHeroBackgroundImageClass(t)} md:hidden`} fetchPriority="high" />
                   )}
                 </>
               ) : (
-                <CImg src={t.heroImageUrl} cldWidth={1800} alt={t.heroHeadline || store.name} className={`${getHeroBackgroundImageClass(t)} ${t.heroKenBurnsEnabled ? 'animate-ken-burns' : ''}`} />
+                <CImg src={t.heroImageUrl} cldWidth={1800} alt={t.heroHeadline || store.name} className={`${getHeroBackgroundImageClass(t)} ${t.heroKenBurnsEnabled ? 'animate-ken-burns' : ''}`} fetchPriority="high" />
               )}
               {overlayStyle && <div className="absolute inset-0" style={overlayStyle} />}
             </div>

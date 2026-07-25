@@ -100,7 +100,7 @@ export function Home({
       <div className={`relative h-full ${imageOrderClass} ${heroImageHiddenMobile ? 'hidden md:block' : ''}`}>
         {imageBanner && <div className="absolute -inset-4 sm:-inset-6" style={bannerStyle} />}
         <div className={`relative h-full flex items-center justify-center overflow-hidden ${imageBanner || sectionBanner ? '' : 'bg-white border border-[#3b2418]/10'}`}>
-          <CImg src={t.heroImageUrl} cldWidth={1400} alt={t.heroHeadline || store.name} className={getHeroImageClass(t)} />
+          <CImg src={t.heroImageUrl} cldWidth={1400} alt={t.heroHeadline || store.name} className={getHeroImageClass(t)} fetchPriority="high" />
         </div>
       </div>
     )
@@ -125,11 +125,11 @@ export function Home({
                     <source src={t.heroVideoUrl} />
                   </video>
                   {!t.heroVideoMobileEnabled && (
-                    <CImg src={t.heroImageUrl} cldWidth={1800} alt={t.heroHeadline || store.name} className={`${getHeroBackgroundImageClass(t)} md:hidden`} />
+                    <CImg src={t.heroImageUrl} cldWidth={1800} alt={t.heroHeadline || store.name} className={`${getHeroBackgroundImageClass(t)} md:hidden`} fetchPriority="high" />
                   )}
                 </>
               ) : (
-                <CImg src={t.heroImageUrl} cldWidth={1800} alt={t.heroHeadline || store.name} className={`${getHeroBackgroundImageClass(t)} ${t.heroKenBurnsEnabled ? 'animate-ken-burns' : ''}`} />
+                <CImg src={t.heroImageUrl} cldWidth={1800} alt={t.heroHeadline || store.name} className={`${getHeroBackgroundImageClass(t)} ${t.heroKenBurnsEnabled ? 'animate-ken-burns' : ''}`} fetchPriority="high" />
               )}
               {overlayStyle && <div className="absolute inset-0" style={overlayStyle} />}
             </div>
