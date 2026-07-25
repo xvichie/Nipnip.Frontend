@@ -33,27 +33,30 @@ export default async function StoreHomePage({ params }: { params: Promise<{ slug
     apiFetch<CollectionResponse[]>(`/api/stores/${slug}/collections`, null),
   ])
   const tokens = parseThemeConfig(store.themeConfig)
-
-  let products: ProductSummaryResponse[]
-  if (tokens.featuredProductsMode === 'curated' && tokens.featuredProductIds.length > 0) {
-    // No backend "fetch by ids" endpoint — pull a generous page and filter/reorder here instead.
-    const productsPage = await apiFetch<PaginatedResult<ProductSummaryResponse>>(`/api/stores/${slug}/products?pageSize=200`, null)
-    const byId = new Map(productsPage.items.map(p => [p.id, p]))
-    products = tokens.featuredProductIds.map(id => byId.get(id)).filter((p): p is ProductSummaryResponse => !!p)
-  } else {
-    const productsPage = await apiFetch<PaginatedResult<ProductSummaryResponse>>(`/api/stores/${slug}/products?pageSize=8`, null)
-    products = productsPage.items
-  }
-
   const landingCollections = getLandingCollections(collections, tokens)
-  const collectionProductLists = await Promise.all(
-    landingCollections.map(collection =>
-      apiFetch<PaginatedResult<ProductSummaryResponse>>(
-        `/api/stores/${slug}/products?collectionSlug=${collection.slug}&pageSize=${tokens.landingCollectionProductLimit}`,
-        null
+
+  // Neither depends on the other's result (only on tokens/landingCollections, both already in
+  // hand), so they go in parallel instead of the products fetch fully finishing before the
+  // per-collection fetches even start.
+  const [products, collectionProductLists] = await Promise.all([
+    tokens.featuredProductsMode === 'curated' && tokens.featuredProductIds.length > 0
+      // No backend "fetch by ids" endpoint — pull a generous page and filter/reorder here instead.
+      ? apiFetch<PaginatedResult<ProductSummaryResponse>>(`/api/stores/${slug}/products?pageSize=200`, null)
+          .then(page => {
+            const byId = new Map(page.items.map(p => [p.id, p]))
+            return tokens.featuredProductIds.map(id => byId.get(id)).filter((p): p is ProductSummaryResponse => !!p)
+          })
+      : apiFetch<PaginatedResult<ProductSummaryResponse>>(`/api/stores/${slug}/products?pageSize=8`, null)
+          .then(page => page.items),
+    Promise.all(
+      landingCollections.map(collection =>
+        apiFetch<PaginatedResult<ProductSummaryResponse>>(
+          `/api/stores/${slug}/products?collectionSlug=${collection.slug}&pageSize=${tokens.landingCollectionProductLimit}`,
+          null
+        )
       )
-    )
-  )
+    ),
+  ])
   const collectionProducts = new Map(
     landingCollections.map((collection, i) => [collection.id, collectionProductLists[i].items])
   )

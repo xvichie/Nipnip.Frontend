@@ -1,21 +1,26 @@
 import type { Metadata } from 'next'
+import dynamic from 'next/dynamic'
 import { apiFetch } from '@/lib/api'
 import { parseThemeConfig } from '@/lib/store/theme-config'
 import { isThemeId } from '@/lib/storefront-themes'
 import { buildBreadcrumbJsonLd, getStoreUrl, truncateDescription } from '@/lib/store/seo'
 import { JsonLd } from '@/components/storefront/shared/JsonLd'
-import { ProductGrid as MinimalProductGrid } from '@/components/storefront/themes/minimal/ProductGrid'
-import { ProductGrid as BoldProductGrid } from '@/components/storefront/themes/bold/ProductGrid'
-import { ProductGrid as ClassicProductGrid } from '@/components/storefront/themes/classic/ProductGrid'
-import { ProductGrid as LuxuryProductGrid } from '@/components/storefront/themes/luxury/ProductGrid'
-import { ProductGrid as VibrantProductGrid } from '@/components/storefront/themes/vibrant/ProductGrid'
-import { ProductGrid as CommerceProductGrid } from '@/components/storefront/themes/commerce/ProductGrid'
-import { ProductGrid as EditorialProductGrid } from '@/components/storefront/themes/editorial/ProductGrid'
-import { ProductGrid as FlowerProductGrid } from '@/components/storefront/themes/flower/ProductGrid'
-import { ProductGrid as KidsProductGrid } from '@/components/storefront/themes/kids/ProductGrid'
 import type { CategoryResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
-const GRID_COMPONENTS = { minimal: MinimalProductGrid, bold: BoldProductGrid, classic: ClassicProductGrid, luxury: LuxuryProductGrid, vibrant: VibrantProductGrid, commerce: CommerceProductGrid, editorial: EditorialProductGrid, flower: FlowerProductGrid, kids: KidsProductGrid }
+// ProductGrid is a Client Component in every theme (search/filter/sort state) — dynamic() per
+// theme means this page only ever ships the ONE active theme's grid JS to the browser, instead
+// of all nine bundled together.
+const GRID_COMPONENTS = {
+  minimal: dynamic(() => import('@/components/storefront/themes/minimal/ProductGrid').then(m => m.ProductGrid)),
+  bold: dynamic(() => import('@/components/storefront/themes/bold/ProductGrid').then(m => m.ProductGrid)),
+  classic: dynamic(() => import('@/components/storefront/themes/classic/ProductGrid').then(m => m.ProductGrid)),
+  luxury: dynamic(() => import('@/components/storefront/themes/luxury/ProductGrid').then(m => m.ProductGrid)),
+  vibrant: dynamic(() => import('@/components/storefront/themes/vibrant/ProductGrid').then(m => m.ProductGrid)),
+  commerce: dynamic(() => import('@/components/storefront/themes/commerce/ProductGrid').then(m => m.ProductGrid)),
+  editorial: dynamic(() => import('@/components/storefront/themes/editorial/ProductGrid').then(m => m.ProductGrid)),
+  flower: dynamic(() => import('@/components/storefront/themes/flower/ProductGrid').then(m => m.ProductGrid)),
+  kids: dynamic(() => import('@/components/storefront/themes/kids/ProductGrid').then(m => m.ProductGrid)),
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params

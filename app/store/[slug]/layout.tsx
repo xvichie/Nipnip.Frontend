@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import dynamic from 'next/dynamic'
 import { notFound } from 'next/navigation'
 import { apiFetch, ApiError } from '@/lib/api'
 import { StorefrontCartProvider } from '@/lib/store/storefront-cart-context'
@@ -8,23 +9,14 @@ import { isThemeId, SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { buildStoreJsonLd, getStoreDescription, getStoreOgImage, getStoreOrigin, getStoreTitle } from '@/lib/store/seo'
 import { JsonLd } from '@/components/storefront/shared/JsonLd'
 import { PageViewTracker } from '@/components/storefront/shared/PageViewTracker'
-import { Header as MinimalHeader } from '@/components/storefront/themes/minimal/Header'
 import { Footer as MinimalFooter } from '@/components/storefront/themes/minimal/Footer'
-import { Header as BoldHeader } from '@/components/storefront/themes/bold/Header'
 import { Footer as BoldFooter } from '@/components/storefront/themes/bold/Footer'
-import { Header as ClassicHeader } from '@/components/storefront/themes/classic/Header'
 import { Footer as ClassicFooter } from '@/components/storefront/themes/classic/Footer'
-import { Header as LuxuryHeader } from '@/components/storefront/themes/luxury/Header'
 import { Footer as LuxuryFooter } from '@/components/storefront/themes/luxury/Footer'
-import { Header as VibrantHeader } from '@/components/storefront/themes/vibrant/Header'
 import { Footer as VibrantFooter } from '@/components/storefront/themes/vibrant/Footer'
-import { Header as CommerceHeader } from '@/components/storefront/themes/commerce/Header'
 import { Footer as CommerceFooter } from '@/components/storefront/themes/commerce/Footer'
-import { Header as EditorialHeader } from '@/components/storefront/themes/editorial/Header'
 import { Footer as EditorialFooter } from '@/components/storefront/themes/editorial/Footer'
-import { Header as FlowerHeader } from '@/components/storefront/themes/flower/Header'
 import { Footer as FlowerFooter } from '@/components/storefront/themes/flower/Footer'
-import { Header as KidsHeader } from '@/components/storefront/themes/kids/Header'
 import { Footer as KidsFooter } from '@/components/storefront/themes/kids/Footer'
 import { SocialBar } from '@/components/storefront/shared/SocialBar'
 import { AnnouncementBar } from '@/components/storefront/shared/AnnouncementBar'
@@ -36,7 +28,21 @@ import { ALL_FONT_VARIABLE_CLASSES, getFontFamily } from '@/lib/storefront-fonts
 import { isCurrentUserAdmin } from '@/lib/server/is-admin'
 import type { CategoryResponse, StorePageResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
-const HEADERS = { minimal: MinimalHeader, bold: BoldHeader, classic: ClassicHeader, luxury: LuxuryHeader, vibrant: VibrantHeader, commerce: CommerceHeader, editorial: EditorialHeader, flower: FlowerHeader, kids: KidsHeader }
+// Header is a Client Component in every theme (mobile menu state, etc.) — dynamic() per theme
+// means a storefront only ever ships the ONE active theme's header JS to the browser, instead
+// of all nine bundled together. Footer has no client-side state in any theme, so it stays a
+// plain static import: there's no client bundle to split in the first place.
+const HEADERS = {
+  minimal: dynamic(() => import('@/components/storefront/themes/minimal/Header').then(m => m.Header)),
+  bold: dynamic(() => import('@/components/storefront/themes/bold/Header').then(m => m.Header)),
+  classic: dynamic(() => import('@/components/storefront/themes/classic/Header').then(m => m.Header)),
+  luxury: dynamic(() => import('@/components/storefront/themes/luxury/Header').then(m => m.Header)),
+  vibrant: dynamic(() => import('@/components/storefront/themes/vibrant/Header').then(m => m.Header)),
+  commerce: dynamic(() => import('@/components/storefront/themes/commerce/Header').then(m => m.Header)),
+  editorial: dynamic(() => import('@/components/storefront/themes/editorial/Header').then(m => m.Header)),
+  flower: dynamic(() => import('@/components/storefront/themes/flower/Header').then(m => m.Header)),
+  kids: dynamic(() => import('@/components/storefront/themes/kids/Header').then(m => m.Header)),
+}
 const FOOTERS = { minimal: MinimalFooter, bold: BoldFooter, classic: ClassicFooter, luxury: LuxuryFooter, vibrant: VibrantFooter, commerce: CommerceFooter, editorial: EditorialFooter, flower: FlowerFooter, kids: KidsFooter }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

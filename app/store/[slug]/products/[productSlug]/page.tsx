@@ -1,22 +1,27 @@
 import type { Metadata } from 'next'
+import dynamic from 'next/dynamic'
 import { notFound } from 'next/navigation'
 import { apiFetch, ApiError } from '@/lib/api'
 import { parseThemeConfig } from '@/lib/store/theme-config'
 import { isThemeId } from '@/lib/storefront-themes'
 import { buildBreadcrumbJsonLd, buildProductJsonLd, getStoreUrl, truncateDescription } from '@/lib/store/seo'
 import { JsonLd } from '@/components/storefront/shared/JsonLd'
-import { ProductDetail as MinimalProductDetail } from '@/components/storefront/themes/minimal/ProductDetail'
-import { ProductDetail as BoldProductDetail } from '@/components/storefront/themes/bold/ProductDetail'
-import { ProductDetail as ClassicProductDetail } from '@/components/storefront/themes/classic/ProductDetail'
-import { ProductDetail as LuxuryProductDetail } from '@/components/storefront/themes/luxury/ProductDetail'
-import { ProductDetail as VibrantProductDetail } from '@/components/storefront/themes/vibrant/ProductDetail'
-import { ProductDetail as CommerceProductDetail } from '@/components/storefront/themes/commerce/ProductDetail'
-import { ProductDetail as EditorialProductDetail } from '@/components/storefront/themes/editorial/ProductDetail'
-import { ProductDetail as FlowerProductDetail } from '@/components/storefront/themes/flower/ProductDetail'
-import { ProductDetail as KidsProductDetail } from '@/components/storefront/themes/kids/ProductDetail'
 import type { CategoryResponse, ProductDetailResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
-const DETAIL_COMPONENTS = { minimal: MinimalProductDetail, bold: BoldProductDetail, classic: ClassicProductDetail, luxury: LuxuryProductDetail, vibrant: VibrantProductDetail, commerce: CommerceProductDetail, editorial: EditorialProductDetail, flower: FlowerProductDetail, kids: KidsProductDetail }
+// ProductDetail is a Client Component in every theme (variant/quantity state) — dynamic() per
+// theme means this page only ever ships the ONE active theme's detail JS to the browser, instead
+// of all nine bundled together.
+const DETAIL_COMPONENTS = {
+  minimal: dynamic(() => import('@/components/storefront/themes/minimal/ProductDetail').then(m => m.ProductDetail)),
+  bold: dynamic(() => import('@/components/storefront/themes/bold/ProductDetail').then(m => m.ProductDetail)),
+  classic: dynamic(() => import('@/components/storefront/themes/classic/ProductDetail').then(m => m.ProductDetail)),
+  luxury: dynamic(() => import('@/components/storefront/themes/luxury/ProductDetail').then(m => m.ProductDetail)),
+  vibrant: dynamic(() => import('@/components/storefront/themes/vibrant/ProductDetail').then(m => m.ProductDetail)),
+  commerce: dynamic(() => import('@/components/storefront/themes/commerce/ProductDetail').then(m => m.ProductDetail)),
+  editorial: dynamic(() => import('@/components/storefront/themes/editorial/ProductDetail').then(m => m.ProductDetail)),
+  flower: dynamic(() => import('@/components/storefront/themes/flower/ProductDetail').then(m => m.ProductDetail)),
+  kids: dynamic(() => import('@/components/storefront/themes/kids/ProductDetail').then(m => m.ProductDetail)),
+}
 
 export async function generateMetadata({
   params,
@@ -63,11 +68,17 @@ export default async function ProductDetailPage({
 }) {
   const { slug, productSlug } = await params
 
-  const store = await apiFetch<StoreResponse>(`/api/stores/${slug}`, null)
-
+  // None of these three depend on each other's result (only on slug/productSlug), so they go in
+  // parallel instead of one after another.
+  let store: StoreResponse
   let product: ProductDetailResponse
+  let categories: CategoryResponse[]
   try {
-    product = await apiFetch<ProductDetailResponse>(`/api/stores/${slug}/products/${productSlug}`, null)
+    [store, product, categories] = await Promise.all([
+      apiFetch<StoreResponse>(`/api/stores/${slug}`, null),
+      apiFetch<ProductDetailResponse>(`/api/stores/${slug}/products/${productSlug}`, null),
+      apiFetch<CategoryResponse[]>(`/api/stores/${slug}/categories`, null),
+    ])
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) notFound()
     throw err
@@ -77,7 +88,6 @@ export default async function ProductDetailPage({
   const tokens = parseThemeConfig(store.themeConfig)
   const DetailComponent = DETAIL_COMPONENTS[themeId]
 
-  const categories = await apiFetch<CategoryResponse[]>(`/api/stores/${slug}/categories`, null)
   const category = categories.find(c => c.id === product.categoryId)
 
   const categoryCrumb = category
