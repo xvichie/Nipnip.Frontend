@@ -124,44 +124,26 @@ export function ProductImagesManager({ productId, images }: { productId: string;
             onDragOver={e => handleDragOver(e, index)}
             onDrop={handleDrop}
             style={{ viewTransitionName: viewTransitionNameFor(image.id) }}
-            className="relative w-20 h-20 rounded-xl overflow-hidden border border-white/10 group cursor-grab active:cursor-grabbing"
+            className="relative w-28 h-28 group cursor-grab active:cursor-grabbing"
           >
-            <CImg src={image.url} alt="" className="w-full h-full object-cover pointer-events-none" />
+            {/* Image gets its own clipped layer — the button overlay below deliberately
+                isn't clipped too, so its tooltips (which pop outside this box) don't get cut off. */}
+            <div className="absolute inset-0 rounded-xl overflow-hidden border border-white/10">
+              <CImg src={image.url} alt="" className="w-full h-full object-cover pointer-events-none" />
+            </div>
             {index === 0 && (
-              <span className="absolute top-1 left-1 rounded bg-fuchsia-600 text-white text-[9px] font-bold px-1.5 py-0.5">
+              <span className="absolute top-1.5 left-1.5 z-10 rounded bg-fuchsia-600 text-white text-[9px] font-bold px-1.5 py-0.5">
                 ყდა
               </span>
             )}
-            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity">
-              <div className="flex gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => handleMove(index, -1)}
-                  disabled={index === 0}
-                  aria-label="მარცხნივ გადატანა"
-                  data-tip="მარცხნივ გადატანა"
-                  className="tooltip tooltip-top text-white/70 hover:text-white disabled:opacity-20 px-1"
-                >
-                  <ChevronLeftIcon />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleMove(index, 1)}
-                  disabled={index === order.length - 1}
-                  aria-label="მარჯვნივ გადატანა"
-                  data-tip="მარჯვნივ გადატანა"
-                  className="tooltip tooltip-top text-white/70 hover:text-white disabled:opacity-20 px-1"
-                >
-                  <ChevronRightIcon />
-                </button>
-              </div>
+            <div className="absolute inset-0 rounded-xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
               {index !== 0 && (
                 <button
                   type="button"
                   onClick={() => handleSetCover(image.id)}
                   aria-label="ყდად დაყენება"
                   data-tip="ყდად დაყენება"
-                  className="tooltip tooltip-top text-white/80 hover:text-white"
+                  className="tooltip tooltip-bottom absolute top-1.5 left-1.5 text-white/80 hover:text-white p-1"
                 >
                   <StarIcon />
                 </button>
@@ -171,10 +153,32 @@ export function ProductImagesManager({ productId, images }: { productId: string;
                 onClick={() => deleteImage(image.id)}
                 aria-label="წაშლა"
                 data-tip="წაშლა"
-                className="tooltip tooltip-top text-red-300 hover:text-red-200"
+                className="tooltip tooltip-bottom absolute top-1.5 right-1.5 text-red-300 hover:text-red-200 p-1"
               >
                 <TrashIcon />
               </button>
+              <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleMove(index, -1)}
+                  disabled={index === 0}
+                  aria-label="მარცხნივ გადატანა"
+                  data-tip="მარცხნივ გადატანა"
+                  className="tooltip tooltip-top text-white/70 hover:text-white disabled:opacity-20 p-1"
+                >
+                  <ChevronLeftIcon />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleMove(index, 1)}
+                  disabled={index === order.length - 1}
+                  aria-label="მარჯვნივ გადატანა"
+                  data-tip="მარჯვნივ გადატანა"
+                  className="tooltip tooltip-top text-white/70 hover:text-white disabled:opacity-20 p-1"
+                >
+                  <ChevronRightIcon />
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -198,7 +202,7 @@ export function ProductImagesManager({ productId, images }: { productId: string;
           disabled={uploading || isCreating}
           aria-label="სურათის დამატება"
           data-tip="სურათის დამატება"
-          className="tooltip tooltip-top w-20 h-20 rounded-xl border border-dashed border-white/12 bg-white/2 hover:border-fuchsia-500/40 hover:bg-fuchsia-500/5 flex items-center justify-center text-white/30 disabled:opacity-40"
+          className="tooltip tooltip-top w-28 h-28 rounded-xl border border-dashed border-white/12 bg-white/2 hover:border-fuchsia-500/40 hover:bg-fuchsia-500/5 flex items-center justify-center text-white/30 disabled:opacity-40"
         >
           {uploading || isCreating ? <span className="loading loading-spinner loading-sm text-fuchsia-400" /> : <PlusIcon />}
         </button>
