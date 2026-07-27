@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { uploadImage } from '@/lib/uploadImage'
 import { viewTransitionNameFor, withViewTransition } from '@/lib/viewTransition'
 import { CImg } from '@/components/ui/CImg'
@@ -38,12 +38,22 @@ export function StagedImagesEditor({ images, onChange }: { images: string[]; onC
     withViewTransition(() => onChange(next))
   }
 
-  async function handleFile(file: File) {
+  // Uploads sequentially and commits with a single onChange at the end (rather than one
+  // onChange per file) — `images` here is a prop snapshot from the render that kicked this
+  // off, so calling onChange repeatedly mid-loop would keep reading that same stale value
+  // instead of accumulating what was just uploaded.
+  async function handleFiles(files: FileList | File[]) {
+    const list = Array.from(files).filter(f => f.type.startsWith('image/'))
+    if (list.length === 0) return
+
     setError(null)
     setUploading(true)
     try {
-      const url = await uploadImage(file)
-      onChange([...images, url])
+      const uploaded: string[] = []
+      for (const file of list) {
+        uploaded.push(await uploadImage(file))
+      }
+      onChange([...images, ...uploaded])
     } catch {
       setError('ატვირთვა ვერ მოხერხდა. შეამოწმეთ Cloudinary-ის კონფიგურაცია და სცადეთ თავიდან.')
     } finally {
@@ -51,12 +61,38 @@ export function StagedImagesEditor({ images, onChange }: { images: string[]; onC
     }
   }
 
+  // Kept in a ref so the paste listener below can stay mounted for the component's whole
+  // lifetime (no need to re-subscribe every render) while still calling the latest closure.
+  const handleFilesRef = useRef(handleFiles)
+  useEffect(() => {
+    handleFilesRef.current = handleFiles
+  })
+
+  useEffect(() => {
+    function handlePaste(e: ClipboardEvent) {
+      const items = e.clipboardData?.items
+      if (!items) return
+      const imageFiles = Array.from(items)
+        .map(item => (item.type.startsWith('image/') ? item.getAsFile() : null))
+        .filter((f): f is File => !!f)
+      // Only intercept the paste when it's actually image data — anything else (plain text,
+      // e.g. pasting into the product name/price fields elsewhere on this same page) is left
+      // completely alone so it keeps pasting normally wherever the user's focus is.
+      if (imageFiles.length === 0) return
+      e.preventDefault()
+      handleFilesRef.current(imageFiles)
+    }
+    window.addEventListener('paste', handlePaste)
+    return () => window.removeEventListener('paste', handlePaste)
+  }, [])
+
   return (
     <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
       <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">სურათები</h2>
-      {images.length > 1 && (
-        <p className="text-white/25 text-xs -mt-2">გადაათრიეთ თანმიმდევრობის შესაცვლელად. პირველი სურათი არის მაღაზიის ყდის სურათი.</p>
-      )}
+      <p className="text-white/25 text-xs -mt-2">
+        აირჩიეთ რამდენიმე სურათი ერთდროულად, ან ჩასვით (Ctrl+V) ასლი ბუფერიდან.
+        {images.length > 1 && ' გადაათრიეთ თანმიმდევრობის შესაცვლელად — პირველი სურათი არის მაღაზიის ყდის სურათი.'}
+      </p>
 
       <div className="flex flex-wrap gap-3">
         {images.map((url, index) => (
@@ -126,8 +162,14 @@ export function StagedImagesEditor({ images, onChange }: { images: string[]; onC
           ref={fileRef}
           type="file"
           accept="image/*"
+          multiple
           className="hidden"
-          onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
+          onChange={e => {
+            const files = e.target.files
+            if (files && files.length > 0) handleFiles(files)
+            // Reset so selecting the exact same file(s) again still fires onChange.
+            e.target.value = ''
+          }}
         />
         <button
           type="button"
