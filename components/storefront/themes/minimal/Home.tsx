@@ -234,21 +234,22 @@ export function Home({
             key={collection.id}
             title={tokens.landingCollectionTitleOverrides[collection.id] || collection.name}
             viewAllHref={`/products/collection/${collection.slug}`}
-            items={collectionProducts.get(collection.id) ?? []}
-            keyOf={product => product.id}
+            items={(collectionProducts.get(collection.id) ?? []).map(product => ({
+              key: product.id,
+              node: (
+                <div className="w-48 sm:w-56">
+                  <ProductCard
+                    slug={slug}
+                    product={product}
+                    categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
+                    tokens={tokens}
+                  />
+                </div>
+              ),
+            }))}
             titleClassName="font-black text-2xl text-[#111] tracking-tight"
             viewAllClassName="text-xs font-medium text-[#555] hover:text-[#111] transition-colors underline underline-offset-4"
             emptyMessageClassName="text-[#999] text-sm py-10 text-center"
-            renderItem={product => (
-              <div className="w-48 sm:w-56">
-                <ProductCard
-                  slug={slug}
-                  product={product}
-                  categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
-                  tokens={tokens}
-                />
-              </div>
-            )}
           />
         ))}
       </div>

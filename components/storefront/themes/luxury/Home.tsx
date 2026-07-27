@@ -235,22 +235,23 @@ export function Home({
             key={collection.id}
             title={tokens.landingCollectionTitleOverrides[collection.id] || collection.name}
             viewAllHref={`/products/collection/${collection.slug}`}
-            items={collectionProducts.get(collection.id) ?? []}
-            keyOf={product => product.id}
+            items={(collectionProducts.get(collection.id) ?? []).map(product => ({
+              key: product.id,
+              node: (
+                <div className="w-48 sm:w-56">
+                  <ProductCard
+                    slug={slug}
+                    product={product}
+                    categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
+                    tokens={tokens}
+                  />
+                </div>
+              ),
+            }))}
             titleClassName="font-serif text-2xl text-[#1c1a17]"
             viewAllClassName="text-xs uppercase tracking-widest hover:underline underline-offset-4"
             viewAllStyle={{ color: tokens.accentColor }}
             emptyMessageClassName="text-[#9c8f7e] text-sm py-16 text-center"
-            renderItem={product => (
-              <div className="w-48 sm:w-56">
-                <ProductCard
-                  slug={slug}
-                  product={product}
-                  categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
-                  tokens={tokens}
-                />
-              </div>
-            )}
           />
         ))}
       </div>

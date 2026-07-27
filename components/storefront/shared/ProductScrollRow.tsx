@@ -4,15 +4,15 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 
 // Generic horizontally-scrolling row — scroll mechanics (overflow detection, chevron nav)
 // extracted from FeaturedMerchantsCarousel, minus its merchant-specific modal/copy-link logic.
-// Visual styling of each item is left entirely to the caller's renderItem, so it fits any
-// storefront theme's own color palette.
-export function ProductScrollRow<T>({
+// Callers (every theme's Home.tsx, a Server Component) must pass already-rendered nodes rather
+// than a renderItem/keyOf callback pair — passing a plain function as a prop from a Server
+// Component into this Client Component isn't serializable and throws at runtime the moment
+// `items` is ever non-empty (e.g. once a merchant's first collection actually has products).
+export function ProductScrollRow({
   title,
   viewAllHref,
   viewAllLabel = 'ყველას ნახვა →',
   items,
-  renderItem,
-  keyOf,
   titleClassName = 'font-black text-2xl tracking-tight',
   viewAllClassName = 'text-xs font-medium underline underline-offset-4',
   emptyMessageClassName = 'text-sm py-16 text-center',
@@ -21,9 +21,7 @@ export function ProductScrollRow<T>({
   title: string
   viewAllHref?: string
   viewAllLabel?: string
-  items: T[]
-  renderItem: (item: T) => ReactNode
-  keyOf: (item: T) => string
+  items: { key: string; node: ReactNode }[]
   titleClassName?: string
   viewAllClassName?: string
   emptyMessageClassName?: string
@@ -71,8 +69,8 @@ export function ProductScrollRow<T>({
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {items.map(item => (
-            <div key={keyOf(item)} className="shrink-0">
-              {renderItem(item)}
+            <div key={item.key} className="shrink-0">
+              {item.node}
             </div>
           ))}
         </div>
