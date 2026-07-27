@@ -441,6 +441,9 @@ export function Checkout({
             )}
 
             <Section title="გადახდის მეთოდი" surface={surface} radius={radius}>
+              {enabledPaymentOptions.length === 0 && (
+                <p className={`text-sm ${surface.muted}`}>ამჟამად გადახდის მეთოდი მიუწვდომელია.</p>
+              )}
               <div className="flex flex-col gap-3">
                 {enabledPaymentOptions.map(opt => {
                   const isSelected = paymentMethod === opt.id
@@ -512,7 +515,7 @@ export function Checkout({
 
             <button
               type="submit"
-              disabled={checkout.isPending || (tosRequired && !tosAccepted) || !meetsMinOrder}
+              disabled={checkout.isPending || (tosRequired && !tosAccepted) || !meetsMinOrder || enabledPaymentOptions.length === 0}
               className={`py-4 text-white text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-90 disabled:opacity-40 ${radius}`}
               style={{ backgroundColor: tokens.accentColor }}
             >
