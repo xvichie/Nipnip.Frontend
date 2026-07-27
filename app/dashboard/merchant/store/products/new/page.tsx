@@ -61,6 +61,7 @@ export default function NewProductPage() {
   const [description, setDescription] = useState(() => importedData?.description ?? '')
   const [basePrice, setBasePrice] = useState(() => (importedData?.price != null ? String(importedData.price) : ''))
   const [salePrice, setSalePrice] = useState('')
+  const [stock, setStock] = useState('')
   const [categoryId, setCategoryId] = useState(() => importedData?.categoryId ?? '')
   const [isActive, setIsActive] = useState(true)
   const [stagedImages, setStagedImages] = useState<string[]>(() => importedData?.imageUrls ?? [])
@@ -178,6 +179,12 @@ export default function NewProductPage() {
     const parsedSalePrice = parseFloat(salePrice)
     if (salePrice.trim() && isNaN(parsedSalePrice)) return
 
+    // A plain product with no options staged must have a stock count — there's no per-variant
+    // stock to fall back on once it's created, unlike a product with real color/size options.
+    const needsStock = !productId && stagedOptions.length === 0
+    const parsedStock = parseInt(stock, 10)
+    if (needsStock && (stock.trim() === '' || isNaN(parsedStock) || parsedStock < 0)) return
+
     // Product already exists — every later submit of this same form is a normal save.
     if (productId) {
       updateProduct(
@@ -208,9 +215,26 @@ export default function NewProductPage() {
         onSuccess: async created => {
           let finalProduct: ProductDetailResponse = created
 
-          if (stagedImages.length > 0 || stagedOptions.length > 0 || relatedPicks.length > 0) {
+          if (stagedImages.length > 0 || stagedOptions.length > 0 || relatedPicks.length > 0 || needsStock) {
             setAttaching(true)
             const token = await getToken()
+
+            if (needsStock) {
+              try {
+                await apiFetch(`/api/products/${created.id}/variants`, token, {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    sku: 'BASE',
+                    price,
+                    salePrice: salePrice.trim() ? parsedSalePrice : null,
+                    stock: parsedStock,
+                    optionValueIds: [],
+                  }),
+                })
+              } catch {
+                // product was created fine; stock can be set via the "მარაგი" field below
+              }
+            }
 
             if (relatedPicks.length > 0) {
               try {
@@ -372,6 +396,25 @@ export default function NewProductPage() {
             </div>
           </div>
 
+          {!isCreated && stagedOptions.length === 0 && (
+            <div className="fieldset gap-2">
+              <label htmlFor="p-stock" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                მარაგი <span className="text-error">*</span>
+              </label>
+              <input
+                id="p-stock"
+                type="number"
+                min="0"
+                step="1"
+                value={stock}
+                onChange={e => setStock(e.target.value)}
+                className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                required
+              />
+              <p className="text-white/30 text-xs">რამდენი ცალი გაქვთ მარაგში ამ პროდუქტისთვის.</p>
+            </div>
+          )}
+
           {categories && categories.length > 0 && (
             <div className="fieldset gap-2">
               <label htmlFor="p-category" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
@@ -417,7 +460,7 @@ export default function NewProductPage() {
         </form>
       </div>
 
-      <FloatingFormButton anchorRef={contentRef} formId="product-form" disabled={busy || !name.trim() || !basePrice}>
+      <FloatingFormButton anchorRef={contentRef} formId="product-form" disabled={busy || !name.trim() || !basePrice || (!isCreated && stagedOptions.length === 0 && !stock.trim())}>
         {busy ? <span className="loading loading-spinner loading-sm" /> : isCreated ? 'ცვლილებების შენახვა' : 'პროდუქტის შექმნა'}
       </FloatingFormButton>
 
@@ -426,7 +469,13 @@ export default function NewProductPage() {
           <ProductImagesManager productId={productId} images={product.images} />
           <ProductVideoManager productId={productId} videoUrl={product.videoUrl} />
           <ProductOptionsManager productId={productId} options={product.options} />
-          <ProductVariantsManager productId={productId} options={product.options} variants={product.variants} />
+          <ProductVariantsManager
+            productId={productId}
+            options={product.options}
+            variants={product.variants}
+            basePrice={product.basePrice}
+            salePrice={product.salePrice}
+          />
           <RelatedProductsManager productId={productId} picks={relatedPicks} onChange={setRelatedPicks} isLoading={false} />
         </>
       ) : isCreated ? (
@@ -437,14 +486,16 @@ export default function NewProductPage() {
           <StagedVideoEditor videoUrl={stagedVideoUrl} onChange={setStagedVideoUrl} />
           <StagedOptionsEditor options={stagedOptions} onChange={setStagedOptions} />
           <RelatedProductsManager productId="" picks={relatedPicks} onChange={setRelatedPicks} isLoading={false} />
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-2">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ვარიაციები</h2>
-            <p className="text-white/30 text-sm">
-              ზემოთ მითითებული ყველა კომბინაცია ნაგულისხმევად იყიდება საბაზისო ფასად და შეუზღუდავი მარაგით. შეინახეთ
-              პროდუქტი კონკრეტული კომბინაციებისთვის ფასის ან მარაგის დასაყენებლად (მაგ. ზომა 43 = 5 ერთეული
-              165 ლარად) — ვარიაციები ეყრდნობა რეალურ პარამეტრის მნიშვნელობებს, რომლებიც არსებობს მხოლოდ ამ პროდუქტის შენახვის შემდეგ.
-            </p>
-          </div>
+          {stagedOptions.length > 0 && (
+            <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-2">
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ვარიაციები</h2>
+              <p className="text-white/30 text-sm">
+                ზემოთ მითითებული ყველა კომბინაცია ნაგულისხმევად იყიდება საბაზისო ფასად და შეუზღუდავი მარაგით. შეინახეთ
+                პროდუქტი კონკრეტული კომბინაციებისთვის ფასის ან მარაგის დასაყენებლად (მაგ. ზომა 43 = 5 ერთეული
+                165 ლარად) — ვარიაციები ეყრდნობა რეალურ პარამეტრის მნიშვნელობებს, რომლებიც არსებობს მხოლოდ ამ პროდუქტის შენახვის შემდეგ.
+              </p>
+            </div>
+          )}
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
             <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ავტომატური გაზიარება</h2>

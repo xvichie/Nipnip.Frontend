@@ -307,7 +307,13 @@ export default function EditProductPage() {
       <ProductImagesManager productId={productId} images={product.images} />
       <ProductVideoManager productId={productId} videoUrl={product.videoUrl} />
       <ProductOptionsManager productId={productId} options={product.options} />
-      <ProductVariantsManager productId={productId} options={product.options} variants={product.variants} />
+      <ProductVariantsManager
+        productId={productId}
+        options={product.options}
+        variants={product.variants}
+        basePrice={product.basePrice}
+        salePrice={product.salePrice}
+      />
       <RelatedProductsManager productId={productId} picks={relatedPicks} onChange={setRelatedPicks} isLoading={relatedLoading} />
 
       {toast && (

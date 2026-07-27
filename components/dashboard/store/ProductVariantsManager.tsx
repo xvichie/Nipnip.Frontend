@@ -77,24 +77,108 @@ function VariantRow({ productId, variant }: { productId: string; variant: Produc
   )
 }
 
+// A plain product with no color/size/etc. options — just one thing, in some quantity. Rather
+// than making the merchant type a SKU and pick option values for a variant that has none, this
+// carries stock on a single implicit variant (created on first save) whose price/salePrice are
+// kept mirrored to the product's own Base/Sale price, so the merchant only ever sees "Base
+// Price", "Sale Price", and "Stock" as three plain fields — the variant underneath is invisible.
+function SimpleStockField({
+  productId,
+  variant,
+  basePrice,
+  salePrice,
+}: {
+  productId: string
+  variant: ProductVariantResponse | null
+  basePrice: number
+  salePrice: number | null
+}) {
+  const { mutate: createVariant, isPending: isCreating, error: createError } = useCreateProductVariant(productId)
+  const { mutate: updateVariant, isPending: isUpdating } = useUpdateProductVariant(productId)
+
+  // Keep the implicit variant's price mirrored to the product's own Base/Sale price whenever a
+  // save above changes them — otherwise the storefront would keep showing this variant's stale
+  // price instead of the new Base Price, since a variant's own price always wins once it exists.
+  const [prevBasePrice, setPrevBasePrice] = useState(basePrice)
+  const [prevSalePrice, setPrevSalePrice] = useState(salePrice)
+  if (variant && (basePrice !== prevBasePrice || salePrice !== prevSalePrice)) {
+    setPrevBasePrice(basePrice)
+    setPrevSalePrice(salePrice)
+    if (variant.price !== basePrice || variant.salePrice !== salePrice) {
+      updateVariant({ variantId: variant.id, body: { price: basePrice, salePrice } })
+    }
+  }
+
+  const [stock, setStock] = useState(variant?.stock != null ? String(variant.stock) : '')
+  const [prevVariantId, setPrevVariantId] = useState(variant?.id ?? null)
+  if ((variant?.id ?? null) !== prevVariantId) {
+    setPrevVariantId(variant?.id ?? null)
+    setStock(variant?.stock != null ? String(variant.stock) : '')
+  }
+
+  function save() {
+    const s = parseInt(stock, 10)
+    if (stock.trim() === '' || isNaN(s) || s < 0) return
+    if (variant) {
+      if (s !== variant.stock) updateVariant({ variantId: variant.id, body: { stock: s } })
+    } else {
+      createVariant({ sku: 'BASE', price: basePrice, salePrice, stock: s, optionValueIds: [] })
+    }
+  }
+
+  return (
+    <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-3">
+      <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">მარაგი</h2>
+      <div className="fieldset gap-2 max-w-40">
+        <label htmlFor="p-stock-simple" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+          ცალი <span className="text-error">*</span>
+        </label>
+        <div className="flex items-center gap-2">
+          <input
+            id="p-stock-simple"
+            type="number"
+            min="0"
+            step="1"
+            value={stock}
+            onChange={e => setStock(e.target.value)}
+            onBlur={save}
+            required
+            className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 tabular-nums"
+          />
+          {(isCreating || isUpdating) && <span className="loading loading-spinner loading-xs text-fuchsia-400 shrink-0" />}
+        </div>
+      </div>
+      {createError && <p className="text-error text-xs">მარაგის შენახვა ვერ მოხერხდა.</p>}
+    </div>
+  )
+}
+
 export function ProductVariantsManager({
   productId,
   options,
   variants,
+  basePrice,
+  salePrice,
 }: {
   productId: string
   options: ProductOptionResponse[]
   variants: ProductVariantResponse[]
+  basePrice: number
+  salePrice: number | null
 }) {
   const { mutate: createVariant, isPending, error } = useCreateProductVariant(productId)
   const [sku, setSku] = useState('')
   const [price, setPrice] = useState('')
-  const [salePrice, setSalePrice] = useState('')
+  const [salePriceInput, setSalePriceInput] = useState('')
   const [stock, setStock] = useState('')
   const [selectedValues, setSelectedValues] = useState<Record<string, string>>({})
 
   const configuredOptions = options.filter(option => option.values.length > 0)
   const allOptionsSelected = configuredOptions.every(option => !!selectedValues[option.id])
+
+  if (configuredOptions.length === 0) {
+    return <SimpleStockField productId={productId} variant={variants[0] ?? null} basePrice={basePrice} salePrice={salePrice} />
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -102,13 +186,13 @@ export function ProductVariantsManager({
     const s = stock.trim() === '' ? null : parseInt(stock, 10)
     if (!sku.trim() || isNaN(p) || (s !== null && isNaN(s)) || !allOptionsSelected) return
 
-    const sp = parseFloat(salePrice)
+    const sp = parseFloat(salePriceInput)
 
     createVariant(
       {
         sku: sku.trim(),
         price: p,
-        salePrice: salePrice.trim() && !isNaN(sp) ? sp : null,
+        salePrice: salePriceInput.trim() && !isNaN(sp) ? sp : null,
         stock: s,
         optionValueIds: Object.values(selectedValues),
       },
@@ -116,7 +200,7 @@ export function ProductVariantsManager({
         onSuccess: () => {
           setSku('')
           setPrice('')
-          setSalePrice('')
+          setSalePriceInput('')
           setStock('')
           setSelectedValues({})
         },
@@ -163,8 +247,8 @@ export function ProductVariantsManager({
           <input
             type="number"
             step="0.01"
-            value={salePrice}
-            onChange={e => setSalePrice(e.target.value)}
+            value={salePriceInput}
+            onChange={e => setSalePriceInput(e.target.value)}
             placeholder="ფასდაკლებული ფასი"
             className="input input-sm w-24 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
           />
