@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const store = await apiFetch<StoreResponse>(`/api/stores/${slug}`, null)
   const tokens = parseThemeConfig(store.themeConfig)
-  const t = await getStorefrontStrings()
+  const t = await getStorefrontStrings(tokens.defaultLanguage)
   const label = tokens.contactLabel
 
   const contactBits = [tokens.contactAddress, tokens.contactPhone, tokens.contactEmail].filter(Boolean)
@@ -36,7 +36,7 @@ export default async function StoreContactPage({ params }: { params: Promise<{ s
 
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
   const tokens = parseThemeConfig(store.themeConfig)
-  const t = await getStorefrontStrings()
+  const t = await getStorefrontStrings(tokens.defaultLanguage)
 
   return (
     <>

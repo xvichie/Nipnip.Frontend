@@ -9,6 +9,7 @@ import { StoreHoursBadge } from '@/components/storefront/shared/StoreHoursBadge'
 import { StorefrontLanguageSwitcher } from '@/components/storefront/shared/StorefrontLanguageSwitcher'
 import type { CategoryResponse, StorePageResponse, ThemeConfig } from '@/lib/types/storefront'
 import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
+import { getCategoryName } from '@/lib/store/translations'
 import { CImg } from '@/components/ui/CImg'
 
 export function Header({
@@ -24,7 +25,7 @@ export function Header({
   pages: StorePageResponse[]
   tokens: Required<ThemeConfig>
 }) {
-  const { t } = useStorefrontLanguage()
+  const { t, lang } = useStorefrontLanguage()
   const { count } = useStorefrontCart()
   const pathname = usePathname()
   const isCheckout = pathname?.includes('/checkout')
@@ -104,7 +105,7 @@ export function Header({
                           onClick={() => setCategoriesOpen(false)}
                           className={`py-2 text-sm text-[#555] hover:text-[#111] hover:bg-[#f7f7f7] transition-colors whitespace-nowrap ${category.isChild ? 'pl-8 pr-4' : 'px-4'}`}
                         >
-                          {category.name}
+                          {getCategoryName(category, lang)}
                         </Link>
                       ))}
                     </div>
@@ -117,7 +118,7 @@ export function Header({
                     href={`/products/category/${category.slug}`}
                     className={`text-sm text-[#555] hover:text-[#111] transition-colors whitespace-nowrap ${category.isChild ? 'pl-3' : ''}`}
                   >
-                    {category.isChild && '– '}{category.name}
+                    {category.isChild && '– '}{getCategoryName(category, lang)}
                   </Link>
                 ))
               )
@@ -212,7 +213,7 @@ export function Header({
                 onClick={() => setMobileOpen(false)}
                 className={`text-sm text-[#555] py-2.5 border-b border-[#f0f0f0] ${category.isChild ? 'pl-4' : ''}`}
               >
-                {category.name}
+                {getCategoryName(category, lang)}
               </Link>
             ))}
             {navPages.map(page => (

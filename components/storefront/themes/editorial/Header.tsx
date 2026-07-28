@@ -9,6 +9,7 @@ import { StoreHoursBadge } from '@/components/storefront/shared/StoreHoursBadge'
 import { StorefrontLanguageSwitcher } from '@/components/storefront/shared/StorefrontLanguageSwitcher'
 import type { CategoryResponse, StorePageResponse, ThemeConfig } from '@/lib/types/storefront'
 import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
+import { getCategoryName } from '@/lib/store/translations'
 import { CImg } from '@/components/ui/CImg'
 
 function Divider() {
@@ -28,7 +29,7 @@ export function Header({
   pages: StorePageResponse[]
   tokens: Required<ThemeConfig>
 }) {
-  const { t } = useStorefrontLanguage()
+  const { t, lang } = useStorefrontLanguage()
   const { count } = useStorefrontCart()
   const pathname = usePathname()
   const isCheckout = pathname?.includes('/checkout')
@@ -158,7 +159,7 @@ export function Header({
                           onClick={() => setCategoriesOpen(false)}
                           className={`py-1.5 text-xs uppercase tracking-widest text-[#111111] hover:underline underline-offset-4 whitespace-nowrap ${category.isChild ? 'pl-8 pr-4' : 'px-4'}`}
                         >
-                          {category.name}
+                          {getCategoryName(category, lang)}
                         </Link>
                       ))}
                     </div>
@@ -172,7 +173,7 @@ export function Header({
                       href={`/products/category/${category.slug}`}
                       className="text-xs uppercase tracking-widest text-[#111111] hover:underline underline-offset-4 whitespace-nowrap"
                     >
-                      {category.isChild && '– '}{category.name}
+                      {category.isChild && '– '}{getCategoryName(category, lang)}
                     </Link>
                   </span>
                 ))
@@ -234,7 +235,7 @@ export function Header({
                 onClick={() => setMobileOpen(false)}
                 className={`text-xs uppercase tracking-widest text-[#767676] py-2.5 border-b border-black/10 ${category.isChild ? 'pl-4' : ''}`}
               >
-                {category.name}
+                {getCategoryName(category, lang)}
               </Link>
             ))}
             {navPages.map(page => (

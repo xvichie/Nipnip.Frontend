@@ -1,3 +1,5 @@
+import type { StorefrontLanguage } from '@/lib/storefront-i18n'
+
 export type PaymentMethod = 'CashOnDelivery' | 'BankTransfer' | 'Flitt' | 'Tbc' | 'Bog' | 'CityPay'
 
 export type OrderStatus = 'Pending' | 'Confirmed' | 'Shipped' | 'Delivered' | 'Cancelled'
@@ -52,6 +54,8 @@ export type FeaturedProductsMode = 'latest' | 'curated'
 export type ContentImagePosition = 'left' | 'right'
 
 export interface ThemeConfig {
+  /** What a first-time shopper (no nn_store_lang cookie yet) sees the storefront in. */
+  defaultLanguage?: StorefrontLanguage
   accentColor?: string
   /** Key into FONT_OPTIONS (lib/storefront-fonts.ts) — 'sans'/'serif'/'mono' are generic-stack defaults, everything else is a real webfont. */
   font?: string
@@ -323,7 +327,11 @@ export interface SetStoreDomainRequest {
 export interface CategoryResponse {
   id: string
   parentCategoryId: string | null
+  /** Resolved ka -> en -> ru fallback — for consumers that just want "the" name. */
   name: string
+  nameKa: string | null
+  nameEn: string | null
+  nameRu: string | null
   slug: string
   iconUrl: string | null
   iconKey: string | null
@@ -333,8 +341,11 @@ export interface CategoryResponse {
 }
 
 export interface CreateCategoryRequest {
-  name: string
   parentCategoryId?: string | null
+  /** At least one of the three is required. */
+  nameKa?: string | null
+  nameEn?: string | null
+  nameRu?: string | null
   iconUrl?: string | null
   iconKey?: string | null
   iconEmoji?: string | null
@@ -342,8 +353,10 @@ export interface CreateCategoryRequest {
 }
 
 export interface UpdateCategoryRequest {
-  name?: string | null
   parentCategoryId?: string | null
+  nameKa?: string | null
+  nameEn?: string | null
+  nameRu?: string | null
   iconUrl?: string | null
   iconKey?: string | null
   iconEmoji?: string | null

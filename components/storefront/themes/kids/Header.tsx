@@ -9,6 +9,7 @@ import { StoreHoursBadge } from '@/components/storefront/shared/StoreHoursBadge'
 import { StorefrontLanguageSwitcher } from '@/components/storefront/shared/StorefrontLanguageSwitcher'
 import type { CategoryResponse, StorePageResponse, ThemeConfig } from '@/lib/types/storefront'
 import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
+import { getCategoryName } from '@/lib/store/translations'
 import { CImg } from '@/components/ui/CImg'
 
 export function Header({
@@ -24,7 +25,7 @@ export function Header({
   pages: StorePageResponse[]
   tokens: Required<ThemeConfig>
 }) {
-  const { t } = useStorefrontLanguage()
+  const { t, lang } = useStorefrontLanguage()
   const { count } = useStorefrontCart()
   const pathname = usePathname()
   const isCheckout = pathname?.includes('/checkout')
@@ -100,7 +101,7 @@ export function Header({
                           onClick={() => setCategoriesOpen(false)}
                           className={`rounded-xl py-2 text-sm font-medium text-[#2b2b2b]/70 hover:text-[#2b2b2b] hover:bg-[#eaf7fc] transition-colors whitespace-nowrap ${category.isChild ? 'pl-7 pr-3.5' : 'px-3.5'}`}
                         >
-                          {category.name}
+                          {getCategoryName(category, lang)}
                         </Link>
                       ))}
                     </div>
@@ -113,7 +114,7 @@ export function Header({
                     href={`/products/category/${category.slug}`}
                     className={`rounded-full px-4 py-2 text-sm font-semibold text-[#2b2b2b]/70 hover:text-[#2b2b2b] hover:bg-[#eaf7fc] transition-colors whitespace-nowrap ${category.isChild ? 'pl-3' : ''}`}
                   >
-                    {category.isChild && '– '}{category.name}
+                    {category.isChild && '– '}{getCategoryName(category, lang)}
                   </Link>
                 ))
               )
@@ -206,7 +207,7 @@ export function Header({
                 onClick={() => setMobileOpen(false)}
                 className={`rounded-xl py-2.5 text-sm font-medium text-[#2b2b2b]/70 hover:bg-[#eaf7fc] ${category.isChild ? 'pl-6' : 'px-3'}`}
               >
-                {category.name}
+                {getCategoryName(category, lang)}
               </Link>
             ))}
             {navPages.map(page => (

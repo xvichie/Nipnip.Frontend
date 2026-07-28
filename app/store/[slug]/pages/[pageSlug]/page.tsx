@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { apiFetch, ApiError } from '@/lib/api'
+import { parseThemeConfig } from '@/lib/store/theme-config'
 import { isThemeId } from '@/lib/storefront-themes'
 import { StorePageView } from '@/components/storefront/shared/StorePageView'
 import { buildBreadcrumbJsonLd, getStoreUrl, truncateDescription } from '@/lib/store/seo'
@@ -49,7 +50,7 @@ export default async function StorePageRoute({
   }
 
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
-  const t = await getStorefrontStrings()
+  const t = await getStorefrontStrings(parseThemeConfig(store.themeConfig).defaultLanguage)
 
   return (
     <>

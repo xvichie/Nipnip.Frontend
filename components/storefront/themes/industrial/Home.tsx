@@ -9,8 +9,9 @@ import { getLandingCategories } from '@/lib/store/landing-categories'
 import { getLandingCollections } from '@/lib/store/landing-collections'
 import { ContentBlock } from '@/components/storefront/shared/ContentBlock'
 import { FaqAccordion } from '@/components/storefront/shared/FaqAccordion'
+import { getCategoryName } from '@/lib/store/translations'
 import type { CategoryResponse, CollectionResponse, HomeSectionKey, ProductSummaryResponse, StoreResponse, ThemeConfig } from '@/lib/types/storefront'
-import type { StorefrontStrings } from '@/lib/storefront-i18n'
+import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 export function Home({
@@ -22,6 +23,7 @@ export function Home({
   products,
   tokens,
   t,
+  lang,
 }: {
   slug: string
   store: StoreResponse
@@ -31,8 +33,9 @@ export function Home({
   products: ProductSummaryResponse[]
   tokens: Required<ThemeConfig>
   t: StorefrontStrings
+  lang: StorefrontLanguage
 }) {
-  const categoryNames = new Map(categories.map(c => [c.id, c.name]))
+  const categoryNames = new Map(categories.map(c => [c.id, getCategoryName(c, lang)]))
   const landingCategories = getLandingCategories(categories, tokens)
   const landingCollections = getLandingCollections(collections, tokens)
   function buildHero(cfg: Required<ThemeConfig>) {
@@ -196,7 +199,7 @@ export function Home({
               className="flex flex-col items-center justify-center gap-2.5 border border-[#3a3a38] bg-[#242422] hover:border-[#54544e] transition-colors px-4 py-7 text-center uppercase text-xs font-semibold tracking-wide text-[#b5b5b0]"
             >
               <CategoryIcon iconUrl={category.iconUrl} iconKey={category.iconKey} iconEmoji={category.iconEmoji} className="w-5 h-5" style={{ color: tokens.accentColor }} />
-              {category.name}
+              {getCategoryName(category, lang)}
             </Link>
           ))}
         </div>

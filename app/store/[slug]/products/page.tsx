@@ -34,7 +34,7 @@ const GRID_COMPONENTS = {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const store = await apiFetch<StoreResponse>(`/api/stores/${slug}`, null)
-  const t = await getStorefrontStrings()
+  const t = await getStorefrontStrings(parseThemeConfig(store.themeConfig).defaultLanguage)
 
   return {
     title: t.seo.productsPageTitle,
@@ -58,7 +58,7 @@ export default async function ProductsPage({
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
   const tokens = parseThemeConfig(store.themeConfig)
   const GridComponent = GRID_COMPONENTS[themeId]
-  const t = await getStorefrontStrings()
+  const t = await getStorefrontStrings(tokens.defaultLanguage)
 
   return (
     <>

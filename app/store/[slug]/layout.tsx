@@ -126,7 +126,7 @@ export default async function StoreLayout({
   if (store.isProspect && !(await isCurrentUserAdmin())) notFound()
 
   const tokens = parseThemeConfig(store.themeConfig)
-  const lang = await getStorefrontLanguage()
+  const lang = await getStorefrontLanguage(tokens.defaultLanguage)
   const t = STOREFRONT_STRINGS[lang]
 
   // A branded "closed"/"coming soon" notice instead of a bare 404 — merchant-configurable via

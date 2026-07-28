@@ -9,8 +9,9 @@ import { getLandingCategories } from '@/lib/store/landing-categories'
 import { getLandingCollections } from '@/lib/store/landing-collections'
 import { ContentBlock } from '@/components/storefront/shared/ContentBlock'
 import { FaqAccordion } from '@/components/storefront/shared/FaqAccordion'
+import { getCategoryName } from '@/lib/store/translations'
 import type { CategoryResponse, CollectionResponse, HomeSectionKey, ProductSummaryResponse, StoreResponse, ThemeConfig } from '@/lib/types/storefront'
-import type { StorefrontStrings } from '@/lib/storefront-i18n'
+import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 const KIDS_CATEGORY_PALETTE = ['#ff6fae', '#3fc5f0', '#ffd93d', '#66d9a0', '#b28dff']
@@ -24,6 +25,7 @@ export function Home({
   products,
   tokens,
   t,
+  lang,
 }: {
   slug: string
   store: StoreResponse
@@ -33,8 +35,9 @@ export function Home({
   products: ProductSummaryResponse[]
   tokens: Required<ThemeConfig>
   t: StorefrontStrings
+  lang: StorefrontLanguage
 }) {
-  const categoryNames = new Map(categories.map(c => [c.id, c.name]))
+  const categoryNames = new Map(categories.map(c => [c.id, getCategoryName(c, lang)]))
   const landingCategories = getLandingCategories(categories, tokens)
   const landingCollections = getLandingCollections(collections, tokens)
   function buildHero(cfg: Required<ThemeConfig>) {
@@ -210,7 +213,7 @@ export function Home({
                     <CategoryIcon iconUrl={category.iconUrl} iconKey={category.iconKey} iconEmoji={category.iconEmoji} className="w-5 h-5" />
                   </span>
                 )}
-                <span className="text-sm font-bold" style={{ color }}>{category.name}</span>
+                <span className="text-sm font-bold" style={{ color }}>{getCategoryName(category, lang)}</span>
               </Link>
             )
           })}

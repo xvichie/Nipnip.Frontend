@@ -619,6 +619,7 @@ export default function StoreLayoutPage() {
             products={previewProducts}
             tokens={tokens}
             t={storefrontT}
+            lang="ka"
           />
           <FooterPreview slug={store.slug} storeName={store.name} tokens={tokens} pages={pages ?? []} t={storefrontT} />
         </StorefrontCartProvider>

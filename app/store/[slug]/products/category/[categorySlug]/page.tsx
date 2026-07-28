@@ -4,7 +4,9 @@ import { apiFetch } from '@/lib/api'
 import { parseThemeConfig } from '@/lib/store/theme-config'
 import { isThemeId } from '@/lib/storefront-themes'
 import { buildBreadcrumbJsonLd, getStoreUrl, truncateDescription } from '@/lib/store/seo'
-import { getStorefrontStrings } from '@/lib/storefront-i18n-server'
+import { getStorefrontLanguage } from '@/lib/storefront-i18n-server'
+import { STOREFRONT_STRINGS } from '@/lib/storefront-i18n'
+import { getCategoryName } from '@/lib/store/translations'
 import { JsonLd } from '@/components/storefront/shared/JsonLd'
 import type { CategoryResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
@@ -41,9 +43,11 @@ export async function generateMetadata({
     apiFetch<StoreResponse>(`/api/stores/${slug}`, null),
     apiFetch<CategoryResponse[]>(`/api/stores/${slug}/categories`, null),
   ])
+  const tokens = parseThemeConfig(store.themeConfig)
+  const lang = await getStorefrontLanguage(tokens.defaultLanguage)
+  const t = STOREFRONT_STRINGS[lang]
   const category = categories.find(c => c.slug === categorySlug)
-  const categoryName = category?.name ?? categorySlug
-  const t = await getStorefrontStrings()
+  const categoryName = category ? getCategoryName(category, lang) : categorySlug
 
   return {
     title: categoryName,
@@ -68,14 +72,15 @@ export default async function ProductsByCategoryPage({
   const tokens = parseThemeConfig(store.themeConfig)
   const GridComponent = GRID_COMPONENTS[themeId]
   const category = categories.find(c => c.slug === categorySlug)
-  const t = await getStorefrontStrings()
+  const lang = await getStorefrontLanguage(tokens.defaultLanguage)
+  const t = STOREFRONT_STRINGS[lang]
 
   return (
     <>
       <JsonLd data={buildBreadcrumbJsonLd([
         { name: store.name, url: getStoreUrl(slug, '', store.customDomain) },
         { name: t.seo.productsPageTitle, url: getStoreUrl(slug, '/products', store.customDomain) },
-        { name: category?.name ?? categorySlug, url: getStoreUrl(slug, `/products/category/${categorySlug}`, store.customDomain) },
+        { name: category ? getCategoryName(category, lang) : categorySlug, url: getStoreUrl(slug, `/products/category/${categorySlug}`, store.customDomain) },
       ])} />
       <GridComponent
         slug={slug}

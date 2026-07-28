@@ -10,6 +10,7 @@ import { StickyAddToCartBar } from '@/components/storefront/shared/StickyAddToCa
 import { ProductCard } from './ProductCard'
 import type { CategoryResponse, ProductDetailResponse, ThemeConfig } from '@/lib/types/storefront'
 import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
+import { getCategoryName } from '@/lib/store/translations'
 import { CImg } from '@/components/ui/CImg'
 
 export function ProductDetail({
@@ -23,7 +24,7 @@ export function ProductDetail({
   category?: CategoryResponse
   tokens: Required<ThemeConfig>
 }) {
-  const { t } = useStorefrontLanguage()
+  const { t, lang } = useStorefrontLanguage()
   const { addItem } = useStorefrontCart()
   const [selected, setSelected] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
@@ -83,7 +84,7 @@ export function ProductDetail({
         <Breadcrumbs
           items={[
             { label: t.product.breadcrumbHome, href: '/' },
-            category ? { label: category.name, href: `/products/category/${category.slug}` } : { label: t.product.breadcrumbAllProducts, href: '/products' },
+            category ? { label: getCategoryName(category, lang), href: `/products/category/${category.slug}` } : { label: t.product.breadcrumbAllProducts, href: '/products' },
             { label: product.name },
           ]}
           t={t}

@@ -3,6 +3,7 @@ import { getThemeDefinition, RADIUS_CLASS } from '@/lib/storefront-themes'
 import type { AdminThemeOverride, CategoryResponse, HomeSectionKey, ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
 
 export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
+  defaultLanguage: 'ka',
   accentColor: '#111111',
   font: 'sans',
   cornerRadius: 'theme',

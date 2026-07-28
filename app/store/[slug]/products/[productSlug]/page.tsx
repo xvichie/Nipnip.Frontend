@@ -5,7 +5,9 @@ import { apiFetch, ApiError } from '@/lib/api'
 import { parseThemeConfig } from '@/lib/store/theme-config'
 import { isThemeId } from '@/lib/storefront-themes'
 import { buildBreadcrumbJsonLd, buildProductJsonLd, getStoreUrl, truncateDescription } from '@/lib/store/seo'
-import { getStorefrontStrings } from '@/lib/storefront-i18n-server'
+import { getStorefrontLanguage } from '@/lib/storefront-i18n-server'
+import { STOREFRONT_STRINGS } from '@/lib/storefront-i18n'
+import { getCategoryName } from '@/lib/store/translations'
 import { JsonLd } from '@/components/storefront/shared/JsonLd'
 import type { CategoryResponse, ProductDetailResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
@@ -48,7 +50,8 @@ export async function generateMetadata({
     return {}
   }
 
-  const t = await getStorefrontStrings()
+  const lang = await getStorefrontLanguage(parseThemeConfig(store.themeConfig).defaultLanguage)
+  const t = STOREFRONT_STRINGS[lang]
   const description = truncateDescription(
     product.description || t.seo.productDescriptionFallback(product.name, store.name)
   )
@@ -97,12 +100,13 @@ export default async function ProductDetailPage({
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
   const tokens = parseThemeConfig(store.themeConfig)
   const DetailComponent = DETAIL_COMPONENTS[themeId]
-  const t = await getStorefrontStrings()
+  const lang = await getStorefrontLanguage(tokens.defaultLanguage)
+  const t = STOREFRONT_STRINGS[lang]
 
   const category = categories.find(c => c.id === product.categoryId)
 
   const categoryCrumb = category
-    ? { name: category.name, url: getStoreUrl(slug, `/products/category/${category.slug}`, store.customDomain) }
+    ? { name: getCategoryName(category, lang), url: getStoreUrl(slug, `/products/category/${category.slug}`, store.customDomain) }
     : { name: t.seo.productsPageTitle, url: getStoreUrl(slug, '/products', store.customDomain) }
 
   return (

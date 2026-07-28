@@ -4,7 +4,14 @@ import { useState } from 'react'
 import { useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { DEFAULT_THEME_CONFIG, parseThemeConfig } from '@/lib/store/theme-config'
 import { getStoreDescription, getStoreTitle } from '@/lib/store/seo'
+import type { StorefrontLanguage } from '@/lib/storefront-i18n'
 import type { OfflineMode } from '@/lib/types/storefront'
+
+const LANGUAGE_OPTIONS: { value: StorefrontLanguage; flag: string; label: string }[] = [
+  { value: 'ka', flag: '🇬🇪', label: 'ქართული' },
+  { value: 'en', flag: '🇬🇧', label: 'English' },
+  { value: 'ru', flag: '🇷🇺', label: 'Русский' },
+]
 
 export default function MerchantStorePage() {
   const { data: store, isLoading, isError } = useMyStore()
@@ -12,6 +19,7 @@ export default function MerchantStorePage() {
 
   const [name, setName] = useState('')
   const [isActive, setIsActive] = useState(true)
+  const [defaultLanguage, setDefaultLanguage] = useState<StorefrontLanguage>(DEFAULT_THEME_CONFIG.defaultLanguage)
   const [contactEmail, setContactEmail] = useState('')
   const [contactPhone, setContactPhone] = useState('')
   const [contactAddress, setContactAddress] = useState('')
@@ -34,6 +42,7 @@ export default function MerchantStorePage() {
     setName(store.name)
     setIsActive(store.isActive)
     const parsed = parseThemeConfig(store.themeConfig)
+    setDefaultLanguage(parsed.defaultLanguage)
     setContactEmail(parsed.contactEmail)
     setContactPhone(parsed.contactPhone)
     setContactAddress(parsed.contactAddress)
@@ -54,6 +63,7 @@ export default function MerchantStorePage() {
         isActive,
         themeConfig: JSON.stringify({
           ...parsed,
+          defaultLanguage,
           contactEmail,
           contactPhone,
           contactAddress,
@@ -115,6 +125,33 @@ export default function MerchantStorePage() {
             />
             <span className="text-sm text-white/70">მაღაზია აქტიურია</span>
           </label>
+
+          <div className="fieldset gap-2">
+            <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+              საწყისი ენა
+            </label>
+            <p className="text-white/30 text-xs -mt-1 mb-1">
+              ამ ენას ხედავს ვიზიტორი, რომელსაც ჯერ არ აურჩევია ენა თქვენი მაღაზიისთვის.
+            </p>
+            <div className="flex items-center gap-1.5 rounded-lg bg-white/5 border border-white/10 p-1 w-fit">
+              {LANGUAGE_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setDefaultLanguage(opt.value)}
+                  className={[
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors',
+                    defaultLanguage === opt.value
+                      ? 'bg-fuchsia-500/15 text-fuchsia-300'
+                      : 'text-white/60 hover:text-white hover:bg-white/6',
+                  ].join(' ')}
+                >
+                  <span className="text-sm leading-none">{opt.flag}</span>
+                  <span>{opt.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
           {!isActive && (
             <div className="rounded-xl border border-white/8 bg-white/2 p-4 flex flex-col gap-4">

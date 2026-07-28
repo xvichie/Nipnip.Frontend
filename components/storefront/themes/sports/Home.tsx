@@ -9,8 +9,9 @@ import { getLandingCategories } from '@/lib/store/landing-categories'
 import { getLandingCollections } from '@/lib/store/landing-collections'
 import { ContentBlock } from '@/components/storefront/shared/ContentBlock'
 import { FaqAccordion } from '@/components/storefront/shared/FaqAccordion'
+import { getCategoryName } from '@/lib/store/translations'
 import type { CategoryResponse, CollectionResponse, HomeSectionKey, ProductSummaryResponse, StoreResponse, ThemeConfig } from '@/lib/types/storefront'
-import type { StorefrontStrings } from '@/lib/storefront-i18n'
+import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 export function Home({
@@ -22,6 +23,7 @@ export function Home({
   products,
   tokens,
   t,
+  lang,
 }: {
   slug: string
   store: StoreResponse
@@ -31,8 +33,9 @@ export function Home({
   products: ProductSummaryResponse[]
   tokens: Required<ThemeConfig>
   t: StorefrontStrings
+  lang: StorefrontLanguage
 }) {
-  const categoryNames = new Map(categories.map(c => [c.id, c.name]))
+  const categoryNames = new Map(categories.map(c => [c.id, getCategoryName(c, lang)]))
   const landingCategories = getLandingCategories(categories, tokens)
   const landingCollections = getLandingCollections(collections, tokens)
 
@@ -196,7 +199,7 @@ export function Home({
                   <CategoryIcon iconUrl={category.iconUrl} iconKey={category.iconKey} iconEmoji={category.iconEmoji} className="w-5 h-5" />
                 </span>
               )}
-              <span className="text-sm font-bold uppercase tracking-wide text-white/80">{category.name}</span>
+              <span className="text-sm font-bold uppercase tracking-wide text-white/80">{getCategoryName(category, lang)}</span>
             </Link>
           ))}
         </div>

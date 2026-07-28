@@ -11,6 +11,7 @@ import { useProductListUrlState } from '@/lib/store/use-product-list-url-state'
 import { getSidebarCategories } from '@/lib/store/nav-menu'
 import type { CategoryResponse, CollectionResponse, ThemeConfig } from '@/lib/types/storefront'
 import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
+import { getCategoryName } from '@/lib/store/translations'
 
 const PAGE_SIZE = 20
 
@@ -29,10 +30,11 @@ export function ProductGrid({
   activeCollectionSlug?: string
   tokens: Required<ThemeConfig>
 }) {
-  const { t } = useStorefrontLanguage()
-  const categoryNames = new Map(categories.map(c => [c.id, c.name]))
+  const { t, lang } = useStorefrontLanguage()
+  const categoryNames = new Map(categories.map(c => [c.id, getCategoryName(c, lang)]))
   const displayCategories = getSidebarCategories(categories, tokens)
-  const activeCategoryName = activeCategorySlug ? displayCategories.find(c => c.slug === activeCategorySlug)?.name : undefined
+  const activeCategory = activeCategorySlug ? displayCategories.find(c => c.slug === activeCategorySlug) : undefined
+  const activeCategoryName = activeCategory ? getCategoryName(activeCategory, lang) : undefined
   const activeCollectionName = activeCollectionSlug ? collections.find(c => c.slug === activeCollectionSlug)?.name : undefined
 
   const {
@@ -92,7 +94,7 @@ export function ProductGrid({
                 href={`/products/category/${category.slug}`}
                 className={`text-xs uppercase tracking-widest transition-colors ${activeCategorySlug === category.slug ? 'text-[#111111] underline underline-offset-4' : 'text-[#767676] hover:text-[#111111] hover:underline underline-offset-4'} ${category.isChild ? 'pl-4' : ''}`}
               >
-                {category.name}
+                {getCategoryName(category, lang)}
               </Link>
             ))}
           </div>

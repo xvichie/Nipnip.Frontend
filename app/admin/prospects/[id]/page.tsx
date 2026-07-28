@@ -156,7 +156,7 @@ export default function AdminProspectStudioPage({ params }: { params: Promise<{ 
   function handleAddCategory(e: React.FormEvent) {
     e.preventDefault()
     if (!newCategoryName.trim()) return
-    createCategory({ name: newCategoryName.trim() }, { onSuccess: () => setNewCategoryName('') })
+    createCategory({ nameKa: newCategoryName.trim() }, { onSuccess: () => setNewCategoryName('') })
   }
 
   // --- Products ---

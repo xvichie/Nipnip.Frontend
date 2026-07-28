@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useCreateCategory, useDeleteCategory, useMyCategories, useUpdateCategory } from '@/lib/queries/storefront-admin'
 import { IconPicker, type IconValue } from './IconPicker'
 import { StagedOptionsEditor, type StagedOption } from './StagedOptionsEditor'
+import { TranslatedNameInput, hasAnyTranslatedName, type TranslatedNameValue } from './TranslatedNameInput'
 import { defaultOptionsToStaged, stagedToDefaultOptionsJson } from '@/lib/store/category-default-options'
 import { IconButton } from '@/components/ui/IconButton'
 import { CheckIcon, EditIcon, PlusIcon, SlidersIcon, TrashIcon, XIcon } from '@/components/ui/icons'
@@ -13,13 +14,17 @@ function iconValueOf(category: CategoryResponse): IconValue {
   return { iconUrl: category.iconUrl, iconKey: category.iconKey, iconEmoji: category.iconEmoji }
 }
 
+function namesOf(category: CategoryResponse): TranslatedNameValue {
+  return { nameKa: category.nameKa ?? '', nameEn: category.nameEn ?? '', nameRu: category.nameRu ?? '' }
+}
+
 function CategoryIconField({ category }: { category: CategoryResponse }) {
   const { mutate: updateCategory } = useUpdateCategory()
 
   function handleChange(icon: IconValue) {
     updateCategory({
       id: category.id,
-      body: { name: category.name, parentCategoryId: category.parentCategoryId, ...icon },
+      body: { ...namesOf(category), parentCategoryId: category.parentCategoryId, ...icon },
     })
   }
 
@@ -33,7 +38,7 @@ function CategoryDefaultOptionsPanel({ category }: { category: CategoryResponse 
 
   function handleSave() {
     updateCategory(
-      { id: category.id, body: { name: category.name, parentCategoryId: category.parentCategoryId, defaultOptions: stagedToDefaultOptionsJson(staged) } },
+      { id: category.id, body: { ...namesOf(category), parentCategoryId: category.parentCategoryId, defaultOptions: stagedToDefaultOptionsJson(staged) } },
       { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 2000) } }
     )
   }
@@ -69,27 +74,35 @@ function CategoryRow({
   indent: boolean
   allCategories: CategoryResponse[]
 }) {
-  const { mutate: updateCategory, isPending: isSaving } = useUpdateCategory()
+  const { mutate: updateCategory, isPending: isSaving, error: updateError } = useUpdateCategory()
   const { mutate: deleteCategory, isPending: isDeleting } = useDeleteCategory()
 
   const [isEditing, setIsEditing] = useState(false)
   const [showDefaultOptions, setShowDefaultOptions] = useState(false)
-  const [name, setName] = useState(category.name)
+  const [names, setNames] = useState<TranslatedNameValue>(namesOf(category))
   const [parentCategoryId, setParentCategoryId] = useState(category.parentCategoryId ?? '')
   const [icon, setIcon] = useState<IconValue>(iconValueOf(category))
 
   function startEditing() {
-    setName(category.name)
+    setNames(namesOf(category))
     setParentCategoryId(category.parentCategoryId ?? '')
     setIcon(iconValueOf(category))
     setIsEditing(true)
   }
 
   function handleSave() {
-    const trimmed = name.trim()
-    if (!trimmed) return
+    if (!hasAnyTranslatedName(names)) return
     updateCategory(
-      { id: category.id, body: { name: trimmed, parentCategoryId: parentCategoryId || null, ...icon } },
+      {
+        id: category.id,
+        body: {
+          nameKa: names.nameKa.trim() || null,
+          nameEn: names.nameEn.trim() || null,
+          nameRu: names.nameRu.trim() || null,
+          parentCategoryId: parentCategoryId || null,
+          ...icon,
+        },
+      },
       { onSuccess: () => setIsEditing(false) }
     )
   }
@@ -109,15 +122,9 @@ function CategoryRow({
           indent ? 'ml-6' : '',
         ].join(' ')}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-start gap-2">
           <IconPicker value={icon} onChange={setIcon} />
-          <input
-            autoFocus
-            type="text"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            className="input input-xs bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 flex-1"
-          />
+          <TranslatedNameInput value={names} onChange={setNames} autoFocus />
         </div>
         <select
           value={parentCategoryId}
@@ -129,12 +136,16 @@ function CategoryRow({
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
+        {!hasAnyTranslatedName(names) && (
+          <p className="text-error text-xs">მიუთითეთ სახელი მინიმუმ ერთ ენაზე.</p>
+        )}
+        {updateError && <p className="text-error text-xs">კატეგორიის შენახვა ვერ მოხერხდა.</p>}
         <div className="flex gap-1.5 pt-1">
           <IconButton
             icon={isSaving ? <span className="loading loading-spinner loading-xs" /> : <CheckIcon />}
             label="შენახვა"
             onClick={handleSave}
-            disabled={isSaving || !name.trim()}
+            disabled={isSaving || !hasAnyTranslatedName(names)}
             variant="accent"
           />
           <IconButton icon={<XIcon />} label="გაუქმება" onClick={() => setIsEditing(false)} />
@@ -173,15 +184,28 @@ export function CategoryManager() {
   const { data: categories, isLoading } = useMyCategories()
   const { mutate: createCategory, isPending: isCreating, error: createError } = useCreateCategory()
 
-  const [name, setName] = useState('')
+  const [names, setNames] = useState<TranslatedNameValue>({ nameKa: '', nameEn: '', nameRu: '' })
   const [parentCategoryId, setParentCategoryId] = useState('')
   const [icon, setIcon] = useState<IconValue>({ iconUrl: null, iconKey: null, iconEmoji: null })
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (!hasAnyTranslatedName(names)) return
     createCategory(
-      { name: name.trim(), parentCategoryId: parentCategoryId || null, ...icon },
-      { onSuccess: () => { setName(''); setParentCategoryId(''); setIcon({ iconUrl: null, iconKey: null, iconEmoji: null }) } }
+      {
+        nameKa: names.nameKa.trim() || null,
+        nameEn: names.nameEn.trim() || null,
+        nameRu: names.nameRu.trim() || null,
+        parentCategoryId: parentCategoryId || null,
+        ...icon,
+      },
+      {
+        onSuccess: () => {
+          setNames({ nameKa: '', nameEn: '', nameRu: '' })
+          setParentCategoryId('')
+          setIcon({ iconUrl: null, iconKey: null, iconEmoji: null })
+        },
+      }
     )
   }
 
@@ -210,16 +234,9 @@ export function CategoryManager() {
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3 pt-2 border-t border-white/5">
-        <div className="flex items-center gap-2">
+        <div className="flex items-start gap-2">
           <IconPicker value={icon} onChange={setIcon} />
-          <input
-            type="text"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder="ახალი კატეგორიის სახელი"
-            className="input input-sm bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 flex-1"
-            required
-          />
+          <TranslatedNameInput value={names} onChange={setNames} placeholder="ახალი კატეგორიის სახელი" />
         </div>
         {categories && categories.length > 0 && (
           <select
@@ -236,7 +253,7 @@ export function CategoryManager() {
         {createError && <p className="text-error text-xs">კატეგორიის შექმნა ვერ მოხერხდა.</p>}
         <button
           type="submit"
-          disabled={isCreating || !name.trim()}
+          disabled={isCreating || !hasAnyTranslatedName(names)}
           className="btn btn-sm gap-1.5 self-start bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
         >
           {isCreating ? <span className="loading loading-spinner loading-xs" /> : <><PlusIcon /> კატეგორიის დამატება</>}

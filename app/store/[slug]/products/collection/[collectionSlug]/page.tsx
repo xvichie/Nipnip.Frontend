@@ -43,7 +43,7 @@ export async function generateMetadata({
   ])
   const collection = collections.find(c => c.slug === collectionSlug)
   const collectionName = collection?.name ?? collectionSlug
-  const t = await getStorefrontStrings()
+  const t = await getStorefrontStrings(parseThemeConfig(store.themeConfig).defaultLanguage)
 
   return {
     title: collectionName,
@@ -69,7 +69,7 @@ export default async function ProductsByCollectionPage({
   const tokens = parseThemeConfig(store.themeConfig)
   const GridComponent = GRID_COMPONENTS[themeId]
   const collection = collections.find(c => c.slug === collectionSlug)
-  const t = await getStorefrontStrings()
+  const t = await getStorefrontStrings(tokens.defaultLanguage)
 
   return (
     <>

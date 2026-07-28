@@ -535,6 +535,7 @@ export default function StoreDesignPage() {
   const [heroSecondaryCtaCustomUrl, setHeroSecondaryCtaCustomUrl] = useState('')
   const [heroKenBurnsEnabled, setHeroKenBurnsEnabled] = useState(DEFAULT_THEME_CONFIG.heroKenBurnsEnabled)
   const [heroScrollIndicatorEnabled, setHeroScrollIndicatorEnabled] = useState(DEFAULT_THEME_CONFIG.heroScrollIndicatorEnabled)
+  const [defaultLanguage, setDefaultLanguage] = useState(DEFAULT_THEME_CONFIG.defaultLanguage)
   const [seoTagline, setSeoTagline] = useState('')
   const [seoDescription, setSeoDescription] = useState('')
   const [contactEmail, setContactEmail] = useState('')
@@ -716,6 +717,7 @@ export default function StoreDesignPage() {
     setHeroSecondaryCtaCustomUrl(parsed.heroSecondaryCtaCustomUrl)
     setHeroKenBurnsEnabled(parsed.heroKenBurnsEnabled)
     setHeroScrollIndicatorEnabled(parsed.heroScrollIndicatorEnabled)
+    setDefaultLanguage(parsed.defaultLanguage)
     setSeoTagline(parsed.seoTagline)
     setSeoDescription(parsed.seoDescription)
     setContactEmail(parsed.contactEmail)
@@ -972,6 +974,7 @@ export default function StoreDesignPage() {
       {
         themeId,
         themeConfig: JSON.stringify({
+          defaultLanguage,
           accentColor,
           font,
           cornerRadius,
@@ -1138,6 +1141,7 @@ export default function StoreDesignPage() {
   }
 
   const tokens: Required<ThemeConfig> = {
+    defaultLanguage,
     accentColor,
     font,
     cornerRadius,
@@ -1319,6 +1323,7 @@ export default function StoreDesignPage() {
             products={previewProducts}
             tokens={tokens}
             t={storefrontT}
+            lang="ka"
           />
           <FooterPreview slug={store.slug} storeName={store.name} tokens={tokens} pages={pages ?? []} t={storefrontT} />
         </StorefrontCartProvider>
