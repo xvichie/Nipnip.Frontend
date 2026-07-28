@@ -1,8 +1,11 @@
 import type { CSSProperties } from 'react'
 import { getThemeDefinition, RADIUS_CLASS } from '@/lib/storefront-themes'
-import type { AdminThemeOverride, CategoryResponse, HomeSectionKey, ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
+import { getThemeText } from '@/lib/store/translations'
+import type { StorefrontLanguage } from '@/lib/storefront-i18n'
+import type { AdminThemeOverride, CategoryResponse, HeroSlide, HomeSectionKey, ProductSummaryResponse, ThemeConfig, ThemeConfigTranslations } from '@/lib/types/storefront'
 
 export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
+  translations: {},
   defaultLanguage: 'ka',
   accentColor: '#111111',
   font: 'sans',
@@ -164,10 +167,34 @@ export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   pickupInstructions: '',
 }
 
+// Normalizes trustBadges from either shape: pre-translations stores saved plain strings,
+// newer saves write { text, translations? } objects — no backend migration is possible for an
+// opaque JSON blob, so every read has to tolerate both.
+function normalizeTrustBadges(raw: unknown): Required<ThemeConfig>['trustBadges'] {
+  if (!Array.isArray(raw)) return []
+  return raw.map(item => (typeof item === 'string' ? { text: item } : item))
+}
+
+// Same "tolerate the old plain-string shape" normalization as trustBadges, but for a
+// Record<string, string> -> Record<string, CollectionTitleOverride> value upgrade.
+function normalizeCollectionTitleOverrides(raw: unknown): Required<ThemeConfig>['landingCollectionTitleOverrides'] {
+  if (!raw || typeof raw !== 'object') return {}
+  const entries = Object.entries(raw as Record<string, unknown>).map(([key, value]) => [
+    key,
+    typeof value === 'string' ? { value } : value,
+  ])
+  return Object.fromEntries(entries)
+}
+
 export function parseThemeConfig(raw: string): Required<ThemeConfig> {
   try {
     const parsed = JSON.parse(raw) as ThemeConfig
-    return { ...DEFAULT_THEME_CONFIG, ...parsed }
+    return {
+      ...DEFAULT_THEME_CONFIG,
+      ...parsed,
+      trustBadges: normalizeTrustBadges(parsed.trustBadges),
+      landingCollectionTitleOverrides: normalizeCollectionTitleOverrides(parsed.landingCollectionTitleOverrides),
+    }
   } catch {
     return DEFAULT_THEME_CONFIG
   }
@@ -360,8 +387,34 @@ export function getHeroOverlayStyle(tokens: Required<ThemeConfig>): CSSPropertie
   return { backgroundColor: `rgba(0,0,0,${Math.min(tokens.heroOverlayOpacity, 80) / 100})` }
 }
 
-export function getHeroCtaLabel(tokens: Required<ThemeConfig>, fallback: string): string {
-  return tokens.heroCtaText.trim() || fallback
+// Every theme builds one per-slide "virtual tokens" object by spreading the store's base tokens
+// and overriding the scalar hero* fields with the slide's own values (see each theme's Home.tsx
+// heroSlideConfigs). This does the equivalent remap for the translations sidecar, so
+// getThemeText(virtualTokens, 'heroHeadline', lang) resolves the SLIDE's own translation rather
+// than the store's top-level (non-carousel) hero translation.
+export function getHeroSlideTranslations(tokens: Required<ThemeConfig>, slide: HeroSlide): ThemeConfigTranslations {
+  return {
+    en: {
+      ...tokens.translations.en,
+      heroEyebrow: slide.translations?.en?.eyebrow,
+      heroHeadline: slide.translations?.en?.headline,
+      heroSubheadline: slide.translations?.en?.subheadline,
+      heroCtaText: slide.translations?.en?.ctaText,
+      heroSecondaryCtaText: slide.translations?.en?.secondaryCtaText,
+    },
+    ru: {
+      ...tokens.translations.ru,
+      heroEyebrow: slide.translations?.ru?.eyebrow,
+      heroHeadline: slide.translations?.ru?.headline,
+      heroSubheadline: slide.translations?.ru?.subheadline,
+      heroCtaText: slide.translations?.ru?.ctaText,
+      heroSecondaryCtaText: slide.translations?.ru?.secondaryCtaText,
+    },
+  }
+}
+
+export function getHeroCtaLabel(tokens: Required<ThemeConfig>, fallback: string, lang: StorefrontLanguage): string {
+  return getThemeText(tokens, 'heroCtaText', lang).trim() || fallback
 }
 
 export function getHeroCtaHref(tokens: Required<ThemeConfig>, categories: CategoryResponse[]): string {
@@ -375,8 +428,8 @@ export function getHeroCtaHref(tokens: Required<ThemeConfig>, categories: Catego
   return '/products'
 }
 
-export function getHeroSecondaryCtaLabel(tokens: Required<ThemeConfig>, fallback: string): string {
-  return tokens.heroSecondaryCtaText.trim() || fallback
+export function getHeroSecondaryCtaLabel(tokens: Required<ThemeConfig>, fallback: string, lang: StorefrontLanguage): string {
+  return getThemeText(tokens, 'heroSecondaryCtaText', lang).trim() || fallback
 }
 
 export function getHeroSecondaryCtaHref(tokens: Required<ThemeConfig>, categories: CategoryResponse[]): string {
@@ -473,16 +526,17 @@ export interface ProductBadge {
 // A single badge per card — sale takes priority over "new" so the two never stack and clutter the image.
 export function getProductBadge(
   tokens: Required<ThemeConfig>,
-  product: Pick<ProductSummaryResponse, 'salePrice' | 'createdAt'>
+  product: Pick<ProductSummaryResponse, 'salePrice' | 'createdAt'>,
+  lang: StorefrontLanguage
 ): ProductBadge | null {
   if (product.salePrice !== null && tokens.badgeSaleEnabled) {
-    return { text: tokens.badgeSaleText.trim() || 'ფასდაკლება', color: tokens.badgeSaleColor }
+    return { text: getThemeText(tokens, 'badgeSaleText', lang).trim() || 'ფასდაკლება', color: tokens.badgeSaleColor }
   }
   if (tokens.badgeNewEnabled) {
     const ageMs = Date.now() - new Date(product.createdAt).getTime()
     const thresholdMs = tokens.badgeNewDays * 24 * 60 * 60 * 1000
     if (ageMs >= 0 && ageMs <= thresholdMs) {
-      return { text: tokens.badgeNewText.trim() || 'ახალი', color: tokens.badgeNewColor || tokens.accentColor }
+      return { text: getThemeText(tokens, 'badgeNewText', lang).trim() || 'ახალი', color: tokens.badgeNewColor || tokens.accentColor }
     }
   }
   return null

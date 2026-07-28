@@ -27,7 +27,7 @@ export function ProductCard({
   /** Renders a larger caption treatment for the featured (first) tile in the asymmetric grid. */
   featured?: boolean
 }) {
-  const badge = getProductBadge(tokens, product)
+  const badge = getProductBadge(tokens, product, lang)
   const productName = getProductName(product, lang)
   return (
     <Link href={`/products/${product.slug}`} className={`group h-full flex flex-col ${className}`}>

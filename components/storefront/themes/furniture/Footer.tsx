@@ -2,8 +2,9 @@ import Link from 'next/link'
 import { SocialLinks } from '@/components/storefront/shared/SocialLinks'
 import { ContactForm } from '@/components/storefront/shared/ContactForm'
 import { getEnabledPaymentLabels } from '@/lib/store/payment-methods'
+import { getPageTitle, getThemeText, resolveThemeText } from '@/lib/store/translations'
 import type { StorePageResponse, ThemeConfig } from '@/lib/types/storefront'
-import type { StorefrontStrings } from '@/lib/storefront-i18n'
+import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 export function Footer({
@@ -12,21 +13,24 @@ export function Footer({
   tokens,
   pages,
   t,
+  lang,
 }: {
   slug: string
   storeName: string
   tokens: Required<ThemeConfig>
   pages: StorePageResponse[]
   t: StorefrontStrings
+  lang: StorefrontLanguage
 }) {
   const hasContactInfo = tokens.contactEmail || tokens.contactPhone || tokens.contactAddress
   const showSocials = tokens.socialsPosition === 'footer' || tokens.socialsPosition === 'both'
   const paymentLabels = tokens.footerShowPaymentIcons ? getEnabledPaymentLabels(tokens) : []
+  const contactLabel = getThemeText(tokens, 'contactLabel', lang)
 
   const contactFormSection = tokens.footerContactForm !== 'off' && (
     <div className="border-t border-b border-white/10">
       <div className="max-w-md mx-auto px-4 sm:px-6 py-10">
-        <ContactForm slug={slug} tokens={tokens} variant="dark" heading={tokens.contactLabel} />
+        <ContactForm slug={slug} tokens={tokens} variant="dark" heading={contactLabel} />
       </div>
     </div>
   )
@@ -51,7 +55,7 @@ export function Footer({
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[#a89e91]">
             {pages.map(page => (
               <Link key={page.id} href={`/pages/${page.slug}`} className="hover:text-white transition-colors">
-                {page.title}
+                {getPageTitle(page, lang)}
               </Link>
             ))}
           </div>
@@ -61,9 +65,9 @@ export function Footer({
           <div className="flex flex-wrap gap-x-10 gap-y-6 pb-6 border-b border-white/10">
             {tokens.footerLinkColumns.map((column, i) => (
               <div key={i} className="flex flex-col gap-2 min-w-[100px]">
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-[#a89e91]">{column.title}</p>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-[#a89e91]">{resolveThemeText(column.title, column.translations?.en, column.translations?.ru, lang)}</p>
                 {column.links.map((link, j) => (
-                  <a key={j} href={link.url} className="text-xs text-[#a89e91] hover:text-white transition-colors">{link.label}</a>
+                  <a key={j} href={link.url} className="text-xs text-[#a89e91] hover:text-white transition-colors">{resolveThemeText(link.label, link.translations?.en, link.translations?.ru, lang)}</a>
                 ))}
               </div>
             ))}
@@ -79,11 +83,11 @@ export function Footer({
         )}
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-[#8c8175] text-xs">{tokens.footerCopyrightText || `© ${new Date().getFullYear()} ${storeName}`}</p>
+          <p className="text-[#8c8175] text-xs">{getThemeText(tokens, 'footerCopyrightText', lang) || `© ${new Date().getFullYear()} ${storeName}`}</p>
           <div className="flex items-center gap-4">
             {showSocials && <SocialLinks tokens={tokens} />}
             <Link href={`/contact`} className="text-[#8c8175] text-xs hover:text-white transition-colors underline underline-offset-2">
-              {tokens.contactLabel}
+              {contactLabel}
             </Link>
             {tokens.showPlatformAttribution && <p className="text-[#8c8175] text-xs">{t.footer.poweredBy}</p>}
           </div>

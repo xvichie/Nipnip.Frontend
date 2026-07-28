@@ -4,8 +4,9 @@ import { getRadiusClass } from '@/lib/store/theme-config'
 import { SocialLinks } from './SocialLinks'
 import { ContactForm } from './ContactForm'
 import { LocationMap } from './LocationMap'
+import { getThemeText } from '@/lib/store/translations'
 import type { ThemeConfig, ThemeId } from '@/lib/types/storefront'
-import type { StorefrontStrings } from '@/lib/storefront-i18n'
+import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
 
 function getRows(t: StorefrontStrings): { key: keyof Pick<Required<ThemeConfig>, 'contactEmail' | 'contactPhone' | 'contactAddress'>; label: string; icon: React.ReactNode }[] {
   return [
@@ -47,23 +48,26 @@ export function ContactPage({
   themeId,
   tokens,
   t,
+  lang,
 }: {
   slug: string
   storeName: string
   themeId: ThemeId
   tokens: Required<ThemeConfig>
   t: StorefrontStrings
+  lang: StorefrontLanguage
 }) {
   const surface = SURFACE_CLASSES[themeId]
   const themeDef = getThemeDefinition(themeId)
   const radius = getRadiusClass(themeId, tokens)
   const rows = getRows(t).filter(row => tokens[row.key])
+  const contactLabel = getThemeText(tokens, 'contactLabel', lang)
 
   return (
     <div className={`${surface.page} min-h-screen`}>
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16 pb-24">
         <p className={`text-xs font-semibold uppercase tracking-widest mb-2 ${surface.muted}`}>{storeName}</p>
-        <h1 className={`font-black text-3xl sm:text-4xl tracking-tight mb-10 ${surface.text}`}>{tokens.contactLabel}</h1>
+        <h1 className={`font-black text-3xl sm:text-4xl tracking-tight mb-10 ${surface.text}`}>{contactLabel}</h1>
 
         {rows.length > 0 ? (
           <div className={`${surface.card} border ${surface.border} ${radius} divide-y ${surface.border}`}>

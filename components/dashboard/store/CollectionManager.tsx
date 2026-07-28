@@ -3,28 +3,39 @@
 import { useState } from 'react'
 import { useCreateCollection, useDeleteCollection, useMyCollections, useUpdateCollection } from '@/lib/queries/storefront-admin'
 import { CollectionProductsPicker } from './CollectionProductsPicker'
+import { TranslatedNameInput, hasAnyTranslatedName, type TranslatedNameValue } from './TranslatedNameInput'
 import { IconButton } from '@/components/ui/IconButton'
 import { CheckIcon, EditIcon, GridIcon, PlusIcon, TrashIcon, XIcon } from '@/components/ui/icons'
 import type { CollectionResponse } from '@/lib/types/storefront'
 
+function namesOf(collection: CollectionResponse): TranslatedNameValue {
+  return { nameKa: collection.nameKa ?? '', nameEn: collection.nameEn ?? '', nameRu: collection.nameRu ?? '' }
+}
+
 function CollectionRow({ collection }: { collection: CollectionResponse }) {
-  const { mutate: updateCollection, isPending: isSaving } = useUpdateCollection()
+  const { mutate: updateCollection, isPending: isSaving, error: updateError } = useUpdateCollection()
   const { mutate: deleteCollection, isPending: isDeleting } = useDeleteCollection()
 
   const [isEditing, setIsEditing] = useState(false)
   const [showProducts, setShowProducts] = useState(false)
-  const [name, setName] = useState(collection.name)
+  const [names, setNames] = useState<TranslatedNameValue>(namesOf(collection))
 
   function startEditing() {
-    setName(collection.name)
+    setNames(namesOf(collection))
     setIsEditing(true)
   }
 
   function handleSave() {
-    const trimmed = name.trim()
-    if (!trimmed) return
+    if (!hasAnyTranslatedName(names)) return
     updateCollection(
-      { id: collection.id, body: { name: trimmed } },
+      {
+        id: collection.id,
+        body: {
+          nameKa: names.nameKa.trim() || null,
+          nameEn: names.nameEn.trim() || null,
+          nameRu: names.nameRu.trim() || null,
+        },
+      },
       { onSuccess: () => setIsEditing(false) }
     )
   }
@@ -36,21 +47,18 @@ function CollectionRow({ collection }: { collection: CollectionResponse }) {
 
   if (isEditing) {
     return (
-      <div className="flex items-center gap-2 rounded-xl bg-white/2 border border-fuchsia-500/30 px-4 py-2.5">
-        <input
-          autoFocus
-          type="text"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleSave() } if (e.key === 'Escape') setIsEditing(false) }}
-          className="input input-xs bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 flex-1"
-        />
-        <div className="flex gap-1.5 shrink-0">
+      <div className="flex flex-col gap-2 rounded-xl bg-white/2 border border-fuchsia-500/30 px-4 py-3">
+        <TranslatedNameInput value={names} onChange={setNames} autoFocus />
+        {!hasAnyTranslatedName(names) && (
+          <p className="text-error text-xs">მიუთითეთ სახელი მინიმუმ ერთ ენაზე.</p>
+        )}
+        {updateError && <p className="text-error text-xs">კოლექციის შენახვა ვერ მოხერხდა.</p>}
+        <div className="flex gap-1.5 pt-1">
           <IconButton
             icon={isSaving ? <span className="loading loading-spinner loading-xs" /> : <CheckIcon />}
             label="შენახვა"
             onClick={handleSave}
-            disabled={isSaving || !name.trim()}
+            disabled={isSaving || !hasAnyTranslatedName(names)}
             variant="accent"
           />
           <IconButton icon={<XIcon />} label="გაუქმება" onClick={() => setIsEditing(false)} />
@@ -86,11 +94,19 @@ export function CollectionManager() {
   const { data: collections, isLoading } = useMyCollections()
   const { mutate: createCollection, isPending: isCreating, error: createError } = useCreateCollection()
 
-  const [name, setName] = useState('')
+  const [names, setNames] = useState<TranslatedNameValue>({ nameKa: '', nameEn: '', nameRu: '' })
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    createCollection({ name: name.trim() }, { onSuccess: () => setName('') })
+    if (!hasAnyTranslatedName(names)) return
+    createCollection(
+      {
+        nameKa: names.nameKa.trim() || null,
+        nameEn: names.nameEn.trim() || null,
+        nameRu: names.nameRu.trim() || null,
+      },
+      { onSuccess: () => setNames({ nameKa: '', nameEn: '', nameRu: '' }) }
+    )
   }
 
   return (
@@ -116,24 +132,15 @@ export function CollectionManager() {
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-2 pt-2 border-t border-white/5">
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder="ახალი კოლექციის სახელი"
-            className="input input-sm bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 flex-1"
-            required
-          />
-          <button
-            type="submit"
-            disabled={isCreating || !name.trim()}
-            className="btn btn-sm gap-1.5 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40 shrink-0"
-          >
-            {isCreating ? <span className="loading loading-spinner loading-xs" /> : <><PlusIcon /> დამატება</>}
-          </button>
-        </div>
+        <TranslatedNameInput value={names} onChange={setNames} placeholder="ახალი კოლექციის სახელი" />
         {createError && <p className="text-error text-xs">კოლექციის შექმნა ვერ მოხერხდა.</p>}
+        <button
+          type="submit"
+          disabled={isCreating || !hasAnyTranslatedName(names)}
+          className="btn btn-sm gap-1.5 self-start bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
+        >
+          {isCreating ? <span className="loading loading-spinner loading-xs" /> : <><PlusIcon /> დამატება</>}
+        </button>
       </form>
     </div>
   )

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { DEFAULT_THEME_CONFIG, parseThemeConfig } from '@/lib/store/theme-config'
 import { getStoreDescription, getStoreTitle } from '@/lib/store/seo'
+import { TranslatedField, type TranslatedFieldValue } from '@/components/dashboard/store/TranslatedField'
 import type { StorefrontLanguage } from '@/lib/storefront-i18n'
 import type { OfflineMode } from '@/lib/types/storefront'
 
@@ -28,7 +29,28 @@ export default function MerchantStorePage() {
   const [offlineMode, setOfflineMode] = useState<OfflineMode>(DEFAULT_THEME_CONFIG.offlineMode)
   const [offlineMessage, setOfflineMessage] = useState(DEFAULT_THEME_CONFIG.offlineMessage)
   const [offlineReopenDate, setOfflineReopenDate] = useState(DEFAULT_THEME_CONFIG.offlineReopenDate)
+  const [textTranslations, setTextTranslations] = useState(DEFAULT_THEME_CONFIG.translations)
   const [saved, setSaved] = useState(false)
+
+  // Binds one top-level scalar ThemeConfig text field (e.g. seoTagline) to a TranslatedField —
+  // "ka" reads/writes the existing base-language state, "en"/"ru" read/write the translations
+  // sidecar keyed by the same field name.
+  function themeTextBinding(
+    field: 'seoTagline' | 'seoDescription' | 'offlineMessage',
+    baseValue: string,
+    setBaseValue: (v: string) => void
+  ): { value: TranslatedFieldValue; onChange: (v: TranslatedFieldValue) => void } {
+    return {
+      value: { ka: baseValue, en: textTranslations.en?.[field] ?? '', ru: textTranslations.ru?.[field] ?? '' },
+      onChange: v => {
+        setBaseValue(v.ka)
+        setTextTranslations(prev => ({
+          en: { ...prev.en, [field]: v.en.trim() || undefined },
+          ru: { ...prev.ru, [field]: v.ru.trim() || undefined },
+        }))
+      },
+    }
+  }
 
   // "Adjust state during render" instead of an effect — hydrates once from the fetched
   // store, which arrives async, so there's no lazy-initializer moment to hook into. Tracked
@@ -51,18 +73,28 @@ export default function MerchantStorePage() {
     setOfflineMode(parsed.offlineMode)
     setOfflineMessage(parsed.offlineMessage)
     setOfflineReopenDate(parsed.offlineReopenDate)
+    setTextTranslations(parsed.translations)
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!store) return
     const parsed = parseThemeConfig(store.themeConfig)
+    // Merge with the freshest saved translations rather than overwriting wholesale — this page
+    // only edits a subset of the translatable fields; the rest (hero, content block, etc.,
+    // owned by other settings pages) must survive even though this save resends the full
+    // ThemeConfig object.
+    const mergedTranslations = {
+      en: { ...parsed.translations.en, ...textTranslations.en },
+      ru: { ...parsed.translations.ru, ...textTranslations.ru },
+    }
     updateStore(
       {
         name: name.trim() || null,
         isActive,
         themeConfig: JSON.stringify({
           ...parsed,
+          translations: mergedTranslations,
           defaultLanguage,
           contactEmail,
           contactPhone,
@@ -184,12 +216,15 @@ export default function MerchantStorePage() {
                 <label htmlFor="offline-message" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
                   შეტყობინება
                 </label>
-                <textarea
-                  id="offline-message"
-                  value={offlineMessage}
-                  onChange={e => setOfflineMessage(e.target.value)}
+                <TranslatedField
+                  {...themeTextBinding('offlineMessage', offlineMessage, setOfflineMessage)}
+                  multiline
                   rows={2}
-                  placeholder="მალე დავბრუნდებით — მადლობთ მოთმინებისთვის!"
+                  placeholders={{
+                    ka: 'მალე დავბრუნდებით — მადლობთ მოთმინებისთვის!',
+                    en: "We'll be back soon — thanks for your patience!",
+                    ru: 'Скоро вернёмся — спасибо за терпение!',
+                  }}
                   className="textarea w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 resize-none"
                 />
               </div>
@@ -268,13 +303,9 @@ export default function MerchantStorePage() {
               <label htmlFor="seo-tagline" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
                 სლოგანი
               </label>
-              <input
-                id="seo-tagline"
-                type="text"
-                value={seoTagline}
-                onChange={e => setSeoTagline(e.target.value)}
-                placeholder="იყიდე პადელის ინვენტარი საუკეთესო ფასად"
-                maxLength={70}
+              <TranslatedField
+                {...themeTextBinding('seoTagline', seoTagline, setSeoTagline)}
+                placeholders={{ ka: 'იყიდე პადელის ინვენტარი საუკეთესო ფასად', en: 'Best padel gear at the best price', ru: 'Лучший инвентарь для падела по лучшей цене' }}
                 className="input w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
               />
               <p className="text-white/30 text-xs">
@@ -286,13 +317,15 @@ export default function MerchantStorePage() {
               <label htmlFor="seo-description" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
                 აღწერა საძიებო სისტემებისთვის
               </label>
-              <textarea
-                id="seo-description"
-                value={seoDescription}
-                onChange={e => setSeoDescription(e.target.value)}
+              <TranslatedField
+                {...themeTextBinding('seoDescription', seoDescription, setSeoDescription)}
+                multiline
                 rows={3}
-                maxLength={160}
-                placeholder="მოკლედ აღწერეთ რას ყიდით — ეს ტექსტი გამოჩნდება Google-ის ძიების შედეგებში."
+                placeholders={{
+                  ka: 'მოკლედ აღწერეთ რას ყიდით — ეს ტექსტი გამოჩნდება Google-ის ძიების შედეგებში.',
+                  en: 'Briefly describe what you sell — this shows up in Google search results.',
+                  ru: 'Кратко опишите, что вы продаёте — этот текст появится в результатах поиска Google.',
+                }}
                 className="textarea w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 resize-none"
               />
               <p className="text-white/30 text-xs flex items-center justify-between">
@@ -304,11 +337,11 @@ export default function MerchantStorePage() {
             <div className="rounded-xl border border-white/8 bg-[#0b0b10] px-4 py-3">
               <p className="text-white/25 text-[10px] uppercase tracking-wider mb-2">გადახედვა საძიებო სისტემაში</p>
               <p className="text-[#8ab4f8] text-base leading-snug truncate">
-                {getStoreTitle({ ...store, name: name || store.name }, { ...parseThemeConfig(store.themeConfig), seoTagline })}
+                {getStoreTitle({ ...store, name: name || store.name }, { ...parseThemeConfig(store.themeConfig), seoTagline }, 'ka')}
               </p>
               <p className="text-[#4d9c6f] text-xs mt-0.5">{store.slug}.nipnip.ge</p>
               <p className="text-white/50 text-xs mt-1 leading-snug line-clamp-2">
-                {getStoreDescription({ ...store, name: name || store.name }, { ...parseThemeConfig(store.themeConfig), seoDescription })}
+                {getStoreDescription({ ...store, name: name || store.name }, { ...parseThemeConfig(store.themeConfig), seoDescription }, 'ka')}
               </p>
             </div>
           </div>

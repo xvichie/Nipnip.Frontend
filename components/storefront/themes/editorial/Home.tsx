@@ -4,12 +4,12 @@ import { CategoryIcon } from '@/components/storefront/shared/CategoryIcon'
 import { ProductScrollRow } from '@/components/storefront/shared/ProductScrollRow'
 import { HeroCarousel } from '@/components/storefront/shared/HeroCarousel'
 import { ScrollIndicator } from '@/components/storefront/shared/ScrollIndicator'
-import { getBannerBackgroundStyle, getHeroBackgroundImageClass, getHeroButtonRowClass, getHeroCtaHref, getHeroCtaLabel, getHeroImageClass, getHeroOverlayStyle, getHeroSecondaryCtaHref, getHeroSecondaryCtaLabel, getHeroTextAlignClass, getHeroTextColorClass, getHomeSectionOrder, getSectionBackgroundStyle, hasBanner, hasContentBlock, hasHeroVideo, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
+import { getBannerBackgroundStyle, getHeroBackgroundImageClass, getHeroButtonRowClass, getHeroCtaHref, getHeroCtaLabel, getHeroImageClass, getHeroOverlayStyle, getHeroSecondaryCtaHref, getHeroSecondaryCtaLabel, getHeroSlideTranslations, getHeroTextAlignClass, getHeroTextColorClass, getHomeSectionOrder, getSectionBackgroundStyle, hasBanner, hasContentBlock, hasHeroVideo, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
 import { getLandingCategories } from '@/lib/store/landing-categories'
 import { getLandingCollections } from '@/lib/store/landing-collections'
 import { ContentBlock } from '@/components/storefront/shared/ContentBlock'
 import { FaqAccordion } from '@/components/storefront/shared/FaqAccordion'
-import { getCategoryName } from '@/lib/store/translations'
+import { getCategoryName, getCollectionName, getCollectionTitleOverride, getThemeText } from '@/lib/store/translations'
 import type { CategoryResponse, CollectionResponse, HomeSectionKey, ProductSummaryResponse, StoreResponse, ThemeConfig } from '@/lib/types/storefront'
 import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
@@ -65,17 +65,20 @@ export function Home({
     const textOrderClass = `${mobileImageFirst ? 'order-2' : 'order-1'} ${desktopImageFirst ? 'md:order-2' : 'md:order-1'}`
     const heroImageHiddenMobile = cfg.heroMobileImage === 'hide'
     const textAlignClass = getHeroTextAlignClass(cfg)
+    const heroEyebrow = getThemeText(cfg, 'heroEyebrow', lang)
+    const heroHeadline = getThemeText(cfg, 'heroHeadline', lang)
+    const heroSubheadline = getThemeText(cfg, 'heroSubheadline', lang)
 
     const heroText = (
       <div className={`w-full max-w-xl ${textAlignClass}`}>
-        {cfg.heroEyebrow && (
-          <p className={`italic font-serif ${HERO_EYEBROW_SIZE_CLASS[cfg.heroEyebrowSize]} ${getHeroTextColorClass(cfg, 'eyebrow', 'text-[#767676]')} mb-4`}>{cfg.heroEyebrow}</p>
+        {heroEyebrow && (
+          <p className={`italic font-serif ${HERO_EYEBROW_SIZE_CLASS[cfg.heroEyebrowSize]} ${getHeroTextColorClass(cfg, 'eyebrow', 'text-[#767676]')} mb-4`}>{heroEyebrow}</p>
         )}
         <h1 className={`font-serif tracking-tight leading-[0.95] mb-6 ${getHeroTextColorClass(cfg, 'headline', 'text-[#111111]')} ${HERO_HEADLINE_SIZE_CLASS[cfg.heroHeadlineSize]}`}>
-          {cfg.heroHeadline || store.name}
+          {heroHeadline || store.name}
         </h1>
-        {cfg.heroSubheadline && (
-          <p className={`${getHeroTextColorClass(cfg, 'subheadline', 'text-[#767676]')} ${HERO_SUBHEADLINE_SIZE_CLASS[cfg.heroSubheadlineSize]} mb-9`}>{cfg.heroSubheadline}</p>
+        {heroSubheadline && (
+          <p className={`${getHeroTextColorClass(cfg, 'subheadline', 'text-[#767676]')} ${HERO_SUBHEADLINE_SIZE_CLASS[cfg.heroSubheadlineSize]} mb-9`}>{heroSubheadline}</p>
         )}
         {(cfg.heroCtaEnabled || cfg.heroSecondaryCtaEnabled) && (
           <div className={`flex flex-wrap items-center gap-6 ${getHeroButtonRowClass(cfg)}`}>
@@ -88,7 +91,7 @@ export function Home({
                     : 'border-black text-[#111111] hover:bg-black hover:text-white'
                 }`}
               >
-                {getHeroCtaLabel(cfg, t.home.heroPrimaryCta)}
+                {getHeroCtaLabel(cfg, t.home.heroPrimaryCta, lang)}
               </Link>
             )}
             {cfg.heroSecondaryCtaEnabled && (
@@ -98,7 +101,7 @@ export function Home({
                   cfg.heroTextTheme === 'light' ? 'text-white' : 'text-[#111111]'
                 }`}
               >
-                {getHeroSecondaryCtaLabel(cfg, t.home.heroSecondaryCta)}
+                {getHeroSecondaryCtaLabel(cfg, t.home.heroSecondaryCta, lang)}
               </Link>
             )}
           </div>
@@ -110,7 +113,7 @@ export function Home({
       <div className={`relative h-full ${imageOrderClass} ${heroImageHiddenMobile ? 'hidden md:block' : ''}`}>
         {imageBanner && <div className="absolute -inset-4 sm:-inset-6" style={bannerStyle} />}
         <div className="relative h-full flex items-center justify-center overflow-hidden">
-          <CImg src={cfg.heroImageUrl} cldWidth={1400} alt={cfg.heroHeadline || store.name} className={getHeroImageClass(cfg)} fetchPriority="high" />
+          <CImg src={cfg.heroImageUrl} cldWidth={1400} alt={heroHeadline || store.name} className={getHeroImageClass(cfg)} fetchPriority="high" />
         </div>
       </div>
     )
@@ -135,11 +138,11 @@ export function Home({
                     <source src={cfg.heroVideoUrl} />
                   </video>
                   {!cfg.heroVideoMobileEnabled && (
-                    <CImg src={cfg.heroImageUrl} cldWidth={1800} alt={cfg.heroHeadline || store.name} className={`${getHeroBackgroundImageClass(cfg)} md:hidden`} fetchPriority="high" />
+                    <CImg src={cfg.heroImageUrl} cldWidth={1800} alt={heroHeadline || store.name} className={`${getHeroBackgroundImageClass(cfg)} md:hidden`} fetchPriority="high" />
                   )}
                 </>
               ) : (
-                <CImg src={cfg.heroImageUrl} cldWidth={1800} alt={cfg.heroHeadline || store.name} className={`${getHeroBackgroundImageClass(cfg)} ${cfg.heroKenBurnsEnabled ? 'animate-ken-burns' : ''}`} fetchPriority="high" />
+                <CImg src={cfg.heroImageUrl} cldWidth={1800} alt={heroHeadline || store.name} className={`${getHeroBackgroundImageClass(cfg)} ${cfg.heroKenBurnsEnabled ? 'animate-ken-burns' : ''}`} fetchPriority="high" />
               )}
               {overlayStyle && <div className="absolute inset-0" style={overlayStyle} />}
             </div>
@@ -182,6 +185,7 @@ export function Home({
         heroSecondaryCtaLinkType: slide.secondaryCtaLinkType,
         heroSecondaryCtaCategoryId: slide.secondaryCtaCategoryId,
         heroSecondaryCtaCustomUrl: slide.secondaryCtaCustomUrl,
+        translations: getHeroSlideTranslations(tokens, slide),
       }))
     : [tokens]
 
@@ -253,7 +257,7 @@ export function Home({
         {landingCollections.map(collection => (
           <ProductScrollRow
             key={collection.id}
-            title={tokens.landingCollectionTitleOverrides[collection.id] || collection.name}
+            title={getCollectionTitleOverride(tokens.landingCollectionTitleOverrides[collection.id], getCollectionName(collection, lang), lang)}
             viewAllHref={`/products/collection/${collection.slug}`}
             items={(collectionProducts.get(collection.id) ?? []).map(product => ({
               key: product.id,
@@ -284,6 +288,7 @@ export function Home({
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
         <ContentBlock
           tokens={tokens}
+          lang={lang}
           headingClassName="font-serif italic text-2xl sm:text-3xl text-[#111111] mb-5"
           bodyClassName="text-[#767676] text-sm sm:text-base leading-relaxed mb-8"
           buttonClassName="inline-flex items-center gap-2 border-2 border-black text-[#111111] text-xs uppercase tracking-widest font-medium px-8 py-3.5 hover:bg-black hover:text-white transition-colors"
@@ -298,6 +303,7 @@ export function Home({
         <FaqAccordion
           tokens={tokens}
           t={t}
+          lang={lang}
           headingClassName="font-serif italic text-2xl sm:text-3xl text-[#111111] mb-6"
           questionClassName="text-sm text-[#111111]"
           answerClassName="text-sm text-[#767676] leading-relaxed"

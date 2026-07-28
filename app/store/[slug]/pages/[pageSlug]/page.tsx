@@ -5,7 +5,9 @@ import { parseThemeConfig } from '@/lib/store/theme-config'
 import { isThemeId } from '@/lib/storefront-themes'
 import { StorePageView } from '@/components/storefront/shared/StorePageView'
 import { buildBreadcrumbJsonLd, getStoreUrl, truncateDescription } from '@/lib/store/seo'
-import { getStorefrontStrings } from '@/lib/storefront-i18n-server'
+import { getStorefrontLanguage } from '@/lib/storefront-i18n-server'
+import { STOREFRONT_STRINGS } from '@/lib/storefront-i18n'
+import { getPageContent, getPageTitle } from '@/lib/store/translations'
 import { JsonLd } from '@/components/storefront/shared/JsonLd'
 import type { StorePageResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
@@ -25,9 +27,13 @@ export async function generateMetadata({
     return {}
   }
 
+  const lang = await getStorefrontLanguage(parseThemeConfig(store.themeConfig).defaultLanguage)
+  const title = getPageTitle(page, lang)
+  const content = getPageContent(page, lang)
+
   return {
-    title: page.title,
-    description: page.content ? truncateDescription(page.content) : undefined,
+    title,
+    description: content ? truncateDescription(content) : undefined,
     alternates: { canonical: getStoreUrl(slug, `/pages/${pageSlug}`, store.customDomain) },
   }
 }
@@ -50,15 +56,16 @@ export default async function StorePageRoute({
   }
 
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
-  const t = await getStorefrontStrings(parseThemeConfig(store.themeConfig).defaultLanguage)
+  const lang = await getStorefrontLanguage(parseThemeConfig(store.themeConfig).defaultLanguage)
+  const t = STOREFRONT_STRINGS[lang]
 
   return (
     <>
       <JsonLd data={buildBreadcrumbJsonLd([
         { name: store.name, url: getStoreUrl(slug, '', store.customDomain) },
-        { name: page.title, url: getStoreUrl(slug, `/pages/${pageSlug}`, store.customDomain) },
+        { name: getPageTitle(page, lang), url: getStoreUrl(slug, `/pages/${pageSlug}`, store.customDomain) },
       ])} />
-      <StorePageView slug={slug} page={page} themeId={themeId} t={t} />
+      <StorePageView slug={slug} page={page} themeId={themeId} t={t} lang={lang} />
     </>
   )
 }

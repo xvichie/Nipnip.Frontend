@@ -78,8 +78,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const tokens = parseThemeConfig(store.themeConfig)
   const url = getStoreOrigin(slug, store.customDomain)
-  const title = getStoreTitle(store, tokens)
-  const description = getStoreDescription(store, tokens)
+  const lang = await getStorefrontLanguage(tokens.defaultLanguage)
+  const title = getStoreTitle(store, tokens, lang)
+  const description = getStoreDescription(store, tokens, lang)
   const ogImage = getStoreOgImage(tokens)
 
   return {
@@ -133,7 +134,7 @@ export default async function StoreLayout({
   // the Store Overview page. Skips the categories/pages fetch and the full Header/Footer/cart
   // tree entirely, since there's no real storefront to browse while offline.
   if (!store.isActive) {
-    return <StoreOfflinePage store={store} tokens={tokens} t={t} />
+    return <StoreOfflinePage store={store} tokens={tokens} t={t} lang={lang} />
   }
 
   const [categories, pages] = await Promise.all([
@@ -168,7 +169,7 @@ export default async function StoreLayout({
             {showTopBar && <SocialBar themeId={themeId} tokens={tokens} edge="top" />}
             <Header slug={slug} storeName={store.name} categories={categories} pages={pages} tokens={tokens} />
             <main className="flex-1">{children}</main>
-            <Footer slug={slug} storeName={store.name} tokens={tokens} pages={pages} t={t} />
+            <Footer slug={slug} storeName={store.name} tokens={tokens} pages={pages} t={t} lang={lang} />
             {showBottomBar && <SocialBar themeId={themeId} tokens={tokens} edge="bottom" />}
           </StorefrontCartProvider>
         </StorefrontToastProvider>

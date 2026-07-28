@@ -4,8 +4,9 @@ import Link from 'next/link'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { getRadiusClass } from '@/lib/store/theme-config'
+import { resolveThemeText } from '@/lib/store/translations'
 import type { ThemeConfig, ThemeId } from '@/lib/types/storefront'
-import type { StorefrontStrings } from '@/lib/storefront-i18n'
+import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 export function Cart({
@@ -13,11 +14,13 @@ export function Cart({
   themeId,
   tokens,
   t,
+  lang,
 }: {
   slug: string
   themeId: ThemeId
   tokens: Required<ThemeConfig>
   t: StorefrontStrings
+  lang: StorefrontLanguage
 }) {
   const { cart, isLoading, updateItem, removeItem, updateBundleItem, removeBundleItem } = useStorefrontCart()
   const surface = SURFACE_CLASSES[themeId]
@@ -60,14 +63,16 @@ export function Cart({
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className={`lg:col-span-2 flex flex-col divide-y ${surface.border}`}>
-            {cart.bundleItems.map(item => (
+            {cart.bundleItems.map(item => {
+              const bundleName = resolveThemeText(item.bundleName, item.bundleNameEn, item.bundleNameRu, lang)
+              return (
               <div key={item.id} className="flex gap-4 py-6">
                 <Link
                   href={`/bundles`}
                   className={`w-20 h-20 shrink-0 overflow-hidden ${radius} ${surface.card} border ${surface.border}`}
                 >
                   {item.imageUrl ? (
-                    <CImg src={item.imageUrl} alt={item.bundleName} className="w-full h-full object-cover" />
+                    <CImg src={item.imageUrl} alt={bundleName} className="w-full h-full object-cover" />
                   ) : (
                     <div className={`w-full h-full flex items-center justify-center text-[10px] ${surface.muted}`}>
                       {t.cart.noImage}
@@ -80,7 +85,7 @@ export function Cart({
                       href={`/bundles`}
                       className={`font-semibold text-sm leading-snug hover:underline underline-offset-2 ${surface.text}`}
                     >
-                      {item.bundleName} <span className="text-xs font-normal opacity-60">{t.cart.bundleTag}</span>
+                      {bundleName} <span className="text-xs font-normal opacity-60">{t.cart.bundleTag}</span>
                     </Link>
                     <button
                       onClick={() => removeBundleItem(item.id)}
@@ -113,10 +118,12 @@ export function Cart({
                   </div>
                 </div>
               </div>
-            ))}
+              )
+            })}
             {cart.items.map(item => {
               const outOfStock = item.stock !== null && item.stock <= 0
               const overStock = item.stock !== null && item.quantity > item.stock
+              const productName = resolveThemeText(item.productName, item.productNameEn, item.productNameRu, lang)
               return (
                 <div key={item.id} className="flex gap-4 py-6">
                   <Link
@@ -124,7 +131,7 @@ export function Cart({
                     className={`w-20 h-20 shrink-0 overflow-hidden ${radius} ${surface.card} border ${surface.border}`}
                   >
                     {item.imageUrl ? (
-                      <CImg src={item.imageUrl} alt={item.productName} className="w-full h-full object-cover" />
+                      <CImg src={item.imageUrl} alt={productName} className="w-full h-full object-cover" />
                     ) : (
                       <div className={`w-full h-full flex items-center justify-center text-[10px] ${surface.muted}`}>
                         {t.cart.noImage}
@@ -137,7 +144,7 @@ export function Cart({
                         href={`/products/${item.productSlug}`}
                         className={`font-semibold text-sm leading-snug hover:underline underline-offset-2 ${surface.text}`}
                       >
-                        {item.productName}
+                        {productName}
                       </Link>
                       <button
                         onClick={() => removeItem(item.id)}
@@ -151,7 +158,9 @@ export function Cart({
                     </div>
                     {item.options.length > 0 && (
                       <p className={`text-xs mb-1 ${surface.muted}`}>
-                        {item.options.map(o => `${o.optionName}: ${o.value}`).join(' · ')}
+                        {item.options.map(o =>
+                          `${resolveThemeText(o.optionName, o.optionNameEn, o.optionNameRu, lang)}: ${resolveThemeText(o.value, o.valueEn, o.valueRu, lang)}`
+                        ).join(' · ')}
                       </p>
                     )}
                     <p className={`text-xs mb-2 font-mono ${surface.muted}`}>{item.sku}</p>

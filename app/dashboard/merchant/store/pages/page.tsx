@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useCreatePage, useDeletePage, useMyPages } from '@/lib/queries/storefront-admin'
+import { TranslatedField, hasAnyTranslatedValue, type TranslatedFieldValue } from '@/components/dashboard/store/TranslatedField'
 
 const PRESETS = [
   'დაბრუნების პოლიტიკა',
@@ -13,19 +14,30 @@ const PRESETS = [
   'მიწოდების პირობები',
 ]
 
+const EMPTY_TRANSLATED: TranslatedFieldValue = { ka: '', en: '', ru: '' }
+
 export default function MerchantStorePagesPage() {
   const { data: pages, isLoading } = useMyPages()
   const { mutate: createPage, isPending: isCreating, error: createError } = useCreatePage()
   const { mutate: deletePage, isPending: isDeleting } = useDeletePage()
 
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
+  const [title, setTitle] = useState<TranslatedFieldValue>(EMPTY_TRANSLATED)
+  const [content, setContent] = useState<TranslatedFieldValue>(EMPTY_TRANSLATED)
+
+  const canSubmit = hasAnyTranslatedValue(title) && hasAnyTranslatedValue(content)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     createPage(
-      { title: title.trim(), content: content.trim() },
-      { onSuccess: () => { setTitle(''); setContent('') } }
+      {
+        titleKa: title.ka.trim() || null,
+        titleEn: title.en.trim() || null,
+        titleRu: title.ru.trim() || null,
+        contentKa: content.ka.trim() || null,
+        contentEn: content.en.trim() || null,
+        contentRu: content.ru.trim() || null,
+      },
+      { onSuccess: () => { setTitle(EMPTY_TRANSLATED); setContent(EMPTY_TRANSLATED) } }
     )
   }
 
@@ -86,7 +98,7 @@ export default function MerchantStorePagesPage() {
               <button
                 key={preset}
                 type="button"
-                onClick={() => setTitle(preset)}
+                onClick={() => setTitle(v => ({ ...v, ka: preset }))}
                 className="rounded-lg border px-2.5 py-1 text-xs transition-colors bg-white/4 border-white/8 text-white/50 hover:text-white"
               >
                 {preset}
@@ -94,27 +106,13 @@ export default function MerchantStorePagesPage() {
             ))}
           </div>
 
-          <input
-            type="text"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            placeholder="გვერდის სათაური"
-            className="input input-sm bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
-            required
-          />
-          <textarea
-            value={content}
-            onChange={e => setContent(e.target.value)}
-            placeholder="გვერდის შინაარსი"
-            rows={5}
-            className="textarea bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 resize-none"
-            required
-          />
+          <TranslatedField value={title} onChange={setTitle} placeholders={{ ka: 'გვერდის სათაური' }} />
+          <TranslatedField value={content} onChange={setContent} placeholders={{ ka: 'გვერდის შინაარსი' }} multiline rows={5} />
 
           {createError && <p className="text-error text-xs">გვერდის შექმნა ვერ მოხერხდა.</p>}
           <button
             type="submit"
-            disabled={isCreating || !title.trim() || !content.trim()}
+            disabled={isCreating || !canSubmit}
             className="btn btn-sm self-start bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
           >
             {isCreating ? <span className="loading loading-spinner loading-xs" /> : 'გვერდის დამატება'}

@@ -2,10 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { useCreateBundle, useDeleteBundle, useMyBundles, useMyProducts, useUpdateBundle } from '@/lib/queries/storefront-admin'
+import { TranslatedNameInput, hasAnyTranslatedName, type TranslatedNameValue } from './TranslatedNameInput'
 import { IconButton } from '@/components/ui/IconButton'
 import { EditIcon, PlusIcon, TrashIcon, XIcon } from '@/components/ui/icons'
 import type { BundleItemInput, ProductBundleResponse, ProductSummaryResponse } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
+
+function namesOf(bundle: ProductBundleResponse): TranslatedNameValue {
+  return { nameKa: bundle.nameKa ?? '', nameEn: bundle.nameEn ?? '', nameRu: bundle.nameRu ?? '' }
+}
 
 interface DraftItem {
   productId: string
@@ -20,7 +25,7 @@ function priceOf(product: ProductSummaryResponse): number {
 }
 
 function BundleForm({
-  initialName = '',
+  initialNames = { nameKa: '', nameEn: '', nameRu: '' },
   initialBundlePrice = '',
   initialImageUrl = '',
   initialItems = [],
@@ -30,17 +35,17 @@ function BundleForm({
   submitLabel,
   onCancel,
 }: {
-  initialName?: string
+  initialNames?: TranslatedNameValue
   initialBundlePrice?: string
   initialImageUrl?: string
   initialItems?: DraftItem[]
-  onSubmit: (data: { name: string; bundlePrice: number; imageUrl: string; items: BundleItemInput[] }) => void
+  onSubmit: (data: { names: TranslatedNameValue; bundlePrice: number; imageUrl: string; items: BundleItemInput[] }) => void
   isPending: boolean
   error: unknown
   submitLabel: string
   onCancel?: () => void
 }) {
-  const [name, setName] = useState(initialName)
+  const [names, setNames] = useState<TranslatedNameValue>(initialNames)
   const [bundlePrice, setBundlePrice] = useState(initialBundlePrice)
   const [imageUrl, setImageUrl] = useState(initialImageUrl)
   const [items, setItems] = useState<DraftItem[]>(initialItems)
@@ -75,9 +80,9 @@ function BundleForm({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     const price = Number(bundlePrice)
-    if (!name.trim() || !Number.isFinite(price) || price <= 0 || items.length === 0) return
+    if (!hasAnyTranslatedName(names) || !Number.isFinite(price) || price <= 0 || items.length === 0) return
     onSubmit({
-      name: name.trim(),
+      names,
       bundlePrice: price,
       imageUrl: imageUrl.trim(),
       items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
@@ -86,15 +91,8 @@ function BundleForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        <input
-          type="text"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          placeholder="ბანდლის სახელი, მაგ. Starter Kit"
-          className="input input-sm bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
-          required
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 items-start">
+        <TranslatedNameInput value={names} onChange={setNames} placeholder="ბანდლის სახელი, მაგ. Starter Kit" />
         <input
           type="number"
           min="0"
@@ -174,7 +172,7 @@ function BundleForm({
       <div className="flex items-center gap-2">
         <button
           type="submit"
-          disabled={isPending || !name.trim() || !bundlePrice.trim() || items.length === 0}
+          disabled={isPending || !hasAnyTranslatedName(names) || !bundlePrice.trim() || items.length === 0}
           className="btn btn-sm self-start bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
         >
           {isPending ? <span className="loading loading-spinner loading-xs" /> : submitLabel}
@@ -203,7 +201,7 @@ function BundleRow({ bundle }: { bundle: ProductBundleResponse }) {
     return (
       <div className="rounded-xl bg-white/2 border border-fuchsia-500/30 px-4 py-3">
         <BundleForm
-          initialName={bundle.name}
+          initialNames={namesOf(bundle)}
           initialBundlePrice={String(bundle.bundlePrice)}
           initialImageUrl={bundle.imageUrl ?? ''}
           initialItems={bundle.items.map(i => ({ productId: i.productId, productName: i.productName, thumbnailUrl: i.imageUrl, price: i.productPrice, quantity: i.quantity }))}
@@ -213,7 +211,17 @@ function BundleRow({ bundle }: { bundle: ProductBundleResponse }) {
           onCancel={() => setIsEditing(false)}
           onSubmit={data =>
             updateBundle(
-              { id: bundle.id, body: { name: data.name, bundlePrice: data.bundlePrice, imageUrl: data.imageUrl || null, items: data.items } },
+              {
+                id: bundle.id,
+                body: {
+                  nameKa: data.names.nameKa.trim() || null,
+                  nameEn: data.names.nameEn.trim() || null,
+                  nameRu: data.names.nameRu.trim() || null,
+                  bundlePrice: data.bundlePrice,
+                  imageUrl: data.imageUrl || null,
+                  items: data.items,
+                },
+              },
               { onSuccess: () => setIsEditing(false) }
             )
           }
@@ -289,7 +297,14 @@ export function BundleManager() {
             onCancel={() => setShowCreateForm(false)}
             onSubmit={data =>
               createBundle(
-                { name: data.name, bundlePrice: data.bundlePrice, imageUrl: data.imageUrl || null, items: data.items },
+                {
+                  nameKa: data.names.nameKa.trim() || null,
+                  nameEn: data.names.nameEn.trim() || null,
+                  nameRu: data.names.nameRu.trim() || null,
+                  bundlePrice: data.bundlePrice,
+                  imageUrl: data.imageUrl || null,
+                  items: data.items,
+                },
                 { onSuccess: () => setShowCreateForm(false) }
               )
             }

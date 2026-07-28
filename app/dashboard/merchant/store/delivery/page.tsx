@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { parseThemeConfig } from '@/lib/store/theme-config'
+import { TranslatedField } from '@/components/dashboard/store/TranslatedField'
 import type { ShippingZone } from '@/lib/types/storefront'
 
 export default function MerchantStoreDeliveryPage() {
@@ -78,12 +79,14 @@ export default function MerchantStoreDeliveryPage() {
           ) : (
             shippingZones.map(zone => (
               <div key={zone.id} className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={zone.name}
-                  onChange={e => updateZone(zone.id, { name: e.target.value })}
-                  placeholder="მაგ. თბილისი"
-                  className="input flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                <TranslatedField
+                  value={{ ka: zone.name, en: zone.translations?.en ?? '', ru: zone.translations?.ru ?? '' }}
+                  onChange={value => updateZone(zone.id, {
+                    name: value.ka,
+                    translations: { en: value.en.trim() || undefined, ru: value.ru.trim() || undefined },
+                  })}
+                  placeholders={{ ka: 'მაგ. თბილისი', en: 'e.g. Tbilisi', ru: 'Например: Тбилиси' }}
+                  className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
                 <div className="relative shrink-0 w-32">
                   <input

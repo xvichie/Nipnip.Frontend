@@ -8,7 +8,8 @@ import { useTbcStatus } from '@/lib/queries/tbc'
 import { useCityPayStatus } from '@/lib/queries/citypay'
 import { SoonBadge } from '@/components/dashboard/store/SoonBadge'
 import { BetaBadge } from '@/components/dashboard/store/BetaBadge'
-import { parseThemeConfig } from '@/lib/store/theme-config'
+import { DEFAULT_THEME_CONFIG, parseThemeConfig } from '@/lib/store/theme-config'
+import { TranslatedField, type TranslatedFieldValue } from '@/components/dashboard/store/TranslatedField'
 
 export default function MerchantStorePaymentsPage() {
   const { data: store, isLoading } = useMyStore()
@@ -31,7 +32,25 @@ export default function MerchantStorePaymentsPage() {
   const [tbcEnabled, setTbcEnabled] = useState(false)
   const [bogEnabled, setBogEnabled] = useState(false)
   const [cityPayEnabled, setCityPayEnabled] = useState(false)
+  const [textTranslations, setTextTranslations] = useState(DEFAULT_THEME_CONFIG.translations)
   const [saved, setSaved] = useState(false)
+
+  function themeTextBinding(
+    field: 'codNotes' | 'bankTransferNotes',
+    baseValue: string,
+    setBaseValue: (v: string) => void
+  ): { value: TranslatedFieldValue; onChange: (v: TranslatedFieldValue) => void } {
+    return {
+      value: { ka: baseValue, en: textTranslations.en?.[field] ?? '', ru: textTranslations.ru?.[field] ?? '' },
+      onChange: v => {
+        setBaseValue(v.ka)
+        setTextTranslations(prev => ({
+          en: { ...prev.en, [field]: v.en.trim() || undefined },
+          ru: { ...prev.ru, [field]: v.ru.trim() || undefined },
+        }))
+      },
+    }
+  }
 
   // "Adjust state during render" instead of an effect — hydrates once from the fetched
   // store, which arrives async, so there's no lazy-initializer moment to hook into. Tracked
@@ -51,6 +70,7 @@ export default function MerchantStorePaymentsPage() {
     setTbcEnabled(parsed.tbcEnabled)
     setBogEnabled(parsed.bogEnabled)
     setCityPayEnabled(parsed.cityPayEnabled)
+    setTextTranslations(parsed.translations)
   }
 
   const enabledCount = [codEnabled, bankTransferEnabled, flittEnabled, tbcEnabled, bogEnabled, cityPayEnabled].filter(Boolean).length
@@ -59,10 +79,15 @@ export default function MerchantStorePaymentsPage() {
   function handleSave() {
     if (!store) return
     const parsed = parseThemeConfig(store.themeConfig)
+    const mergedTranslations = {
+      en: { ...parsed.translations.en, ...textTranslations.en },
+      ru: { ...parsed.translations.ru, ...textTranslations.ru },
+    }
     updateStore(
       {
         themeConfig: JSON.stringify({
           ...parsed,
+          translations: mergedTranslations,
           codEnabled,
           codNotes,
           bankTransferEnabled,
@@ -113,11 +138,15 @@ export default function MerchantStorePaymentsPage() {
         )}
         <div className="fieldset gap-2">
           <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მყიდველისთვის ნაჩვენები შენიშვნა</label>
-          <textarea
-            value={codNotes}
-            onChange={e => setCodNotes(e.target.value)}
-            placeholder="მაგ. გთხოვთ, კურიერისთვის მოამზადოთ ზუსტი თანხა."
+          <TranslatedField
+            {...themeTextBinding('codNotes', codNotes, setCodNotes)}
+            multiline
             rows={3}
+            placeholders={{
+              ka: 'მაგ. გთხოვთ, კურიერისთვის მოამზადოთ ზუსტი თანხა.',
+              en: 'e.g. Please have the exact amount ready for the courier.',
+              ru: 'Например: подготовьте точную сумму для курьера.',
+            }}
             className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
           />
         </div>
@@ -142,11 +171,15 @@ export default function MerchantStorePaymentsPage() {
         )}
         <div className="fieldset gap-2">
           <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მყიდველისთვის ნაჩვენები შენიშვნა</label>
-          <textarea
-            value={bankTransferNotes}
-            onChange={e => setBankTransferNotes(e.target.value)}
-            placeholder="მაგ. ბანკი: TBC, ანგარიშის მფლობელი: თქვენი მაღაზია შპს, IBAN: GE00TB0000000000000000"
+          <TranslatedField
+            {...themeTextBinding('bankTransferNotes', bankTransferNotes, setBankTransferNotes)}
+            multiline
             rows={4}
+            placeholders={{
+              ka: 'მაგ. ბანკი: TBC, ანგარიშის მფლობელი: თქვენი მაღაზია შპს, IBAN: GE00TB0000000000000000',
+              en: 'e.g. Bank: TBC, Account holder: Your Store LLC, IBAN: GE00TB0000000000000000',
+              ru: 'Например: Банк: TBC, Получатель: Ваш Магазин ООО, IBAN: GE00TB0000000000000000',
+            }}
             className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
           />
         </div>

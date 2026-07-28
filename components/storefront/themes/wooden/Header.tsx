@@ -9,7 +9,7 @@ import { StoreHoursBadge } from '@/components/storefront/shared/StoreHoursBadge'
 import { StorefrontLanguageSwitcher } from '@/components/storefront/shared/StorefrontLanguageSwitcher'
 import type { CategoryResponse, StorePageResponse, ThemeConfig } from '@/lib/types/storefront'
 import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
-import { getCategoryName } from '@/lib/store/translations'
+import { getCategoryName, getThemeText } from '@/lib/store/translations'
 import { CImg } from '@/components/ui/CImg'
 
 export function Header({
@@ -136,7 +136,7 @@ export function Header({
                 href={`/contact`}
                 className="text-sm text-[#8a7d6c] hover:text-[#4a3f35] transition-colors whitespace-nowrap"
               >
-                {tokens.contactLabel}
+                {getThemeText(tokens, 'contactLabel', lang)}
               </Link>
             )}
           </nav>
@@ -229,7 +229,7 @@ export function Header({
                 onClick={() => setMobileOpen(false)}
                 className="text-sm text-[#8a7d6c] py-2.5 border-b border-[#f0e8dc]"
               >
-                {tokens.contactLabel}
+                {getThemeText(tokens, 'contactLabel', lang)}
               </Link>
             )}
           </div>

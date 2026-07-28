@@ -2,6 +2,7 @@
 
 import { useEffect, useReducer } from 'react'
 import { getContrastTextColor } from '@/lib/store/theme-config'
+import { getThemeText } from '@/lib/store/translations'
 import { useStorefrontLanguage } from './StorefrontLanguageProvider'
 import type { ThemeConfig } from '@/lib/types/storefront'
 
@@ -12,8 +13,8 @@ function dismissedReducer(state: boolean, action: Action): boolean {
 }
 
 export function AnnouncementBar({ slug, tokens }: { slug: string; tokens: Required<ThemeConfig> }) {
-  const { t } = useStorefrontLanguage()
-  const text = tokens.announcementText.trim()
+  const { t, lang } = useStorefrontLanguage()
+  const text = getThemeText(tokens, 'announcementText', lang).trim()
   const storageKey = `nipnip-announcement-dismissed-${slug}-${text}`
   const [dismissed, dispatch] = useReducer(dismissedReducer, false)
 

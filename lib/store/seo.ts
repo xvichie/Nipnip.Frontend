@@ -1,6 +1,6 @@
 import type { ProductDetailResponse, StoreResponse, ThemeConfig } from '@/lib/types/storefront'
 import type { StorefrontLanguage } from '@/lib/storefront-i18n'
-import { getProductDescription, getProductName } from '@/lib/store/translations'
+import { getProductDescription, getProductName, getThemeText } from '@/lib/store/translations'
 
 export const STOREFRONT_ROOT_DOMAIN = 'nipnip.ge'
 
@@ -28,13 +28,15 @@ export function getStoreOgImage(tokens: Required<ThemeConfig>): string | undefin
   return tokens.socialImageUrl || tokens.heroImageUrl || tokens.logoUrl || undefined
 }
 
-export function getStoreTitle(store: StoreResponse, tokens: Required<ThemeConfig>): string {
-  return tokens.seoTagline ? `${store.name} — ${tokens.seoTagline}` : store.name
+export function getStoreTitle(store: StoreResponse, tokens: Required<ThemeConfig>, lang: StorefrontLanguage): string {
+  const tagline = getThemeText(tokens, 'seoTagline', lang)
+  return tagline ? `${store.name} — ${tagline}` : store.name
 }
 
-export function getStoreDescription(store: StoreResponse, tokens: Required<ThemeConfig>): string {
-  if (tokens.seoDescription) return truncateDescription(tokens.seoDescription)
-  const parts = [tokens.heroHeadline, tokens.heroSubheadline].filter(Boolean)
+export function getStoreDescription(store: StoreResponse, tokens: Required<ThemeConfig>, lang: StorefrontLanguage): string {
+  const description = getThemeText(tokens, 'seoDescription', lang)
+  if (description) return truncateDescription(description)
+  const parts = [getThemeText(tokens, 'heroHeadline', lang), getThemeText(tokens, 'heroSubheadline', lang)].filter(Boolean)
   if (parts.length > 0) return truncateDescription(parts.join(' — '))
   return truncateDescription(`შეიძინეთ პროდუქტები მაღაზია ${store.name}-ში ${STOREFRONT_ROOT_DOMAIN}-ზე.`)
 }

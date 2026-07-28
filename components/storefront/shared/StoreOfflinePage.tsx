@@ -1,6 +1,7 @@
 import { SocialLinks } from '@/components/storefront/shared/SocialLinks'
+import { getThemeText } from '@/lib/store/translations'
 import type { StoreResponse, ThemeConfig } from '@/lib/types/storefront'
-import type { StorefrontStrings } from '@/lib/storefront-i18n'
+import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 function formatReopenDate(iso: string, locale: string): string {
@@ -10,8 +11,19 @@ function formatReopenDate(iso: string, locale: string): string {
 // Rendered instead of the themed storefront when a merchant switches their store inactive —
 // deliberately theme-agnostic (a visitor here isn't browsing the real store) so it doesn't need
 // a variant per theme.
-export function StoreOfflinePage({ store, tokens, t }: { store: StoreResponse; tokens: Required<ThemeConfig>; t: StorefrontStrings }) {
+export function StoreOfflinePage({
+  store,
+  tokens,
+  t,
+  lang,
+}: {
+  store: StoreResponse
+  tokens: Required<ThemeConfig>
+  t: StorefrontStrings
+  lang: StorefrontLanguage
+}) {
   const heading = tokens.offlineMode === 'comingSoon' ? t.storeOffline.comingSoonHeading : t.storeOffline.closedHeading
+  const offlineMessage = getThemeText(tokens, 'offlineMessage', lang)
 
   return (
     <div className="min-h-screen bg-[#0b0b12] text-white flex items-center justify-center p-6">
@@ -33,8 +45,8 @@ export function StoreOfflinePage({ store, tokens, t }: { store: StoreResponse; t
 
         <h2 className="font-bold text-xl">{heading}</h2>
 
-        {tokens.offlineMessage && (
-          <p className="text-white/60 text-sm leading-relaxed">{tokens.offlineMessage}</p>
+        {offlineMessage && (
+          <p className="text-white/60 text-sm leading-relaxed">{offlineMessage}</p>
         )}
 
         {tokens.offlineReopenDate && (

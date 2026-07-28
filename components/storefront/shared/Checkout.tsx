@@ -8,9 +8,10 @@ import { trackPurchase } from '@/lib/store/tracking-pixels'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { getRadiusClass } from '@/lib/store/theme-config'
+import { getThemeText, resolveThemeText } from '@/lib/store/translations'
 import { LocationPicker } from './LocationPicker'
 import type { PaymentMethod, StorePageResponse, ThemeConfig, ThemeId } from '@/lib/types/storefront'
-import type { StorefrontStrings } from '@/lib/storefront-i18n'
+import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 function getPaymentOptions(t: StorefrontStrings): { id: PaymentMethod; label: string; icon: React.ReactNode }[] {
@@ -118,12 +119,14 @@ export function Checkout({
   tokens,
   pages,
   t,
+  lang,
 }: {
   slug: string
   themeId: ThemeId
   tokens: Required<ThemeConfig>
   pages: StorePageResponse[]
   t: StorefrontStrings
+  lang: StorefrontLanguage
 }) {
   const { cart } = useStorefrontCart()
   const checkout = useCheckout(slug)
@@ -151,8 +154,8 @@ export function Checkout({
   // Flitt/TBC/BOG/CityPay have no buyer-facing notes — all are automatic hosted-checkout
   // redirects, unlike COD/bank transfer which need manual instructions (courier cash, IBAN, etc).
   const paymentNotes: Partial<Record<PaymentMethod, string>> = {
-    CashOnDelivery: tokens.codNotes,
-    BankTransfer: tokens.bankTransferNotes,
+    CashOnDelivery: getThemeText(tokens, 'codNotes', lang),
+    BankTransfer: getThemeText(tokens, 'bankTransferNotes', lang),
   }
   const paymentEnabled: Record<PaymentMethod, boolean> = {
     CashOnDelivery: tokens.codEnabled,
@@ -253,9 +256,9 @@ export function Checkout({
             </svg>
           </div>
           <div>
-            <h1 className={`font-black text-3xl mb-2 ${surface.text}`}>{tokens.checkoutThankYouHeading || t.checkout.thankYouHeading}</h1>
+            <h1 className={`font-black text-3xl mb-2 ${surface.text}`}>{getThemeText(tokens, 'checkoutThankYouHeading', lang) || t.checkout.thankYouHeading}</h1>
             <p className={`text-sm break-words ${surface.muted}`}>
-              {tokens.checkoutThankYouMessage || t.checkout.thankYouMessage(fullName, checkout.data.id.slice(0, 8), email)}
+              {getThemeText(tokens, 'checkoutThankYouMessage', lang) || t.checkout.thankYouMessage(fullName, checkout.data.id.slice(0, 8), email)}
             </p>
             <p className={`text-sm font-bold mt-3 ${surface.text}`}>
               {t.checkout.orderTotal(checkout.data.total.toFixed(2))}
@@ -345,6 +348,7 @@ export function Checkout({
                 customerNote: tokens.checkoutNotesEnabled ? orderNote.trim() || null : null,
                 discountCode: appliedDiscount?.code ?? null,
                 isPickup,
+                lang,
               })
             }}
           >
@@ -434,7 +438,7 @@ export function Checkout({
                         >
                           {isSelected && <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: tokens.accentColor }} />}
                         </div>
-                        <p className={`font-semibold text-sm flex-1 min-w-0 break-words ${surface.text}`}>{zone.name}</p>
+                        <p className={`font-semibold text-sm flex-1 min-w-0 break-words ${surface.text}`}>{resolveThemeText(zone.name, zone.translations?.en, zone.translations?.ru, lang)}</p>
                         <span className={`text-sm font-bold shrink-0 ${surface.text}`}>
                           {qualifiesForFreeShipping ? t.checkout.free : `₾${zone.price.toFixed(2)}`}
                         </span>
@@ -537,43 +541,49 @@ export function Checkout({
             <div className={`${surface.card} border ${surface.border} ${radius} p-5 lg:sticky lg:top-20`}>
               <h3 className={`font-bold text-sm mb-4 pb-4 border-b ${surface.border} ${surface.text}`}>{t.checkout.orderSummarySidebar}</h3>
               <div className={`flex flex-col divide-y ${surface.border} mb-4`}>
-                {cart.bundleItems.map(item => (
+                {cart.bundleItems.map(item => {
+                  const bundleName = resolveThemeText(item.bundleName, item.bundleNameEn, item.bundleNameRu, lang)
+                  return (
                   <div key={item.id} className="flex items-center gap-3 py-3">
                     <div className={`w-11 h-11 shrink-0 overflow-hidden ${radius} ${surface.border} border`}>
                       {item.imageUrl ? (
-                        <CImg src={item.imageUrl} alt={item.bundleName} className="w-full h-full object-cover" />
+                        <CImg src={item.imageUrl} alt={bundleName} className="w-full h-full object-cover" />
                       ) : (
                         <div className={`w-full h-full flex items-center justify-center text-[8px] ${surface.muted}`}>—</div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-semibold truncate ${surface.text}`}>{item.bundleName} <span className="font-normal opacity-60">{t.checkout.bundleTag}</span></p>
+                      <p className={`text-xs font-semibold truncate ${surface.text}`}>{bundleName} <span className="font-normal opacity-60">{t.checkout.bundleTag}</span></p>
                       <p className={`text-[10px] ${surface.muted}`}>×{item.quantity}</p>
                     </div>
                     <span className={`text-xs font-bold shrink-0 ${surface.text}`}>₾{(item.bundlePrice * item.quantity).toFixed(2)}</span>
                   </div>
-                ))}
-                {cart.items.map(item => (
+                  )
+                })}
+                {cart.items.map(item => {
+                  const productName = resolveThemeText(item.productName, item.productNameEn, item.productNameRu, lang)
+                  return (
                   <div key={item.id} className="flex items-center gap-3 py-3">
                     <div className={`w-11 h-11 shrink-0 overflow-hidden ${radius} ${surface.border} border`}>
                       {item.imageUrl ? (
-                        <CImg src={item.imageUrl} alt={item.productName} className="w-full h-full object-cover" />
+                        <CImg src={item.imageUrl} alt={productName} className="w-full h-full object-cover" />
                       ) : (
                         <div className={`w-full h-full flex items-center justify-center text-[8px] ${surface.muted}`}>—</div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-semibold truncate ${surface.text}`}>{item.productName}</p>
+                      <p className={`text-xs font-semibold truncate ${surface.text}`}>{productName}</p>
                       {item.options.length > 0 && (
                         <p className={`text-[10px] truncate ${surface.muted}`}>
-                          {item.options.map(o => o.value).join(' / ')}
+                          {item.options.map(o => resolveThemeText(o.value, o.valueEn, o.valueRu, lang)).join(' / ')}
                         </p>
                       )}
                       <p className={`text-[10px] ${surface.muted}`}>×{item.quantity}</p>
                     </div>
                     <span className={`text-xs font-bold shrink-0 ${surface.text}`}>₾{(item.price * item.quantity).toFixed(2)}</span>
                   </div>
-                ))}
+                  )
+                })}
               </div>
               <div className={`flex flex-col gap-1.5 border-t ${surface.border} pt-4 mb-1`}>
                 <div className={`flex justify-between text-sm ${surface.muted}`}>

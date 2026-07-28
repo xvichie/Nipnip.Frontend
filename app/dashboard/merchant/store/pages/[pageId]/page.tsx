@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useMyPages, useUpdatePage } from '@/lib/queries/storefront-admin'
+import { TranslatedField, hasAnyTranslatedValue, type TranslatedFieldValue } from '@/components/dashboard/store/TranslatedField'
+
+const EMPTY_TRANSLATED: TranslatedFieldValue = { ka: '', en: '', ru: '' }
 
 export default function MerchantStorePageEditPage() {
   const { pageId } = useParams<{ pageId: string }>()
@@ -12,20 +15,32 @@ export default function MerchantStorePageEditPage() {
 
   const page = pages?.find(p => p.id === pageId)
 
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
+  const [title, setTitle] = useState<TranslatedFieldValue>(EMPTY_TRANSLATED)
+  const [content, setContent] = useState<TranslatedFieldValue>(EMPTY_TRANSLATED)
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     if (!page) return
-    setTitle(page.title)
-    setContent(page.content)
+    setTitle({ ka: page.titleKa ?? '', en: page.titleEn ?? '', ru: page.titleRu ?? '' })
+    setContent({ ka: page.contentKa ?? '', en: page.contentEn ?? '', ru: page.contentRu ?? '' })
   }, [page])
+
+  const canSubmit = hasAnyTranslatedValue(title) && hasAnyTranslatedValue(content)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     updatePage(
-      { id: pageId, body: { title: title.trim(), content: content.trim() } },
+      {
+        id: pageId,
+        body: {
+          titleKa: title.ka.trim() || null,
+          titleEn: title.en.trim() || null,
+          titleRu: title.ru.trim() || null,
+          contentKa: content.ka.trim() || null,
+          contentEn: content.en.trim() || null,
+          contentRu: content.ru.trim() || null,
+        },
+      },
       { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
     )
   }
@@ -65,24 +80,12 @@ export default function MerchantStorePageEditPage() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="fieldset gap-2">
             <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სათაური</label>
-            <input
-              type="text"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              className="input w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
-              required
-            />
+            <TranslatedField value={title} onChange={setTitle} />
           </div>
 
           <div className="fieldset gap-2">
             <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">შინაარსი</label>
-            <textarea
-              value={content}
-              onChange={e => setContent(e.target.value)}
-              rows={14}
-              className="textarea w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
-              required
-            />
+            <TranslatedField value={content} onChange={setContent} multiline rows={14} />
           </div>
 
           {error && (
@@ -98,7 +101,7 @@ export default function MerchantStorePageEditPage() {
 
           <button
             type="submit"
-            disabled={isPending || !title.trim() || !content.trim()}
+            disabled={isPending || !canSubmit}
             className="btn w-full mt-1 gap-2 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
           >
             {isPending ? <span className="loading loading-spinner loading-sm" /> : 'შენახვა'}

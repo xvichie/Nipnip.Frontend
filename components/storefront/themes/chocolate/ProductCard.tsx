@@ -21,7 +21,7 @@ export function ProductCard({
   t: StorefrontStrings
   lang: StorefrontLanguage
 }) {
-  const badge = getProductBadge(tokens, product)
+  const badge = getProductBadge(tokens, product, lang)
   const productName = getProductName(product, lang)
   return (
     <Link href={`/products/${product.slug}`} className="group block h-full">

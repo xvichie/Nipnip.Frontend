@@ -16,6 +16,7 @@ import { ka as storefrontT } from '@/strings/storefront-ka'
 import { FeaturedProductsPicker } from '@/components/dashboard/store/FeaturedProductsPicker'
 import { CImg } from '@/components/ui/CImg'
 import { IconButton } from '@/components/ui/IconButton'
+import { TranslatedField, type TranslatedFieldValue } from '@/components/dashboard/store/TranslatedField'
 import { ReorderButtons } from '@/components/ui/ReorderButtons'
 import { PlusIcon, XIcon } from '@/components/ui/icons'
 import { Header as MinimalHeader } from '@/components/storefront/themes/minimal/Header'
@@ -82,6 +83,7 @@ import type {
   SocialsPosition,
   ThemeConfig,
   ThemeId,
+  TranslatableThemeText,
 } from '@/lib/types/storefront'
 
 const LANDING_COLLECTION_PRODUCT_LIMITS = [6, 8, 12, 16] as const
@@ -138,6 +140,7 @@ export default function StoreLayoutPage() {
   const [navPageIds, setNavPageIds] = useState<string[]>(DEFAULT_THEME_CONFIG.navPageIds)
   const [showContactInNav, setShowContactInNav] = useState(DEFAULT_THEME_CONFIG.showContactInNav)
   const [contactLabel, setContactLabel] = useState(DEFAULT_THEME_CONFIG.contactLabel)
+  const [textTranslations, setTextTranslations] = useState(DEFAULT_THEME_CONFIG.translations)
   const [showLandingCategories, setShowLandingCategories] = useState(DEFAULT_THEME_CONFIG.showLandingCategories)
   const [landingCategoryScope, setLandingCategoryScope] = useState<CategoryMenuScope>(DEFAULT_THEME_CONFIG.landingCategoryScope)
   const [landingCategorySelectedIds, setLandingCategorySelectedIds] = useState<string[]>(DEFAULT_THEME_CONFIG.landingCategorySelectedIds)
@@ -146,7 +149,7 @@ export default function StoreLayoutPage() {
   const [landingCollectionScope, setLandingCollectionScope] = useState<CategoryMenuScope>(DEFAULT_THEME_CONFIG.landingCollectionScope)
   const [landingCollectionSelectedIds, setLandingCollectionSelectedIds] = useState<string[]>(DEFAULT_THEME_CONFIG.landingCollectionSelectedIds)
   const [landingCollectionOrder, setLandingCollectionOrder] = useState<string[]>(DEFAULT_THEME_CONFIG.landingCollectionOrder)
-  const [landingCollectionTitleOverrides, setLandingCollectionTitleOverrides] = useState<Record<string, string>>(DEFAULT_THEME_CONFIG.landingCollectionTitleOverrides)
+  const [landingCollectionTitleOverrides, setLandingCollectionTitleOverrides] = useState(DEFAULT_THEME_CONFIG.landingCollectionTitleOverrides)
   const [landingCollectionProductLimit, setLandingCollectionProductLimit] = useState(DEFAULT_THEME_CONFIG.landingCollectionProductLimit)
   const [footerContactForm, setFooterContactForm] = useState<FooterContactFormPosition>(DEFAULT_THEME_CONFIG.footerContactForm)
   const [socialsPosition, setSocialsPosition] = useState<SocialsPosition>(DEFAULT_THEME_CONFIG.socialsPosition)
@@ -174,7 +177,7 @@ export default function StoreLayoutPage() {
   const [showRelatedProducts, setShowRelatedProducts] = useState(DEFAULT_THEME_CONFIG.showRelatedProducts)
   const [relatedProductsHeading, setRelatedProductsHeading] = useState(DEFAULT_THEME_CONFIG.relatedProductsHeading)
   const [deliveryEstimateText, setDeliveryEstimateText] = useState(DEFAULT_THEME_CONFIG.deliveryEstimateText)
-  const [trustBadges, setTrustBadges] = useState<string[]>(DEFAULT_THEME_CONFIG.trustBadges)
+  const [trustBadges, setTrustBadges] = useState(DEFAULT_THEME_CONFIG.trustBadges)
   const [sizeGuideContent, setSizeGuideContent] = useState(DEFAULT_THEME_CONFIG.sizeGuideContent)
   const [checkoutNotesEnabled, setCheckoutNotesEnabled] = useState(DEFAULT_THEME_CONFIG.checkoutNotesEnabled)
   const [checkoutTosEnabled, setCheckoutTosEnabled] = useState(DEFAULT_THEME_CONFIG.checkoutTosEnabled)
@@ -222,6 +225,7 @@ export default function StoreLayoutPage() {
     setNavPageIds(parsed.navPageIds)
     setShowContactInNav(parsed.showContactInNav)
     setContactLabel(parsed.contactLabel)
+    setTextTranslations(parsed.translations)
     setShowLandingCategories(parsed.showLandingCategories)
     setLandingCategoryScope(parsed.landingCategoryScope)
     setLandingCategorySelectedIds(parsed.landingCategorySelectedIds)
@@ -334,13 +338,36 @@ export default function StoreLayoutPage() {
     setLandingCollectionSelectedIds(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]))
   }
 
-  function setLandingCollectionTitleOverride(id: string, title: string) {
+  function setLandingCollectionTitleOverride(id: string, value: TranslatedFieldValue) {
     setLandingCollectionTitleOverrides(prev => {
       const next = { ...prev }
-      if (title.trim()) next[id] = title
-      else delete next[id]
+      if (value.ka.trim()) {
+        next[id] = { value: value.ka, translations: { en: value.en.trim() || undefined, ru: value.ru.trim() || undefined } }
+      } else {
+        delete next[id]
+      }
       return next
     })
+  }
+
+  // Binds one top-level scalar ThemeConfig text field (e.g. contentHeading) to a TranslatedField:
+  // the "ka" tab reads/writes the existing base-language state as before, "en"/"ru" read/write
+  // the translations sidecar keyed by the same field name.
+  function themeTextBinding(
+    field: keyof TranslatableThemeText,
+    baseValue: string,
+    setBaseValue: (v: string) => void
+  ): { value: TranslatedFieldValue; onChange: (v: TranslatedFieldValue) => void } {
+    return {
+      value: { ka: baseValue, en: textTranslations.en?.[field] ?? '', ru: textTranslations.ru?.[field] ?? '' },
+      onChange: v => {
+        setBaseValue(v.ka)
+        setTextTranslations(prev => ({
+          en: { ...prev.en, [field]: v.en.trim() || undefined },
+          ru: { ...prev.ru, [field]: v.ru.trim() || undefined },
+        }))
+      },
+    }
   }
 
   // Operates on the currently-displayed order (visible collections, in their current order)
@@ -364,8 +391,10 @@ export default function StoreLayoutPage() {
     setFooterLinkColumns(prev => prev.filter((_, i) => i !== index))
   }
 
-  function updateFooterLinkColumnTitle(index: number, title: string) {
-    setFooterLinkColumns(prev => prev.map((c, i) => (i === index ? { ...c, title } : c)))
+  function updateFooterLinkColumnTitle(index: number, value: TranslatedFieldValue) {
+    setFooterLinkColumns(prev => prev.map((c, i) => (
+      i === index ? { ...c, title: value.ka, translations: { en: value.en.trim() || undefined, ru: value.ru.trim() || undefined } } : c
+    )))
   }
 
   function addFooterLink(columnIndex: number) {
@@ -376,22 +405,39 @@ export default function StoreLayoutPage() {
     setFooterLinkColumns(prev => prev.map((c, i) => (i === columnIndex ? { ...c, links: c.links.filter((_, j) => j !== linkIndex) } : c)))
   }
 
-  function updateFooterLink(columnIndex: number, linkIndex: number, field: 'label' | 'url', value: string) {
+  function updateFooterLinkUrl(columnIndex: number, linkIndex: number, url: string) {
     setFooterLinkColumns(prev => prev.map((c, i) => (
-      i === columnIndex ? { ...c, links: c.links.map((l, j) => (j === linkIndex ? { ...l, [field]: value } : l)) } : c
+      i === columnIndex ? { ...c, links: c.links.map((l, j) => (j === linkIndex ? { ...l, url } : l)) } : c
+    )))
+  }
+
+  function updateFooterLinkLabel(columnIndex: number, linkIndex: number, value: TranslatedFieldValue) {
+    setFooterLinkColumns(prev => prev.map((c, i) => (
+      i === columnIndex
+        ? {
+            ...c,
+            links: c.links.map((l, j) => (
+              j === linkIndex
+                ? { ...l, label: value.ka, translations: { en: value.en.trim() || undefined, ru: value.ru.trim() || undefined } }
+                : l
+            )),
+          }
+        : c
     )))
   }
 
   function addTrustBadge() {
-    setTrustBadges(prev => [...prev, ''])
+    setTrustBadges(prev => [...prev, { text: '' }])
   }
 
   function removeTrustBadge(index: number) {
     setTrustBadges(prev => prev.filter((_, i) => i !== index))
   }
 
-  function updateTrustBadge(index: number, value: string) {
-    setTrustBadges(prev => prev.map((b, i) => (i === index ? value : b)))
+  function updateTrustBadge(index: number, value: TranslatedFieldValue) {
+    setTrustBadges(prev => prev.map((b, i) => (
+      i === index ? { text: value.ka, translations: { en: value.en.trim() || undefined, ru: value.ru.trim() || undefined } } : b
+    )))
   }
 
   function addFaqItem() {
@@ -402,8 +448,19 @@ export default function StoreLayoutPage() {
     setFaqItems(prev => prev.filter((_, i) => i !== index))
   }
 
-  function updateFaqItem(index: number, field: 'question' | 'answer', value: string) {
-    setFaqItems(prev => prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)))
+  function updateFaqItem(index: number, field: 'question' | 'answer', value: TranslatedFieldValue) {
+    setFaqItems(prev => prev.map((item, i) => (
+      i === index
+        ? {
+            ...item,
+            [field]: value.ka,
+            translations: {
+              en: { ...item.translations?.en, [field]: value.en.trim() || undefined },
+              ru: { ...item.translations?.ru, [field]: value.ru.trim() || undefined },
+            },
+          }
+        : item
+    )))
   }
 
   function updateStoreHoursDay(day: number, field: 'open' | 'close' | 'closed', value: string | boolean) {
@@ -413,10 +470,18 @@ export default function StoreLayoutPage() {
   function handleSave() {
     if (!store) return
     const parsed = parseThemeConfig(store.themeConfig)
+    // Merge with the freshest saved translations rather than overwriting wholesale — this page
+    // only edits a subset of the translatable fields; the rest (owned by the design settings
+    // page) must survive even though this save resends the full ThemeConfig object.
+    const mergedTranslations = {
+      en: { ...parsed.translations.en, ...textTranslations.en },
+      ru: { ...parsed.translations.ru, ...textTranslations.ru },
+    }
     updateStore(
       {
         themeConfig: JSON.stringify({
           ...parsed,
+          translations: mergedTranslations,
           homeSectionOrder,
           sectionBackgroundColors,
           layoutWidth,
@@ -506,6 +571,10 @@ export default function StoreLayoutPage() {
   const parsed = parseThemeConfig(store.themeConfig)
   const tokens: Required<ThemeConfig> = {
     ...parsed,
+    translations: {
+      en: { ...parsed.translations.en, ...textTranslations.en },
+      ru: { ...parsed.translations.ru, ...textTranslations.ru },
+    },
     homeSectionOrder,
     sectionBackgroundColors,
     layoutWidth,
@@ -621,7 +690,7 @@ export default function StoreLayoutPage() {
             t={storefrontT}
             lang="ka"
           />
-          <FooterPreview slug={store.slug} storeName={store.name} tokens={tokens} pages={pages ?? []} t={storefrontT} />
+          <FooterPreview slug={store.slug} storeName={store.name} tokens={tokens} pages={pages ?? []} t={storefrontT} lang="ka" />
         </StorefrontCartProvider>
       </StorefrontLanguageProvider>
     </div>
@@ -745,11 +814,9 @@ export default function StoreLayoutPage() {
               <>
                 <div className="fieldset gap-2">
                   <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">შეტყობინება</label>
-                  <input
-                    type="text"
-                    value={announcementText}
-                    onChange={e => setAnnouncementText(e.target.value)}
-                    placeholder="🚚 უფასო მიწოდება 100₾-ზე მეტ შეკვეთაზე"
+                  <TranslatedField
+                    {...themeTextBinding('announcementText', announcementText, setAnnouncementText)}
+                    placeholders={{ ka: '🚚 უფასო მიწოდება 100₾-ზე მეტ შეკვეთაზე', en: '🚚 Free shipping over ₾100', ru: '🚚 Бесплатная доставка от 100₾' }}
                     className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                   />
                 </div>
@@ -889,20 +956,18 @@ export default function StoreLayoutPage() {
 
             <div className="fieldset gap-2">
               <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სათაური</label>
-              <input
-                type="text"
-                value={contentHeading}
-                onChange={e => setContentHeading(e.target.value)}
-                placeholder="რატომ ვირჩევთ ჩვენ"
+              <TranslatedField
+                {...themeTextBinding('contentHeading', contentHeading, setContentHeading)}
+                placeholders={{ ka: 'რატომ ვირჩევთ ჩვენ', en: 'Why choose us', ru: 'Почему выбирают нас' }}
                 className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
               />
             </div>
 
             <div className="fieldset gap-2">
               <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ტექსტი</label>
-              <textarea
-                value={contentBody}
-                onChange={e => setContentBody(e.target.value)}
+              <TranslatedField
+                {...themeTextBinding('contentBody', contentBody, setContentBody)}
+                multiline
                 rows={4}
                 className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 resize-none"
               />
@@ -977,11 +1042,9 @@ export default function StoreLayoutPage() {
             <div className="grid grid-cols-2 gap-3 pt-3 border-t border-white/5">
               <div className="fieldset gap-2">
                 <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ღილაკის ტექსტი</label>
-                <input
-                  type="text"
-                  value={contentButtonText}
-                  onChange={e => setContentButtonText(e.target.value)}
-                  placeholder="გაიგეთ მეტი"
+                <TranslatedField
+                  {...themeTextBinding('contentButtonText', contentButtonText, setContentButtonText)}
+                  placeholders={{ ka: 'გაიგეთ მეტი', en: 'Learn more', ru: 'Узнать больше' }}
                   className="input input-sm w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
               </div>
@@ -1335,12 +1398,15 @@ export default function StoreLayoutPage() {
                             onUp={() => moveLandingCollection(collection.id, -1, visibleCollections.map(c => c.id))}
                             onDown={() => moveLandingCollection(collection.id, 1, visibleCollections.map(c => c.id))}
                           />
-                          <input
-                            type="text"
-                            value={landingCollectionTitleOverrides[collection.id] ?? ''}
-                            onChange={e => setLandingCollectionTitleOverride(collection.id, e.target.value)}
-                            placeholder={collection.name}
-                            className="input input-sm flex-1 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
+                          <TranslatedField
+                            value={{
+                              ka: landingCollectionTitleOverrides[collection.id]?.value ?? '',
+                              en: landingCollectionTitleOverrides[collection.id]?.translations?.en ?? '',
+                              ru: landingCollectionTitleOverrides[collection.id]?.translations?.ru ?? '',
+                            }}
+                            onChange={value => setLandingCollectionTitleOverride(collection.id, value)}
+                            placeholders={{ ka: collection.name, en: collection.name, ru: collection.name }}
+                            className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
                           />
                         </div>
                       ))}
@@ -1440,11 +1506,13 @@ export default function StoreLayoutPage() {
 
             <div className="fieldset gap-2">
               <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">საავტორო უფლების ტექსტი</label>
-              <input
-                type="text"
-                value={footerCopyrightText}
-                onChange={e => setFooterCopyrightText(e.target.value)}
-                placeholder={`© ${new Date().getFullYear()} ${store.name}`}
+              <TranslatedField
+                {...themeTextBinding('footerCopyrightText', footerCopyrightText, setFooterCopyrightText)}
+                placeholders={{
+                  ka: `© ${new Date().getFullYear()} ${store.name}`,
+                  en: `© ${new Date().getFullYear()} ${store.name}`,
+                  ru: `© ${new Date().getFullYear()} ${store.name}`,
+                }}
                 className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
               />
             </div>
@@ -1486,28 +1554,26 @@ export default function StoreLayoutPage() {
                 {footerLinkColumns.map((column, columnIndex) => (
                   <div key={columnIndex} className="rounded-xl bg-white/2 border border-white/5 p-3 flex flex-col gap-2">
                     <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={column.title}
-                        onChange={e => updateFooterLinkColumnTitle(columnIndex, e.target.value)}
-                        placeholder="სვეტის სათაური (მაგ. მაღაზია)"
-                        className="input input-xs flex-1 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
+                      <TranslatedField
+                        value={{ ka: column.title, en: column.translations?.en ?? '', ru: column.translations?.ru ?? '' }}
+                        onChange={value => updateFooterLinkColumnTitle(columnIndex, value)}
+                        placeholders={{ ka: 'სვეტის სათაური (მაგ. მაღაზია)', en: 'Column title (e.g. Shop)', ru: 'Заголовок колонки' }}
+                        className="input input-xs w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
                       />
                       <IconButton icon={<XIcon />} label="სვეტის წაშლა" onClick={() => removeFooterLinkColumn(columnIndex)} className="shrink-0" />
                     </div>
                     {column.links.map((link, linkIndex) => (
                       <div key={linkIndex} className="flex items-center gap-2 pl-3">
-                        <input
-                          type="text"
-                          value={link.label}
-                          onChange={e => updateFooterLink(columnIndex, linkIndex, 'label', e.target.value)}
-                          placeholder="ლეიბლი"
+                        <TranslatedField
+                          value={{ ka: link.label, en: link.translations?.en ?? '', ru: link.translations?.ru ?? '' }}
+                          onChange={value => updateFooterLinkLabel(columnIndex, linkIndex, value)}
+                          placeholders={{ ka: 'ლეიბლი', en: 'Label', ru: 'Метка' }}
                           className="input input-xs w-28 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
                         />
                         <input
                           type="text"
                           value={link.url}
-                          onChange={e => updateFooterLink(columnIndex, linkIndex, 'url', e.target.value)}
+                          onChange={e => updateFooterLinkUrl(columnIndex, linkIndex, e.target.value)}
                           placeholder="https://…"
                           className="input input-xs flex-1 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
                         />
@@ -1542,11 +1608,9 @@ export default function StoreLayoutPage() {
               </div>
               <div className="fieldset gap-2">
                 <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">შეტყობინება</label>
-                <input
-                  type="text"
-                  value={lowStockMessage}
-                  onChange={e => setLowStockMessage(e.target.value)}
-                  placeholder="მხოლოდ {n} ცალია დარჩენილი!"
+                <TranslatedField
+                  {...themeTextBinding('lowStockMessage', lowStockMessage, setLowStockMessage)}
+                  placeholders={{ ka: 'მხოლოდ {n} ცალია დარჩენილი!', en: 'Only {n} left in stock!', ru: 'Осталось всего {n} шт.!' }}
                   className="input input-sm w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
               </div>
@@ -1576,11 +1640,9 @@ export default function StoreLayoutPage() {
             {showRelatedProducts && (
               <div className="fieldset gap-2">
                 <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მსგავსი პროდუქტების სათაური</label>
-                <input
-                  type="text"
-                  value={relatedProductsHeading}
-                  onChange={e => setRelatedProductsHeading(e.target.value)}
-                  placeholder="მსგავსი პროდუქტები"
+                <TranslatedField
+                  {...themeTextBinding('relatedProductsHeading', relatedProductsHeading, setRelatedProductsHeading)}
+                  placeholders={{ ka: 'მსგავსი პროდუქტები', en: 'Related products', ru: 'Похожие товары' }}
                   className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                 />
               </div>
@@ -1588,11 +1650,9 @@ export default function StoreLayoutPage() {
 
             <div className="fieldset gap-2">
               <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მიწოდების ვადა</label>
-              <input
-                type="text"
-                value={deliveryEstimateText}
-                onChange={e => setDeliveryEstimateText(e.target.value)}
-                placeholder="მიწოდება 2-4 დღეში"
+              <TranslatedField
+                {...themeTextBinding('deliveryEstimateText', deliveryEstimateText, setDeliveryEstimateText)}
+                placeholders={{ ka: 'მიწოდება 2-4 დღეში', en: 'Delivery in 2-4 days', ru: 'Доставка за 2-4 дня' }}
                 className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
               />
             </div>
@@ -1602,12 +1662,11 @@ export default function StoreLayoutPage() {
               <div className="flex flex-col gap-2">
                 {trustBadges.map((badge, i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={badge}
-                      onChange={e => updateTrustBadge(i, e.target.value)}
-                      placeholder="100% ორიგინალი"
-                      className="input input-sm flex-1 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
+                    <TranslatedField
+                      value={{ ka: badge.text, en: badge.translations?.en ?? '', ru: badge.translations?.ru ?? '' }}
+                      onChange={value => updateTrustBadge(i, value)}
+                      placeholders={{ ka: '100% ორიგინალი', en: '100% Original', ru: '100% Оригинал' }}
+                      className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
                     />
                     <IconButton icon={<XIcon />} label="ბეჯის წაშლა" onClick={() => removeTrustBadge(i)} className="shrink-0" />
                   </div>
@@ -1618,11 +1677,15 @@ export default function StoreLayoutPage() {
 
             <div className="fieldset gap-2">
               <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ზომების გზამკვლევი</label>
-              <textarea
-                value={sizeGuideContent}
-                onChange={e => setSizeGuideContent(e.target.value)}
+              <TranslatedField
+                {...themeTextBinding('sizeGuideContent', sizeGuideContent, setSizeGuideContent)}
+                multiline
                 rows={4}
-                placeholder="ცარიელი დატოვება ზომების გზამკვლევის ბმულის დასამალად"
+                placeholders={{
+                  ka: 'ცარიელი დატოვება ზომების გზამკვლევის ბმულის დასამალად',
+                  en: 'Leave empty to hide the size guide link',
+                  ru: 'Оставьте пустым, чтобы скрыть ссылку на таблицу размеров',
+                }}
                 className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 resize-none"
               />
             </div>
@@ -1690,22 +1753,24 @@ export default function StoreLayoutPage() {
 
             <div className="fieldset gap-2">
               <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მადლობის სათაური</label>
-              <input
-                type="text"
-                value={checkoutThankYouHeading}
-                onChange={e => setCheckoutThankYouHeading(e.target.value)}
-                placeholder="შეკვეთა გაფორმდა!"
+              <TranslatedField
+                {...themeTextBinding('checkoutThankYouHeading', checkoutThankYouHeading, setCheckoutThankYouHeading)}
+                placeholders={{ ka: 'შეკვეთა გაფორმდა!', en: 'Order placed!', ru: 'Заказ оформлен!' }}
                 className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
               />
             </div>
 
             <div className="fieldset gap-2">
               <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მადლობის შეტყობინება</label>
-              <textarea
-                value={checkoutThankYouMessage}
-                onChange={e => setCheckoutThankYouMessage(e.target.value)}
+              <TranslatedField
+                {...themeTextBinding('checkoutThankYouMessage', checkoutThankYouMessage, setCheckoutThankYouMessage)}
+                multiline
                 rows={2}
-                placeholder="ცარიელი დატოვება ნაგულისხმევი შეკვეთის დადასტურების შეტყობინების შესანარჩუნებლად"
+                placeholders={{
+                  ka: 'ცარიელი დატოვება ნაგულისხმევი შეკვეთის დადასტურების შეტყობინების შესანარჩუნებლად',
+                  en: 'Leave empty to keep the default order confirmation message',
+                  ru: 'Оставьте пустым для стандартного сообщения о подтверждении заказа',
+                }}
                 className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 resize-none"
               />
             </div>
@@ -1751,11 +1816,9 @@ export default function StoreLayoutPage() {
               <>
                 <div className="fieldset gap-2">
                   <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სათაური</label>
-                  <input
-                    type="text"
-                    value={faqHeading}
-                    onChange={e => setFaqHeading(e.target.value)}
-                    placeholder="ხშირად დასმული კითხვები"
+                  <TranslatedField
+                    {...themeTextBinding('faqHeading', faqHeading, setFaqHeading)}
+                    placeholders={{ ka: 'ხშირად დასმული კითხვები', en: 'Frequently asked questions', ru: 'Часто задаваемые вопросы' }}
                     className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                   />
                 </div>
@@ -1764,20 +1827,20 @@ export default function StoreLayoutPage() {
                   {faqItems.map((item, index) => (
                     <div key={index} className="rounded-xl bg-white/2 border border-white/5 p-3 flex flex-col gap-2">
                       <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={item.question}
-                          onChange={e => updateFaqItem(index, 'question', e.target.value)}
-                          placeholder="კითხვა"
-                          className="input input-sm flex-1 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
+                        <TranslatedField
+                          value={{ ka: item.question, en: item.translations?.en?.question ?? '', ru: item.translations?.ru?.question ?? '' }}
+                          onChange={value => updateFaqItem(index, 'question', value)}
+                          placeholders={{ ka: 'კითხვა', en: 'Question', ru: 'Вопрос' }}
+                          className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
                         />
                         <IconButton icon={<XIcon />} label="კითხვის წაშლა" onClick={() => removeFaqItem(index)} className="shrink-0" />
                       </div>
-                      <textarea
-                        value={item.answer}
-                        onChange={e => updateFaqItem(index, 'answer', e.target.value)}
+                      <TranslatedField
+                        value={{ ka: item.answer, en: item.translations?.en?.answer ?? '', ru: item.translations?.ru?.answer ?? '' }}
+                        onChange={value => updateFaqItem(index, 'answer', value)}
+                        multiline
                         rows={2}
-                        placeholder="პასუხი"
+                        placeholders={{ ka: 'პასუხი', en: 'Answer', ru: 'Ответ' }}
                         className="textarea textarea-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 resize-none"
                       />
                     </div>
@@ -1866,11 +1929,9 @@ export default function StoreLayoutPage() {
 
                 <div className="fieldset gap-2">
                   <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">შეტყობინება</label>
-                  <input
-                    type="text"
-                    value={saleCountdownText}
-                    onChange={e => setSaleCountdownText(e.target.value)}
-                    placeholder="🔥 ფასდაკლება მთავრდება"
+                  <TranslatedField
+                    {...themeTextBinding('saleCountdownText', saleCountdownText, setSaleCountdownText)}
+                    placeholders={{ ka: '🔥 ფასდაკლება მთავრდება', en: '🔥 Sale ends in', ru: '🔥 Скидка заканчивается через' }}
                     className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                   />
                 </div>
@@ -1946,11 +2007,15 @@ export default function StoreLayoutPage() {
                 </div>
                 <div className="fieldset gap-2">
                   <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">გატანის ინსტრუქციები (სურვილისამებრ)</label>
-                  <textarea
-                    value={pickupInstructions}
-                    onChange={e => setPickupInstructions(e.target.value)}
+                  <TranslatedField
+                    {...themeTextBinding('pickupInstructions', pickupInstructions, setPickupInstructions)}
+                    multiline
                     rows={2}
-                    placeholder="ღიაა 10:00–19:00, დარეკეთ ზარით გვერდით კარზე"
+                    placeholders={{
+                      ka: 'ღიაა 10:00–19:00, დარეკეთ ზარით გვერდით კარზე',
+                      en: 'Open 10am-7pm, ring the side-door bell',
+                      ru: 'Открыто с 10:00 до 19:00, звоните в звонок у боковой двери',
+                    }}
                     className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 resize-none"
                   />
                 </div>

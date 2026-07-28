@@ -5,8 +5,9 @@ import { useBundles } from '@/lib/queries/storefront'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { getRadiusClass } from '@/lib/store/theme-config'
+import { getBundleName, resolveThemeText } from '@/lib/store/translations'
 import type { ThemeConfig, ThemeId } from '@/lib/types/storefront'
-import type { StorefrontStrings } from '@/lib/storefront-i18n'
+import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 export function BundleList({
@@ -14,11 +15,13 @@ export function BundleList({
   themeId,
   tokens,
   t,
+  lang,
 }: {
   slug: string
   themeId: ThemeId
   tokens: Required<ThemeConfig>
   t: StorefrontStrings
+  lang: StorefrontLanguage
 }) {
   const { data: bundles, isLoading } = useBundles(slug)
   const { addBundle } = useStorefrontCart()
@@ -59,19 +62,20 @@ export function BundleList({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {bundles.map(bundle => {
             const savings = bundle.regularTotal - bundle.bundlePrice
+            const bundleName = getBundleName(bundle, lang)
             return (
               <div key={bundle.id} className={`${surface.card} border ${surface.border} ${radius} p-5 flex flex-col gap-4`}>
                 <div className={`w-full aspect-square overflow-hidden ${radius} ${surface.border} border`}>
                   {bundle.imageUrl ? (
-                    <CImg src={bundle.imageUrl} alt={bundle.name} className="w-full h-full object-cover" />
+                    <CImg src={bundle.imageUrl} alt={bundleName} className="w-full h-full object-cover" />
                   ) : (
                     <div className={`w-full h-full flex items-center justify-center text-xs ${surface.muted}`}>{t.bundles.noImage}</div>
                   )}
                 </div>
                 <div>
-                  <h2 className={`font-bold text-lg ${surface.text}`}>{bundle.name}</h2>
+                  <h2 className={`font-bold text-lg ${surface.text}`}>{bundleName}</h2>
                   <p className={`text-xs mt-1 ${surface.muted}`}>
-                    {bundle.items.map(i => `${i.productName} ×${i.quantity}`).join(' · ')}
+                    {bundle.items.map(i => `${resolveThemeText(i.productName, i.productNameEn, i.productNameRu, lang)} ×${i.quantity}`).join(' · ')}
                   </p>
                 </div>
                 <div className="flex items-baseline gap-2">

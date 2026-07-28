@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
-import { parseThemeConfig } from '@/lib/store/theme-config'
+import { DEFAULT_THEME_CONFIG, parseThemeConfig } from '@/lib/store/theme-config'
 import { LocationPicker } from '@/components/storefront/shared/LocationPicker'
+import { TranslatedField } from '@/components/dashboard/store/TranslatedField'
 import { ka as storefrontT } from '@/strings/storefront-ka'
 
 const DASHBOARD_SURFACE = { border: 'border-white/10', text: 'text-white', muted: 'text-white/40' }
@@ -22,6 +23,7 @@ export default function MerchantStoreContactPage() {
   const [socialFacebook, setSocialFacebook] = useState('')
   const [socialTiktok, setSocialTiktok] = useState('')
   const [socialYoutube, setSocialYoutube] = useState('')
+  const [textTranslations, setTextTranslations] = useState(DEFAULT_THEME_CONFIG.translations)
   const [saved, setSaved] = useState(false)
 
   // "Adjust state during render" instead of an effect — hydrates once from the fetched
@@ -44,15 +46,21 @@ export default function MerchantStoreContactPage() {
     setSocialFacebook(parsed.socialFacebook)
     setSocialTiktok(parsed.socialTiktok)
     setSocialYoutube(parsed.socialYoutube)
+    setTextTranslations(parsed.translations)
   }
 
   function handleSave() {
     if (!store) return
     const parsed = parseThemeConfig(store.themeConfig)
+    const mergedTranslations = {
+      en: { ...parsed.translations.en, contactLabel: textTranslations.en?.contactLabel },
+      ru: { ...parsed.translations.ru, contactLabel: textTranslations.ru?.contactLabel },
+    }
     updateStore(
       {
         themeConfig: JSON.stringify({
           ...parsed,
+          translations: mergedTranslations,
           contactLabel: contactLabel.trim() || undefined,
           contactEmail,
           contactPhone,
@@ -96,11 +104,16 @@ export default function MerchantStoreContactPage() {
           <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">კონტაქტის ბმულის ეტიკეტი</h2>
           <p className="text-white/30 text-xs mt-1">როგორ ეწოდება კონტაქტის ბმულს თქვენს მენიუში და გვერდის სათაურში, მაგ. კონტაქტი, დაგვიკავშირდით, მოგვწერეთ.</p>
         </div>
-        <input
-          type="text"
-          value={contactLabel}
-          onChange={e => setContactLabel(e.target.value)}
-          placeholder="კონტაქტი"
+        <TranslatedField
+          value={{ ka: contactLabel, en: textTranslations.en?.contactLabel ?? '', ru: textTranslations.ru?.contactLabel ?? '' }}
+          onChange={v => {
+            setContactLabel(v.ka)
+            setTextTranslations(prev => ({
+              en: { ...prev.en, contactLabel: v.en.trim() || undefined },
+              ru: { ...prev.ru, contactLabel: v.ru.trim() || undefined },
+            }))
+          }}
+          placeholders={{ ka: 'კონტაქტი', en: 'Contact', ru: 'Контакты' }}
           className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
         />
       </div>

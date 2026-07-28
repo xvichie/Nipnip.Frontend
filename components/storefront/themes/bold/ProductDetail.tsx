@@ -11,7 +11,7 @@ import { ProductCard } from './ProductCard'
 import { glowShadow, shadeColor } from '@/lib/store/theme-config'
 import type { CategoryResponse, ProductDetailResponse, ThemeConfig } from '@/lib/types/storefront'
 import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
-import { getCategoryName, getProductDescription, getProductName } from '@/lib/store/translations'
+import { getCategoryName, getProductDescription, getProductName, getThemeText, getTrustBadgeText } from '@/lib/store/translations'
 import { CImg } from '@/components/ui/CImg'
 
 export function ProductDetail({
@@ -28,6 +28,9 @@ export function ProductDetail({
   const { t, lang } = useStorefrontLanguage()
   const productName = getProductName(product, lang)
   const productDescription = getProductDescription(product, lang)
+  const sizeGuideContent = getThemeText(tokens, 'sizeGuideContent', lang)
+  const deliveryEstimateText = getThemeText(tokens, 'deliveryEstimateText', lang)
+  const relatedProductsHeading = getThemeText(tokens, 'relatedProductsHeading', lang)
   const { addItem } = useStorefrontCart()
   const [selected, setSelected] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
@@ -67,7 +70,8 @@ export function ProductDetail({
   const images = product.images
   const gradient = `linear-gradient(135deg, ${tokens.accentColor}, ${shadeColor(tokens.accentColor, -30)})`
   const isLowStock = tokens.lowStockThreshold != null && stock !== null && stock > 0 && stock <= tokens.lowStockThreshold
-  const lowStockText = isLowStock ? (tokens.lowStockMessage ? tokens.lowStockMessage.replace('{n}', String(stock)) : t.product.lowStock(stock!)) : null
+  const lowStockMessage = getThemeText(tokens, 'lowStockMessage', lang)
+  const lowStockText = isLowStock ? (lowStockMessage ? lowStockMessage.replace('{n}', String(stock)) : t.product.lowStock(stock!)) : null
 
   async function handleAddToCart() {
     if (!canAddToCart) return
@@ -159,7 +163,7 @@ export function ProductDetail({
               radiusClass="rounded-xl"
             />
 
-            {tokens.sizeGuideContent && (
+            {sizeGuideContent && (
               <button
                 type="button"
                 onClick={() => setSizeGuideOpen(true)}
@@ -215,14 +219,14 @@ export function ProductDetail({
               <p className="text-red-400 text-sm -mt-6 mb-8">{t.product.addToCartError}</p>
             )}
 
-            {tokens.deliveryEstimateText && (
-              <p className="text-xs text-white/40 mb-4">{tokens.deliveryEstimateText}</p>
+            {deliveryEstimateText && (
+              <p className="text-xs text-white/40 mb-4">{deliveryEstimateText}</p>
             )}
 
             {tokens.trustBadges.length > 0 && (
               <div className="flex flex-wrap gap-x-4 gap-y-1 mb-8">
                 {tokens.trustBadges.map((badge, i) => (
-                  <span key={i} className="text-xs text-white/40">✓ {badge}</span>
+                  <span key={i} className="text-xs text-white/40">✓ {getTrustBadgeText(badge, lang)}</span>
                 ))}
               </div>
             )}
@@ -245,7 +249,7 @@ export function ProductDetail({
 
         {tokens.showRelatedProducts && product.relatedProducts.length > 0 && (
           <div className="mt-16 pt-10 border-t border-white/10">
-            <h2 className="font-black text-2xl text-white tracking-tight mb-6">{tokens.relatedProductsHeading || t.product.relatedProducts}</h2>
+            <h2 className="font-black text-2xl text-white tracking-tight mb-6">{relatedProductsHeading || t.product.relatedProducts}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-5">
               {product.relatedProducts.map(related => (
                 <ProductCard key={related.id} slug={slug} product={related} tokens={tokens} />
@@ -265,8 +269,8 @@ export function ProductDetail({
         />
       )}
 
-      {sizeGuideOpen && tokens.sizeGuideContent && (
-        <SizeGuideModal content={tokens.sizeGuideContent} t={t} onClose={() => setSizeGuideOpen(false)} />
+      {sizeGuideOpen && sizeGuideContent && (
+        <SizeGuideModal content={sizeGuideContent} t={t} onClose={() => setSizeGuideOpen(false)} />
       )}
 
       {tokens.showStickyMobileCta && (

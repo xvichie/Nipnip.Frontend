@@ -12,7 +12,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ slug: strin
   const { slug } = use(params)
   const { data: store, isLoading } = useStore(slug)
   const { data: pages } = usePages(slug)
-  const { t } = useStorefrontLanguage()
+  const { t, lang } = useStorefrontLanguage()
 
   if (isLoading || !store) {
     return <div className="min-h-screen flex items-center justify-center text-sm text-gray-400">{t.cart.loading}</div>
@@ -21,5 +21,5 @@ export default function CheckoutPage({ params }: { params: Promise<{ slug: strin
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
   const tokens = parseThemeConfig(store.themeConfig)
 
-  return <Checkout slug={slug} themeId={themeId} tokens={tokens} pages={pages ?? []} t={t} />
+  return <Checkout slug={slug} themeId={themeId} tokens={tokens} pages={pages ?? []} t={t} lang={lang} />
 }

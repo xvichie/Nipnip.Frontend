@@ -2,8 +2,9 @@ import Link from 'next/link'
 import { SocialLinks } from '@/components/storefront/shared/SocialLinks'
 import { ContactForm } from '@/components/storefront/shared/ContactForm'
 import { getEnabledPaymentLabels } from '@/lib/store/payment-methods'
+import { getPageTitle, getThemeText, resolveThemeText } from '@/lib/store/translations'
 import type { StorePageResponse, ThemeConfig } from '@/lib/types/storefront'
-import type { StorefrontStrings } from '@/lib/storefront-i18n'
+import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 function Divider() {
@@ -16,22 +17,25 @@ export function Footer({
   tokens,
   pages,
   t,
+  lang,
 }: {
   slug: string
   storeName: string
   tokens: Required<ThemeConfig>
   pages: StorePageResponse[]
   t: StorefrontStrings
+  lang: StorefrontLanguage
 }) {
   const hasContactInfo = tokens.contactEmail || tokens.contactPhone || tokens.contactAddress
   const showSocials = tokens.socialsPosition === 'footer' || tokens.socialsPosition === 'both'
   const paymentLabels = tokens.footerShowPaymentIcons ? getEnabledPaymentLabels(tokens) : []
+  const contactLabel = getThemeText(tokens, 'contactLabel', lang)
   const footerLinks = tokens.footerLinkColumns.flatMap(column => column.links)
 
   const contactFormSection = tokens.footerContactForm !== 'off' && (
     <div className="border-t border-b border-black/10">
       <div className="max-w-md mx-auto px-4 sm:px-6 py-10">
-        <ContactForm slug={slug} tokens={tokens} variant="light" radiusClass="" heading={tokens.contactLabel} />
+        <ContactForm slug={slug} tokens={tokens} variant="light" radiusClass="" heading={contactLabel} />
       </div>
     </div>
   )
@@ -65,20 +69,20 @@ export function Footer({
             <span key={page.id} className="flex items-center gap-4">
               <Divider />
               <Link href={`/pages/${page.slug}`} className="hover:text-[#111111] transition-colors">
-                {page.title}
+                {getPageTitle(page, lang)}
               </Link>
             </span>
           ))}
           {footerLinks.map((link, i) => (
             <span key={i} className="flex items-center gap-4">
               <Divider />
-              <a href={link.url} className="hover:text-[#111111] transition-colors">{link.label}</a>
+              <a href={link.url} className="hover:text-[#111111] transition-colors">{resolveThemeText(link.label, link.translations?.en, link.translations?.ru, lang)}</a>
             </span>
           ))}
           <span className="flex items-center gap-4">
             <Divider />
             <Link href={`/contact`} className="hover:text-[#111111] transition-colors">
-              {tokens.contactLabel}
+              {contactLabel}
             </Link>
           </span>
         </div>
@@ -94,7 +98,7 @@ export function Footer({
         )}
 
         <div className="pt-6 border-t border-black/10 w-full flex flex-col items-center gap-1">
-          <p className="text-[#767676] text-[11px]">{tokens.footerCopyrightText || `© ${new Date().getFullYear()} ${storeName}`}</p>
+          <p className="text-[#767676] text-[11px]">{getThemeText(tokens, 'footerCopyrightText', lang) || `© ${new Date().getFullYear()} ${storeName}`}</p>
           {tokens.showPlatformAttribution && <p className="text-[#767676] text-[11px]">{t.footer.poweredBy}</p>}
         </div>
       </div>

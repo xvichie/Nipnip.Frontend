@@ -12,6 +12,7 @@ import { AnnouncementBar } from '@/components/storefront/shared/AnnouncementBar'
 import { StorefrontLanguageProvider } from '@/components/storefront/shared/StorefrontLanguageProvider'
 import { ka as storefrontT } from '@/strings/storefront-ka'
 import { IconButton } from '@/components/ui/IconButton'
+import { TranslatedField, type TranslatedFieldValue } from '@/components/dashboard/store/TranslatedField'
 import { ChevronDownIcon, ChevronUpIcon, PlusIcon, XIcon } from '@/components/ui/icons'
 import { Header as MinimalHeader } from '@/components/storefront/themes/minimal/Header'
 import { Footer as MinimalFooter } from '@/components/storefront/themes/minimal/Footer'
@@ -90,6 +91,7 @@ import type {
   SocialsPosition,
   ThemeConfig,
   ThemeId,
+  TranslatableThemeText,
 } from '@/lib/types/storefront'
 
 const HEADERS = { minimal: MinimalHeader, bold: BoldHeader, classic: ClassicHeader, luxury: LuxuryHeader, vibrant: VibrantHeader, commerce: CommerceHeader, editorial: EditorialHeader, flower: FlowerHeader, kids: KidsHeader, sports: SportsHeader, chocolate: ChocolateHeader, athletic: AthleticHeader, handmade: HandmadeHeader, furniture: FurnitureHeader, varsity: VarsityHeader, wooden: WoodenHeader, industrial: IndustrialHeader }
@@ -307,6 +309,28 @@ function HeroSlideFields({
   onMove: (direction: -1 | 1) => void
   onRemove: () => void
 }) {
+  // Binds one of this slide's translatable text fields to a TranslatedField — "ka" writes the
+  // existing plain field as before, "en"/"ru" write into the slide's own translations sidecar
+  // (travels with the slide, so reordering/adding/removing slides never desyncs indices).
+  function slideTextBinding(
+    field: 'eyebrow' | 'headline' | 'subheadline' | 'ctaText' | 'secondaryCtaText'
+  ): { value: TranslatedFieldValue; onChange: (v: TranslatedFieldValue) => void } {
+    return {
+      value: {
+        ka: slide[field],
+        en: slide.translations?.en?.[field] ?? '',
+        ru: slide.translations?.ru?.[field] ?? '',
+      },
+      onChange: v => {
+        onChange(field, v.ka)
+        onChange('translations', {
+          en: { ...slide.translations?.en, [field]: v.en.trim() || undefined },
+          ru: { ...slide.translations?.ru, [field]: v.ru.trim() || undefined },
+        })
+      },
+    }
+  }
+
   return (
     <div className="rounded-xl border border-white/7 bg-white/2 p-4 flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -324,17 +348,17 @@ function HeroSlideFields({
 
       <div className="fieldset gap-2">
         <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ზედწერილი</label>
-        <input type="text" value={slide.eyebrow} onChange={e => onChange('eyebrow', e.target.value)} className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60" />
+        <TranslatedField {...slideTextBinding('eyebrow')} className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60" />
       </div>
 
       <div className="fieldset gap-2">
         <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სათაური</label>
-        <input type="text" value={slide.headline} onChange={e => onChange('headline', e.target.value)} className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60" />
+        <TranslatedField {...slideTextBinding('headline')} className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60" />
       </div>
 
       <div className="fieldset gap-2">
         <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ქვესათაური</label>
-        <textarea value={slide.subheadline} onChange={e => onChange('subheadline', e.target.value)} rows={2} className="textarea textarea-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 resize-none" />
+        <TranslatedField {...slideTextBinding('subheadline')} multiline rows={2} className="textarea textarea-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 resize-none" />
       </div>
 
       <label className="flex items-center justify-between gap-3 cursor-pointer">
@@ -351,7 +375,7 @@ function HeroSlideFields({
         <>
           <div className="fieldset gap-2">
             <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ღილაკის ტექსტი</label>
-            <input type="text" value={slide.ctaText} onChange={e => onChange('ctaText', e.target.value)} placeholder="ყველა პროდუქტის ნახვა" className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60" />
+            <TranslatedField {...slideTextBinding('ctaText')} placeholders={{ ka: 'ყველა პროდუქტის ნახვა', en: 'View all products', ru: 'Смотреть все товары' }} className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60" />
           </div>
 
           <div className="fieldset gap-2">
@@ -418,7 +442,7 @@ function HeroSlideFields({
         <>
           <div className="fieldset gap-2">
             <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">მეორადი ღილაკის ტექსტი</label>
-            <input type="text" value={slide.secondaryCtaText} onChange={e => onChange('secondaryCtaText', e.target.value)} placeholder="მეტის ნახვა" className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60" />
+            <TranslatedField {...slideTextBinding('secondaryCtaText')} placeholders={{ ka: 'მეტის ნახვა', en: 'Learn more', ru: 'Узнать больше' }} className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60" />
           </div>
 
           <div className="fieldset gap-2">
@@ -536,6 +560,7 @@ export default function StoreDesignPage() {
   const [heroKenBurnsEnabled, setHeroKenBurnsEnabled] = useState(DEFAULT_THEME_CONFIG.heroKenBurnsEnabled)
   const [heroScrollIndicatorEnabled, setHeroScrollIndicatorEnabled] = useState(DEFAULT_THEME_CONFIG.heroScrollIndicatorEnabled)
   const [defaultLanguage, setDefaultLanguage] = useState(DEFAULT_THEME_CONFIG.defaultLanguage)
+  const [textTranslations, setTextTranslations] = useState(DEFAULT_THEME_CONFIG.translations)
   const [seoTagline, setSeoTagline] = useState('')
   const [seoDescription, setSeoDescription] = useState('')
   const [contactEmail, setContactEmail] = useState('')
@@ -718,6 +743,7 @@ export default function StoreDesignPage() {
     setHeroKenBurnsEnabled(parsed.heroKenBurnsEnabled)
     setHeroScrollIndicatorEnabled(parsed.heroScrollIndicatorEnabled)
     setDefaultLanguage(parsed.defaultLanguage)
+    setTextTranslations(parsed.translations)
     setSeoTagline(parsed.seoTagline)
     setSeoDescription(parsed.seoDescription)
     setContactEmail(parsed.contactEmail)
@@ -958,6 +984,26 @@ export default function StoreDesignPage() {
     }
   }
 
+  // Binds one top-level scalar ThemeConfig text field (e.g. heroHeadline) to a TranslatedField:
+  // the "ka" tab reads/writes the existing base-language state as before, "en"/"ru" read/write
+  // the translations sidecar keyed by the same field name.
+  function themeTextBinding(
+    field: keyof TranslatableThemeText,
+    baseValue: string,
+    setBaseValue: (v: string) => void
+  ): { value: TranslatedFieldValue; onChange: (v: TranslatedFieldValue) => void } {
+    return {
+      value: { ka: baseValue, en: textTranslations.en?.[field] ?? '', ru: textTranslations.ru?.[field] ?? '' },
+      onChange: v => {
+        setBaseValue(v.ka)
+        setTextTranslations(prev => ({
+          en: { ...prev.en, [field]: v.en.trim() || undefined },
+          ru: { ...prev.ru, [field]: v.ru.trim() || undefined },
+        }))
+      },
+    }
+  }
+
   async function handleBannerFile(file: File) {
     setBannerUploading(true)
     try {
@@ -970,11 +1016,20 @@ export default function StoreDesignPage() {
   }
 
   function handleSave() {
+    // Merge with the freshest saved translations rather than overwriting wholesale — this page
+    // only edits a subset of the translatable fields; the rest (owned by the layout settings
+    // page) must survive even though this save resends the full ThemeConfig object.
+    const freshTranslations = store ? parseThemeConfig(store.themeConfig).translations : DEFAULT_THEME_CONFIG.translations
+    const mergedTranslations = {
+      en: { ...freshTranslations.en, ...textTranslations.en },
+      ru: { ...freshTranslations.ru, ...textTranslations.ru },
+    }
     updateStore(
       {
         themeId,
         themeConfig: JSON.stringify({
           defaultLanguage,
+          translations: mergedTranslations,
           accentColor,
           font,
           cornerRadius,
@@ -1142,6 +1197,7 @@ export default function StoreDesignPage() {
 
   const tokens: Required<ThemeConfig> = {
     defaultLanguage,
+    translations: textTranslations,
     accentColor,
     font,
     cornerRadius,
@@ -1325,7 +1381,7 @@ export default function StoreDesignPage() {
             t={storefrontT}
             lang="ka"
           />
-          <FooterPreview slug={store.slug} storeName={store.name} tokens={tokens} pages={pages ?? []} t={storefrontT} />
+          <FooterPreview slug={store.slug} storeName={store.name} tokens={tokens} pages={pages ?? []} t={storefrontT} lang="ka" />
         </StorefrontCartProvider>
       </StorefrontLanguageProvider>
     </div>
@@ -2080,11 +2136,9 @@ export default function StoreDesignPage() {
 
             <div className="fieldset gap-2">
               <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ზედწერილი</label>
-              <input
-                type="text"
-                value={heroEyebrow}
-                onChange={e => setHeroEyebrow(e.target.value)}
-                placeholder="მოგესალმებით"
+              <TranslatedField
+                {...themeTextBinding('heroEyebrow', heroEyebrow, setHeroEyebrow)}
+                placeholders={{ ka: 'მოგესალმებით', en: 'Welcome', ru: 'Добро пожаловать' }}
                 className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
               />
               <p className="text-white/30 text-xs">პატარა ლეიბლი სათაურის ზემოთ. გაასუფთავეთ, რომ საერთოდ დამალოთ.</p>
@@ -2093,11 +2147,9 @@ export default function StoreDesignPage() {
 
             <div className="fieldset gap-2">
               <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სათაური</label>
-              <input
-                type="text"
-                value={heroHeadline}
-                onChange={e => setHeroHeadline(e.target.value)}
-                placeholder={store.name}
+              <TranslatedField
+                {...themeTextBinding('heroHeadline', heroHeadline, setHeroHeadline)}
+                placeholders={{ ka: store.name, en: store.name, ru: store.name }}
                 className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
               />
               <HeroTextSizePicker value={heroHeadlineSize} onChange={setHeroHeadlineSize} />
@@ -2105,9 +2157,9 @@ export default function StoreDesignPage() {
 
             <div className="fieldset gap-2">
               <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ქვესათაური</label>
-              <textarea
-                value={heroSubheadline}
-                onChange={e => setHeroSubheadline(e.target.value)}
+              <TranslatedField
+                {...themeTextBinding('heroSubheadline', heroSubheadline, setHeroSubheadline)}
+                multiline
                 rows={2}
                 className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 resize-none"
               />
@@ -2130,11 +2182,9 @@ export default function StoreDesignPage() {
               <>
                 <div className="fieldset gap-2">
                   <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ღილაკის ტექსტი</label>
-                  <input
-                    type="text"
-                    value={heroCtaText}
-                    onChange={e => setHeroCtaText(e.target.value)}
-                    placeholder="ყველა პროდუქტის ნახვა"
+                  <TranslatedField
+                    {...themeTextBinding('heroCtaText', heroCtaText, setHeroCtaText)}
+                    placeholders={{ ka: 'ყველა პროდუქტის ნახვა', en: 'View all products', ru: 'Смотреть все товары' }}
                     className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                   />
                   <p className="text-white/30 text-xs">ცარიელი დატოვება ნაგულისხმევი ტექსტის გამოსაყენებლად.</p>
@@ -2206,11 +2256,9 @@ export default function StoreDesignPage() {
               <>
                 <div className="fieldset gap-2">
                   <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ღილაკის ტექსტი</label>
-                  <input
-                    type="text"
-                    value={heroSecondaryCtaText}
-                    onChange={e => setHeroSecondaryCtaText(e.target.value)}
-                    placeholder="მეტის ნახვა"
+                  <TranslatedField
+                    {...themeTextBinding('heroSecondaryCtaText', heroSecondaryCtaText, setHeroSecondaryCtaText)}
+                    placeholders={{ ka: 'მეტის ნახვა', en: 'Learn more', ru: 'Узнать больше' }}
                     className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                   />
                   <p className="text-white/30 text-xs">ცარიელი დატოვება ნაგულისხმევი ტექსტის გამოსაყენებლად.</p>
@@ -2318,12 +2366,10 @@ export default function StoreDesignPage() {
               </div>
               {badgeSaleEnabled && (
                 <div className="flex items-center gap-3">
-                  <input
-                    type="text"
-                    value={badgeSaleText}
-                    onChange={e => setBadgeSaleText(e.target.value)}
-                    placeholder="ფასდაკლება"
-                    className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                  <TranslatedField
+                    {...themeTextBinding('badgeSaleText', badgeSaleText, setBadgeSaleText)}
+                    placeholders={{ ka: 'ფასდაკლება', en: 'Sale', ru: 'Скидка' }}
+                    className="input input-sm w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                   />
                   <input
                     type="color"
@@ -2349,12 +2395,10 @@ export default function StoreDesignPage() {
               {badgeNewEnabled && (
                 <>
                   <div className="flex items-center gap-3">
-                    <input
-                      type="text"
-                      value={badgeNewText}
-                      onChange={e => setBadgeNewText(e.target.value)}
-                      placeholder="ახალი"
-                      className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                    <TranslatedField
+                      {...themeTextBinding('badgeNewText', badgeNewText, setBadgeNewText)}
+                      placeholders={{ ka: 'ახალი', en: 'New', ru: 'Новинка' }}
+                      className="input input-sm w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
                     />
                     <input
                       type="color"

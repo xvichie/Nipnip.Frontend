@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useStorefrontLanguage } from './StorefrontLanguageProvider'
+import { getThemeText } from '@/lib/store/translations'
 import type { ThemeConfig } from '@/lib/types/storefront'
 import type { StorefrontStrings } from '@/lib/storefront-i18n'
 
@@ -24,7 +25,7 @@ function getRemaining(endsAt: string, t: StorefrontStrings): { done: boolean; te
 }
 
 export function SaleCountdownBar({ tokens }: { tokens: Required<ThemeConfig> }) {
-  const { t } = useStorefrontLanguage()
+  const { t, lang } = useStorefrontLanguage()
   // Starts null so the server-rendered markup has nothing time-dependent to mismatch on
   // hydration — filled in immediately on mount, then refreshed once a second.
   const [remaining, setRemaining] = useState<{ done: boolean; text: string } | null>(null)
@@ -51,7 +52,7 @@ export function SaleCountdownBar({ tokens }: { tokens: Required<ThemeConfig> }) 
       className="flex items-center justify-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white"
       style={{ backgroundColor: tokens.accentColor }}
     >
-      <span>{tokens.saleCountdownText || t.saleCountdown.defaultLabel}</span>
+      <span>{getThemeText(tokens, 'saleCountdownText', lang) || t.saleCountdown.defaultLabel}</span>
       <span className="font-mono tabular-nums tracking-wide">{remaining.text}</span>
     </div>
   )

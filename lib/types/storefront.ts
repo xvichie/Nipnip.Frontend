@@ -141,7 +141,7 @@ export interface ThemeConfig {
   /** Display order among selected/visible collections — same "absence filtered out" idiom as homeSectionOrder. */
   landingCollectionOrder?: string[]
   /** Optional per-collection heading override; falls back to the collection's own name. */
-  landingCollectionTitleOverrides?: Record<string, string>
+  landingCollectionTitleOverrides?: Record<string, CollectionTitleOverride>
   landingCollectionProductLimit?: number
   footerContactForm?: FooterContactFormPosition
   showContactInNav?: boolean
@@ -194,7 +194,7 @@ export interface ThemeConfig {
   /** Empty falls back to the theme's default heading. */
   relatedProductsHeading?: string
   deliveryEstimateText?: string
-  trustBadges?: string[]
+  trustBadges?: TrustBadge[]
   sizeGuideContent?: string
   offlineMode?: OfflineMode
   offlineMessage?: string
@@ -228,6 +228,46 @@ export interface ThemeConfig {
   pickupEnabled?: boolean
   pickupAddress?: string
   pickupInstructions?: string
+  /** en/ru overrides for the free-text fields below — the base field itself (e.g. heroHeadline)
+   * stays whatever the merchant originally typed (default language) and needs no migration. */
+  translations?: ThemeConfigTranslations
+}
+
+/** One optional override per language for each translatable scalar text field in ThemeConfig.
+ * Keys mirror ThemeConfig's own field names exactly. */
+export interface TranslatableThemeText {
+  heroEyebrow?: string
+  heroHeadline?: string
+  heroSubheadline?: string
+  heroCtaText?: string
+  heroSecondaryCtaText?: string
+  contentHeading?: string
+  contentBody?: string
+  contentButtonText?: string
+  announcementText?: string
+  faqHeading?: string
+  badgeSaleText?: string
+  badgeNewText?: string
+  footerCopyrightText?: string
+  lowStockMessage?: string
+  relatedProductsHeading?: string
+  deliveryEstimateText?: string
+  sizeGuideContent?: string
+  offlineMessage?: string
+  checkoutThankYouHeading?: string
+  checkoutThankYouMessage?: string
+  saleCountdownText?: string
+  contactLabel?: string
+  seoTagline?: string
+  seoDescription?: string
+  pickupInstructions?: string
+  codNotes?: string
+  bankTransferNotes?: string
+}
+
+export interface ThemeConfigTranslations {
+  en?: TranslatableThemeText
+  ru?: TranslatableThemeText
 }
 
 export type OfflineMode = 'closed' | 'comingSoon'
@@ -235,6 +275,7 @@ export type OfflineMode = 'closed' | 'comingSoon'
 export interface FaqItem {
   question: string
   answer: string
+  translations?: { en?: { question?: string; answer?: string }; ru?: { question?: string; answer?: string } }
 }
 
 export interface StoreHoursDay {
@@ -260,17 +301,35 @@ export interface HeroSlide {
   secondaryCtaLinkType: HeroCtaLinkType
   secondaryCtaCategoryId: string
   secondaryCtaCustomUrl: string
+  translations?: {
+    en?: { eyebrow?: string; headline?: string; subheadline?: string; ctaText?: string; secondaryCtaText?: string }
+    ru?: { eyebrow?: string; headline?: string; subheadline?: string; ctaText?: string; secondaryCtaText?: string }
+  }
 }
 
 export interface FooterLinkColumn {
   title: string
-  links: { label: string; url: string }[]
+  links: { label: string; url: string; translations?: { en?: string; ru?: string } }[]
+  translations?: { en?: string; ru?: string }
 }
 
 export interface ShippingZone {
   id: string
   name: string
   price: number
+  translations?: { en?: string; ru?: string }
+}
+
+/** trustBadges item — normalized on read from legacy plain-string arrays (see parseThemeConfig). */
+export interface TrustBadge {
+  text: string
+  translations?: { en?: string; ru?: string }
+}
+
+/** landingCollectionTitleOverrides value — normalized on read from legacy plain strings (see parseThemeConfig). */
+export interface CollectionTitleOverride {
+  value: string
+  translations?: { en?: string; ru?: string }
 }
 
 export interface StoreResponse {
@@ -365,21 +424,33 @@ export interface UpdateCategoryRequest {
 
 export interface CollectionResponse {
   id: string
+  /** Resolved ka -> en -> ru fallback — for consumers that just want "the" name. */
   name: string
+  nameKa: string | null
+  nameEn: string | null
+  nameRu: string | null
   slug: string
 }
 
 export interface CreateCollectionRequest {
-  name: string
+  nameKa?: string | null
+  nameEn?: string | null
+  nameRu?: string | null
 }
 
 export interface UpdateCollectionRequest {
-  name?: string | null
+  nameKa?: string | null
+  nameEn?: string | null
+  nameRu?: string | null
 }
 
 export interface BundleItemResponse {
   productId: string
+  /** Resolved ka -> en -> ru fallback. */
   productName: string
+  productNameKa: string | null
+  productNameEn: string | null
+  productNameRu: string | null
   productSlug: string
   imageUrl: string | null
   productPrice: number
@@ -388,7 +459,11 @@ export interface BundleItemResponse {
 
 export interface ProductBundleResponse {
   id: string
+  /** Resolved ka -> en -> ru fallback. */
   name: string
+  nameKa: string | null
+  nameEn: string | null
+  nameRu: string | null
   slug: string
   bundlePrice: number
   imageUrl: string | null
@@ -404,14 +479,18 @@ export interface BundleItemInput {
 }
 
 export interface CreateProductBundleRequest {
-  name: string
+  nameKa?: string | null
+  nameEn?: string | null
+  nameRu?: string | null
   bundlePrice: number
   imageUrl?: string | null
   items: BundleItemInput[]
 }
 
 export interface UpdateProductBundleRequest {
-  name?: string | null
+  nameKa?: string | null
+  nameEn?: string | null
+  nameRu?: string | null
   bundlePrice?: number | null
   imageUrl?: string | null
   isActive?: boolean | null
@@ -439,20 +518,34 @@ export interface SetCollectionProductsRequest {
 
 export interface StorePageResponse {
   id: string
-  title: string
+  title: string // resolved ka -> en -> ru fallback
+  titleKa: string | null
+  titleEn: string | null
+  titleRu: string | null
   slug: string
-  content: string
+  content: string // resolved ka -> en -> ru fallback
+  contentKa: string | null
+  contentEn: string | null
+  contentRu: string | null
   updatedAt: string
 }
 
 export interface CreateStorePageRequest {
-  title: string
-  content: string
+  titleKa?: string | null
+  titleEn?: string | null
+  titleRu?: string | null
+  contentKa?: string | null
+  contentEn?: string | null
+  contentRu?: string | null
 }
 
 export interface UpdateStorePageRequest {
-  title?: string | null
-  content?: string | null
+  titleKa?: string | null
+  titleEn?: string | null
+  titleRu?: string | null
+  contentKa?: string | null
+  contentEn?: string | null
+  contentRu?: string | null
 }
 
 export interface ContactMessageResponse {
@@ -670,14 +763,26 @@ export interface UpdateProductRequest {
 }
 
 export interface CartItemOptionResponse {
+  /** Resolved ka -> en -> ru fallback. */
   optionName: string
+  optionNameKa: string | null
+  optionNameEn: string | null
+  optionNameRu: string | null
+  /** Resolved ka -> en -> ru fallback. */
   value: string
+  valueKa: string | null
+  valueEn: string | null
+  valueRu: string | null
 }
 
 export interface CartItemResponse {
   id: string
   variantId: string
+  /** Resolved ka -> en -> ru fallback. */
   productName: string
+  productNameKa: string | null
+  productNameEn: string | null
+  productNameRu: string | null
   productSlug: string
   sku: string
   price: number
@@ -691,7 +796,11 @@ export interface CartItemResponse {
 export interface CartBundleItemResponse {
   id: string
   bundleId: string
+  /** Resolved ka -> en -> ru fallback. */
   bundleName: string
+  bundleNameKa: string | null
+  bundleNameEn: string | null
+  bundleNameRu: string | null
   bundleSlug: string
   imageUrl: string | null
   bundlePrice: number
@@ -739,6 +848,8 @@ export interface CheckoutRequest {
   customerNote?: string | null
   discountCode?: string | null
   isPickup?: boolean
+  /** Shopper's checkout-time language — resolves codNotes/bankTransferNotes/shippingZone name into the right variant, and freezes onto Order.ShippingZoneName. */
+  lang?: StorefrontLanguage
 }
 
 export interface OrderResponse {

@@ -11,7 +11,7 @@ import type { ThemeId } from '@/lib/types/storefront'
 export default function BundlesPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params)
   const { data: store, isLoading } = useStore(slug)
-  const { t } = useStorefrontLanguage()
+  const { t, lang } = useStorefrontLanguage()
 
   if (isLoading || !store) {
     return <div className="min-h-screen flex items-center justify-center text-sm text-gray-400">{t.cart.loading}</div>
@@ -20,5 +20,5 @@ export default function BundlesPage({ params }: { params: Promise<{ slug: string
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
   const tokens = parseThemeConfig(store.themeConfig)
 
-  return <BundleList slug={slug} themeId={themeId} tokens={tokens} t={t} />
+  return <BundleList slug={slug} themeId={themeId} tokens={tokens} t={t} lang={lang} />
 }
