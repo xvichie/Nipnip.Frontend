@@ -60,9 +60,11 @@ export function IconPreview({
 export function IconPicker({
   value,
   onChange,
+  previewClassName = 'w-9 h-9',
 }: {
   value: IconValue
   onChange: (next: IconValue) => void
+  previewClassName?: string
 }) {
   const [open, setOpen] = useState(false)
   const [tab, setTab] = useState<Tab>('library')
@@ -114,9 +116,9 @@ export function IconPicker({
         onClick={() => setOpen(true)}
         aria-label="აირჩიეთ აიქონი"
         title="აირჩიეთ აიქონი"
-        className="shrink-0 rounded-lg ring-1 ring-transparent hover:ring-fuchsia-500/50 transition-all cursor-pointer"
+        className="shrink-0 self-stretch rounded-lg ring-1 ring-transparent hover:ring-fuchsia-500/50 transition-all cursor-pointer"
       >
-        <IconPreview iconUrl={value.iconUrl} iconKey={value.iconKey} iconEmoji={value.iconEmoji} />
+        <IconPreview iconUrl={value.iconUrl} iconKey={value.iconKey} iconEmoji={value.iconEmoji} className={previewClassName} />
       </button>
 
       {open && (

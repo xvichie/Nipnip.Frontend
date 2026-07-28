@@ -122,8 +122,8 @@ function CategoryRow({
           indent ? 'ml-6' : '',
         ].join(' ')}
       >
-        <div className="flex items-start gap-2">
-          <IconPicker value={icon} onChange={setIcon} />
+        <div className="flex items-stretch gap-3">
+          <IconPicker value={icon} onChange={setIcon} previewClassName="w-16 h-full" />
           <TranslatedNameInput value={names} onChange={setNames} autoFocus />
         </div>
         <select
@@ -234,8 +234,8 @@ export function CategoryManager() {
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3 pt-2 border-t border-white/5">
-        <div className="flex items-start gap-2">
-          <IconPicker value={icon} onChange={setIcon} />
+        <div className="flex items-stretch gap-3">
+          <IconPicker value={icon} onChange={setIcon} previewClassName="w-16 h-full" />
           <TranslatedNameInput value={names} onChange={setNames} placeholder="ახალი კატეგორიის სახელი" />
         </div>
         {categories && categories.length > 0 && (
