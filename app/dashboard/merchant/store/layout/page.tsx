@@ -471,11 +471,47 @@ export default function StoreLayoutPage() {
     if (!store) return
     const parsed = parseThemeConfig(store.themeConfig)
     // Merge with the freshest saved translations rather than overwriting wholesale — this page
-    // only edits a subset of the translatable fields; the rest (owned by the design settings
-    // page) must survive even though this save resends the full ThemeConfig object.
+    // only edits a subset of the translatable fields; the rest (owned by other settings pages)
+    // must survive even though this save resends the full ThemeConfig object. Pulling only the
+    // fields this page actually owns out of `textTranslations` — rather than spreading the whole
+    // locally-held snapshot — matters because that snapshot was hydrated once at page load: if
+    // another settings tab saved a change to a field owned by IT in the meantime, this page's
+    // stale copy of that field would otherwise silently overwrite it.
     const mergedTranslations = {
-      en: { ...parsed.translations.en, ...textTranslations.en },
-      ru: { ...parsed.translations.ru, ...textTranslations.ru },
+      en: {
+        ...parsed.translations.en,
+        announcementText: textTranslations.en?.announcementText,
+        contentHeading: textTranslations.en?.contentHeading,
+        contentBody: textTranslations.en?.contentBody,
+        contentButtonText: textTranslations.en?.contentButtonText,
+        footerCopyrightText: textTranslations.en?.footerCopyrightText,
+        lowStockMessage: textTranslations.en?.lowStockMessage,
+        relatedProductsHeading: textTranslations.en?.relatedProductsHeading,
+        deliveryEstimateText: textTranslations.en?.deliveryEstimateText,
+        sizeGuideContent: textTranslations.en?.sizeGuideContent,
+        checkoutThankYouHeading: textTranslations.en?.checkoutThankYouHeading,
+        checkoutThankYouMessage: textTranslations.en?.checkoutThankYouMessage,
+        faqHeading: textTranslations.en?.faqHeading,
+        saleCountdownText: textTranslations.en?.saleCountdownText,
+        pickupInstructions: textTranslations.en?.pickupInstructions,
+      },
+      ru: {
+        ...parsed.translations.ru,
+        announcementText: textTranslations.ru?.announcementText,
+        contentHeading: textTranslations.ru?.contentHeading,
+        contentBody: textTranslations.ru?.contentBody,
+        contentButtonText: textTranslations.ru?.contentButtonText,
+        footerCopyrightText: textTranslations.ru?.footerCopyrightText,
+        lowStockMessage: textTranslations.ru?.lowStockMessage,
+        relatedProductsHeading: textTranslations.ru?.relatedProductsHeading,
+        deliveryEstimateText: textTranslations.ru?.deliveryEstimateText,
+        sizeGuideContent: textTranslations.ru?.sizeGuideContent,
+        checkoutThankYouHeading: textTranslations.ru?.checkoutThankYouHeading,
+        checkoutThankYouMessage: textTranslations.ru?.checkoutThankYouMessage,
+        faqHeading: textTranslations.ru?.faqHeading,
+        saleCountdownText: textTranslations.ru?.saleCountdownText,
+        pickupInstructions: textTranslations.ru?.pickupInstructions,
+      },
     }
     updateStore(
       {
@@ -1391,7 +1427,7 @@ export default function StoreLayoutPage() {
                   ) : (
                     <div className="flex flex-col gap-2">
                       {visibleCollections.map((collection, index) => (
-                        <div key={collection.id} className="flex items-center gap-2 rounded-xl bg-white/2 border border-white/5 px-3 py-2">
+                        <div key={collection.id} className="flex items-end gap-2 rounded-xl bg-white/2 border border-white/5 px-3 py-2">
                           <ReorderButtons
                             disabledUp={index === 0}
                             disabledDown={index === visibleCollections.length - 1}
@@ -1553,7 +1589,7 @@ export default function StoreLayoutPage() {
               <div className="flex flex-col gap-3">
                 {footerLinkColumns.map((column, columnIndex) => (
                   <div key={columnIndex} className="rounded-xl bg-white/2 border border-white/5 p-3 flex flex-col gap-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-end gap-2">
                       <TranslatedField
                         value={{ ka: column.title, en: column.translations?.en ?? '', ru: column.translations?.ru ?? '' }}
                         onChange={value => updateFooterLinkColumnTitle(columnIndex, value)}
@@ -1563,7 +1599,7 @@ export default function StoreLayoutPage() {
                       <IconButton icon={<XIcon />} label="სვეტის წაშლა" onClick={() => removeFooterLinkColumn(columnIndex)} className="shrink-0" />
                     </div>
                     {column.links.map((link, linkIndex) => (
-                      <div key={linkIndex} className="flex items-center gap-2 pl-3">
+                      <div key={linkIndex} className="flex items-end gap-2 pl-3">
                         <TranslatedField
                           value={{ ka: link.label, en: link.translations?.en ?? '', ru: link.translations?.ru ?? '' }}
                           onChange={value => updateFooterLinkLabel(columnIndex, linkIndex, value)}
@@ -1661,7 +1697,7 @@ export default function StoreLayoutPage() {
               <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ნდობის ბეჯები</label>
               <div className="flex flex-col gap-2">
                 {trustBadges.map((badge, i) => (
-                  <div key={i} className="flex items-center gap-2">
+                  <div key={i} className="flex items-end gap-2">
                     <TranslatedField
                       value={{ ka: badge.text, en: badge.translations?.en ?? '', ru: badge.translations?.ru ?? '' }}
                       onChange={value => updateTrustBadge(i, value)}
@@ -1826,7 +1862,7 @@ export default function StoreLayoutPage() {
                 <div className="flex flex-col gap-3">
                   {faqItems.map((item, index) => (
                     <div key={index} className="rounded-xl bg-white/2 border border-white/5 p-3 flex flex-col gap-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-end gap-2">
                         <TranslatedField
                           value={{ ka: item.question, en: item.translations?.en?.question ?? '', ru: item.translations?.ru?.question ?? '' }}
                           onChange={value => updateFaqItem(index, 'question', value)}

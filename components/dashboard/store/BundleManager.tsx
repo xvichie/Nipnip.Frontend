@@ -91,7 +91,7 @@ function BundleForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 items-start">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 items-end">
         <TranslatedNameInput value={names} onChange={setNames} placeholder="ბანდლის სახელი, მაგ. Starter Kit" />
         <input
           type="number"

@@ -83,10 +83,24 @@ export default function MerchantStorePage() {
     // Merge with the freshest saved translations rather than overwriting wholesale — this page
     // only edits a subset of the translatable fields; the rest (hero, content block, etc.,
     // owned by other settings pages) must survive even though this save resends the full
-    // ThemeConfig object.
+    // ThemeConfig object. Pulling only the fields this page actually owns out of
+    // `textTranslations` — rather than spreading the whole locally-held snapshot — matters
+    // because that snapshot was hydrated once at page load: if another settings tab saved a
+    // change to a field owned by IT in the meantime, this page's stale copy of that field would
+    // otherwise silently overwrite it.
     const mergedTranslations = {
-      en: { ...parsed.translations.en, ...textTranslations.en },
-      ru: { ...parsed.translations.ru, ...textTranslations.ru },
+      en: {
+        ...parsed.translations.en,
+        offlineMessage: textTranslations.en?.offlineMessage,
+        seoTagline: textTranslations.en?.seoTagline,
+        seoDescription: textTranslations.en?.seoDescription,
+      },
+      ru: {
+        ...parsed.translations.ru,
+        offlineMessage: textTranslations.ru?.offlineMessage,
+        seoTagline: textTranslations.ru?.seoTagline,
+        seoDescription: textTranslations.ru?.seoDescription,
+      },
     }
     updateStore(
       {

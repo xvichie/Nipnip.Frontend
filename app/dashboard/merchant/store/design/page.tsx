@@ -1017,12 +1017,34 @@ export default function StoreDesignPage() {
 
   function handleSave() {
     // Merge with the freshest saved translations rather than overwriting wholesale — this page
-    // only edits a subset of the translatable fields; the rest (owned by the layout settings
-    // page) must survive even though this save resends the full ThemeConfig object.
+    // only edits a subset of the translatable fields (hero + badges); the rest (owned by other
+    // settings pages) must survive even though this save resends the full ThemeConfig object.
+    // Pulling only the fields this page actually owns out of `textTranslations` — rather than
+    // spreading the whole locally-held snapshot — matters because that snapshot was hydrated
+    // once at page load: if another settings tab saved a change to a field owned by IT in the
+    // meantime, this page's stale copy of that field would otherwise silently overwrite it.
     const freshTranslations = store ? parseThemeConfig(store.themeConfig).translations : DEFAULT_THEME_CONFIG.translations
     const mergedTranslations = {
-      en: { ...freshTranslations.en, ...textTranslations.en },
-      ru: { ...freshTranslations.ru, ...textTranslations.ru },
+      en: {
+        ...freshTranslations.en,
+        heroEyebrow: textTranslations.en?.heroEyebrow,
+        heroHeadline: textTranslations.en?.heroHeadline,
+        heroSubheadline: textTranslations.en?.heroSubheadline,
+        heroCtaText: textTranslations.en?.heroCtaText,
+        heroSecondaryCtaText: textTranslations.en?.heroSecondaryCtaText,
+        badgeSaleText: textTranslations.en?.badgeSaleText,
+        badgeNewText: textTranslations.en?.badgeNewText,
+      },
+      ru: {
+        ...freshTranslations.ru,
+        heroEyebrow: textTranslations.ru?.heroEyebrow,
+        heroHeadline: textTranslations.ru?.heroHeadline,
+        heroSubheadline: textTranslations.ru?.heroSubheadline,
+        heroCtaText: textTranslations.ru?.heroCtaText,
+        heroSecondaryCtaText: textTranslations.ru?.heroSecondaryCtaText,
+        badgeSaleText: textTranslations.ru?.badgeSaleText,
+        badgeNewText: textTranslations.ru?.badgeNewText,
+      },
     }
     updateStore(
       {

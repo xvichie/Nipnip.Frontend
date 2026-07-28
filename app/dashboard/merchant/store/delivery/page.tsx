@@ -78,7 +78,7 @@ export default function MerchantStoreDeliveryPage() {
             <p className="text-white/25 text-xs">მიწოდების ზონები ჯერ არ არის — მყიდველებს მიწოდების საფასური არ დაერიცხებათ.</p>
           ) : (
             shippingZones.map(zone => (
-              <div key={zone.id} className="flex items-center gap-2">
+              <div key={zone.id} className="flex items-end gap-2">
                 <TranslatedField
                   value={{ ka: zone.name, en: zone.translations?.en ?? '', ru: zone.translations?.ru ?? '' }}
                   onChange={value => updateZone(zone.id, {
