@@ -2,20 +2,25 @@
 
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
 
+// Next's dynamic() `loading` callback runs outside the component tree (no props/context
+// available), so it can't show translated text — a bare spinner sidesteps that instead.
 const LocationPickerMap = dynamic(() => import('./LocationPickerMap'), {
   ssr: false,
-  loading: () => <div className="h-[260px] flex items-center justify-center text-xs opacity-50">იტვირთება რუკა...</div>,
+  loading: () => <div className="h-[260px] flex items-center justify-center"><span className="loading loading-spinner loading-sm opacity-50" /></div>,
 })
 
 export function LocationPicker({
   surface,
   radius,
+  t,
   initialPosition = null,
   onLocationChange,
 }: {
   surface: { border: string; text: string; muted: string }
   radius: string
+  t: StorefrontStrings
   initialPosition?: { lat: number; lng: number } | null
   onLocationChange: (loc: { address: string; lat: number; lng: number }) => void
 }) {
@@ -67,7 +72,7 @@ export function LocationPicker({
             <path d="M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
             <circle cx="12" cy="9.5" r="2.2" stroke="currentColor" strokeWidth="1.6"/>
           </svg>
-          {open ? 'რუკის დამალვა' : 'მდებარეობის არჩევა რუკაზე'}
+          {open ? t.checkout.hideMap : t.checkout.pickOnMap}
         </button>
         <button
           type="button"
@@ -75,7 +80,7 @@ export function LocationPicker({
           disabled={isLocating}
           className={`text-xs font-semibold uppercase tracking-wider underline underline-offset-2 disabled:opacity-50 ${surface.text}`}
         >
-          {isLocating ? 'ეძებს მდებარეობას...' : 'ჩემი მდებარეობის გამოყენება'}
+          {isLocating ? t.checkout.locating : t.checkout.useMyLocation}
         </button>
       </div>
 
@@ -84,7 +89,7 @@ export function LocationPicker({
           <LocationPickerMap position={position} onPick={resolveAndReport} />
           {isResolving && (
             <div className="absolute top-2 right-2 bg-black/75 text-white text-[11px] px-2 py-1 rounded">
-              მისამართის ძებნა...
+              {t.checkout.searchingAddress}
             </div>
           )}
         </div>
@@ -92,7 +97,7 @@ export function LocationPicker({
 
       {position && (
         <p className={`text-xs ${surface.muted}`}>
-          მდებარეობა შერჩეულია ({position.lat.toFixed(5)}, {position.lng.toFixed(5)})
+          {t.checkout.locationSelected(position.lat.toFixed(5), position.lng.toFixed(5))}
         </p>
       )}
     </div>

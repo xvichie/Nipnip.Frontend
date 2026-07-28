@@ -6,10 +6,11 @@ import { PriceRangeFilter } from '@/components/storefront/shared/PriceRangeFilte
 import { OptionFiltersPanel } from '@/components/storefront/shared/OptionFiltersPanel'
 import { Pagination } from '@/components/storefront/shared/Pagination'
 import { useProductFacets, useProductPriceRange, useProducts } from '@/lib/queries/storefront'
-import { padPriceBounds, SORT_OPTIONS, sortOptionToQuery, type ProductSortOption } from '@/lib/store/product-search'
+import { getSortOptions, padPriceBounds, sortOptionToQuery, type ProductSortOption } from '@/lib/store/product-search'
 import { useProductListUrlState } from '@/lib/store/use-product-list-url-state'
 import { getSidebarCategories } from '@/lib/store/nav-menu'
 import type { CategoryResponse, CollectionResponse, ThemeConfig } from '@/lib/types/storefront'
+import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
 
 const PAGE_SIZE = 20
 
@@ -28,6 +29,7 @@ export function ProductGrid({
   activeCollectionSlug?: string
   tokens: Required<ThemeConfig>
 }) {
+  const { t } = useStorefrontLanguage()
   const categoryNames = new Map(categories.map(c => [c.id, c.name]))
   const displayCategories = getSidebarCategories(categories, tokens)
   const activeCategoryName = activeCategorySlug ? displayCategories.find(c => c.slug === activeCategorySlug)?.name : undefined
@@ -72,8 +74,8 @@ export function ProductGrid({
     <div className="bg-[#f7ede0] min-h-screen">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 pb-24">
         <div className="mb-10">
-          <p className="text-xs uppercase tracking-[0.3em] text-[#b5651d] mb-2">კოლექცია</p>
-          <h1 className="font-serif text-3xl text-[#3b2418]">{activeCategoryName ?? activeCollectionName ?? 'ყველა პროდუქტი'}</h1>
+          <p className="text-xs uppercase tracking-[0.3em] text-[#b5651d] mb-2">{t.grid.collectionEyebrow}</p>
+          <h1 className="font-serif text-3xl text-[#3b2418]">{activeCategoryName ?? activeCollectionName ?? t.grid.allProductsTitle}</h1>
         </div>
 
         <div className="flex flex-col md:flex-row gap-10">
@@ -81,7 +83,7 @@ export function ProductGrid({
           <aside className="w-full md:w-52 shrink-0 flex flex-col gap-4 md:sticky md:top-20 md:self-start md:max-h-[calc(100vh-6rem)] md:overflow-y-auto md:pb-6">
             {displayCategories.length > 0 && (
               <div className="border border-[#3b2418]/10 p-5 flex flex-col gap-1">
-                <p className="text-xs uppercase tracking-widest text-[#a68a6d] mb-2">კატეგორიები</p>
+                <p className="text-xs uppercase tracking-widest text-[#a68a6d] mb-2">{t.header.categories}</p>
                 <Link
                   href={`/products`}
                   className={[
@@ -89,7 +91,7 @@ export function ProductGrid({
                     !activeCategorySlug ? 'text-[#3b2418] font-medium' : 'text-[#a68a6d] hover:text-[#3b2418]',
                   ].join(' ')}
                 >
-                  ყველა
+                  {t.grid.allCategoriesLink}
                 </Link>
                 {displayCategories.map(category => (
                   <Link
@@ -115,6 +117,7 @@ export function ProductGrid({
                   value={effectiveRange ?? bounds}
                   onChange={setPriceRange}
                   accentColor={tokens.accentColor}
+                  t={t}
                   trackColorClassName="bg-[#3b2418]/10"
                   labelClassName="text-[#a68a6d]"
                   valueClassName="text-[#3b2418]"
@@ -139,14 +142,14 @@ export function ProductGrid({
           <div className="flex-1">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <p className="text-xs uppercase tracking-widest text-[#a68a6d]">
-                <span className="text-[#3b2418] font-medium">{totalCount}</span> პროდუქტი
+                <span className="text-[#3b2418] font-medium">{totalCount}</span> {t.grid.unitProduct}
               </p>
               <div className="flex items-center gap-3">
                 <input
                   type="text"
                   value={searchInput}
                   onChange={e => setSearchInput(e.target.value)}
-                  placeholder="ძიება..."
+                  placeholder={t.grid.searchPlaceholder}
                   className="w-full sm:w-56 bg-white border border-[#3b2418]/15 text-sm px-3 py-2 text-[#3b2418] placeholder:text-[#a68a6d] focus:outline-none focus:border-[#3b2418] transition-colors"
                 />
                 <select
@@ -154,7 +157,7 @@ export function ProductGrid({
                   onChange={e => setSortBy(e.target.value as ProductSortOption)}
                   className="bg-white border border-[#3b2418]/15 text-sm px-3 py-2 text-[#3b2418] focus:outline-none focus:border-[#3b2418] transition-colors"
                 >
-                  {SORT_OPTIONS.map(opt => (
+                  {getSortOptions(t).map(opt => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
                   ))}
                 </select>
@@ -169,7 +172,7 @@ export function ProductGrid({
               </div>
             ) : products.length === 0 ? (
               <div className="py-32 flex flex-col items-center gap-4 text-center">
-                <p className="text-[#a68a6d] text-sm">პროდუქტი ვერ მოიძებნა.</p>
+                <p className="text-[#a68a6d] text-sm">{t.grid.noProductsFound}</p>
               </div>
             ) : (
               <>
@@ -181,6 +184,7 @@ export function ProductGrid({
                       product={product}
                       categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
                       tokens={tokens}
+                      t={t}
                     />
                   ))}
                 </div>
@@ -188,6 +192,7 @@ export function ProductGrid({
                   page={page}
                   totalPages={totalPages}
                   onChange={setPage}
+                  t={t}
                   buttonClassName="btn btn-sm bg-white border border-[#3b2418]/15 text-[#3b2418]/60 hover:text-[#3b2418] disabled:opacity-30"
                   textClassName="text-[#a68a6d]"
                 />

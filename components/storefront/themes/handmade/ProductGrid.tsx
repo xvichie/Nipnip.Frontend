@@ -6,10 +6,11 @@ import { PriceRangeFilter } from '@/components/storefront/shared/PriceRangeFilte
 import { OptionFiltersPanel } from '@/components/storefront/shared/OptionFiltersPanel'
 import { Pagination } from '@/components/storefront/shared/Pagination'
 import { useProductFacets, useProductPriceRange, useProducts } from '@/lib/queries/storefront'
-import { padPriceBounds, SORT_OPTIONS, sortOptionToQuery, type ProductSortOption } from '@/lib/store/product-search'
+import { getSortOptions, padPriceBounds, sortOptionToQuery, type ProductSortOption } from '@/lib/store/product-search'
 import { useProductListUrlState } from '@/lib/store/use-product-list-url-state'
 import { getSidebarCategories } from '@/lib/store/nav-menu'
 import type { CategoryResponse, CollectionResponse, ThemeConfig } from '@/lib/types/storefront'
+import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
 
 const PAGE_SIZE = 20
 
@@ -28,6 +29,7 @@ export function ProductGrid({
   activeCollectionSlug?: string
   tokens: Required<ThemeConfig>
 }) {
+  const { t } = useStorefrontLanguage()
   const categoryNames = new Map(categories.map(c => [c.id, c.name]))
   const displayCategories = getSidebarCategories(categories, tokens)
   const activeCategoryName = activeCategorySlug ? displayCategories.find(c => c.slug === activeCategorySlug)?.name : undefined
@@ -72,8 +74,8 @@ export function ProductGrid({
     <div className="bg-[#f4ede3] min-h-screen">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 pb-24">
         <div className="mb-8 text-center">
-          <p className="italic font-serif text-sm text-[#8f8274] mb-1">კოლექცია</p>
-          <h1 className="font-serif text-3xl sm:text-5xl tracking-tight text-[#2b2420]">{activeCategoryName ?? activeCollectionName ?? 'ყველა პროდუქტი'}</h1>
+          <p className="italic font-serif text-sm text-[#8f8274] mb-1">{t.grid.collectionEyebrow}</p>
+          <h1 className="font-serif text-3xl sm:text-5xl tracking-tight text-[#2b2420]">{activeCategoryName ?? activeCollectionName ?? t.grid.allProductsTitle}</h1>
         </div>
 
         {displayCategories.length > 0 && (
@@ -82,7 +84,7 @@ export function ProductGrid({
               href={`/products`}
               className={`text-xs uppercase tracking-widest transition-colors ${!activeCategorySlug ? 'text-[#2b2420] underline underline-offset-4' : 'text-[#8f8274] hover:text-[#2b2420] hover:underline underline-offset-4'}`}
             >
-              ყველა
+              {t.grid.allCategoriesLink}
             </Link>
             {displayCategories.map(category => (
               <Link
@@ -104,6 +106,7 @@ export function ProductGrid({
               value={effectiveRange ?? bounds}
               onChange={setPriceRange}
               accentColor={tokens.accentColor}
+              t={t}
               trackColorClassName="bg-[#2b2420]/10"
               labelClassName="text-[#8f8274]"
               valueClassName="text-[#2b2420]"
@@ -126,14 +129,14 @@ export function ProductGrid({
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
           <p className="text-sm text-[#8f8274]">
-            <span className="text-[#2b2420] font-medium">{totalCount}</span> პროდუქტი
+            <span className="text-[#2b2420] font-medium">{totalCount}</span> {t.grid.unitProduct}
           </p>
           <div className="flex items-center gap-6">
             <input
               type="text"
               value={searchInput}
               onChange={e => setSearchInput(e.target.value)}
-              placeholder="ძიება..."
+              placeholder={t.grid.searchPlaceholder}
               className="w-full sm:w-56 bg-transparent border-b border-[#2b2420]/20 text-sm px-0 py-2 text-[#2b2420] placeholder:text-[#8f8274] focus:outline-none focus:border-[#2b2420] transition-colors"
             />
             <select
@@ -141,7 +144,7 @@ export function ProductGrid({
               onChange={e => setSortBy(e.target.value as ProductSortOption)}
               className="bg-transparent underline underline-offset-4 text-sm px-0 py-2 text-[#2b2420] focus:outline-none"
             >
-              {SORT_OPTIONS.map(opt => (
+              {getSortOptions(t).map(opt => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
@@ -156,7 +159,7 @@ export function ProductGrid({
           </div>
         ) : products.length === 0 ? (
           <div className="py-32 flex flex-col items-center gap-4 text-center">
-            <p className="text-[#8f8274] text-sm">პროდუქტი ვერ მოიძებნა.</p>
+            <p className="text-[#8f8274] text-sm">{t.grid.noProductsFound}</p>
           </div>
         ) : (
           <>
@@ -168,6 +171,7 @@ export function ProductGrid({
                   product={product}
                   categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
                   tokens={tokens}
+                  t={t}
                 />
               ))}
             </div>
@@ -175,6 +179,7 @@ export function ProductGrid({
               page={page}
               totalPages={totalPages}
               onChange={setPage}
+              t={t}
               buttonClassName="btn btn-sm bg-transparent border border-[#2b2420]/10 text-[#8f8274] hover:text-[#2b2420] disabled:opacity-30"
               textClassName="text-[#8f8274]"
             />

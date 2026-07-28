@@ -3,6 +3,7 @@ import { SocialLinks } from '@/components/storefront/shared/SocialLinks'
 import { ContactForm } from '@/components/storefront/shared/ContactForm'
 import { getEnabledPaymentLabels } from '@/lib/store/payment-methods'
 import type { StorePageResponse, ThemeConfig } from '@/lib/types/storefront'
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 export function Footer({
@@ -10,11 +11,13 @@ export function Footer({
   storeName,
   tokens,
   pages,
+  t,
 }: {
   slug: string
   storeName: string
   tokens: Required<ThemeConfig>
   pages: StorePageResponse[]
+  t: StorefrontStrings
 }) {
   const hasContactInfo = tokens.contactEmail || tokens.contactPhone || tokens.contactAddress
   const showSocials = tokens.socialsPosition === 'footer' || tokens.socialsPosition === 'both'
@@ -82,7 +85,7 @@ export function Footer({
             <Link href={`/contact`} className="text-[#9c8f7e] text-xs uppercase tracking-widest hover:text-[#1c1a17] transition-colors underline underline-offset-4">
               {tokens.contactLabel}
             </Link>
-            {tokens.showPlatformAttribution && <p className="text-[#9c8f7e] text-xs tracking-wide">შექმნილია NipNip-ის მიერ</p>}
+            {tokens.showPlatformAttribution && <p className="text-[#9c8f7e] text-xs tracking-wide">{t.footer.poweredBy}</p>}
           </div>
         </div>
       </div>

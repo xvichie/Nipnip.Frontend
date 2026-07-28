@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
+import { useStorefrontLanguage } from './StorefrontLanguageProvider'
 import type { ProductDetailResponse } from '@/lib/types/storefront'
 
 type Status = 'idle' | 'pending' | 'added'
@@ -21,6 +22,7 @@ export function QuickAddButton({
 }) {
   const router = useRouter()
   const { addItem, preview } = useStorefrontCart()
+  const { t } = useStorefrontLanguage()
   const [status, setStatus] = useState<Status>('idle')
 
   async function handleClick(e: React.MouseEvent) {
@@ -56,8 +58,8 @@ export function QuickAddButton({
       type="button"
       onClick={handleClick}
       disabled={status === 'pending'}
-      aria-label="სწრაფად კალათაში დამატება"
-      title="კალათაში დამატება"
+      aria-label={t.quickAdd.ariaLabel}
+      title={t.quickAdd.title}
       className={className}
       style={style}
     >
@@ -67,14 +69,14 @@ export function QuickAddButton({
             <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.6" opacity="0.25" />
             <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
           </svg>
-          დამატება...
+          {t.quickAdd.pending}
         </>
       ) : status === 'added' ? (
         <>
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0">
             <path d="M3 8.5l3.5 3.5L13 4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          დამატებულია
+          {t.quickAdd.added}
         </>
       ) : (
         <>
@@ -83,7 +85,7 @@ export function QuickAddButton({
             <circle cx="6.5" cy="13.5" r="1" fill="currentColor" />
             <circle cx="11" cy="13.5" r="1" fill="currentColor" />
           </svg>
-          კალათაში დამატება
+          {t.quickAdd.idle}
         </>
       )}
     </button>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
 
 export interface BreadcrumbItem {
   label: string
@@ -10,10 +11,12 @@ export interface BreadcrumbItem {
 
 export function Breadcrumbs({
   items,
+  t,
   textClassName,
   mutedClassName,
 }: {
   items: BreadcrumbItem[]
+  t: StorefrontStrings
   textClassName: string
   mutedClassName: string
 }) {
@@ -24,7 +27,7 @@ export function Breadcrumbs({
       <button
         type="button"
         onClick={() => router.back()}
-        aria-label="უკან დაბრუნება"
+        aria-label={t.breadcrumbs.backAriaLabel}
         className={`shrink-0 cursor-pointer transition-colors ${mutedClassName}`}
       >
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>

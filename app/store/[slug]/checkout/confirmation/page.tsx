@@ -7,6 +7,7 @@ import { useStore } from '@/lib/queries/storefront'
 import { usePublicOrderStatus } from '@/lib/queries/flitt'
 import { parseThemeConfig } from '@/lib/store/theme-config'
 import { getThemeDefinition, isThemeId, RADIUS_CLASS, SURFACE_CLASSES } from '@/lib/storefront-themes'
+import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
 import type { ThemeId } from '@/lib/types/storefront'
 
 // Where Flitt's response_url sends the customer's browser back to after a hosted-checkout
@@ -24,12 +25,13 @@ export default function CheckoutConfirmationPage({ params }: { params: Promise<{
 function ConfirmationContent({ slug }: { slug: string }) {
   const searchParams = useSearchParams()
   const orderId = searchParams.get('orderId')
+  const { t } = useStorefrontLanguage()
 
   const { data: store, isLoading: storeLoading } = useStore(slug)
   const { data: order, isLoading: orderLoading, isError } = usePublicOrderStatus(slug, orderId)
 
   if (storeLoading || orderLoading || !store) {
-    return <div className="min-h-screen flex items-center justify-center text-sm text-gray-400">Loading...</div>
+    return <div className="min-h-screen flex items-center justify-center text-sm text-gray-400">{t.checkoutConfirmation.loading}</div>
   }
 
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
@@ -41,9 +43,9 @@ function ConfirmationContent({ slug }: { slug: string }) {
     return (
       <div className={`${surface.page} min-h-screen`}>
         <div className="max-w-lg mx-auto px-4 sm:px-6 py-24 text-center flex flex-col items-center gap-4">
-          <h1 className={`font-black text-2xl ${surface.text}`}>შეკვეთა ვერ მოიძებნა</h1>
+          <h1 className={`font-black text-2xl ${surface.text}`}>{t.checkoutConfirmation.orderNotFound}</h1>
           <Link href={`/`} className={`text-sm underline underline-offset-2 ${surface.text}`}>
-            მთავარ გვერდზე დაბრუნება →
+            {t.checkoutConfirmation.backToHome}
           </Link>
         </div>
       </div>
@@ -60,15 +62,15 @@ function ConfirmationContent({ slug }: { slug: string }) {
             </svg>
           </div>
           <div>
-            <h1 className={`font-black text-3xl mb-2 ${surface.text}`}>გადახდა ვერ შესრულდა</h1>
-            <p className={`text-sm ${surface.muted}`}>თქვენი ბარათიდან თანხის ჩამოჭრა ვერ მოხერხდა. სცადეთ თავიდან ან აირჩიეთ სხვა გადახდის მეთოდი.</p>
+            <h1 className={`font-black text-3xl mb-2 ${surface.text}`}>{t.checkoutConfirmation.paymentFailedHeading}</h1>
+            <p className={`text-sm ${surface.muted}`}>{t.checkoutConfirmation.paymentFailedBody}</p>
           </div>
           <Link
             href={`/cart`}
             className={`text-white text-sm font-semibold px-8 py-3.5 ${radius}`}
             style={{ backgroundColor: tokens.accentColor }}
           >
-            კალათაში დაბრუნება
+            {t.checkoutConfirmation.backToCart}
           </Link>
         </div>
       </div>
@@ -81,8 +83,8 @@ function ConfirmationContent({ slug }: { slug: string }) {
         <div className="max-w-lg mx-auto px-4 sm:px-6 py-24 flex flex-col items-center text-center gap-6">
           <div className={`w-12 h-12 border-2 border-t-transparent animate-spin rounded-full`} style={{ borderColor: tokens.accentColor, borderTopColor: 'transparent' }} />
           <div>
-            <h1 className={`font-black text-2xl mb-2 ${surface.text}`}>გადახდის დადასტურება...</h1>
-            <p className={`text-sm ${surface.muted}`}>გთხოვთ დაელოდოთ, ვადასტურებთ თქვენს გადახდას.</p>
+            <h1 className={`font-black text-2xl mb-2 ${surface.text}`}>{t.checkoutConfirmation.confirmingHeading}</h1>
+            <p className={`text-sm ${surface.muted}`}>{t.checkoutConfirmation.confirmingBody}</p>
           </div>
         </div>
       </div>
@@ -98,15 +100,15 @@ function ConfirmationContent({ slug }: { slug: string }) {
           </svg>
         </div>
         <div>
-          <h1 className={`font-black text-3xl mb-2 ${surface.text}`}>შეკვეთა გაფორმდა!</h1>
+          <h1 className={`font-black text-3xl mb-2 ${surface.text}`}>{tokens.checkoutThankYouHeading || t.checkout.thankYouHeading}</h1>
           <p className={`text-sm break-words ${surface.muted}`}>
-            გმადლობთ, {order.customerName}. თქვენი შეკვეთა #{order.id.slice(0, 8)} მიღებულია. დეტალები გამოგზავნილია {order.email}-ზე.
+            {tokens.checkoutThankYouMessage || t.checkout.thankYouMessage(order.customerName, order.id.slice(0, 8), order.email)}
           </p>
           <p className={`text-sm font-bold mt-3 ${surface.text}`}>
-            სულ: ₾{order.total.toFixed(2)}
+            {t.checkout.orderTotal(order.total.toFixed(2))}
             {order.shippingZoneName && (
               <span className={`font-normal ${surface.muted}`}>
-                {' '}(მათ შორის მიწოდება{order.shippingFee > 0 ? ` — ₾${order.shippingFee.toFixed(2)}` : ' — უფასო'}, {order.shippingZoneName})
+                {' '}({order.shippingFee > 0 ? t.checkout.shippingIncluded(order.shippingFee.toFixed(2)) : t.checkout.shippingIncludedFree}, {order.shippingZoneName})
               </span>
             )}
           </p>
@@ -116,7 +118,7 @@ function ConfirmationContent({ slug }: { slug: string }) {
           className={`text-white text-sm font-semibold px-8 py-3.5 ${radius}`}
           style={{ backgroundColor: tokens.accentColor }}
         >
-          შოპინგის გაგრძელება
+          {t.checkout.continueShopping}
         </Link>
       </div>
     </div>

@@ -1,15 +1,19 @@
 'use client'
 
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
+
 export function Pagination({
   page,
   totalPages,
   onChange,
+  t,
   buttonClassName,
   textClassName,
 }: {
   page: number
   totalPages: number
   onChange: (page: number) => void
+  t: StorefrontStrings
   buttonClassName: string
   textClassName: string
 }) {
@@ -26,7 +30,7 @@ export function Pagination({
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
           <path d="M9 3L5 7l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        წინა
+        {t.pagination.previous}
       </button>
       <span className={`text-sm tabular-nums ${textClassName}`}>{page} / {totalPages}</span>
       <button
@@ -35,7 +39,7 @@ export function Pagination({
         disabled={page === totalPages}
         className={buttonClassName}
       >
-        შემდეგი
+        {t.pagination.next}
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
           <path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>

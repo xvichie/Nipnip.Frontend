@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useStorefrontLanguage } from './StorefrontLanguageProvider'
 
 // Generic horizontally-scrolling row — scroll mechanics (overflow detection, chevron nav)
 // extracted from FeaturedMerchantsCarousel, minus its merchant-specific modal/copy-link logic.
@@ -11,7 +12,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 export function ProductScrollRow({
   title,
   viewAllHref,
-  viewAllLabel = 'ყველას ნახვა →',
+  viewAllLabel,
   items,
   titleClassName = 'font-black text-2xl tracking-tight',
   viewAllClassName = 'text-xs font-medium underline underline-offset-4',
@@ -27,6 +28,8 @@ export function ProductScrollRow({
   emptyMessageClassName?: string
   viewAllStyle?: CSSProperties
 }) {
+  const { t } = useStorefrontLanguage()
+  const resolvedViewAllLabel = viewAllLabel ?? t.home.viewAll
   const trackRef = useRef<HTMLDivElement>(null)
   const [overflowing, setOverflowing] = useState(false)
 
@@ -50,7 +53,7 @@ export function ProductScrollRow({
   }
 
   if (items.length === 0) {
-    return <p className={emptyMessageClassName}>ჯერ არაფერია დამატებული.</p>
+    return <p className={emptyMessageClassName}>{t.home.emptyRowMessage}</p>
   }
 
   return (
@@ -58,7 +61,7 @@ export function ProductScrollRow({
       <div className="flex items-end justify-between mb-6">
         <h2 className={titleClassName}>{title}</h2>
         {viewAllHref && (
-          <a href={viewAllHref} className={viewAllClassName} style={viewAllStyle}>{viewAllLabel}</a>
+          <a href={viewAllHref} className={viewAllClassName} style={viewAllStyle}>{resolvedViewAllLabel}</a>
         )}
       </div>
 
@@ -80,7 +83,7 @@ export function ProductScrollRow({
             <button
               type="button"
               onClick={() => scrollBy(-1)}
-              aria-label="Scroll left"
+              aria-label={t.home.scrollLeftAriaLabel}
               className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-9 h-9 items-center justify-center rounded-full bg-white shadow-lg border border-black/10 text-black/60 hover:text-black transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
@@ -90,7 +93,7 @@ export function ProductScrollRow({
             <button
               type="button"
               onClick={() => scrollBy(1)}
-              aria-label="Scroll right"
+              aria-label={t.home.scrollRightAriaLabel}
               className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-9 h-9 items-center justify-center rounded-full bg-white shadow-lg border border-black/10 text-black/60 hover:text-black transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { getProductBadge } from '@/lib/store/theme-config'
 import { QuickAddButton } from '@/components/storefront/shared/QuickAddButton'
 import type { ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
+import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
 import { CImg } from '@/components/ui/CImg'
 
 export function ProductCard({
@@ -17,6 +18,7 @@ export function ProductCard({
   categoryName?: string
   tokens: Required<ThemeConfig>
 }) {
+  const { t } = useStorefrontLanguage()
   const badge = getProductBadge(tokens, product)
   return (
     <Link href={`/products/${product.slug}`} className="group block h-full">
@@ -56,7 +58,7 @@ export function ProductCard({
               )}
             </>
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-[#cbb3aa] text-xs">სურათი არ არის</div>
+            <div className="w-full h-full flex items-center justify-center text-[#cbb3aa] text-xs">{t.product.noImage}</div>
           )}
           <QuickAddButton
             slug={slug}

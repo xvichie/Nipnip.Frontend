@@ -4,6 +4,7 @@ import { parseThemeConfig } from '@/lib/store/theme-config'
 import { getLandingCollections } from '@/lib/store/landing-collections'
 import { isThemeId } from '@/lib/storefront-themes'
 import { getStoreUrl } from '@/lib/store/seo'
+import { getStorefrontStrings } from '@/lib/storefront-i18n-server'
 import { Home as MinimalHome } from '@/components/storefront/themes/minimal/Home'
 import { Home as BoldHome } from '@/components/storefront/themes/bold/Home'
 import { Home as ClassicHome } from '@/components/storefront/themes/classic/Home'
@@ -71,6 +72,7 @@ export default async function StoreHomePage({ params }: { params: Promise<{ slug
 
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
   const HomeComponent = HOME_COMPONENTS[themeId]
+  const t = await getStorefrontStrings()
 
   return (
     <HomeComponent
@@ -81,6 +83,7 @@ export default async function StoreHomePage({ params }: { params: Promise<{ slug
       collectionProducts={collectionProducts}
       products={products}
       tokens={tokens}
+      t={t}
     />
   )
 }

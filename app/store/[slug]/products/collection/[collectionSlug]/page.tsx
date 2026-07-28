@@ -4,6 +4,7 @@ import { apiFetch } from '@/lib/api'
 import { parseThemeConfig } from '@/lib/store/theme-config'
 import { isThemeId } from '@/lib/storefront-themes'
 import { buildBreadcrumbJsonLd, getStoreUrl, truncateDescription } from '@/lib/store/seo'
+import { getStorefrontStrings } from '@/lib/storefront-i18n-server'
 import { JsonLd } from '@/components/storefront/shared/JsonLd'
 import type { CategoryResponse, CollectionResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
@@ -42,10 +43,11 @@ export async function generateMetadata({
   ])
   const collection = collections.find(c => c.slug === collectionSlug)
   const collectionName = collection?.name ?? collectionSlug
+  const t = await getStorefrontStrings()
 
   return {
     title: collectionName,
-    description: truncateDescription(`დაათვალიერეთ ${collectionName} კოლექციის პროდუქტები ${store.name}-ში.`),
+    description: truncateDescription(t.seo.collectionDescription(collectionName, store.name)),
     alternates: { canonical: getStoreUrl(slug, `/products/collection/${collectionSlug}`, store.customDomain) },
   }
 }
@@ -67,12 +69,13 @@ export default async function ProductsByCollectionPage({
   const tokens = parseThemeConfig(store.themeConfig)
   const GridComponent = GRID_COMPONENTS[themeId]
   const collection = collections.find(c => c.slug === collectionSlug)
+  const t = await getStorefrontStrings()
 
   return (
     <>
       <JsonLd data={buildBreadcrumbJsonLd([
         { name: store.name, url: getStoreUrl(slug, '', store.customDomain) },
-        { name: 'ყველა პროდუქტი', url: getStoreUrl(slug, '/products', store.customDomain) },
+        { name: t.seo.productsPageTitle, url: getStoreUrl(slug, '/products', store.customDomain) },
         { name: collection?.name ?? collectionSlug, url: getStoreUrl(slug, `/products/collection/${collectionSlug}`, store.customDomain) },
       ])} />
       <GridComponent

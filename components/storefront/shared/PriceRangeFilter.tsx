@@ -1,5 +1,7 @@
 'use client'
 
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
+
 const THUMB_CLASSES = [
   '[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4',
   '[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--thumb)] [&::-webkit-slider-thumb]:border-2',
@@ -17,6 +19,7 @@ export function PriceRangeFilter({
   value,
   onChange,
   accentColor,
+  t,
   valueClassName,
   trackColorClassName = 'bg-black/10',
   labelClassName = '',
@@ -26,6 +29,7 @@ export function PriceRangeFilter({
   value: [number, number]
   onChange: (value: [number, number]) => void
   accentColor: string
+  t: StorefrontStrings
   valueClassName: string
   trackColorClassName?: string
   labelClassName?: string
@@ -46,7 +50,7 @@ export function PriceRangeFilter({
   return (
     <div className="flex flex-col gap-3 w-full min-w-0">
       <div className="flex items-center justify-between gap-2">
-        <span className={`text-[10px] font-semibold uppercase tracking-wider shrink-0 ${labelClassName}`}>ფასი</span>
+        <span className={`text-[10px] font-semibold uppercase tracking-wider shrink-0 ${labelClassName}`}>{t.grid.priceLabel}</span>
         <span className={`text-xs font-medium truncate ${valueClassName}`}>₾{Math.round(lo)} – ₾{Math.round(hi)}</span>
       </div>
       {/* Horizontal padding here — not on the inputs below — reserves room for the
@@ -71,7 +75,7 @@ export function PriceRangeFilter({
             onChange={e => setLo(Number(e.target.value))}
             style={{ '--thumb': accentColor } as React.CSSProperties}
             className={`absolute inset-x-0 w-full h-4 appearance-none bg-transparent pointer-events-none focus:outline-none ${THUMB_CLASSES}`}
-            aria-label="მინიმალური ფასის სლაიდერი"
+            aria-label={t.grid.minPriceAriaLabel}
           />
           <input
             type="range"
@@ -81,7 +85,7 @@ export function PriceRangeFilter({
             onChange={e => setHi(Number(e.target.value))}
             style={{ '--thumb': accentColor } as React.CSSProperties}
             className={`absolute inset-x-0 w-full h-4 appearance-none bg-transparent pointer-events-none focus:outline-none ${THUMB_CLASSES}`}
-            aria-label="მაქსიმალური ფასის სლაიდერი"
+            aria-label={t.grid.maxPriceAriaLabel}
           />
         </div>
       </div>

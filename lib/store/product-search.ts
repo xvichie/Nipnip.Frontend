@@ -1,12 +1,16 @@
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
+
 export type ProductSortOption = 'featured' | 'price-asc' | 'price-desc' | 'name-asc' | 'name-desc'
 
-export const SORT_OPTIONS: { value: ProductSortOption; label: string }[] = [
-  { value: 'featured', label: 'რეკომენდებული' },
-  { value: 'price-asc', label: 'ფასი: დაბლიდან მაღლა' },
-  { value: 'price-desc', label: 'ფასი: მაღლიდან დაბლა' },
-  { value: 'name-asc', label: 'სახელი: ა-ჰ' },
-  { value: 'name-desc', label: 'სახელი: ჰ-ა' },
-]
+export function getSortOptions(t: StorefrontStrings): { value: ProductSortOption; label: string }[] {
+  return [
+    { value: 'featured', label: t.grid.sortFeatured },
+    { value: 'price-asc', label: t.grid.sortPriceAsc },
+    { value: 'price-desc', label: t.grid.sortPriceDesc },
+    { value: 'name-asc', label: t.grid.sortNameAsc },
+    { value: 'name-desc', label: t.grid.sortNameDesc },
+  ]
+}
 
 export function sortOptionToQuery(sortBy: ProductSortOption): { sortBy?: string; sortDir?: string } {
   switch (sortBy) {

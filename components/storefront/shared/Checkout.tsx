@@ -10,82 +10,87 @@ import { SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { getRadiusClass } from '@/lib/store/theme-config'
 import { LocationPicker } from './LocationPicker'
 import type { PaymentMethod, StorePageResponse, ThemeConfig, ThemeId } from '@/lib/types/storefront'
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
-const PAYMENT_OPTIONS: { id: PaymentMethod; label: string; icon: React.ReactNode }[] = [
-  {
-    id: 'CashOnDelivery',
-    label: 'გადახდა მიტანისას',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <rect x="2.5" y="6" width="19" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.6"/>
-        <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.6"/>
-        <path d="M5.5 6v-.5A1.5 1.5 0 0 1 7 4h10a1.5 1.5 0 0 1 1.5 1.5V6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
-    id: 'BankTransfer',
-    label: 'საბანკო გადარიცხვა',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path d="M3 9.5 12 4l9 5.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M4.5 9.5v9M9 9.5v9M15 9.5v9M19.5 9.5v9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-        <path d="M2.5 21h19" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-        <path d="M2.5 9.5h19" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
-    id: 'Flitt',
-    label: 'ბარათით გადახდა',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <rect x="2.5" y="5" width="19" height="14" rx="2" stroke="currentColor" strokeWidth="1.6"/>
-        <path d="M2.5 9.5h19" stroke="currentColor" strokeWidth="1.6"/>
-        <path d="M6 14.5h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
-    id: 'Tbc',
-    label: 'ბარათით გადახდა (TBC)',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <rect x="2.5" y="5" width="19" height="14" rx="2" stroke="currentColor" strokeWidth="1.6"/>
-        <path d="M2.5 9.5h19" stroke="currentColor" strokeWidth="1.6"/>
-        <path d="M6 14.5h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
-    id: 'Bog',
-    label: 'ბარათით გადახდა (საქართველოს ბანკი)',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <rect x="2.5" y="5" width="19" height="14" rx="2" stroke="currentColor" strokeWidth="1.6"/>
-        <path d="M2.5 9.5h19" stroke="currentColor" strokeWidth="1.6"/>
-        <path d="M6 14.5h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
-    id: 'CityPay',
-    label: 'გადახდა კრიპტოვალუტით',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="1.6"/>
-        <path d="M12 6.5v11M14.7 9c0-1.1-1.2-2-2.7-2s-2.7.9-2.7 2c0 1.1 1.2 1.6 2.7 2s2.7.9 2.7 2c0 1.1-1.2 2-2.7 2s-2.7-.9-2.7-2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-]
+function getPaymentOptions(t: StorefrontStrings): { id: PaymentMethod; label: string; icon: React.ReactNode }[] {
+  return [
+    {
+      id: 'CashOnDelivery',
+      label: t.checkout.paymentMethods.cashOnDelivery,
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <rect x="2.5" y="6" width="19" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.6"/>
+          <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.6"/>
+          <path d="M5.5 6v-.5A1.5 1.5 0 0 1 7 4h10a1.5 1.5 0 0 1 1.5 1.5V6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
+    {
+      id: 'BankTransfer',
+      label: t.checkout.paymentMethods.bankTransfer,
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <path d="M3 9.5 12 4l9 5.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M4.5 9.5v9M9 9.5v9M15 9.5v9M19.5 9.5v9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+          <path d="M2.5 21h19" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+          <path d="M2.5 9.5h19" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
+    {
+      id: 'Flitt',
+      label: t.checkout.paymentMethods.flitt,
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <rect x="2.5" y="5" width="19" height="14" rx="2" stroke="currentColor" strokeWidth="1.6"/>
+          <path d="M2.5 9.5h19" stroke="currentColor" strokeWidth="1.6"/>
+          <path d="M6 14.5h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
+    {
+      id: 'Tbc',
+      label: t.checkout.paymentMethods.tbc,
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <rect x="2.5" y="5" width="19" height="14" rx="2" stroke="currentColor" strokeWidth="1.6"/>
+          <path d="M2.5 9.5h19" stroke="currentColor" strokeWidth="1.6"/>
+          <path d="M6 14.5h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
+    {
+      id: 'Bog',
+      label: t.checkout.paymentMethods.bog,
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <rect x="2.5" y="5" width="19" height="14" rx="2" stroke="currentColor" strokeWidth="1.6"/>
+          <path d="M2.5 9.5h19" stroke="currentColor" strokeWidth="1.6"/>
+          <path d="M6 14.5h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
+    {
+      id: 'CityPay',
+      label: t.checkout.paymentMethods.cityPay,
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="1.6"/>
+          <path d="M12 6.5v11M14.7 9c0-1.1-1.2-2-2.7-2s-2.7.9-2.7 2c0 1.1 1.2 1.6 2.7 2s2.7.9 2.7 2c0 1.1-1.2 2-2.7 2s-2.7-.9-2.7-2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
+  ]
+}
 
-const DISCOUNT_ERROR_MESSAGES: Record<string, string> = {
-  not_found: 'კოდი არასწორია.',
-  inactive: 'კოდი აღარ არის აქტიური.',
-  expired: 'კოდის ვადა ამოიწურა.',
-  max_uses: 'კოდი აღარ არის ხელმისაწვდომი.',
+function getDiscountErrorMessages(t: StorefrontStrings): Record<string, string> {
+  return {
+    not_found: t.checkout.discountErrors.notFound,
+    inactive: t.checkout.discountErrors.inactive,
+    expired: t.checkout.discountErrors.expired,
+    max_uses: t.checkout.discountErrors.maxUses,
+  }
 }
 
 function Section({
@@ -112,17 +117,21 @@ export function Checkout({
   themeId,
   tokens,
   pages,
+  t,
 }: {
   slug: string
   themeId: ThemeId
   tokens: Required<ThemeConfig>
   pages: StorePageResponse[]
+  t: StorefrontStrings
 }) {
   const { cart } = useStorefrontCart()
   const checkout = useCheckout(slug)
   const validateDiscount = useValidateDiscountCode(slug)
   const surface = SURFACE_CLASSES[themeId]
   const radius = getRadiusClass(themeId, tokens)
+  const paymentOptions = getPaymentOptions(t)
+  const discountErrorMessages = getDiscountErrorMessages(t)
 
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -153,7 +162,7 @@ export function Checkout({
     Bog: tokens.bogEnabled,
     CityPay: tokens.cityPayEnabled,
   }
-  const enabledPaymentOptions = PAYMENT_OPTIONS.filter(opt => paymentEnabled[opt.id])
+  const enabledPaymentOptions = paymentOptions.filter(opt => paymentEnabled[opt.id])
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
     () => enabledPaymentOptions[0]?.id ?? 'CashOnDelivery'
@@ -191,8 +200,8 @@ export function Checkout({
             setAppliedDiscount(null)
             setDiscountError(
               result.errorCode === 'min_order' && result.minOrderAmount != null
-                ? `მინიმალური შეკვეთა კოდის გამოსაყენებლად: ₾${result.minOrderAmount.toFixed(2)}`
-                : DISCOUNT_ERROR_MESSAGES[result.errorCode ?? 'not_found']
+                ? t.checkout.minOrderDiscountError(result.minOrderAmount.toFixed(2))
+                : discountErrorMessages[result.errorCode ?? 'not_found']
             )
           }
         },
@@ -229,7 +238,7 @@ export function Checkout({
   if (redirectUrl) {
     return (
       <div className={`${surface.page} min-h-screen flex items-center justify-center`}>
-        <p className={`text-sm ${surface.muted}`}>გადამისამართება უსაფრთხო გადახდის გვერდზე...</p>
+        <p className={`text-sm ${surface.muted}`}>{t.checkout.redirecting}</p>
       </div>
     )
   }
@@ -244,27 +253,27 @@ export function Checkout({
             </svg>
           </div>
           <div>
-            <h1 className={`font-black text-3xl mb-2 ${surface.text}`}>{tokens.checkoutThankYouHeading || 'შეკვეთა გაფორმდა!'}</h1>
+            <h1 className={`font-black text-3xl mb-2 ${surface.text}`}>{tokens.checkoutThankYouHeading || t.checkout.thankYouHeading}</h1>
             <p className={`text-sm break-words ${surface.muted}`}>
-              {tokens.checkoutThankYouMessage || `გმადლობთ, ${fullName}. თქვენი შეკვეთა #${checkout.data.id.slice(0, 8)} მიღებულია. დეტალები გამოგზავნილია ${email}-ზე.`}
+              {tokens.checkoutThankYouMessage || t.checkout.thankYouMessage(fullName, checkout.data.id.slice(0, 8), email)}
             </p>
             <p className={`text-sm font-bold mt-3 ${surface.text}`}>
-              სულ: ₾{checkout.data.total.toFixed(2)}
+              {t.checkout.orderTotal(checkout.data.total.toFixed(2))}
               {checkout.data.shippingZoneName && (
                 <span className={`font-normal ${surface.muted}`}>
-                  {' '}(მათ შორის მიწოდება{checkout.data.shippingFee > 0 ? ` — ₾${checkout.data.shippingFee.toFixed(2)}` : ' — უფასო'}, {checkout.data.shippingZoneName})
+                  {' '}({checkout.data.shippingFee > 0 ? t.checkout.shippingIncluded(checkout.data.shippingFee.toFixed(2)) : t.checkout.shippingIncludedFree}, {checkout.data.shippingZoneName})
                 </span>
               )}
               {checkout.data.discountAmount > 0 && (
                 <span className="font-normal text-emerald-500">
-                  {' '}(ფასდაკლება{checkout.data.discountCode ? ` ${checkout.data.discountCode}` : ''} −₾{checkout.data.discountAmount.toFixed(2)})
+                  {' '}{t.checkout.discountApplied(checkout.data.discountCode ?? '', checkout.data.discountAmount.toFixed(2))}
                 </span>
               )}
             </p>
           </div>
           {checkout.data.isPickup && (
             <div className={`w-full text-left border ${surface.border} ${surface.card} ${radius} p-5`}>
-              <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${surface.muted}`}>თვითგატანის მისამართი</p>
+              <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${surface.muted}`}>{t.checkout.pickupAddressLabel}</p>
               <p className={`text-sm ${surface.text}`}>{tokens.pickupAddress}</p>
               {tokens.pickupInstructions && (
                 <p className={`text-xs whitespace-pre-line mt-1 ${surface.muted}`}>{tokens.pickupInstructions}</p>
@@ -274,7 +283,7 @@ export function Checkout({
           {paymentNotes[checkout.data.paymentMethod] && (
             <div className={`w-full text-left border ${surface.border} ${surface.card} ${radius} p-5`}>
               <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${surface.muted}`}>
-                {PAYMENT_OPTIONS.find(opt => opt.id === checkout.data.paymentMethod)?.label}
+                {paymentOptions.find(opt => opt.id === checkout.data.paymentMethod)?.label}
               </p>
               <p className={`text-sm whitespace-pre-line break-words ${surface.text}`}>{paymentNotes[checkout.data.paymentMethod]}</p>
             </div>
@@ -284,7 +293,7 @@ export function Checkout({
             className={`text-white text-sm font-semibold px-8 py-3.5 ${radius}`}
             style={{ backgroundColor: tokens.accentColor }}
           >
-            შოპინგის გაგრძელება
+            {t.checkout.continueShopping}
           </Link>
         </div>
       </div>
@@ -295,9 +304,9 @@ export function Checkout({
     return (
       <div className={`${surface.page} min-h-screen`}>
         <div className="max-w-lg mx-auto px-4 sm:px-6 py-24 text-center">
-          <h1 className={`font-black text-2xl mb-4 ${surface.text}`}>გადასახდელი ნივთები არ არის</h1>
+          <h1 className={`font-black text-2xl mb-4 ${surface.text}`}>{t.checkout.emptyHeading}</h1>
           <Link href={`/`} className={`text-sm underline underline-offset-2 ${surface.text}`}>
-            პროდუქტების ნახვა →
+            {t.checkout.viewProducts}
           </Link>
         </div>
       </div>
@@ -314,9 +323,9 @@ export function Checkout({
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
             <path d="M9 3L5 7l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          კალათაში დაბრუნება
+          {t.checkout.backToCart}
         </Link>
-        <h1 className={`font-black text-3xl tracking-tight mb-10 ${surface.text}`}>გადახდა</h1>
+        <h1 className={`font-black text-3xl tracking-tight mb-10 ${surface.text}`}>{t.checkout.pageHeading}</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
           <form
@@ -339,29 +348,29 @@ export function Checkout({
               })
             }}
           >
-            <Section title="პირადი ინფორმაცია" surface={surface} radius={radius}>
+            <Section title={t.checkout.personalInfo} surface={surface} radius={radius}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>სახელი <span className="text-red-400">*</span></label>
-                  <input required value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="გიორგი" className={inputClass} />
+                  <label className={labelClass}>{t.checkout.firstName} <span className="text-red-400">*</span></label>
+                  <input required value={firstName} onChange={e => setFirstName(e.target.value)} placeholder={t.checkout.firstNamePlaceholder} className={inputClass} />
                 </div>
                 <div>
-                  <label className={labelClass}>გვარი <span className="text-red-400">*</span></label>
-                  <input required value={lastName} onChange={e => setLastName(e.target.value)} placeholder="გიორგაძე" className={inputClass} />
+                  <label className={labelClass}>{t.checkout.lastName} <span className="text-red-400">*</span></label>
+                  <input required value={lastName} onChange={e => setLastName(e.target.value)} placeholder={t.checkout.lastNamePlaceholder} className={inputClass} />
                 </div>
                 <div>
-                  <label className={labelClass}>ელფოსტა <span className="text-red-400">*</span></label>
-                  <input required type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="giorgi@example.com" className={inputClass} />
+                  <label className={labelClass}>{t.checkout.email} <span className="text-red-400">*</span></label>
+                  <input required type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={t.checkout.emailPlaceholder} className={inputClass} />
                 </div>
                 <div>
-                  <label className={labelClass}>ტელეფონი <span className="text-red-400">*</span></label>
-                  <input required type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+995 555 123 456" className={inputClass} />
+                  <label className={labelClass}>{t.checkout.phone} <span className="text-red-400">*</span></label>
+                  <input required type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder={t.checkout.phonePlaceholder} className={inputClass} />
                 </div>
               </div>
             </Section>
 
             {tokens.pickupEnabled && (
-              <Section title="მიწოდების მეთოდი" surface={surface} radius={radius}>
+              <Section title={t.checkout.deliveryMethod} surface={surface} radius={radius}>
                 <div className="grid grid-cols-2 gap-3">
                   {(['delivery', 'pickup'] as const).map(method => {
                     const isSelected = deliveryMethod === method
@@ -373,7 +382,7 @@ export function Checkout({
                         className={`flex items-center justify-center gap-2 p-4 border-2 transition-colors text-sm font-semibold ${radius} ${surface.card}`}
                         style={{ borderColor: isSelected ? tokens.accentColor : undefined, color: isSelected ? tokens.accentColor : undefined }}
                       >
-                        {method === 'delivery' ? 'მიწოდება' : 'თვითგატანა'}
+                        {method === 'delivery' ? t.checkout.delivery : t.checkout.pickup}
                       </button>
                     )
                   })}
@@ -382,21 +391,22 @@ export function Checkout({
             )}
 
             {isPickup ? (
-              <Section title="თვითგატანის მისამართი" surface={surface} radius={radius}>
+              <Section title={t.checkout.pickupAddressSection} surface={surface} radius={radius}>
                 <p className={`text-sm font-medium ${surface.text}`}>{tokens.pickupAddress}</p>
                 {tokens.pickupInstructions && (
                   <p className={`text-xs whitespace-pre-line ${surface.muted}`}>{tokens.pickupInstructions}</p>
                 )}
               </Section>
             ) : (
-              <Section title="მიწოდების მისამართი" surface={surface} radius={radius}>
+              <Section title={t.checkout.deliveryAddressSection} surface={surface} radius={radius}>
                 <div>
-                  <label className={labelClass}>მისამართი <span className="text-red-400">*</span></label>
-                  <input required value={address} onChange={e => setAddress(e.target.value)} placeholder="ქუჩა, ქალაქი" className={inputClass} />
+                  <label className={labelClass}>{t.checkout.address} <span className="text-red-400">*</span></label>
+                  <input required value={address} onChange={e => setAddress(e.target.value)} placeholder={t.checkout.addressPlaceholder} className={inputClass} />
                 </div>
                 <LocationPicker
                   surface={surface}
                   radius={radius}
+                  t={t}
                   onLocationChange={loc => {
                     setAddress(loc.address)
                     setCoords({ lat: loc.lat, lng: loc.lng })
@@ -406,7 +416,7 @@ export function Checkout({
             )}
 
             {hasShippingZones && !isPickup && (
-              <Section title="მიწოდების არეალი" surface={surface} radius={radius}>
+              <Section title={t.checkout.shippingZone} surface={surface} radius={radius}>
                 <div className="flex flex-col gap-2">
                   {tokens.shippingZones.map(zone => {
                     const isSelected = shippingZoneId === zone.id
@@ -426,7 +436,7 @@ export function Checkout({
                         </div>
                         <p className={`font-semibold text-sm flex-1 min-w-0 break-words ${surface.text}`}>{zone.name}</p>
                         <span className={`text-sm font-bold shrink-0 ${surface.text}`}>
-                          {qualifiesForFreeShipping ? 'უფასო' : `₾${zone.price.toFixed(2)}`}
+                          {qualifiesForFreeShipping ? t.checkout.free : `₾${zone.price.toFixed(2)}`}
                         </span>
                       </button>
                     )
@@ -434,15 +444,15 @@ export function Checkout({
                 </div>
                 {!qualifiesForFreeShipping && tokens.freeShippingThreshold != null && (
                   <p className={`text-xs ${surface.muted}`}>
-                    დაამატეთ კიდევ ₾{(tokens.freeShippingThreshold - cartTotal).toFixed(2)} და მიწოდება იქნება უფასო.
+                    {t.checkout.freeShippingNudge2((tokens.freeShippingThreshold - cartTotal).toFixed(2))}
                   </p>
                 )}
               </Section>
             )}
 
-            <Section title="გადახდის მეთოდი" surface={surface} radius={radius}>
+            <Section title={t.checkout.paymentMethodSection} surface={surface} radius={radius}>
               {enabledPaymentOptions.length === 0 && (
-                <p className={`text-sm ${surface.muted}`}>ამჟამად გადახდის მეთოდი მიუწვდომელია.</p>
+                <p className={`text-sm ${surface.muted}`}>{t.checkout.noPaymentMethodsAvailable}</p>
               )}
               <div className="flex flex-col gap-3">
                 {enabledPaymentOptions.map(opt => {
@@ -476,12 +486,12 @@ export function Checkout({
             </Section>
 
             {tokens.checkoutNotesEnabled && (
-              <Section title="შენიშვნა შეკვეთაზე" surface={surface} radius={radius}>
+              <Section title={t.checkout.orderNotes} surface={surface} radius={radius}>
                 <textarea
                   value={orderNote}
                   onChange={e => setOrderNote(e.target.value)}
                   rows={3}
-                  placeholder="მაგ. კარიბჭის კოდი, მიწოდების მოსახერხებელი დრო..."
+                  placeholder={t.checkout.notesPlaceholder}
                   className={`${inputClass} resize-none`}
                 />
               </Section>
@@ -497,7 +507,7 @@ export function Checkout({
                   className="mt-0.5 shrink-0"
                 />
                 <span>
-                  ვეთანხმები{' '}
+                  {t.checkout.tosPrefix}{' '}
                   <Link href={`/pages/${tosPage.slug}`} target="_blank" className="underline underline-offset-2">
                     {tosPage.title}
                   </Link>
@@ -507,11 +517,11 @@ export function Checkout({
 
             {!meetsMinOrder && tokens.minOrderAmount != null && (
               <p className="text-amber-500 text-sm">
-                მინიმალური შეკვეთის ოდენობაა ₾{tokens.minOrderAmount.toFixed(2)} — დაამატეთ კიდევ ₾{(tokens.minOrderAmount - cartTotal).toFixed(2)}.
+                {t.checkout.minOrderNotMet(tokens.minOrderAmount.toFixed(2), (tokens.minOrderAmount - cartTotal).toFixed(2))}
               </p>
             )}
 
-            {checkout.isError && <p className="text-red-400 text-sm">დაფიქსირდა შეცდომა. სცადეთ თავიდან.</p>}
+            {checkout.isError && <p className="text-red-400 text-sm">{t.checkout.genericError}</p>}
 
             <button
               type="submit"
@@ -519,13 +529,13 @@ export function Checkout({
               className={`py-4 text-white text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-90 disabled:opacity-40 ${radius}`}
               style={{ backgroundColor: tokens.accentColor }}
             >
-              {checkout.isPending ? 'შეკვეთის გაფორმება...' : 'შეკვეთის გაფორმება'}
+              {checkout.isPending ? t.checkout.submitPending : t.checkout.submitIdle}
             </button>
           </form>
 
           <div className="lg:col-span-2">
             <div className={`${surface.card} border ${surface.border} ${radius} p-5 lg:sticky lg:top-20`}>
-              <h3 className={`font-bold text-sm mb-4 pb-4 border-b ${surface.border} ${surface.text}`}>შეკვეთის შეჯამება</h3>
+              <h3 className={`font-bold text-sm mb-4 pb-4 border-b ${surface.border} ${surface.text}`}>{t.checkout.orderSummarySidebar}</h3>
               <div className={`flex flex-col divide-y ${surface.border} mb-4`}>
                 {cart.bundleItems.map(item => (
                   <div key={item.id} className="flex items-center gap-3 py-3">
@@ -537,7 +547,7 @@ export function Checkout({
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-semibold truncate ${surface.text}`}>{item.bundleName} <span className="font-normal opacity-60">(ბანდლი)</span></p>
+                      <p className={`text-xs font-semibold truncate ${surface.text}`}>{item.bundleName} <span className="font-normal opacity-60">{t.checkout.bundleTag}</span></p>
                       <p className={`text-[10px] ${surface.muted}`}>×{item.quantity}</p>
                     </div>
                     <span className={`text-xs font-bold shrink-0 ${surface.text}`}>₾{(item.bundlePrice * item.quantity).toFixed(2)}</span>
@@ -567,23 +577,23 @@ export function Checkout({
               </div>
               <div className={`flex flex-col gap-1.5 border-t ${surface.border} pt-4 mb-1`}>
                 <div className={`flex justify-between text-sm ${surface.muted}`}>
-                  <span>ჯამი</span>
+                  <span>{t.checkout.subtotal}</span>
                   <span>₾{cart.total.toFixed(2)}</span>
                 </div>
                 {isPickup ? (
                   <div className={`flex justify-between text-sm ${surface.muted}`}>
-                    <span>მიწოდება</span>
-                    <span>თვითგატანა</span>
+                    <span>{t.checkout.shipping}</span>
+                    <span>{t.checkout.pickup}</span>
                   </div>
                 ) : hasShippingZones && (
                   <div className={`flex justify-between text-sm ${surface.muted}`}>
-                    <span>მიწოდება{selectedZone ? ` (${selectedZone.name})` : ''}</span>
-                    <span>{shippingFee === 0 ? 'უფასო' : `₾${shippingFee.toFixed(2)}`}</span>
+                    <span>{t.checkout.shipping}{selectedZone ? ` (${selectedZone.name})` : ''}</span>
+                    <span>{shippingFee === 0 ? t.checkout.free : `₾${shippingFee.toFixed(2)}`}</span>
                   </div>
                 )}
                 {appliedDiscount && (
                   <div className="flex justify-between text-sm text-emerald-500">
-                    <span>ფასდაკლება ({appliedDiscount.code})</span>
+                    <span>{t.checkout.discountRow(appliedDiscount.code)}</span>
                     <span>−₾{discountAmount.toFixed(2)}</span>
                   </div>
                 )}
@@ -598,7 +608,7 @@ export function Checkout({
                       onClick={handleRemoveDiscountCode}
                       className={`text-xs underline underline-offset-2 ${surface.muted} hover:opacity-80`}
                     >
-                      წაშლა
+                      {t.checkout.removeDiscount}
                     </button>
                   </div>
                 ) : (
@@ -607,7 +617,7 @@ export function Checkout({
                       type="text"
                       value={discountCodeInput}
                       onChange={e => setDiscountCodeInput(e.target.value)}
-                      placeholder="ფასდაკლების კოდი"
+                      placeholder={t.checkout.discountCodePlaceholder}
                       className={`${inputClass} flex-1 uppercase`}
                     />
                     <button
@@ -617,7 +627,7 @@ export function Checkout({
                       className={`px-4 text-xs font-semibold shrink-0 border ${surface.border} ${radius} disabled:opacity-40`}
                       style={{ color: tokens.accentColor }}
                     >
-                      {validateDiscount.isPending ? '...' : 'გააქტიურება'}
+                      {validateDiscount.isPending ? t.checkout.applyPending : t.checkout.apply}
                     </button>
                   </div>
                 )}
@@ -625,7 +635,7 @@ export function Checkout({
               </div>
 
               <div className={`border-t ${surface.border} pt-4 flex justify-between font-black text-base ${surface.text}`}>
-                <span>სულ</span>
+                <span>{t.checkout.grandTotal}</span>
                 <span>₾{orderTotal.toFixed(2)}</span>
               </div>
             </div>

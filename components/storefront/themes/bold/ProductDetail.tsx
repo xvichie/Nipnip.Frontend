@@ -10,6 +10,7 @@ import { StickyAddToCartBar } from '@/components/storefront/shared/StickyAddToCa
 import { ProductCard } from './ProductCard'
 import { glowShadow, shadeColor } from '@/lib/store/theme-config'
 import type { CategoryResponse, ProductDetailResponse, ThemeConfig } from '@/lib/types/storefront'
+import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
 import { CImg } from '@/components/ui/CImg'
 
 export function ProductDetail({
@@ -23,6 +24,7 @@ export function ProductDetail({
   category?: CategoryResponse
   tokens: Required<ThemeConfig>
 }) {
+  const { t } = useStorefrontLanguage()
   const { addItem } = useStorefrontCart()
   const [selected, setSelected] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
@@ -62,7 +64,7 @@ export function ProductDetail({
   const images = product.images
   const gradient = `linear-gradient(135deg, ${tokens.accentColor}, ${shadeColor(tokens.accentColor, -30)})`
   const isLowStock = tokens.lowStockThreshold != null && stock !== null && stock > 0 && stock <= tokens.lowStockThreshold
-  const lowStockText = isLowStock ? (tokens.lowStockMessage || 'მხოლოდ {n} ცალია დარჩენილი!').replace('{n}', String(stock)) : null
+  const lowStockText = isLowStock ? (tokens.lowStockMessage ? tokens.lowStockMessage.replace('{n}', String(stock)) : t.product.lowStock(stock!)) : null
 
   async function handleAddToCart() {
     if (!canAddToCart) return
@@ -82,10 +84,11 @@ export function ProductDetail({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 pb-20">
         <Breadcrumbs
           items={[
-            { label: 'მთავარი', href: '/' },
-            category ? { label: category.name, href: `/products/category/${category.slug}` } : { label: 'ყველა პროდუქტი', href: '/products' },
+            { label: t.product.breadcrumbHome, href: '/' },
+            category ? { label: category.name, href: `/products/category/${category.slug}` } : { label: t.product.breadcrumbAllProducts, href: '/products' },
             { label: product.name },
           ]}
+          t={t}
           textClassName="text-white"
           mutedClassName="text-white/40 hover:text-white"
         />
@@ -114,14 +117,14 @@ export function ProductDetail({
                 <button
                   type="button"
                   onClick={() => setLightboxOpen(true)}
-                  aria-label="სურათის გადიდება"
+                  aria-label={t.product.zoomAriaLabel}
                   className="w-full h-full cursor-zoom-in"
                 >
                   <CImg src={images[activeImage].url} cldWidth={1000} alt={product.name} className="w-full h-full object-contain" />
                 </button>
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-white/20 text-xs uppercase tracking-wider">
-                  სურათი არ არის
+                  {t.product.noImage}
                 </div>
               )}
             </div>
@@ -159,7 +162,7 @@ export function ProductDetail({
                 onClick={() => setSizeGuideOpen(true)}
                 className="text-xs text-white/40 hover:text-white underline underline-offset-2 mb-4 text-left w-fit"
               >
-                საზომი ცხრილი
+                {t.product.sizeGuide}
               </button>
             )}
 
@@ -183,7 +186,7 @@ export function ProductDetail({
               </div>
               {selectionComplete && stock !== null && (
                 <span className={`text-xs ${isLowStock ? 'text-red-400 font-medium' : 'text-white/40'}`}>
-                  {stock > 0 ? (lowStockText ?? `მარაგშია: ${stock} ცალი`) : 'არ არის მარაგში'}
+                  {stock > 0 ? (lowStockText ?? t.product.inStock(stock)) : t.product.outOfStock}
                 </span>
               )}
             </div>
@@ -197,16 +200,16 @@ export function ProductDetail({
               style={{ background: added ? '#2d6a2d' : gradient, boxShadow: added ? 'none' : glowShadow(tokens.accentColor, '88') }}
             >
               {added
-                ? '✓ დაემატა კალათაში'
+                ? t.product.addedToCart
                 : !selectionComplete
-                ? 'აირჩიეთ ვარიანტი'
+                ? t.product.chooseVariant
                 : stock !== null && stock < 1
-                ? 'არ არის მარაგში'
-                : 'კალათაში დამატება'}
+                ? t.product.outOfStock
+                : t.product.addToCart}
             </button>
 
             {addError && (
-              <p className="text-red-400 text-sm -mt-6 mb-8">დაფიქსირდა შეცდომა. სცადეთ თავიდან.</p>
+              <p className="text-red-400 text-sm -mt-6 mb-8">{t.product.addToCartError}</p>
             )}
 
             {tokens.deliveryEstimateText && (
@@ -223,14 +226,14 @@ export function ProductDetail({
 
             {product.description && (
               <div className="pt-8 border-t border-white/10">
-                <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-3">აღწერა</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-3">{t.product.description}</p>
                 <p className="text-white/70 text-sm leading-relaxed">{product.description}</p>
               </div>
             )}
 
             {product.videoUrl && (
               <div className="pt-8 border-t border-white/10">
-                <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-3">ვიდეო</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-3">{t.product.video}</p>
                 <video src={product.videoUrl} controls className="w-full max-w-sm rounded-xl bg-black" />
               </div>
             )}
@@ -239,7 +242,7 @@ export function ProductDetail({
 
         {tokens.showRelatedProducts && product.relatedProducts.length > 0 && (
           <div className="mt-16 pt-10 border-t border-white/10">
-            <h2 className="font-black text-2xl text-white tracking-tight mb-6">{tokens.relatedProductsHeading || 'მსგავსი პროდუქტები'}</h2>
+            <h2 className="font-black text-2xl text-white tracking-tight mb-6">{tokens.relatedProductsHeading || t.product.relatedProducts}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-5">
               {product.relatedProducts.map(related => (
                 <ProductCard key={related.id} slug={slug} product={related} tokens={tokens} />
@@ -260,7 +263,7 @@ export function ProductDetail({
       )}
 
       {sizeGuideOpen && tokens.sizeGuideContent && (
-        <SizeGuideModal content={tokens.sizeGuideContent} onClose={() => setSizeGuideOpen(false)} />
+        <SizeGuideModal content={tokens.sizeGuideContent} t={t} onClose={() => setSizeGuideOpen(false)} />
       )}
 
       {tokens.showStickyMobileCta && (
@@ -269,8 +272,8 @@ export function ProductDetail({
           productName={product.name}
           priceLabel={salePrice !== null ? `₾${salePrice.toFixed(2)}` : `₾${price.toFixed(2)}`}
           disabled={!canAddToCart}
-          addedLabel={added ? '✓ დაემატა კალათაში' : null}
-          label={!selectionComplete ? 'აირჩიეთ ვარიანტი' : stock !== null && stock < 1 ? 'არ არის მარაგში' : 'კალათაში დამატება'}
+          addedLabel={added ? t.product.addedToCart : null}
+          label={!selectionComplete ? t.product.chooseVariant : stock !== null && stock < 1 ? t.product.outOfStock : t.product.addToCart}
           onAdd={handleAddToCart}
           accentColor={tokens.accentColor}
         />

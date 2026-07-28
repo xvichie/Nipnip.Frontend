@@ -1,16 +1,19 @@
 import type { ThemeConfig } from '@/lib/types/storefront'
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
 
 // Renders the merchant-authored homepage FAQ block. Each theme's Home.tsx supplies its own
 // typography/border classes so the block matches that theme's look, while the accordion
 // mechanics (plain <details>/<summary>, no JS) stay shared.
 export function FaqAccordion({
   tokens,
+  t,
   headingClassName,
   questionClassName,
   answerClassName,
   borderClassName,
 }: {
   tokens: Required<ThemeConfig>
+  t: StorefrontStrings
   headingClassName: string
   questionClassName: string
   answerClassName: string
@@ -20,7 +23,7 @@ export function FaqAccordion({
 
   return (
     <div>
-      <h2 className={headingClassName}>{tokens.faqHeading || 'ხშირად დასმული კითხვები'}</h2>
+      <h2 className={headingClassName}>{tokens.faqHeading || t.faq.headingDefault}</h2>
       <div className={`flex flex-col divide-y ${borderClassName}`}>
         {tokens.faqItems.map((item, i) => (
           <details key={i} className="group py-4">

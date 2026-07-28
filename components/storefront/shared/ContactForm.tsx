@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useSubmitContactMessage } from '@/lib/queries/storefront'
+import { useStorefrontLanguage } from './StorefrontLanguageProvider'
 import type { ThemeConfig } from '@/lib/types/storefront'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -19,6 +20,7 @@ export function ContactForm({
   radiusClass?: string
   heading?: string
 }) {
+  const { t } = useStorefrontLanguage()
   const { mutate: submit, isPending, isSuccess, error, reset } = useSubmitContactMessage(slug)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -38,19 +40,19 @@ export function ContactForm({
     setValidationError('')
 
     if (!name.trim()) {
-      setValidationError('სახელი სავალდებულოა.')
+      setValidationError(t.contactForm.errorName)
       return
     }
     if (!message.trim()) {
-      setValidationError('შეტყობინება სავალდებულოა.')
+      setValidationError(t.contactForm.errorMessage)
       return
     }
     if (!email.trim() && !phone.trim()) {
-      setValidationError('მიუთითეთ ელფოსტა ან ტელეფონის ნომერი.')
+      setValidationError(t.contactForm.errorContact)
       return
     }
     if (email.trim() && !EMAIL_PATTERN.test(email.trim())) {
-      setValidationError('ელფოსტის ფორმატი არასწორია.')
+      setValidationError(t.contactForm.errorEmail)
       return
     }
 
@@ -63,13 +65,13 @@ export function ContactForm({
   if (isSuccess) {
     return (
       <div className={`${radiusClass} border ${dark ? 'border-white/10 bg-white/[0.04]' : 'border-gray-200 bg-gray-50'} px-6 py-8 text-center`}>
-        <p className={`text-sm font-medium ${textClass}`}>მადლობთ! თქვენი შეტყობინება გაიგზავნა.</p>
+        <p className={`text-sm font-medium ${textClass}`}>{t.contactForm.success}</p>
         <button
           type="button"
           onClick={() => reset()}
           className={`mt-3 text-xs underline underline-offset-2 ${mutedClass} hover:opacity-80`}
         >
-          ახალი შეტყობინების გაგზავნა
+          {t.contactForm.sendAnother}
         </button>
       </div>
     )
@@ -84,14 +86,14 @@ export function ContactForm({
           type="text"
           value={name}
           onChange={e => setName(e.target.value)}
-          placeholder="სახელი"
+          placeholder={t.contactForm.namePlaceholder}
           className={`${radiusClass} border px-3 py-2.5 text-sm focus:outline-none transition-colors ${inputClass}`}
         />
         <input
           type="tel"
           value={phone}
           onChange={e => setPhone(e.target.value)}
-          placeholder="ტელეფონის ნომერი"
+          placeholder={t.contactForm.phonePlaceholder}
           className={`${radiusClass} border px-3 py-2.5 text-sm focus:outline-none transition-colors ${inputClass}`}
         />
       </div>
@@ -100,21 +102,21 @@ export function ContactForm({
         type="email"
         value={email}
         onChange={e => setEmail(e.target.value)}
-        placeholder="ელფოსტა"
+        placeholder={t.contactForm.emailPlaceholder}
         className={`${radiusClass} border px-3 py-2.5 text-sm focus:outline-none transition-colors ${inputClass}`}
       />
-      <p className={`text-xs -mt-2 ${mutedClass}`}>მიუთითეთ ელფოსტა ან ტელეფონის ნომერი</p>
+      <p className={`text-xs -mt-2 ${mutedClass}`}>{t.contactForm.emailHelper}</p>
 
       <textarea
         value={message}
         onChange={e => setMessage(e.target.value)}
-        placeholder="შეტყობინება"
+        placeholder={t.contactForm.messagePlaceholder}
         rows={4}
         className={`${radiusClass} border px-3 py-2.5 text-sm focus:outline-none transition-colors resize-none ${inputClass}`}
       />
 
       {validationError && <p className="text-red-400 text-xs">{validationError}</p>}
-      {error && <p className="text-red-400 text-xs">დაფიქსირდა შეცდომა. სცადეთ თავიდან.</p>}
+      {error && <p className="text-red-400 text-xs">{t.contactForm.submitError}</p>}
 
       <button
         type="submit"
@@ -122,7 +124,7 @@ export function ContactForm({
         className={`${radiusClass} self-start px-6 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-40`}
         style={{ backgroundColor: tokens.accentColor }}
       >
-        {isPending ? 'იგზავნება...' : 'გაგზავნა'}
+        {isPending ? t.contactForm.submitPending : t.contactForm.submitIdle}
       </button>
     </form>
   )

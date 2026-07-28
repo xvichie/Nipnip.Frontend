@@ -6,7 +6,9 @@ import { usePathname } from 'next/navigation'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { getNavCategories, getNavPages } from '@/lib/store/nav-menu'
 import { StoreHoursBadge } from '@/components/storefront/shared/StoreHoursBadge'
+import { StorefrontLanguageSwitcher } from '@/components/storefront/shared/StorefrontLanguageSwitcher'
 import type { CategoryResponse, StorePageResponse, ThemeConfig } from '@/lib/types/storefront'
+import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
 import { CImg } from '@/components/ui/CImg'
 
 function Divider() {
@@ -26,6 +28,7 @@ export function Header({
   pages: StorePageResponse[]
   tokens: Required<ThemeConfig>
 }) {
+  const { t } = useStorefrontLanguage()
   const { count } = useStorefrontCart()
   const pathname = usePathname()
   const isCheckout = pathname?.includes('/checkout')
@@ -57,7 +60,7 @@ export function Header({
       {/* thin utility row */}
       <div className="hidden sm:block border-b border-black/10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-8 flex items-center justify-end gap-4">
-          {tokens.storeHoursEnabled && <StoreHoursBadge tokens={tokens} />}
+          {tokens.storeHoursEnabled && <StoreHoursBadge tokens={tokens} t={t} />}
           <span className="text-[10px] uppercase tracking-widest text-[#767676]">{storeName}</span>
         </div>
       </div>
@@ -81,6 +84,8 @@ export function Header({
         </Link>
 
         <div className="flex items-center justify-end gap-2 sm:gap-3">
+          <StorefrontLanguageSwitcher />
+
           {!isCheckout && (
             <Link
               href={`/cart`}
@@ -91,7 +96,7 @@ export function Header({
                 <circle cx="8" cy="15.5" r="1" fill="currentColor"/>
                 <circle cx="13" cy="15.5" r="1" fill="currentColor"/>
               </svg>
-              <span className="hidden sm:inline">კალათა</span>
+              <span className="hidden sm:inline">{t.header.cart}</span>
               {count > 0 && (
                 <span
                   className="absolute -top-1.5 -right-1.5 w-5 h-5 text-white text-[10px] font-bold flex items-center justify-center"
@@ -107,7 +112,7 @@ export function Header({
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              aria-label="მენიუ"
+              aria-label={t.header.menuAriaLabel}
               className="md:hidden flex items-center justify-center w-9 h-9 text-[#111111] hover:opacity-60 transition-opacity"
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
@@ -125,7 +130,7 @@ export function Header({
             href={`/products`}
             className="text-xs uppercase tracking-widest text-[#111111] hover:underline underline-offset-4 whitespace-nowrap"
           >
-            ყველა პროდუქტი
+            {t.header.allProducts}
           </Link>
 
           {navCategories.length > 0 && (
@@ -142,7 +147,7 @@ export function Header({
                     onClick={() => { if (closeTimer.current) clearTimeout(closeTimer.current); setCategoriesOpen(v => !v) }}
                     className="text-xs uppercase tracking-widest text-[#111111] hover:underline underline-offset-4 whitespace-nowrap"
                   >
-                    კატეგორიები
+                    {t.header.categories}
                   </button>
                   {categoriesOpen && (
                     <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 min-w-[180px] bg-white py-2 flex flex-col items-center z-10">
@@ -208,7 +213,7 @@ export function Header({
             <button
               type="button"
               onClick={() => setMobileOpen(false)}
-              aria-label="დახურვა"
+              aria-label={t.header.closeAriaLabel}
               className="self-end mb-3 w-8 h-8 flex items-center justify-center text-[#111111]"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -220,7 +225,7 @@ export function Header({
               onClick={() => setMobileOpen(false)}
               className="text-xs uppercase tracking-widest font-medium text-[#111111] py-2.5 border-b border-black/10"
             >
-              ყველა პროდუქტი
+              {t.header.allProducts}
             </Link>
             {navCategories.map(category => (
               <Link

@@ -7,6 +7,9 @@ import { StorefrontToastProvider } from '@/lib/store/storefront-toast-context'
 import { parseThemeConfig, parseThemeOverride } from '@/lib/store/theme-config'
 import { isThemeId, SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { buildStoreJsonLd, getStoreDescription, getStoreOgImage, getStoreOrigin, getStoreTitle } from '@/lib/store/seo'
+import { STOREFRONT_STRINGS } from '@/lib/storefront-i18n'
+import { getStorefrontLanguage } from '@/lib/storefront-i18n-server'
+import { StorefrontLanguageProvider } from '@/components/storefront/shared/StorefrontLanguageProvider'
 import { JsonLd } from '@/components/storefront/shared/JsonLd'
 import { PageViewTracker } from '@/components/storefront/shared/PageViewTracker'
 import { Footer as MinimalFooter } from '@/components/storefront/themes/minimal/Footer'
@@ -123,12 +126,14 @@ export default async function StoreLayout({
   if (store.isProspect && !(await isCurrentUserAdmin())) notFound()
 
   const tokens = parseThemeConfig(store.themeConfig)
+  const lang = await getStorefrontLanguage()
+  const t = STOREFRONT_STRINGS[lang]
 
   // A branded "closed"/"coming soon" notice instead of a bare 404 — merchant-configurable via
   // the Store Overview page. Skips the categories/pages fetch and the full Header/Footer/cart
   // tree entirely, since there's no real storefront to browse while offline.
   if (!store.isActive) {
-    return <StoreOfflinePage store={store} tokens={tokens} />
+    return <StoreOfflinePage store={store} tokens={tokens} t={t} />
   }
 
   const [categories, pages] = await Promise.all([
@@ -155,17 +160,19 @@ export default async function StoreLayout({
       <TrackingScripts tokens={tokens} />
       {override.customCss && <style dangerouslySetInnerHTML={{ __html: override.customCss }} />}
       {override.announcementHtml && <div dangerouslySetInnerHTML={{ __html: override.announcementHtml }} />}
-      <AnnouncementBar slug={slug} tokens={tokens} />
-      <SaleCountdownBar tokens={tokens} />
-      <StorefrontToastProvider>
-        <StorefrontCartProvider slug={slug}>
-          {showTopBar && <SocialBar themeId={themeId} tokens={tokens} edge="top" />}
-          <Header slug={slug} storeName={store.name} categories={categories} pages={pages} tokens={tokens} />
-          <main className="flex-1">{children}</main>
-          <Footer slug={slug} storeName={store.name} tokens={tokens} pages={pages} />
-          {showBottomBar && <SocialBar themeId={themeId} tokens={tokens} edge="bottom" />}
-        </StorefrontCartProvider>
-      </StorefrontToastProvider>
+      <StorefrontLanguageProvider initialLang={lang}>
+        <AnnouncementBar slug={slug} tokens={tokens} />
+        <SaleCountdownBar tokens={tokens} />
+        <StorefrontToastProvider>
+          <StorefrontCartProvider slug={slug}>
+            {showTopBar && <SocialBar themeId={themeId} tokens={tokens} edge="top" />}
+            <Header slug={slug} storeName={store.name} categories={categories} pages={pages} tokens={tokens} />
+            <main className="flex-1">{children}</main>
+            <Footer slug={slug} storeName={store.name} tokens={tokens} pages={pages} t={t} />
+            {showBottomBar && <SocialBar themeId={themeId} tokens={tokens} edge="bottom" />}
+          </StorefrontCartProvider>
+        </StorefrontToastProvider>
+      </StorefrontLanguageProvider>
       {override.footerExtraHtml && <div dangerouslySetInnerHTML={{ __html: override.footerExtraHtml }} />}
       <FloatingContactButton tokens={tokens} />
     </div>

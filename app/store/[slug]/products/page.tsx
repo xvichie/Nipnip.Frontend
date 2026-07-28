@@ -4,6 +4,7 @@ import { apiFetch } from '@/lib/api'
 import { parseThemeConfig } from '@/lib/store/theme-config'
 import { isThemeId } from '@/lib/storefront-themes'
 import { buildBreadcrumbJsonLd, getStoreUrl, truncateDescription } from '@/lib/store/seo'
+import { getStorefrontStrings } from '@/lib/storefront-i18n-server'
 import { JsonLd } from '@/components/storefront/shared/JsonLd'
 import type { CategoryResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
@@ -33,10 +34,11 @@ const GRID_COMPONENTS = {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const store = await apiFetch<StoreResponse>(`/api/stores/${slug}`, null)
+  const t = await getStorefrontStrings()
 
   return {
-    title: 'ყველა პროდუქტი',
-    description: truncateDescription(`დაათვალიერეთ ${store.name}-ის ყველა პროდუქტი.`),
+    title: t.seo.productsPageTitle,
+    description: truncateDescription(t.seo.productsPageDescription(store.name)),
     alternates: { canonical: getStoreUrl(slug, '/products', store.customDomain) },
   }
 }
@@ -56,12 +58,13 @@ export default async function ProductsPage({
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
   const tokens = parseThemeConfig(store.themeConfig)
   const GridComponent = GRID_COMPONENTS[themeId]
+  const t = await getStorefrontStrings()
 
   return (
     <>
       <JsonLd data={buildBreadcrumbJsonLd([
         { name: store.name, url: getStoreUrl(slug, '', store.customDomain) },
-        { name: 'ყველა პროდუქტი', url: getStoreUrl(slug, '/products', store.customDomain) },
+        { name: t.seo.productsPageTitle, url: getStoreUrl(slug, '/products', store.customDomain) },
       ])} />
       <GridComponent
         slug={slug}

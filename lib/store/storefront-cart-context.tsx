@@ -11,6 +11,7 @@ import {
   useUpdateCartItem,
 } from '@/lib/queries/storefront'
 import { useStorefrontToast } from '@/lib/store/storefront-toast-context'
+import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
 import type { CartResponse } from '@/lib/types/storefront'
 
 type StorefrontCartContextValue = {
@@ -37,6 +38,7 @@ export function StorefrontCartProvider({
   preview?: boolean
   children: React.ReactNode
 }) {
+  const { t } = useStorefrontLanguage()
   const { data: cart, isLoading } = useCart(slug, { enabled: !preview })
   const addMutation = useAddCartItem(slug)
   const updateMutation = useUpdateCartItem(slug)
@@ -59,14 +61,14 @@ export function StorefrontCartProvider({
         addItem: async (productId, optionValueIds, quantity) => {
           if (preview) return
           await addMutation.mutateAsync({ productId, optionValueIds, quantity })
-          showToast('პროდუქტი დაემატა კალათაში')
+          showToast(t.cart.addedToast)
         },
         updateItem: (itemId, quantity) => { if (!preview) updateMutation.mutate({ itemId, body: { quantity } }) },
         removeItem: itemId => { if (!preview) removeMutation.mutate(itemId) },
         addBundle: async (bundleId, quantity) => {
           if (preview) return
           await addBundleMutation.mutateAsync({ bundleId, quantity })
-          showToast('ბანდლი დაემატა კალათაში')
+          showToast(t.cart.bundleAddedToast)
         },
         updateBundleItem: (itemId, quantity) => { if (!preview) updateBundleMutation.mutate({ itemId, body: { quantity } }) },
         removeBundleItem: itemId => { if (!preview) removeBundleMutation.mutate(itemId) },

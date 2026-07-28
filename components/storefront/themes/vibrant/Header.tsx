@@ -6,7 +6,9 @@ import { usePathname } from 'next/navigation'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { getNavCategories, getNavPages } from '@/lib/store/nav-menu'
 import { StoreHoursBadge } from '@/components/storefront/shared/StoreHoursBadge'
+import { StorefrontLanguageSwitcher } from '@/components/storefront/shared/StorefrontLanguageSwitcher'
 import type { CategoryResponse, StorePageResponse, ThemeConfig } from '@/lib/types/storefront'
+import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
 import { CImg } from '@/components/ui/CImg'
 
 export function Header({
@@ -22,6 +24,7 @@ export function Header({
   pages: StorePageResponse[]
   tokens: Required<ThemeConfig>
 }) {
+  const { t } = useStorefrontLanguage()
   const { count } = useStorefrontCart()
   const pathname = usePathname()
   const isCheckout = pathname?.includes('/checkout')
@@ -64,7 +67,7 @@ export function Header({
           )}
         </Link>
 
-        {tokens.storeHoursEnabled && <StoreHoursBadge tokens={tokens} />}
+        {tokens.storeHoursEnabled && <StoreHoursBadge tokens={tokens} t={t} />}
 
         {hasNav && (
           <nav className="hidden md:flex items-center gap-1.5">
@@ -72,7 +75,7 @@ export function Header({
               href={`/products`}
               className="rounded-full px-4 py-2 text-sm font-semibold text-[#1a1a1a]/70 hover:text-[#1a1a1a] hover:bg-[#fff2ec] transition-colors whitespace-nowrap"
             >
-              ყველა პროდუქტი
+              {t.header.allProducts}
             </Link>
 
             {navCategories.length > 0 && (
@@ -83,7 +86,7 @@ export function Header({
                     onClick={() => { if (closeTimer.current) clearTimeout(closeTimer.current); setCategoriesOpen(v => !v) }}
                     className="flex items-center gap-1 rounded-full px-4 py-2 text-sm font-semibold text-[#1a1a1a]/70 hover:text-[#1a1a1a] hover:bg-[#fff2ec] transition-colors whitespace-nowrap"
                   >
-                    კატეგორიები
+                    {t.header.categories}
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden className={`transition-transform ${categoriesOpen ? 'rotate-180' : ''}`}>
                       <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
@@ -138,6 +141,8 @@ export function Header({
         )}
 
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <StorefrontLanguageSwitcher />
+
           {!isCheckout && (
             <Link
               href={`/cart`}
@@ -149,7 +154,7 @@ export function Header({
                 <circle cx="8" cy="15.5" r="1" fill="currentColor"/>
                 <circle cx="13" cy="15.5" r="1" fill="currentColor"/>
               </svg>
-              <span className="hidden sm:inline">კალათა</span>
+              <span className="hidden sm:inline">{t.header.cart}</span>
               {count > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-white text-[10px] font-black flex items-center justify-center" style={{ color: tokens.accentColor }}>
                   {count > 9 ? '9+' : count}
@@ -162,7 +167,7 @@ export function Header({
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              aria-label="მენიუ"
+              aria-label={t.header.menuAriaLabel}
               className="md:hidden flex items-center justify-center w-9 h-9 rounded-full text-[#1a1a1a]/70 hover:text-[#1a1a1a] hover:bg-[#fff2ec] transition-colors"
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
@@ -180,7 +185,7 @@ export function Header({
             <button
               type="button"
               onClick={() => setMobileOpen(false)}
-              aria-label="დახურვა"
+              aria-label={t.header.closeAriaLabel}
               className="self-end mb-3 w-8 h-8 flex items-center justify-center rounded-full text-[#1a1a1a]/60 hover:bg-[#fff2ec]"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -192,7 +197,7 @@ export function Header({
               onClick={() => setMobileOpen(false)}
               className="rounded-xl px-3 py-2.5 text-sm font-bold text-[#1a1a1a] hover:bg-[#fff2ec]"
             >
-              ყველა პროდუქტი
+              {t.header.allProducts}
             </Link>
             {navCategories.map(category => (
               <Link

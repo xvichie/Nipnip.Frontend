@@ -1,20 +1,18 @@
 import { SocialLinks } from '@/components/storefront/shared/SocialLinks'
 import type { StoreResponse, ThemeConfig } from '@/lib/types/storefront'
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
-const HEADING: Record<Required<ThemeConfig>['offlineMode'], string> = {
-  closed: 'დროებით დაკეტილია',
-  comingSoon: 'მალე გაიხსნება',
-}
-
-function formatReopenDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('ka-GE', { year: 'numeric', month: 'long', day: 'numeric' })
+function formatReopenDate(iso: string, locale: string): string {
+  return new Date(iso).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 // Rendered instead of the themed storefront when a merchant switches their store inactive —
 // deliberately theme-agnostic (a visitor here isn't browsing the real store) so it doesn't need
 // a variant per theme.
-export function StoreOfflinePage({ store, tokens }: { store: StoreResponse; tokens: Required<ThemeConfig> }) {
+export function StoreOfflinePage({ store, tokens, t }: { store: StoreResponse; tokens: Required<ThemeConfig>; t: StorefrontStrings }) {
+  const heading = tokens.offlineMode === 'comingSoon' ? t.storeOffline.comingSoonHeading : t.storeOffline.closedHeading
+
   return (
     <div className="min-h-screen bg-[#0b0b12] text-white flex items-center justify-center p-6">
       <div className="max-w-sm w-full flex flex-col items-center text-center gap-5">
@@ -33,7 +31,7 @@ export function StoreOfflinePage({ store, tokens }: { store: StoreResponse; toke
           </span>
         </div>
 
-        <h2 className="font-bold text-xl">{HEADING[tokens.offlineMode]}</h2>
+        <h2 className="font-bold text-xl">{heading}</h2>
 
         {tokens.offlineMessage && (
           <p className="text-white/60 text-sm leading-relaxed">{tokens.offlineMessage}</p>
@@ -41,7 +39,7 @@ export function StoreOfflinePage({ store, tokens }: { store: StoreResponse; toke
 
         {tokens.offlineReopenDate && (
           <p className="text-white/40 text-xs uppercase tracking-widest">
-            ველოდებით: {formatReopenDate(tokens.offlineReopenDate)}
+            {t.storeOffline.reopenDate(formatReopenDate(tokens.offlineReopenDate, t.storeOffline.dateLocale))}
           </p>
         )}
 

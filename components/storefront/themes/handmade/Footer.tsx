@@ -3,6 +3,7 @@ import { SocialLinks } from '@/components/storefront/shared/SocialLinks'
 import { ContactForm } from '@/components/storefront/shared/ContactForm'
 import { getEnabledPaymentLabels } from '@/lib/store/payment-methods'
 import type { StorePageResponse, ThemeConfig } from '@/lib/types/storefront'
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 function Divider() {
@@ -14,11 +15,13 @@ export function Footer({
   storeName,
   tokens,
   pages,
+  t,
 }: {
   slug: string
   storeName: string
   tokens: Required<ThemeConfig>
   pages: StorePageResponse[]
+  t: StorefrontStrings
 }) {
   const hasContactInfo = tokens.contactEmail || tokens.contactPhone || tokens.contactAddress
   const showSocials = tokens.socialsPosition === 'footer' || tokens.socialsPosition === 'both'
@@ -56,7 +59,7 @@ export function Footer({
 
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs uppercase tracking-widest text-[#8f8274]">
           <Link href={`/products`} className="hover:text-[#2b2420] transition-colors">
-            ყველა პროდუქტი
+            {t.header.allProducts}
           </Link>
           {pages.map(page => (
             <span key={page.id} className="flex items-center gap-4">
@@ -92,7 +95,7 @@ export function Footer({
 
         <div className="pt-6 border-t border-[#2b2420]/10 w-full flex flex-col items-center gap-1">
           <p className="text-[#8f8274] text-[11px]">{tokens.footerCopyrightText || `© ${new Date().getFullYear()} ${storeName}`}</p>
-          {tokens.showPlatformAttribution && <p className="text-[#8f8274] text-[11px]">შექმნილია NipNip-ის მიერ</p>}
+          {tokens.showPlatformAttribution && <p className="text-[#8f8274] text-[11px]">{t.footer.poweredBy}</p>}
         </div>
       </div>
 

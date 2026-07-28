@@ -1,15 +1,18 @@
 import Link from 'next/link'
 import { SURFACE_CLASSES } from '@/lib/storefront-themes'
 import type { StorePageResponse, ThemeId } from '@/lib/types/storefront'
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
 
 export function StorePageView({
   slug,
   page,
   themeId,
+  t,
 }: {
   slug: string
   page: StorePageResponse
   themeId: ThemeId
+  t: StorefrontStrings
 }) {
   const surface = SURFACE_CLASSES[themeId]
 
@@ -21,7 +24,7 @@ export function StorePageView({
 
         <div className="mt-10">
           <Link href={`/`} className={`text-sm underline underline-offset-2 ${surface.muted} hover:opacity-80`}>
-            ← მაღაზიაში დაბრუნება
+            {t.contactPage.backToStore}
           </Link>
         </div>
       </div>

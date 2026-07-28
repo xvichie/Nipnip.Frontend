@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { parseThemeConfig } from '@/lib/store/theme-config'
 import { LocationPicker } from '@/components/storefront/shared/LocationPicker'
+import { ka as storefrontT } from '@/strings/storefront-ka'
 
 const DASHBOARD_SURFACE = { border: 'border-white/10', text: 'text-white', muted: 'text-white/40' }
 
@@ -146,6 +147,7 @@ export default function MerchantStoreContactPage() {
           <LocationPicker
             surface={DASHBOARD_SURFACE}
             radius="rounded-xl"
+            t={storefrontT}
             initialPosition={initialPosition}
             onLocationChange={loc => {
               setContactLatitude(loc.lat)

@@ -9,6 +9,8 @@ import { getThemeDefinition, isThemeId, SURFACE_CLASSES, THEME_CATEGORIES, THEME
 import { StorefrontCartProvider } from '@/lib/store/storefront-cart-context'
 import { PreviewFrame, type PreviewMode } from '@/components/dashboard/store/PreviewFrame'
 import { AnnouncementBar } from '@/components/storefront/shared/AnnouncementBar'
+import { StorefrontLanguageProvider } from '@/components/storefront/shared/StorefrontLanguageProvider'
+import { ka as storefrontT } from '@/strings/storefront-ka'
 import { IconButton } from '@/components/ui/IconButton'
 import { ChevronDownIcon, ChevronUpIcon, PlusIcon, XIcon } from '@/components/ui/icons'
 import { Header as MinimalHeader } from '@/components/storefront/themes/minimal/Header'
@@ -1304,20 +1306,23 @@ export default function StoreDesignPage() {
 
   const previewContent = (
     <div className={ALL_FONT_VARIABLE_CLASSES} style={{ fontFamily: getFontOption(font).fontFamily }}>
-      <StorefrontCartProvider slug={store.slug} preview>
-        <AnnouncementBar slug={store.slug} tokens={tokens} />
-        <HeaderPreview slug={store.slug} storeName={store.name} categories={categories ?? []} pages={pages ?? []} tokens={tokens} />
-        <HomePreview
-          slug={store.slug}
-          store={store}
-          categories={categories ?? []}
-          collections={collections ?? []}
-          collectionProducts={collectionProducts}
-          products={previewProducts}
-          tokens={tokens}
-        />
-        <FooterPreview slug={store.slug} storeName={store.name} tokens={tokens} pages={pages ?? []} />
-      </StorefrontCartProvider>
+      <StorefrontLanguageProvider initialLang="ka">
+        <StorefrontCartProvider slug={store.slug} preview>
+          <AnnouncementBar slug={store.slug} tokens={tokens} />
+          <HeaderPreview slug={store.slug} storeName={store.name} categories={categories ?? []} pages={pages ?? []} tokens={tokens} />
+          <HomePreview
+            slug={store.slug}
+            store={store}
+            categories={categories ?? []}
+            collections={collections ?? []}
+            collectionProducts={collectionProducts}
+            products={previewProducts}
+            tokens={tokens}
+            t={storefrontT}
+          />
+          <FooterPreview slug={store.slug} storeName={store.name} tokens={tokens} pages={pages ?? []} t={storefrontT} />
+        </StorefrontCartProvider>
+      </StorefrontLanguageProvider>
     </div>
   )
 

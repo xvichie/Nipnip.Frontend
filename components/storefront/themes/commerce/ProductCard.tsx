@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getProductBadge } from '@/lib/store/theme-config'
 import { QuickAddButton } from '@/components/storefront/shared/QuickAddButton'
 import type { ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 export function ProductCard({
@@ -9,11 +10,13 @@ export function ProductCard({
   product,
   categoryName,
   tokens,
+  t,
 }: {
   slug: string
   product: ProductSummaryResponse
   categoryName?: string
   tokens: Required<ThemeConfig>
+  t: StorefrontStrings
 }) {
   const badge = getProductBadge(tokens, product)
   return (
@@ -49,7 +52,7 @@ export function ProductCard({
               )}
             </>
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs">სურათი არ არის</div>
+            <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs">{t.product.noImage}</div>
           )}
           <QuickAddButton
             slug={slug}

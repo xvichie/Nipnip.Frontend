@@ -2,6 +2,7 @@
 
 import { useEffect, useReducer } from 'react'
 import { getContrastTextColor } from '@/lib/store/theme-config'
+import { useStorefrontLanguage } from './StorefrontLanguageProvider'
 import type { ThemeConfig } from '@/lib/types/storefront'
 
 type Action = { type: 'dismiss' } | { type: 'restore'; dismissed: boolean }
@@ -11,6 +12,7 @@ function dismissedReducer(state: boolean, action: Action): boolean {
 }
 
 export function AnnouncementBar({ slug, tokens }: { slug: string; tokens: Required<ThemeConfig> }) {
+  const { t } = useStorefrontLanguage()
   const text = tokens.announcementText.trim()
   const storageKey = `nipnip-announcement-dismissed-${slug}-${text}`
   const [dismissed, dispatch] = useReducer(dismissedReducer, false)
@@ -42,7 +44,7 @@ export function AnnouncementBar({ slug, tokens }: { slug: string; tokens: Requir
       {tokens.announcementDismissible && (
         <button
           type="button"
-          aria-label="Close"
+          aria-label={t.announcementBar.closeAriaLabel}
           onClick={() => {
             window.localStorage.setItem(storageKey, '1')
             dispatch({ type: 'dismiss' })

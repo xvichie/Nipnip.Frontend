@@ -6,10 +6,11 @@ import { PriceRangeFilter } from '@/components/storefront/shared/PriceRangeFilte
 import { OptionFiltersPanel } from '@/components/storefront/shared/OptionFiltersPanel'
 import { Pagination } from '@/components/storefront/shared/Pagination'
 import { useProductFacets, useProductPriceRange, useProducts } from '@/lib/queries/storefront'
-import { padPriceBounds, SORT_OPTIONS, sortOptionToQuery, type ProductSortOption } from '@/lib/store/product-search'
+import { getSortOptions, padPriceBounds, sortOptionToQuery, type ProductSortOption } from '@/lib/store/product-search'
 import { useProductListUrlState } from '@/lib/store/use-product-list-url-state'
 import { getSidebarCategories } from '@/lib/store/nav-menu'
 import type { CategoryResponse, CollectionResponse, ThemeConfig } from '@/lib/types/storefront'
+import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
 
 const PAGE_SIZE = 20
 
@@ -28,6 +29,7 @@ export function ProductGrid({
   activeCollectionSlug?: string
   tokens: Required<ThemeConfig>
 }) {
+  const { t } = useStorefrontLanguage()
   const categoryNames = new Map(categories.map(c => [c.id, c.name]))
   const displayCategories = getSidebarCategories(categories, tokens)
   const activeCategoryName = activeCategorySlug ? displayCategories.find(c => c.slug === activeCategorySlug)?.name : undefined
@@ -72,8 +74,8 @@ export function ProductGrid({
     <div className="bg-[#0a0a0a] min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 pb-24">
         <div className="mb-10">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/40 mb-2">კოლექცია</p>
-          <h1 className="font-black text-4xl text-white tracking-tight">{activeCategoryName ?? activeCollectionName ?? 'ყველა პროდუქტი'}</h1>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/40 mb-2">{t.grid.collectionEyebrow}</p>
+          <h1 className="font-black text-4xl text-white tracking-tight">{activeCategoryName ?? activeCollectionName ?? t.grid.allProductsTitle}</h1>
         </div>
 
         <div className="flex flex-col md:flex-row gap-10">
@@ -81,7 +83,7 @@ export function ProductGrid({
           <aside className="w-full md:w-52 shrink-0 flex flex-col gap-8 md:sticky md:top-16 md:self-start md:max-h-[calc(100vh-5rem)] md:overflow-y-auto md:pb-6">
             {displayCategories.length > 0 && (
               <div className="flex flex-col gap-2">
-                <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-2">კატეგორიები</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-2">{t.header.categories}</p>
                 <Link
                   href={`/products`}
                   className={[
@@ -90,7 +92,7 @@ export function ProductGrid({
                   ].join(' ')}
                   style={!activeCategorySlug ? { backgroundColor: `${tokens.accentColor}33` } : {}}
                 >
-                  ყველა
+                  {t.grid.allCategoriesLink}
                 </Link>
                 {displayCategories.map(category => (
                   <Link
@@ -116,6 +118,7 @@ export function ProductGrid({
                 value={effectiveRange ?? bounds}
                 onChange={setPriceRange}
                 accentColor={tokens.accentColor}
+                t={t}
                 trackColorClassName="bg-white/10"
                 labelClassName="text-white/40"
                 valueClassName="text-white"
@@ -135,14 +138,14 @@ export function ProductGrid({
           <div className="flex-1">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <p className="text-sm text-white/50">
-                <span className="text-white font-semibold">{totalCount}</span> პროდუქტი
+                <span className="text-white font-semibold">{totalCount}</span> {t.grid.unitProduct}
               </p>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <input
                   type="text"
                   value={searchInput}
                   onChange={e => setSearchInput(e.target.value)}
-                  placeholder="ძიება..."
+                  placeholder={t.grid.searchPlaceholder}
                   className="w-full sm:w-56 rounded-full bg-white/[0.06] border border-white/10 text-sm px-4 py-2 text-white placeholder:text-white/30 focus:outline-none transition-colors"
                 />
                 <select
@@ -150,7 +153,7 @@ export function ProductGrid({
                   onChange={e => setSortBy(e.target.value as ProductSortOption)}
                   className="w-full sm:w-auto shrink-0 rounded-full bg-white/[0.06] border border-white/10 text-sm px-4 py-2 text-white focus:outline-none transition-colors"
                 >
-                  {SORT_OPTIONS.map(opt => (
+                  {getSortOptions(t).map(opt => (
                     <option key={opt.value} value={opt.value} className="bg-[#0a0a0a]">{opt.label}</option>
                   ))}
                 </select>
@@ -165,7 +168,7 @@ export function ProductGrid({
               </div>
             ) : products.length === 0 ? (
               <div className="py-32 flex flex-col items-center gap-4 text-center">
-                <p className="text-white/40 text-sm">პროდუქტი ვერ მოიძებნა.</p>
+                <p className="text-white/40 text-sm">{t.grid.noProductsFound}</p>
               </div>
             ) : (
               <>
@@ -184,6 +187,7 @@ export function ProductGrid({
                   page={page}
                   totalPages={totalPages}
                   onChange={setPage}
+                  t={t}
                   buttonClassName="btn btn-sm rounded-full bg-white/[0.06] border border-white/10 text-white/60 hover:text-white disabled:opacity-30"
                   textClassName="text-white/40"
                 />

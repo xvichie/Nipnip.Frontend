@@ -10,6 +10,7 @@ import { getLandingCollections } from '@/lib/store/landing-collections'
 import { ContentBlock } from '@/components/storefront/shared/ContentBlock'
 import { FaqAccordion } from '@/components/storefront/shared/FaqAccordion'
 import type { CategoryResponse, CollectionResponse, HomeSectionKey, ProductSummaryResponse, StoreResponse, ThemeConfig } from '@/lib/types/storefront'
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 export function Home({
@@ -20,6 +21,7 @@ export function Home({
   collectionProducts,
   products,
   tokens,
+  t,
 }: {
   slug: string
   store: StoreResponse
@@ -28,71 +30,72 @@ export function Home({
   collectionProducts: Map<string, ProductSummaryResponse[]>
   products: ProductSummaryResponse[]
   tokens: Required<ThemeConfig>
+  t: StorefrontStrings
 }) {
   const categoryNames = new Map(categories.map(c => [c.id, c.name]))
   const landingCategories = getLandingCategories(categories, tokens)
   const landingCollections = getLandingCollections(collections, tokens)
-  function buildHero(t: Required<ThemeConfig>) {
-    const isSplitHero = (t.heroLayout === 'imageLeft' || t.heroLayout === 'imageRight') && !!t.heroImageUrl
-    const isBackgroundHero = t.heroLayout === 'background' && !!t.heroImageUrl
-    const heightClass = HERO_HEIGHT_CLASS[t.heroHeight]
-    const bannerActive = hasBanner(t)
-    const bannerStyle = getBannerBackgroundStyle(t)
-    const sectionBanner = bannerActive && !isBackgroundHero && (!isSplitHero || t.bannerPlacement === 'section')
-    const imageBanner = bannerActive && isSplitHero && t.bannerPlacement === 'behindImage'
-    const overlayStyle = getHeroOverlayStyle(t)
+  function buildHero(cfg: Required<ThemeConfig>) {
+    const isSplitHero = (cfg.heroLayout === 'imageLeft' || cfg.heroLayout === 'imageRight') && !!cfg.heroImageUrl
+    const isBackgroundHero = cfg.heroLayout === 'background' && !!cfg.heroImageUrl
+    const heightClass = HERO_HEIGHT_CLASS[cfg.heroHeight]
+    const bannerActive = hasBanner(cfg)
+    const bannerStyle = getBannerBackgroundStyle(cfg)
+    const sectionBanner = bannerActive && !isBackgroundHero && (!isSplitHero || cfg.bannerPlacement === 'section')
+    const imageBanner = bannerActive && isSplitHero && cfg.bannerPlacement === 'behindImage'
+    const overlayStyle = getHeroOverlayStyle(cfg)
     const sectionStyle = sectionBanner
-      ? t.bannerType === 'image'
+      ? cfg.bannerType === 'image'
         ? {
-            backgroundImage: `linear-gradient(rgba(244,237,227,0.75),rgba(244,237,227,0.92)), url(${t.bannerUrl})`,
+            backgroundImage: `linear-gradient(rgba(244,237,227,0.75),rgba(244,237,227,0.92)), url(${cfg.bannerUrl})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }
         : bannerStyle
       : {}
-    const pos = HERO_TEXT_POSITION_CLASS[t.heroTextPosition]
-    const desktopImageFirst = t.heroLayout === 'imageLeft'
-    const mobileImageFirst = t.heroMobileImagePosition === 'inherit'
+    const pos = HERO_TEXT_POSITION_CLASS[cfg.heroTextPosition]
+    const desktopImageFirst = cfg.heroLayout === 'imageLeft'
+    const mobileImageFirst = cfg.heroMobileImagePosition === 'inherit'
       ? desktopImageFirst
-      : t.heroMobileImagePosition === 'top'
+      : cfg.heroMobileImagePosition === 'top'
     const imageOrderClass = `${mobileImageFirst ? 'order-1' : 'order-2'} ${desktopImageFirst ? 'md:order-1' : 'md:order-2'}`
     const textOrderClass = `${mobileImageFirst ? 'order-2' : 'order-1'} ${desktopImageFirst ? 'md:order-2' : 'md:order-1'}`
-    const heroImageHiddenMobile = t.heroMobileImage === 'hide'
-    const textAlignClass = getHeroTextAlignClass(t)
+    const heroImageHiddenMobile = cfg.heroMobileImage === 'hide'
+    const textAlignClass = getHeroTextAlignClass(cfg)
 
     const heroText = (
       <div className={`w-full max-w-xl ${textAlignClass}`}>
-        {t.heroEyebrow && (
-          <p className={`italic font-serif ${HERO_EYEBROW_SIZE_CLASS[t.heroEyebrowSize]} ${getHeroTextColorClass(t, 'eyebrow', 'text-[#8f8274]')} mb-4`}>{t.heroEyebrow}</p>
+        {cfg.heroEyebrow && (
+          <p className={`italic font-serif ${HERO_EYEBROW_SIZE_CLASS[cfg.heroEyebrowSize]} ${getHeroTextColorClass(cfg, 'eyebrow', 'text-[#8f8274]')} mb-4`}>{cfg.heroEyebrow}</p>
         )}
-        <h1 className={`font-serif tracking-tight leading-[0.95] mb-6 ${getHeroTextColorClass(t, 'headline', 'text-[#2b2420]')} ${HERO_HEADLINE_SIZE_CLASS[t.heroHeadlineSize]}`}>
-          {t.heroHeadline || store.name}
+        <h1 className={`font-serif tracking-tight leading-[0.95] mb-6 ${getHeroTextColorClass(cfg, 'headline', 'text-[#2b2420]')} ${HERO_HEADLINE_SIZE_CLASS[cfg.heroHeadlineSize]}`}>
+          {cfg.heroHeadline || store.name}
         </h1>
-        {t.heroSubheadline && (
-          <p className={`${getHeroTextColorClass(t, 'subheadline', 'text-[#8f8274]')} ${HERO_SUBHEADLINE_SIZE_CLASS[t.heroSubheadlineSize]} mb-9`}>{t.heroSubheadline}</p>
+        {cfg.heroSubheadline && (
+          <p className={`${getHeroTextColorClass(cfg, 'subheadline', 'text-[#8f8274]')} ${HERO_SUBHEADLINE_SIZE_CLASS[cfg.heroSubheadlineSize]} mb-9`}>{cfg.heroSubheadline}</p>
         )}
-        {(t.heroCtaEnabled || t.heroSecondaryCtaEnabled) && (
-          <div className={`flex flex-wrap items-center gap-6 ${getHeroButtonRowClass(t)}`}>
-            {t.heroCtaEnabled && (
+        {(cfg.heroCtaEnabled || cfg.heroSecondaryCtaEnabled) && (
+          <div className={`flex flex-wrap items-center gap-6 ${getHeroButtonRowClass(cfg)}`}>
+            {cfg.heroCtaEnabled && (
               <Link
-                href={getHeroCtaHref(t, categories)}
+                href={getHeroCtaHref(cfg, categories)}
                 className={`inline-flex items-center justify-center gap-2 border-2 text-xs uppercase tracking-widest font-medium px-8 py-3.5 transition-colors ${
-                  t.heroTextTheme === 'light'
+                  cfg.heroTextTheme === 'light'
                     ? 'border-white text-white hover:bg-white hover:text-[#2b2420]'
                     : 'border-[#2b2420] text-[#2b2420] hover:bg-[#2b2420] hover:text-white'
                 }`}
               >
-                {getHeroCtaLabel(t, 'ყველა პროდუქტის ნახვა')}
+                {getHeroCtaLabel(cfg, t.home.heroPrimaryCta)}
               </Link>
             )}
-            {t.heroSecondaryCtaEnabled && (
+            {cfg.heroSecondaryCtaEnabled && (
               <Link
-                href={getHeroSecondaryCtaHref(t, categories)}
+                href={getHeroSecondaryCtaHref(cfg, categories)}
                 className={`text-xs uppercase tracking-widest font-medium underline underline-offset-4 transition-opacity hover:opacity-70 ${
-                  t.heroTextTheme === 'light' ? 'text-white' : 'text-[#2b2420]'
+                  cfg.heroTextTheme === 'light' ? 'text-white' : 'text-[#2b2420]'
                 }`}
               >
-                {getHeroSecondaryCtaLabel(t, 'მეტის ნახვა')}
+                {getHeroSecondaryCtaLabel(cfg, t.home.heroSecondaryCta)}
               </Link>
             )}
           </div>
@@ -104,7 +107,7 @@ export function Home({
       <div className={`relative h-full ${imageOrderClass} ${heroImageHiddenMobile ? 'hidden md:block' : ''}`}>
         {imageBanner && <div className="absolute -inset-4 sm:-inset-6" style={bannerStyle} />}
         <div className="relative h-full flex items-center justify-center overflow-hidden">
-          <CImg src={t.heroImageUrl} cldWidth={1400} alt={t.heroHeadline || store.name} className={getHeroImageClass(t)} fetchPriority="high" />
+          <CImg src={cfg.heroImageUrl} cldWidth={1400} alt={cfg.heroHeadline || store.name} className={getHeroImageClass(cfg)} fetchPriority="high" />
         </div>
       </div>
     )
@@ -114,33 +117,33 @@ export function Home({
         {isBackgroundHero ? (
           <div className={`relative flex flex-col ${pos.wrapper} ${heightClass}`}>
             <div className="absolute inset-0">
-              {hasHeroVideo(t) ? (
+              {hasHeroVideo(cfg) ? (
                 <>
                   <video
-                    key={t.heroVideoUrl}
+                    key={cfg.heroVideoUrl}
                     autoPlay
                     muted
                     loop
                     playsInline
                     preload="none"
-                    poster={t.heroImageUrl}
-                    className={`${getHeroBackgroundImageClass(t)} ${t.heroVideoMobileEnabled ? '' : 'hidden md:block'}`}
+                    poster={cfg.heroImageUrl}
+                    className={`${getHeroBackgroundImageClass(cfg)} ${cfg.heroVideoMobileEnabled ? '' : 'hidden md:block'}`}
                   >
-                    <source src={t.heroVideoUrl} />
+                    <source src={cfg.heroVideoUrl} />
                   </video>
-                  {!t.heroVideoMobileEnabled && (
-                    <CImg src={t.heroImageUrl} cldWidth={1800} alt={t.heroHeadline || store.name} className={`${getHeroBackgroundImageClass(t)} md:hidden`} fetchPriority="high" />
+                  {!cfg.heroVideoMobileEnabled && (
+                    <CImg src={cfg.heroImageUrl} cldWidth={1800} alt={cfg.heroHeadline || store.name} className={`${getHeroBackgroundImageClass(cfg)} md:hidden`} fetchPriority="high" />
                   )}
                 </>
               ) : (
-                <CImg src={t.heroImageUrl} cldWidth={1800} alt={t.heroHeadline || store.name} className={`${getHeroBackgroundImageClass(t)} ${t.heroKenBurnsEnabled ? 'animate-ken-burns' : ''}`} fetchPriority="high" />
+                <CImg src={cfg.heroImageUrl} cldWidth={1800} alt={cfg.heroHeadline || store.name} className={`${getHeroBackgroundImageClass(cfg)} ${cfg.heroKenBurnsEnabled ? 'animate-ken-burns' : ''}`} fetchPriority="high" />
               )}
               {overlayStyle && <div className="absolute inset-0" style={overlayStyle} />}
             </div>
             <div className="relative max-w-6xl mx-auto px-4 sm:px-6 w-full">
               {heroText}
             </div>
-            {t.heroScrollIndicatorEnabled && <ScrollIndicator colorClassName={t.heroTextTheme === 'light' ? 'text-white' : 'text-[#2b2420]'} />}
+            {cfg.heroScrollIndicatorEnabled && <ScrollIndicator colorClassName={cfg.heroTextTheme === 'light' ? 'text-white' : 'text-[#2b2420]'} />}
           </div>
         ) : isSplitHero ? (
           <div className={`relative max-w-6xl mx-auto px-4 sm:px-6 grid md:grid-cols-2 gap-10 md:gap-14 ${heightClass}`}>
@@ -210,14 +213,14 @@ export function Home({
     <section key="products" style={getSectionBackgroundStyle(tokens, 'products')}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 border-t border-[#2b2420]/10">
         <div className="flex items-end justify-between mb-10">
-          <h2 className="font-serif italic text-3xl text-[#2b2420]">ყველა პროდუქტი</h2>
+          <h2 className="font-serif italic text-3xl text-[#2b2420]">{t.home.allProductsHeading}</h2>
           <Link href={`/products`} className="text-xs uppercase tracking-widest text-[#2b2420] hover:underline underline-offset-4">
-            ყველას ნახვა →
+            {t.home.viewAll}
           </Link>
         </div>
 
         {products.length === 0 ? (
-          <p className="text-[#8f8274] text-sm py-20 text-center">პროდუქტები ჯერ არ არის.</p>
+          <p className="text-[#8f8274] text-sm py-20 text-center">{t.home.noProductsYet}</p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
             {featuredProducts.map((product, index) => (
@@ -227,6 +230,7 @@ export function Home({
                 product={product}
                 categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
                 tokens={tokens}
+                t={t}
                 // The first product becomes a large featured tile in this theme's
                 // asymmetric lookbook grid; everything else renders 1x1.
                 className={index === 0 ? 'col-span-2 row-span-2' : ''}
@@ -256,6 +260,7 @@ export function Home({
                     product={product}
                     categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
                     tokens={tokens}
+                    t={t}
                   />
                 </div>
               ),
@@ -287,6 +292,7 @@ export function Home({
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
         <FaqAccordion
           tokens={tokens}
+          t={t}
           headingClassName="font-serif italic text-2xl sm:text-3xl text-[#2b2420] mb-6"
           questionClassName="text-sm text-[#2b2420]"
           answerClassName="text-sm text-[#8f8274] leading-relaxed"

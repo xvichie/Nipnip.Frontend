@@ -2,9 +2,11 @@
 
 import dynamic from 'next/dynamic'
 
+// Next's dynamic() `loading` callback runs outside the component tree (no props/context
+// available), so it can't show translated text — a bare spinner sidesteps that instead.
 const LocationDisplayMap = dynamic(() => import('./LocationDisplayMap'), {
   ssr: false,
-  loading: () => <div className="h-[260px] flex items-center justify-center text-xs opacity-50">იტვირთება რუკა...</div>,
+  loading: () => <div className="h-[260px] flex items-center justify-center"><span className="loading loading-spinner loading-sm opacity-50" /></div>,
 })
 
 export function LocationMap({

@@ -5,6 +5,7 @@ import { apiFetch, ApiError } from '@/lib/api'
 import { parseThemeConfig } from '@/lib/store/theme-config'
 import { isThemeId } from '@/lib/storefront-themes'
 import { buildBreadcrumbJsonLd, buildProductJsonLd, getStoreUrl, truncateDescription } from '@/lib/store/seo'
+import { getStorefrontStrings } from '@/lib/storefront-i18n-server'
 import { JsonLd } from '@/components/storefront/shared/JsonLd'
 import type { CategoryResponse, ProductDetailResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
@@ -47,8 +48,9 @@ export async function generateMetadata({
     return {}
   }
 
+  const t = await getStorefrontStrings()
   const description = truncateDescription(
-    product.description || `შეიძინეთ ${product.name} მაღაზია ${store.name}-ში.`
+    product.description || t.seo.productDescriptionFallback(product.name, store.name)
   )
   const image = product.images[0]?.url
 
@@ -95,12 +97,13 @@ export default async function ProductDetailPage({
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
   const tokens = parseThemeConfig(store.themeConfig)
   const DetailComponent = DETAIL_COMPONENTS[themeId]
+  const t = await getStorefrontStrings()
 
   const category = categories.find(c => c.id === product.categoryId)
 
   const categoryCrumb = category
     ? { name: category.name, url: getStoreUrl(slug, `/products/category/${category.slug}`, store.customDomain) }
-    : { name: 'ყველა პროდუქტი', url: getStoreUrl(slug, '/products', store.customDomain) }
+    : { name: t.seo.productsPageTitle, url: getStoreUrl(slug, '/products', store.customDomain) }
 
   return (
     <>

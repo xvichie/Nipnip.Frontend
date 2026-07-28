@@ -5,54 +5,59 @@ import { SocialLinks } from './SocialLinks'
 import { ContactForm } from './ContactForm'
 import { LocationMap } from './LocationMap'
 import type { ThemeConfig, ThemeId } from '@/lib/types/storefront'
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
 
-const ROWS: { key: keyof Pick<Required<ThemeConfig>, 'contactEmail' | 'contactPhone' | 'contactAddress'>; label: string; icon: React.ReactNode }[] = [
-  {
-    key: 'contactEmail',
-    label: 'ელფოსტა',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <rect x="2.5" y="4.5" width="19" height="15" rx="2" stroke="currentColor" strokeWidth="1.6"/>
-        <path d="M3.5 6l8.5 7 8.5-7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-  },
-  {
-    key: 'contactPhone',
-    label: 'ტელეფონი',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path d="M4 3h4l2 5-2.5 2a11 11 0 0 0 6.5 6.5l2-2.5 5 2v4a2 2 0 0 1-2 2C10.5 22 2 13.5 2 5a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
-      </svg>
-    ),
-  },
-  {
-    key: 'contactAddress',
-    label: 'მისამართი',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path d="M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
-        <circle cx="12" cy="9.5" r="2.2" stroke="currentColor" strokeWidth="1.6"/>
-      </svg>
-    ),
-  },
-]
+function getRows(t: StorefrontStrings): { key: keyof Pick<Required<ThemeConfig>, 'contactEmail' | 'contactPhone' | 'contactAddress'>; label: string; icon: React.ReactNode }[] {
+  return [
+    {
+      key: 'contactEmail',
+      label: t.contactPage.email,
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <rect x="2.5" y="4.5" width="19" height="15" rx="2" stroke="currentColor" strokeWidth="1.6"/>
+          <path d="M3.5 6l8.5 7 8.5-7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+    },
+    {
+      key: 'contactPhone',
+      label: t.contactPage.phone,
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <path d="M4 3h4l2 5-2.5 2a11 11 0 0 0 6.5 6.5l2-2.5 5 2v4a2 2 0 0 1-2 2C10.5 22 2 13.5 2 5a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+        </svg>
+      ),
+    },
+    {
+      key: 'contactAddress',
+      label: t.contactPage.address,
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <path d="M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+          <circle cx="12" cy="9.5" r="2.2" stroke="currentColor" strokeWidth="1.6"/>
+        </svg>
+      ),
+    },
+  ]
+}
 
 export function ContactPage({
   slug,
   storeName,
   themeId,
   tokens,
+  t,
 }: {
   slug: string
   storeName: string
   themeId: ThemeId
   tokens: Required<ThemeConfig>
+  t: StorefrontStrings
 }) {
   const surface = SURFACE_CLASSES[themeId]
   const themeDef = getThemeDefinition(themeId)
   const radius = getRadiusClass(themeId, tokens)
-  const rows = ROWS.filter(row => tokens[row.key])
+  const rows = getRows(t).filter(row => tokens[row.key])
 
   return (
     <div className={`${surface.page} min-h-screen`}>
@@ -82,7 +87,7 @@ export function ContactPage({
             })}
           </div>
         ) : (
-          <p className={`text-sm ${surface.muted}`}>საკონტაქტო ინფორმაცია მალე დაემატება.</p>
+          <p className={`text-sm ${surface.muted}`}>{t.contactPage.emptyState}</p>
         )}
 
         {tokens.contactLatitude !== null && tokens.contactLongitude !== null && (
@@ -101,7 +106,7 @@ export function ContactPage({
 
         <div className="mt-10">
           <Link href={`/`} className={`text-sm underline underline-offset-2 ${surface.muted} hover:opacity-80`}>
-            ← მაღაზიაში დაბრუნება
+            {t.contactPage.backToStore}
           </Link>
         </div>
       </div>

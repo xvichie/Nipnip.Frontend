@@ -5,16 +5,19 @@ import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { getRadiusClass } from '@/lib/store/theme-config'
 import type { ThemeConfig, ThemeId } from '@/lib/types/storefront'
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 export function Cart({
   slug,
   themeId,
   tokens,
+  t,
 }: {
   slug: string
   themeId: ThemeId
   tokens: Required<ThemeConfig>
+  t: StorefrontStrings
 }) {
   const { cart, isLoading, updateItem, removeItem, updateBundleItem, removeBundleItem } = useStorefrontCart()
   const surface = SURFACE_CLASSES[themeId]
@@ -24,7 +27,7 @@ export function Cart({
   if (isLoading) {
     return (
       <div className={`${surface.page} ${surface.muted} min-h-screen flex items-center justify-center text-sm`}>
-        იტვირთება...
+        {t.cart.loading}
       </div>
     )
   }
@@ -32,14 +35,14 @@ export function Cart({
   if (!cart || (cart.items.length === 0 && cart.bundleItems.length === 0)) {
     return (
       <div className={`${surface.page} min-h-screen flex flex-col items-center justify-center text-center px-4 py-24`}>
-        <h1 className={`font-black text-2xl mb-3 ${surface.text}`}>თქვენი კალათა ცარიელია</h1>
-        <p className={`text-sm mb-8 ${surface.muted}`}>დაათვალიერეთ კოლექცია და აირჩიეთ სასურველი პროდუქტი.</p>
+        <h1 className={`font-black text-2xl mb-3 ${surface.text}`}>{t.cart.emptyHeading}</h1>
+        <p className={`text-sm mb-8 ${surface.muted}`}>{t.cart.emptySubtext}</p>
         <Link
           href={`/`}
           className={`text-white text-sm font-semibold px-8 py-3.5 ${radius}`}
           style={{ backgroundColor: tokens.accentColor }}
         >
-          შოპინგის გაგრძელება
+          {t.cart.continueShopping}
         </Link>
       </div>
     )
@@ -49,9 +52,9 @@ export function Cart({
     <div className={`${surface.page} min-h-screen`}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 pb-24">
         <div className={`mb-8 pb-6 border-b ${surface.border}`}>
-          <h1 className={`font-black text-3xl tracking-tight ${surface.text}`}>თქვენი კალათა</h1>
+          <h1 className={`font-black text-3xl tracking-tight ${surface.text}`}>{t.cart.heading}</h1>
           <p className={`text-sm mt-1 ${surface.muted}`}>
-            {cart.items.length + cart.bundleItems.length} ნივთი
+            {t.cart.itemCount(cart.items.length + cart.bundleItems.length)}
           </p>
         </div>
 
@@ -67,7 +70,7 @@ export function Cart({
                     <CImg src={item.imageUrl} alt={item.bundleName} className="w-full h-full object-cover" />
                   ) : (
                     <div className={`w-full h-full flex items-center justify-center text-[10px] ${surface.muted}`}>
-                      სურათი არ არის
+                      {t.cart.noImage}
                     </div>
                   )}
                 </Link>
@@ -77,12 +80,12 @@ export function Cart({
                       href={`/bundles`}
                       className={`font-semibold text-sm leading-snug hover:underline underline-offset-2 ${surface.text}`}
                     >
-                      {item.bundleName} <span className="text-xs font-normal opacity-60">(ბანდლი)</span>
+                      {item.bundleName} <span className="text-xs font-normal opacity-60">{t.cart.bundleTag}</span>
                     </Link>
                     <button
                       onClick={() => removeBundleItem(item.id)}
                       className={`${surface.muted} hover:text-red-400 transition-colors shrink-0 ml-2`}
-                      aria-label="ბანდლის წაშლა"
+                      aria-label={t.cart.removeBundleAriaLabel}
                     >
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
                         <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
@@ -124,7 +127,7 @@ export function Cart({
                       <CImg src={item.imageUrl} alt={item.productName} className="w-full h-full object-cover" />
                     ) : (
                       <div className={`w-full h-full flex items-center justify-center text-[10px] ${surface.muted}`}>
-                        სურათი არ არის
+                        {t.cart.noImage}
                       </div>
                     )}
                   </Link>
@@ -139,7 +142,7 @@ export function Cart({
                       <button
                         onClick={() => removeItem(item.id)}
                         className={`${surface.muted} hover:text-red-400 transition-colors shrink-0 ml-2`}
-                        aria-label="ნივთის წაშლა"
+                        aria-label={t.cart.removeItemAriaLabel}
                       >
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
                           <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
@@ -153,9 +156,9 @@ export function Cart({
                     )}
                     <p className={`text-xs mb-2 font-mono ${surface.muted}`}>{item.sku}</p>
                     {outOfStock ? (
-                      <p className="text-xs text-red-500 font-medium mb-3">არ არის მარაგში</p>
+                      <p className="text-xs text-red-500 font-medium mb-3">{t.cart.outOfStock}</p>
                     ) : overStock ? (
-                      <p className="text-xs text-amber-500 font-medium mb-3">მხოლოდ {item.stock} ცალია მარაგში</p>
+                      <p className="text-xs text-amber-500 font-medium mb-3">{t.cart.onlyXInStock(item.stock!)}</p>
                     ) : null}
                     <div className="flex items-center justify-between">
                       <div className={`flex items-center border ${surface.border} ${radius}`}>
@@ -184,22 +187,22 @@ export function Cart({
 
             <div className="pt-6">
               <Link href={`/`} className={`text-sm underline underline-offset-2 ${surface.muted} hover:opacity-80`}>
-                ← შოპინგის გაგრძელება
+                {t.cart.continueShoppingBack}
               </Link>
             </div>
           </div>
 
           <div className="lg:col-span-1">
             <div className={`${surface.card} border ${surface.border} ${radius} p-6 sticky top-20`}>
-              <h2 className={`font-bold text-base mb-6 pb-4 border-b ${surface.border} ${surface.text}`}>შეკვეთის შეჯამება</h2>
+              <h2 className={`font-bold text-base mb-6 pb-4 border-b ${surface.border} ${surface.text}`}>{t.cart.orderSummary}</h2>
               <div className="flex justify-between text-sm mb-6">
-                <span className={surface.muted}>სულ</span>
+                <span className={surface.muted}>{t.cart.total}</span>
                 <span className={`font-black text-lg ${surface.text}`}>₾{cart.total.toFixed(2)}</span>
               </div>
               {tokens.freeShippingThreshold != null && cart.total < tokens.freeShippingThreshold && (
                 <div className="mb-6">
                   <p className={`text-xs mb-2 ${surface.muted}`}>
-                    დაამატეთ კიდევ ₾{(tokens.freeShippingThreshold - cart.total).toFixed(2)} და მიწოდება იქნება უფასო
+                    {t.cart.freeShippingNudge((tokens.freeShippingThreshold - cart.total).toFixed(2))}
                   </p>
                   <div className={`h-1.5 rounded-full overflow-hidden ${surface.border} border`}>
                     <div
@@ -220,10 +223,10 @@ export function Cart({
                     className={`block w-full text-center py-4 text-white text-sm font-semibold uppercase tracking-wide opacity-40 cursor-not-allowed ${radius}`}
                     style={{ backgroundColor: tokens.accentColor }}
                   >
-                    გადახდაზე გადასვლა
+                    {t.cart.checkoutCta}
                   </button>
                   <p className="text-xs text-amber-500 mt-2">
-                    შეამცირეთ რაოდენობა მარაგში არსებულამდე, რომ გააგრძელოთ.
+                    {t.cart.reduceQuantityMessage}
                   </p>
                 </>
               ) : (
@@ -232,7 +235,7 @@ export function Cart({
                   className={`block w-full text-center py-4 text-white text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-90 ${radius}`}
                   style={{ backgroundColor: tokens.accentColor }}
                 >
-                  გადახდაზე გადასვლა
+                  {t.cart.checkoutCta}
                 </Link>
               )}
             </div>

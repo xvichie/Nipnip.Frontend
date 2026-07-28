@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, type ReactNode } from 'react'
+import { useStorefrontLanguage } from './StorefrontLanguageProvider'
 
 const AUTO_ADVANCE_MS = 6000
 
@@ -10,6 +11,7 @@ const AUTO_ADVANCE_MS = 6000
 // that slide directly with no carousel chrome at all, so a store with no configured slides is
 // unaffected.
 export function HeroCarousel({ slides }: { slides: ReactNode[] }) {
+  const { t } = useStorefrontLanguage()
   const [activeIndex, setActiveIndex] = useState(0)
   const [paused, setPaused] = useState(false)
 
@@ -34,7 +36,7 @@ export function HeroCarousel({ slides }: { slides: ReactNode[] }) {
             key={i}
             type="button"
             onClick={() => setActiveIndex(i)}
-            aria-label={`სლაიდი ${i + 1}`}
+            aria-label={t.home.slideAriaLabel(i + 1)}
             className={`h-1.5 rounded-full transition-all ${i === activeIndex ? 'w-6 bg-white' : 'w-1.5 bg-white/40 hover:bg-white/60'}`}
           />
         ))}

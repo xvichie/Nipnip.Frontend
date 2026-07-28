@@ -1,9 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useStorefrontLanguage } from './StorefrontLanguageProvider'
 import type { ThemeConfig } from '@/lib/types/storefront'
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
 
-function getRemaining(endsAt: string): { done: boolean; text: string } {
+function getRemaining(endsAt: string, t: StorefrontStrings): { done: boolean; text: string } {
   const diffMs = new Date(endsAt).getTime() - Date.now()
   if (diffMs <= 0) return { done: true, text: '' }
 
@@ -15,13 +17,14 @@ function getRemaining(endsAt: string): { done: boolean; text: string } {
   const pad = (n: number) => String(n).padStart(2, '0')
 
   const text = days > 0
-    ? `${days}დ ${pad(hours)}სთ ${pad(minutes)}წთ`
+    ? `${days}${t.saleCountdown.dayAbbr} ${pad(hours)}${t.saleCountdown.hourAbbr} ${pad(minutes)}${t.saleCountdown.minuteAbbr}`
     : `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
 
   return { done: false, text }
 }
 
 export function SaleCountdownBar({ tokens }: { tokens: Required<ThemeConfig> }) {
+  const { t } = useStorefrontLanguage()
   // Starts null so the server-rendered markup has nothing time-dependent to mismatch on
   // hydration — filled in immediately on mount, then refreshed once a second.
   const [remaining, setRemaining] = useState<{ done: boolean; text: string } | null>(null)
@@ -30,7 +33,7 @@ export function SaleCountdownBar({ tokens }: { tokens: Required<ThemeConfig> }) 
     if (!tokens.saleCountdownEndsAt) return
 
     function update() {
-      const next = getRemaining(tokens.saleCountdownEndsAt!)
+      const next = getRemaining(tokens.saleCountdownEndsAt!, t)
       setRemaining(next)
       // Stop ticking once the countdown ends instead of running a no-op timer forever.
       if (next.done) clearInterval(interval)
@@ -39,7 +42,7 @@ export function SaleCountdownBar({ tokens }: { tokens: Required<ThemeConfig> }) 
     const interval = setInterval(update, 1000)
     update()
     return () => clearInterval(interval)
-  }, [tokens.saleCountdownEndsAt])
+  }, [tokens.saleCountdownEndsAt, t])
 
   if (!tokens.saleCountdownEnabled || !tokens.saleCountdownEndsAt || !remaining || remaining.done) return null
 
@@ -48,7 +51,7 @@ export function SaleCountdownBar({ tokens }: { tokens: Required<ThemeConfig> }) 
       className="flex items-center justify-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white"
       style={{ backgroundColor: tokens.accentColor }}
     >
-      <span>{tokens.saleCountdownText || '🔥 Sale ends in'}</span>
+      <span>{tokens.saleCountdownText || t.saleCountdown.defaultLabel}</span>
       <span className="font-mono tabular-nums tracking-wide">{remaining.text}</span>
     </div>
   )

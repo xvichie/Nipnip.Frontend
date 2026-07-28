@@ -9,6 +9,7 @@ import { SizeGuideModal } from '@/components/storefront/shared/SizeGuideModal'
 import { StickyAddToCartBar } from '@/components/storefront/shared/StickyAddToCartBar'
 import { ProductCard } from './ProductCard'
 import type { CategoryResponse, ProductDetailResponse, ThemeConfig } from '@/lib/types/storefront'
+import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
 import { CImg } from '@/components/ui/CImg'
 
 export function ProductDetail({
@@ -22,6 +23,7 @@ export function ProductDetail({
   category?: CategoryResponse
   tokens: Required<ThemeConfig>
 }) {
+  const { t } = useStorefrontLanguage()
   const { addItem } = useStorefrontCart()
   const [selected, setSelected] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
@@ -60,7 +62,7 @@ export function ProductDetail({
   const salePrice = matchedVariant ? matchedVariant.salePrice : product.salePrice
   const images = product.images
   const isLowStock = tokens.lowStockThreshold != null && stock !== null && stock > 0 && stock <= tokens.lowStockThreshold
-  const lowStockText = isLowStock ? (tokens.lowStockMessage || 'მხოლოდ {n} ცალია დარჩენილი!').replace('{n}', String(stock)) : null
+  const lowStockText = isLowStock ? (tokens.lowStockMessage ? tokens.lowStockMessage.replace('{n}', String(stock)) : t.product.lowStock(stock!)) : null
 
   async function handleAddToCart() {
     if (!canAddToCart) return
@@ -80,10 +82,11 @@ export function ProductDetail({
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 pb-16">
         <Breadcrumbs
           items={[
-            { label: 'მთავარი', href: '/' },
-            category ? { label: category.name, href: `/products/category/${category.slug}` } : { label: 'ყველა პროდუქტი', href: '/products' },
+            { label: t.product.breadcrumbHome, href: '/' },
+            category ? { label: category.name, href: `/products/category/${category.slug}` } : { label: t.product.breadcrumbAllProducts, href: '/products' },
             { label: product.name },
           ]}
+          t={t}
           textClassName="text-[#0f0f0f]"
           mutedClassName="text-[#8a8a8a] hover:text-[#0f0f0f]"
         />
@@ -107,20 +110,20 @@ export function ProductDetail({
             <div className="relative flex-1 aspect-square border border-[#e8e8e8] bg-white overflow-hidden">
               {product.salePrice !== null && (
                 <span className="absolute top-2 left-2 z-10 bg-red-600 text-white text-[10px] font-bold uppercase tracking-wide px-2 py-1">
-                  ფასდაკლება
+                  {t.product.saleBadge}
                 </span>
               )}
               {images[activeImage] ? (
                 <button
                   type="button"
                   onClick={() => setLightboxOpen(true)}
-                  aria-label="სურათის გადიდება"
+                  aria-label={t.product.zoomAriaLabel}
                   className="w-full h-full cursor-zoom-in"
                 >
                   <CImg src={images[activeImage].url} cldWidth={1000} alt={product.name} className="w-full h-full object-contain" />
                 </button>
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-[#c2c2c2] text-xs">სურათი არ არის</div>
+                <div className="w-full h-full flex items-center justify-center text-[#c2c2c2] text-xs">{t.product.noImage}</div>
               )}
             </div>
           </div>
@@ -137,7 +140,7 @@ export function ProductDetail({
                 </span>
                 <span className="text-[#8a8a8a] text-lg line-through">₾{price.toFixed(2)}</span>
                 <span className="bg-red-600 text-white text-[10px] font-bold uppercase tracking-wide px-2 py-1">
-                  ფასდაკლება
+                  {t.product.saleBadge}
                 </span>
               </div>
             ) : (
@@ -160,7 +163,7 @@ export function ProductDetail({
                 onClick={() => setSizeGuideOpen(true)}
                 className="text-xs text-[#8a8a8a] hover:text-[#0f0f0f] underline underline-offset-2 mb-4 text-left w-fit"
               >
-                საზომი ცხრილი
+                {t.product.sizeGuide}
               </button>
             )}
 
@@ -184,7 +187,7 @@ export function ProductDetail({
               </div>
               {selectionComplete && stock !== null && (
                 <span className={`text-xs ${isLowStock ? 'text-red-600 font-medium' : 'text-[#8a8a8a]'}`}>
-                  {stock > 0 ? (lowStockText ?? `მარაგშია: ${stock} ცალი`) : 'არ არის მარაგში'}
+                  {stock > 0 ? (lowStockText ?? t.product.inStock(stock)) : t.product.outOfStock}
                 </span>
               )}
             </div>
@@ -198,16 +201,16 @@ export function ProductDetail({
               style={{ backgroundColor: added ? '#2d6a2d' : tokens.accentColor }}
             >
               {added
-                ? '✓ დაემატა კალათაში'
+                ? t.product.addedToCart
                 : !selectionComplete
-                ? 'აირჩიეთ ვარიანტი'
+                ? t.product.chooseVariant
                 : stock !== null && stock < 1
-                ? 'არ არის მარაგში'
-                : 'კალათაში დამატება'}
+                ? t.product.outOfStock
+                : t.product.addToCart}
             </button>
 
             {addError && (
-              <p className="text-red-500 text-sm -mt-6 mb-8">დაფიქსირდა შეცდომა. სცადეთ თავიდან.</p>
+              <p className="text-red-500 text-sm -mt-6 mb-8">{t.product.addToCartError}</p>
             )}
 
             {tokens.deliveryEstimateText && (
@@ -224,14 +227,14 @@ export function ProductDetail({
 
             {product.description && (
               <div className="border border-[#e8e8e8] bg-[#f7f7f7] p-4">
-                <p className="text-xs font-semibold uppercase tracking-widest text-[#8a8a8a] mb-3">აღწერა</p>
+                <p className="text-xs font-semibold uppercase tracking-widest text-[#8a8a8a] mb-3">{t.product.description}</p>
                 <p className="text-[#4d4d4d] text-sm leading-relaxed">{product.description}</p>
               </div>
             )}
 
             {product.videoUrl && (
               <div className="border border-[#e8e8e8] bg-[#f7f7f7] p-4">
-                <p className="text-xs font-semibold uppercase tracking-widest text-[#8a8a8a] mb-3">ვიდეო</p>
+                <p className="text-xs font-semibold uppercase tracking-widest text-[#8a8a8a] mb-3">{t.product.video}</p>
                 <video src={product.videoUrl} controls className="w-full max-w-sm bg-black" />
               </div>
             )}
@@ -240,10 +243,10 @@ export function ProductDetail({
 
         {tokens.showRelatedProducts && product.relatedProducts.length > 0 && (
           <div className="mt-14 pt-8 border-t border-[#e8e8e8]">
-            <h2 className="font-black text-2xl text-[#0f0f0f] uppercase tracking-tight mb-6">{tokens.relatedProductsHeading || 'მსგავსი პროდუქტები'}</h2>
+            <h2 className="font-black text-2xl text-[#0f0f0f] uppercase tracking-tight mb-6">{tokens.relatedProductsHeading || t.product.relatedProducts}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {product.relatedProducts.map(related => (
-                <ProductCard key={related.id} slug={slug} product={related} tokens={tokens} />
+                <ProductCard key={related.id} slug={slug} product={related} tokens={tokens} t={t} />
               ))}
             </div>
           </div>
@@ -261,7 +264,7 @@ export function ProductDetail({
       )}
 
       {sizeGuideOpen && tokens.sizeGuideContent && (
-        <SizeGuideModal content={tokens.sizeGuideContent} onClose={() => setSizeGuideOpen(false)} />
+        <SizeGuideModal content={tokens.sizeGuideContent} t={t} onClose={() => setSizeGuideOpen(false)} />
       )}
 
       {tokens.showStickyMobileCta && (
@@ -270,8 +273,8 @@ export function ProductDetail({
           productName={product.name}
           priceLabel={salePrice !== null ? `₾${salePrice.toFixed(2)}` : `₾${price.toFixed(2)}`}
           disabled={!canAddToCart}
-          addedLabel={added ? '✓ დაემატა კალათაში' : null}
-          label={!selectionComplete ? 'აირჩიეთ ვარიანტი' : stock !== null && stock < 1 ? 'არ არის მარაგში' : 'კალათაში დამატება'}
+          addedLabel={added ? t.product.addedToCart : null}
+          label={!selectionComplete ? t.product.chooseVariant : stock !== null && stock < 1 ? t.product.outOfStock : t.product.addToCart}
           onAdd={handleAddToCart}
           accentColor={tokens.accentColor}
         />

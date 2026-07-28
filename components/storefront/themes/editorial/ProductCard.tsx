@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getProductBadge } from '@/lib/store/theme-config'
 import { QuickAddButton } from '@/components/storefront/shared/QuickAddButton'
 import type { ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 export function ProductCard({
@@ -9,6 +10,7 @@ export function ProductCard({
   product,
   categoryName,
   tokens,
+  t,
   className = '',
   featured = false,
 }: {
@@ -16,6 +18,7 @@ export function ProductCard({
   product: ProductSummaryResponse
   categoryName?: string
   tokens: Required<ThemeConfig>
+  t: StorefrontStrings
   /** Optional extra classes for the wrapping grid item — used by Home's asymmetric featured grid. */
   className?: string
   /** Renders a larger caption treatment for the featured (first) tile in the asymmetric grid. */
@@ -54,7 +57,7 @@ export function ProductCard({
             )}
           </>
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-[#767676] text-[10px] uppercase tracking-widest">სურათი არ არის</div>
+          <div className="w-full h-full flex items-center justify-center text-[#767676] text-[10px] uppercase tracking-widest">{t.product.noImage}</div>
         )}
         <QuickAddButton
           slug={slug}

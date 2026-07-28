@@ -4,6 +4,7 @@ import { apiFetch, ApiError } from '@/lib/api'
 import { isThemeId } from '@/lib/storefront-themes'
 import { StorePageView } from '@/components/storefront/shared/StorePageView'
 import { buildBreadcrumbJsonLd, getStoreUrl, truncateDescription } from '@/lib/store/seo'
+import { getStorefrontStrings } from '@/lib/storefront-i18n-server'
 import { JsonLd } from '@/components/storefront/shared/JsonLd'
 import type { StorePageResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
@@ -48,6 +49,7 @@ export default async function StorePageRoute({
   }
 
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
+  const t = await getStorefrontStrings()
 
   return (
     <>
@@ -55,7 +57,7 @@ export default async function StorePageRoute({
         { name: store.name, url: getStoreUrl(slug, '', store.customDomain) },
         { name: page.title, url: getStoreUrl(slug, `/pages/${pageSlug}`, store.customDomain) },
       ])} />
-      <StorePageView slug={slug} page={page} themeId={themeId} />
+      <StorePageView slug={slug} page={page} themeId={themeId} t={t} />
     </>
   )
 }

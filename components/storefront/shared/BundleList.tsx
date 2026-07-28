@@ -6,16 +6,19 @@ import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { getRadiusClass } from '@/lib/store/theme-config'
 import type { ThemeConfig, ThemeId } from '@/lib/types/storefront'
+import type { StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 export function BundleList({
   slug,
   themeId,
   tokens,
+  t,
 }: {
   slug: string
   themeId: ThemeId
   tokens: Required<ThemeConfig>
+  t: StorefrontStrings
 }) {
   const { data: bundles, isLoading } = useBundles(slug)
   const { addBundle } = useStorefrontCart()
@@ -35,7 +38,7 @@ export function BundleList({
   if (isLoading) {
     return (
       <div className={`${surface.page} ${surface.muted} min-h-screen flex items-center justify-center text-sm`}>
-        იტვირთება...
+        {t.bundles.loading}
       </div>
     )
   }
@@ -43,7 +46,7 @@ export function BundleList({
   if (!bundles || bundles.length === 0) {
     return (
       <div className={`${surface.page} min-h-screen flex flex-col items-center justify-center text-center px-4 py-24`}>
-        <h1 className={`font-black text-2xl mb-3 ${surface.text}`}>ბანდლები არ არის</h1>
+        <h1 className={`font-black text-2xl mb-3 ${surface.text}`}>{t.bundles.emptyHeading}</h1>
       </div>
     )
   }
@@ -51,7 +54,7 @@ export function BundleList({
   return (
     <div className={`${surface.page} min-h-screen`}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 pb-24">
-        <h1 className={`font-black text-3xl tracking-tight mb-8 ${surface.text}`}>ბანდლები</h1>
+        <h1 className={`font-black text-3xl tracking-tight mb-8 ${surface.text}`}>{t.bundles.pageHeading}</h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {bundles.map(bundle => {
@@ -62,7 +65,7 @@ export function BundleList({
                   {bundle.imageUrl ? (
                     <CImg src={bundle.imageUrl} alt={bundle.name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className={`w-full h-full flex items-center justify-center text-xs ${surface.muted}`}>სურათი არ არის</div>
+                    <div className={`w-full h-full flex items-center justify-center text-xs ${surface.muted}`}>{t.bundles.noImage}</div>
                   )}
                 </div>
                 <div>
@@ -77,7 +80,7 @@ export function BundleList({
                     <span className={`text-xs line-through ${surface.muted}`}>₾{bundle.regularTotal.toFixed(2)}</span>
                   )}
                   {savings > 0 && (
-                    <span className="text-xs font-semibold text-emerald-500">დაზოგე ₾{savings.toFixed(2)}</span>
+                    <span className="text-xs font-semibold text-emerald-500">{t.bundles.savings(savings.toFixed(2))}</span>
                   )}
                 </div>
                 <button
@@ -87,7 +90,7 @@ export function BundleList({
                   className={`py-3 text-white text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-90 disabled:opacity-40 ${radius}`}
                   style={{ backgroundColor: tokens.accentColor }}
                 >
-                  {addingId === bundle.id ? '...' : 'კალათაში დამატება'}
+                  {addingId === bundle.id ? t.bundles.addPending : t.bundles.addToCart}
                 </button>
               </div>
             )

@@ -6,10 +6,11 @@ import { PriceRangeFilter } from '@/components/storefront/shared/PriceRangeFilte
 import { OptionFiltersPanel } from '@/components/storefront/shared/OptionFiltersPanel'
 import { Pagination } from '@/components/storefront/shared/Pagination'
 import { useProductFacets, useProductPriceRange, useProducts } from '@/lib/queries/storefront'
-import { padPriceBounds, SORT_OPTIONS, sortOptionToQuery, type ProductSortOption } from '@/lib/store/product-search'
+import { getSortOptions, padPriceBounds, sortOptionToQuery, type ProductSortOption } from '@/lib/store/product-search'
 import { useProductListUrlState } from '@/lib/store/use-product-list-url-state'
 import { getSidebarCategories } from '@/lib/store/nav-menu'
 import type { CategoryResponse, CollectionResponse, ThemeConfig } from '@/lib/types/storefront'
+import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
 
 const PAGE_SIZE = 20
 
@@ -28,6 +29,7 @@ export function ProductGrid({
   activeCollectionSlug?: string
   tokens: Required<ThemeConfig>
 }) {
+  const { t } = useStorefrontLanguage()
   const categoryNames = new Map(categories.map(c => [c.id, c.name]))
   const displayCategories = getSidebarCategories(categories, tokens)
   const activeCategoryName = activeCategorySlug ? displayCategories.find(c => c.slug === activeCategorySlug)?.name : undefined
@@ -72,10 +74,10 @@ export function ProductGrid({
     <div className="bg-white min-h-screen">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 pb-24">
         <div className="mb-8">
-          <p className="text-xs font-semibold uppercase tracking-widest text-[#8a8a8a] mb-1">კოლექცია</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-[#8a8a8a] mb-1">{t.grid.collectionEyebrow}</p>
           <h1 className="flex items-center gap-2 font-black text-3xl text-[#0f0f0f] tracking-tight">
             <span className="inline-block w-1.5 h-1.5 shrink-0" style={{ backgroundColor: tokens.accentColor }} aria-hidden />
-            {activeCategoryName ?? activeCollectionName ?? 'ყველა პროდუქტი'}
+            {activeCategoryName ?? activeCollectionName ?? t.grid.allProductsTitle}
           </h1>
         </div>
 
@@ -84,7 +86,7 @@ export function ProductGrid({
           <aside className="w-full md:w-56 shrink-0 flex flex-col gap-4 md:sticky md:top-14 md:self-start md:max-h-[calc(100vh-4.5rem)] md:overflow-y-auto md:pb-6">
             {displayCategories.length > 0 && (
               <div className="border border-[#e8e8e8] bg-white p-4 flex flex-col gap-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-[#8a8a8a] mb-2">კატეგორია</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#8a8a8a] mb-2">{t.header.categories}</p>
                 <Link
                   href={`/products`}
                   className={[
@@ -92,7 +94,7 @@ export function ProductGrid({
                     !activeCategorySlug ? 'bg-[#0f0f0f] text-white font-semibold' : 'text-[#6b6b6b] hover:bg-[#f7f7f7]',
                   ].join(' ')}
                 >
-                  ყველა
+                  {t.grid.allCategoriesLink}
                 </Link>
                 {displayCategories.map(category => (
                   <Link
@@ -118,6 +120,7 @@ export function ProductGrid({
                   value={effectiveRange ?? bounds}
                   onChange={setPriceRange}
                   accentColor={tokens.accentColor}
+                  t={t}
                   trackColorClassName="bg-[#e8e8e8]"
                   labelClassName="text-[#8a8a8a]"
                   valueClassName="text-[#0f0f0f]"
@@ -142,14 +145,14 @@ export function ProductGrid({
           <div className="flex-1">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
               <p className="text-sm text-[#6b6b6b]">
-                <span className="text-[#0f0f0f] font-semibold">{totalCount}</span> პროდუქტი
+                <span className="text-[#0f0f0f] font-semibold">{totalCount}</span> {t.grid.unitProduct}
               </p>
               <div className="flex items-center gap-3">
                 <input
                   type="text"
                   value={searchInput}
                   onChange={e => setSearchInput(e.target.value)}
-                  placeholder="ძიება..."
+                  placeholder={t.grid.searchPlaceholder}
                   className="w-full sm:w-56 bg-white border border-[#e8e8e8] text-sm px-3 py-2 text-[#0f0f0f] placeholder:text-[#8a8a8a] focus:outline-none focus:border-[#0f0f0f] transition-colors"
                 />
                 <select
@@ -157,7 +160,7 @@ export function ProductGrid({
                   onChange={e => setSortBy(e.target.value as ProductSortOption)}
                   className="bg-white border border-[#e8e8e8] text-sm px-3 py-2 text-[#0f0f0f] focus:outline-none focus:border-[#0f0f0f] transition-colors"
                 >
-                  {SORT_OPTIONS.map(opt => (
+                  {getSortOptions(t).map(opt => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
                   ))}
                 </select>
@@ -172,7 +175,7 @@ export function ProductGrid({
               </div>
             ) : products.length === 0 ? (
               <div className="py-32 flex flex-col items-center gap-4 text-center">
-                <p className="text-[#8a8a8a] text-sm">პროდუქტი ვერ მოიძებნა.</p>
+                <p className="text-[#8a8a8a] text-sm">{t.grid.noProductsFound}</p>
               </div>
             ) : (
               <>
@@ -184,6 +187,7 @@ export function ProductGrid({
                       product={product}
                       categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
                       tokens={tokens}
+                      t={t}
                     />
                   ))}
                 </div>
@@ -191,6 +195,7 @@ export function ProductGrid({
                   page={page}
                   totalPages={totalPages}
                   onChange={setPage}
+                  t={t}
                   buttonClassName="btn btn-sm bg-white border border-[#e8e8e8] text-[#6b6b6b] hover:text-[#0f0f0f] disabled:opacity-30"
                   textClassName="text-[#8a8a8a]"
                 />
