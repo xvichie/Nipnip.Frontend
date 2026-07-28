@@ -43,6 +43,8 @@ import type {
   StoreResponse,
   CreateStorePageRequest,
   UnreadContactMessageCountResponse,
+  UpdateProductOptionRequest,
+  UpdateProductOptionValueRequest,
   UpdatePaymentConfirmedRequest,
   UpdateCategoryRequest,
   UpdateCollectionRequest,
@@ -789,6 +791,21 @@ export function useCreateProductOption(productId: string) {
   })
 }
 
+export function useUpdateProductOption(productId: string, optionId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (body: UpdateProductOptionRequest) => {
+      const token = await getToken()
+      return apiFetch<ProductOptionResponse>(`/api/products/${productId}/options/${optionId}`, token, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'product', productId] }),
+  })
+}
+
 export function useDeleteProductOption(productId: string) {
   const { getToken } = useAuth()
   const queryClient = useQueryClient()
@@ -809,6 +826,21 @@ export function useCreateProductOptionValue(productId: string, optionId: string)
       const token = await getToken()
       return apiFetch<ProductOptionValueResponse>(`/api/products/${productId}/options/${optionId}/values`, token, {
         method: 'POST',
+        body: JSON.stringify(body),
+      })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['storefront-admin', 'product', productId] }),
+  })
+}
+
+export function useUpdateProductOptionValue(productId: string, optionId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ valueId, body }: { valueId: string; body: UpdateProductOptionValueRequest }) => {
+      const token = await getToken()
+      return apiFetch<ProductOptionValueResponse>(`/api/products/${productId}/options/${optionId}/values/${valueId}`, token, {
+        method: 'PUT',
         body: JSON.stringify(body),
       })
     },

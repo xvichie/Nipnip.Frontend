@@ -1,6 +1,8 @@
 'use client'
 
 import type { ProductOptionResponse, ThemeConfig } from '@/lib/types/storefront'
+import { getOptionName, getOptionValueName } from '@/lib/store/translations'
+import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
 
 function sortedValues(option: ProductOptionResponse) {
   return [...option.values].sort((a, b) => a.value.localeCompare(b.value, undefined, { numeric: true, sensitivity: 'base' }))
@@ -19,6 +21,8 @@ export function VariantSelector({
   tokens: Required<ThemeConfig>
   radiusClass?: string
 }) {
+  const { lang } = useStorefrontLanguage()
+
   if (options.length === 0) return null
 
   return (
@@ -26,10 +30,13 @@ export function VariantSelector({
       {options.map(option => (
         <div key={option.id}>
           <p className="text-xs font-semibold uppercase tracking-wider opacity-60 mb-3">
-            {option.name}
+            {getOptionName(option, lang)}
             {selected[option.id] && (
               <span className="normal-case ml-1 opacity-100">
-                {option.values.find(v => v.id === selected[option.id])?.value}
+                {(() => {
+                  const selectedValue = option.values.find(v => v.id === selected[option.id])
+                  return selectedValue ? getOptionValueName(selectedValue, lang) : null
+                })()}
               </span>
             )}
           </p>
@@ -52,7 +59,7 @@ export function VariantSelector({
                       : { borderColor: 'currentColor' }
                   }
                 >
-                  {value.value}
+                  {getOptionValueName(value, lang)}
                 </button>
               )
             })}

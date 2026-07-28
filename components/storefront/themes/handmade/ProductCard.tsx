@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { getProductBadge } from '@/lib/store/theme-config'
 import { QuickAddButton } from '@/components/storefront/shared/QuickAddButton'
 import type { ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
-import type { StorefrontStrings } from '@/lib/storefront-i18n'
+import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
+import { getProductName } from '@/lib/store/translations'
 import { CImg } from '@/components/ui/CImg'
 
 export function ProductCard({
@@ -11,6 +12,7 @@ export function ProductCard({
   categoryName,
   tokens,
   t,
+  lang,
   className = '',
   featured = false,
 }: {
@@ -19,12 +21,14 @@ export function ProductCard({
   categoryName?: string
   tokens: Required<ThemeConfig>
   t: StorefrontStrings
+  lang: StorefrontLanguage
   /** Optional extra classes for the wrapping grid item — used by Home's asymmetric featured grid. */
   className?: string
   /** Renders a larger caption treatment for the featured (first) tile in the asymmetric grid. */
   featured?: boolean
 }) {
   const badge = getProductBadge(tokens, product)
+  const productName = getProductName(product, lang)
   return (
     <Link href={`/products/${product.slug}`} className={`group h-full flex flex-col ${className}`}>
       <div className="relative aspect-[4/5] bg-[#e8ddd0] overflow-hidden">
@@ -41,7 +45,7 @@ export function ProductCard({
             <CImg
               src={product.thumbnailUrl}
               cldWidth={600}
-              alt={product.name}
+              alt={productName}
               className={[
                 'absolute inset-0 w-full h-full object-cover transition-all duration-300 ease-out group-hover:scale-[1.01] group-hover:opacity-90',
                 product.secondImageUrl ? 'group-hover:opacity-0' : '',
@@ -71,7 +75,7 @@ export function ProductCard({
         )}
         <div className="flex items-baseline justify-between gap-2">
           <h3 className={`font-serif italic text-[#2b2420] leading-snug ${featured ? 'text-lg sm:text-xl' : 'text-sm'}`}>
-            {product.name}
+            {productName}
           </h3>
           {product.salePrice !== null ? (
             <div className="flex items-baseline gap-1.5 shrink-0">

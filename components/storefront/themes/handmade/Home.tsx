@@ -234,6 +234,7 @@ export function Home({
                 categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
                 tokens={tokens}
                 t={t}
+                lang={lang}
                 // The first product becomes a large featured tile in this theme's
                 // asymmetric lookbook grid; everything else renders 1x1.
                 className={index === 0 ? 'col-span-2 row-span-2' : ''}
@@ -264,6 +265,7 @@ export function Home({
                     categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
                     tokens={tokens}
                     t={t}
+                    lang={lang}
                   />
                 </div>
               ),

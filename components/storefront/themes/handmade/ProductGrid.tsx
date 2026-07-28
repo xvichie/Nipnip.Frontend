@@ -174,6 +174,7 @@ export function ProductGrid({
                   categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
                   tokens={tokens}
                   t={t}
+                  lang={lang}
                 />
               ))}
             </div>

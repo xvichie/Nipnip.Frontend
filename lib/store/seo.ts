@@ -1,4 +1,6 @@
 import type { ProductDetailResponse, StoreResponse, ThemeConfig } from '@/lib/types/storefront'
+import type { StorefrontLanguage } from '@/lib/storefront-i18n'
+import { getProductDescription, getProductName } from '@/lib/store/translations'
 
 export const STOREFRONT_ROOT_DOMAIN = 'nipnip.ge'
 
@@ -59,7 +61,7 @@ export function buildStoreJsonLd(slug: string, store: StoreResponse, tokens: Req
   }
 }
 
-export function buildProductJsonLd(slug: string, storeName: string, product: ProductDetailResponse, customDomain?: string | null) {
+export function buildProductJsonLd(slug: string, storeName: string, product: ProductDetailResponse, customDomain: string | null | undefined, lang: StorefrontLanguage) {
   const url = getStoreUrl(slug, `/products/${product.slug}`, customDomain)
   const images = product.images.map(img => img.url)
   const prices = product.variants.map(v => v.salePrice ?? v.price)
@@ -90,8 +92,8 @@ export function buildProductJsonLd(slug: string, storeName: string, product: Pro
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
-    name: product.name,
-    description: product.description || undefined,
+    name: getProductName(product, lang),
+    description: getProductDescription(product, lang) || undefined,
     image: images.length > 0 ? images : undefined,
     sku: product.variants[0]?.sku || product.id,
     brand: { '@type': 'Brand', name: storeName },

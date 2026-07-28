@@ -5,6 +5,7 @@ import { getProductBadge } from '@/lib/store/theme-config'
 import { QuickAddButton } from '@/components/storefront/shared/QuickAddButton'
 import type { ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
 import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
+import { getProductName } from '@/lib/store/translations'
 import { CImg } from '@/components/ui/CImg'
 
 export function ProductCard({
@@ -18,7 +19,8 @@ export function ProductCard({
   categoryName?: string
   tokens: Required<ThemeConfig>
 }) {
-  const { t } = useStorefrontLanguage()
+  const { t, lang } = useStorefrontLanguage()
+  const productName = getProductName(product, lang)
   const badge = getProductBadge(tokens, product)
   return (
     <Link href={`/products/${product.slug}`} className="group block h-full">
@@ -42,7 +44,7 @@ export function ProductCard({
               <CImg
                 src={product.thumbnailUrl}
                 cldWidth={600}
-                alt={product.name}
+                alt={productName}
                 className={[
                   'absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out group-hover:scale-110',
                   product.secondImageUrl ? 'group-hover:opacity-0' : '',
@@ -71,7 +73,7 @@ export function ProductCard({
           {categoryName && (
             <p className="text-[10px] font-black uppercase tracking-wider mb-1.5" style={{ color: tokens.accentColor }}>{categoryName}</p>
           )}
-          <h3 className="text-[#1d3557] font-black text-sm uppercase leading-snug mb-2">{product.name}</h3>
+          <h3 className="text-[#1d3557] font-black text-sm uppercase leading-snug mb-2">{productName}</h3>
           <div className="mt-auto">
             {product.salePrice !== null ? (
               <div className="flex items-center gap-2">

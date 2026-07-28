@@ -7,7 +7,7 @@ import { isThemeId } from '@/lib/storefront-themes'
 import { buildBreadcrumbJsonLd, buildProductJsonLd, getStoreUrl, truncateDescription } from '@/lib/store/seo'
 import { getStorefrontLanguage } from '@/lib/storefront-i18n-server'
 import { STOREFRONT_STRINGS } from '@/lib/storefront-i18n'
-import { getCategoryName } from '@/lib/store/translations'
+import { getCategoryName, getProductDescription, getProductName } from '@/lib/store/translations'
 import { JsonLd } from '@/components/storefront/shared/JsonLd'
 import type { CategoryResponse, ProductDetailResponse, StoreResponse, ThemeId } from '@/lib/types/storefront'
 
@@ -52,21 +52,22 @@ export async function generateMetadata({
 
   const lang = await getStorefrontLanguage(parseThemeConfig(store.themeConfig).defaultLanguage)
   const t = STOREFRONT_STRINGS[lang]
+  const productName = getProductName(product, lang)
   const description = truncateDescription(
-    product.description || t.seo.productDescriptionFallback(product.name, store.name)
+    getProductDescription(product, lang) || t.seo.productDescriptionFallback(productName, store.name)
   )
   const image = product.images[0]?.url
 
   return {
-    title: product.name,
+    title: productName,
     description,
     openGraph: {
-      title: product.name,
+      title: productName,
       description,
       images: image ? [{ url: image }] : undefined,
     },
     twitter: {
-      title: product.name,
+      title: productName,
       description,
       images: image ? [image] : undefined,
     },
@@ -111,11 +112,11 @@ export default async function ProductDetailPage({
 
   return (
     <>
-      <JsonLd data={buildProductJsonLd(slug, store.name, product, store.customDomain)} />
+      <JsonLd data={buildProductJsonLd(slug, store.name, product, store.customDomain, lang)} />
       <JsonLd data={buildBreadcrumbJsonLd([
         { name: store.name, url: getStoreUrl(slug, '', store.customDomain) },
         categoryCrumb,
-        { name: product.name, url: getStoreUrl(slug, `/products/${productSlug}`, store.customDomain) },
+        { name: getProductName(product, lang), url: getStoreUrl(slug, `/products/${productSlug}`, store.customDomain) },
       ])} />
       <DetailComponent slug={slug} product={product} category={category} tokens={tokens} />
     </>

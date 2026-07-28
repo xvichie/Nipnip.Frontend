@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import { getProductBadge } from '@/lib/store/theme-config'
 import { QuickAddButton } from '@/components/storefront/shared/QuickAddButton'
+import { getProductName } from '@/lib/store/translations'
 import type { ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
-import type { StorefrontStrings } from '@/lib/storefront-i18n'
+import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
 import { CImg } from '@/components/ui/CImg'
 
 export function ProductCard({
@@ -11,14 +12,17 @@ export function ProductCard({
   categoryName,
   tokens,
   t,
+  lang,
 }: {
   slug: string
   product: ProductSummaryResponse
   categoryName?: string
   tokens: Required<ThemeConfig>
   t: StorefrontStrings
+  lang: StorefrontLanguage
 }) {
   const badge = getProductBadge(tokens, product)
+  const productName = getProductName(product, lang)
   return (
     <Link href={`/products/${product.slug}`} className="group block h-full">
       <div className="bg-white border border-[#e5e5e5] hover:shadow-md transition-shadow duration-200 h-full flex flex-col">
@@ -36,7 +40,7 @@ export function ProductCard({
               <CImg
                 src={product.thumbnailUrl}
                 cldWidth={600}
-                alt={product.name}
+                alt={productName}
                 className={[
                   'absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out group-hover:scale-105',
                   product.secondImageUrl ? 'group-hover:opacity-0' : '',
@@ -67,7 +71,7 @@ export function ProductCard({
             <p className="text-[#999] text-[10px] uppercase tracking-wider mb-1">{categoryName}</p>
           )}
           <h3 className="text-[#111] font-semibold text-sm leading-snug mb-2 group-hover:underline underline-offset-2">
-            {product.name}
+            {productName}
           </h3>
           <div className="mt-auto">
             {product.salePrice !== null ? (

@@ -24,6 +24,11 @@ import { useInstagramPublish, useInstagramStatus } from '@/lib/queries/instagram
 import { useTikTokPublish, useTikTokStatus } from '@/lib/queries/tiktok'
 import { FloatingFormButton } from '@/components/dashboard/FloatingFormButton'
 import { BetaBadge } from '@/components/dashboard/store/BetaBadge'
+import { TranslatedField, hasAnyTranslatedValue, type TranslatedFieldValue } from '@/components/dashboard/store/TranslatedField'
+
+const EMPTY_TRANSLATED: TranslatedFieldValue = { ka: '', en: '', ru: '' }
+const NAME_PLACEHOLDERS = { ka: 'სახელი ქართულად', en: 'Name in English', ru: 'Название на русском' }
+const DESCRIPTION_PLACEHOLDERS = { ka: 'აღწერა ქართულად', en: 'Description in English', ru: 'Описание на русском' }
 
 function newId(): string {
   return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)
@@ -57,8 +62,8 @@ export default function NewProductPage() {
     }
   })
 
-  const [name, setName] = useState(() => importedData?.name ?? '')
-  const [description, setDescription] = useState(() => importedData?.description ?? '')
+  const [names, setNames] = useState<TranslatedFieldValue>(() => ({ ...EMPTY_TRANSLATED, ka: importedData?.name ?? '' }))
+  const [descriptions, setDescriptions] = useState<TranslatedFieldValue>(() => ({ ...EMPTY_TRANSLATED, ka: importedData?.description ?? '' }))
   const [basePrice, setBasePrice] = useState(() => (importedData?.price != null ? String(importedData.price) : ''))
   const [salePrice, setSalePrice] = useState('')
   const [stock, setStock] = useState('')
@@ -116,8 +121,8 @@ export default function NewProductPage() {
   }
 
   async function handleImport(source: ProductDetailResponse, fields: ImportFields) {
-    if (fields.name) setName(source.name)
-    if (fields.description) setDescription(source.description ?? '')
+    if (fields.name) setNames({ ka: source.nameKa ?? '', en: source.nameEn ?? '', ru: source.nameRu ?? '' })
+    if (fields.description) setDescriptions({ ka: source.descriptionKa ?? '', en: source.descriptionEn ?? '', ru: source.descriptionRu ?? '' })
     if (fields.price) {
       setBasePrice(String(source.basePrice))
       setSalePrice(source.salePrice !== null ? String(source.salePrice) : '')
@@ -151,13 +156,13 @@ export default function NewProductPage() {
           try {
             const createdOption = await apiFetch<ProductOptionResponse>(`/api/products/${productId}/options`, token, {
               method: 'POST',
-              body: JSON.stringify({ name: option.name }),
+              body: JSON.stringify({ nameKa: option.nameKa, nameEn: option.nameEn, nameRu: option.nameRu }),
             })
             await Promise.allSettled(
               option.values.map(v =>
                 apiFetch(`/api/products/${productId}/options/${createdOption.id}/values`, token, {
                   method: 'POST',
-                  body: JSON.stringify({ value: v.value }),
+                  body: JSON.stringify({ value: v.value, valueKa: v.valueKa, valueEn: v.valueEn, valueRu: v.valueRu }),
                 })
               )
             )
@@ -189,8 +194,12 @@ export default function NewProductPage() {
     if (productId) {
       updateProduct(
         {
-          name: name.trim() || null,
-          description: description.trim() || null,
+          nameKa: names.ka.trim() || null,
+          nameEn: names.en.trim() || null,
+          nameRu: names.ru.trim() || null,
+          descriptionKa: descriptions.ka.trim() || null,
+          descriptionEn: descriptions.en.trim() || null,
+          descriptionRu: descriptions.ru.trim() || null,
           basePrice: price,
           salePrice: salePrice.trim() ? parsedSalePrice : null,
           categoryId: categoryId || null,
@@ -204,8 +213,12 @@ export default function NewProductPage() {
 
     createProduct(
       {
-        name: name.trim(),
-        description: description.trim() || null,
+        nameKa: names.ka.trim() || null,
+        nameEn: names.en.trim() || null,
+        nameRu: names.ru.trim() || null,
+        descriptionKa: descriptions.ka.trim() || null,
+        descriptionEn: descriptions.en.trim() || null,
+        descriptionRu: descriptions.ru.trim() || null,
         videoUrl: stagedVideoUrl,
         basePrice: price,
         salePrice: salePrice.trim() ? parsedSalePrice : null,
@@ -262,7 +275,7 @@ export default function NewProductPage() {
               try {
                 const createdOption = await apiFetch<ProductOptionResponse>(`/api/products/${created.id}/options`, token, {
                   method: 'POST',
-                  body: JSON.stringify({ name: option.name }),
+                  body: JSON.stringify({ nameKa: option.name }),
                 })
                 await Promise.allSettled(
                   option.values.map(v =>
@@ -336,27 +349,29 @@ export default function NewProductPage() {
       <div className="rounded-2xl border border-white/7 bg-white/2 p-6">
         <form id="product-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="fieldset gap-2">
-            <label htmlFor="p-name" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+            <span className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
               სახელი <span className="text-error">*</span>
-            </label>
-            <input
-              id="p-name"
-              type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
+            </span>
+            <TranslatedField
+              value={names}
+              onChange={setNames}
+              placeholders={NAME_PLACEHOLDERS}
               className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
-              required
             />
+            {!hasAnyTranslatedValue(names) && (
+              <p className="text-error text-xs">მიუთითეთ სახელი მინიმუმ ერთ ენაზე.</p>
+            )}
           </div>
 
           <div className="fieldset gap-2">
-            <label htmlFor="p-description" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+            <span className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
               აღწერა
-            </label>
-            <textarea
-              id="p-description"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
+            </span>
+            <TranslatedField
+              value={descriptions}
+              onChange={setDescriptions}
+              placeholders={DESCRIPTION_PLACEHOLDERS}
+              multiline
               rows={3}
               className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 resize-none"
             />
@@ -460,7 +475,7 @@ export default function NewProductPage() {
         </form>
       </div>
 
-      <FloatingFormButton anchorRef={contentRef} formId="product-form" disabled={busy || !name.trim() || !basePrice || (!isCreated && stagedOptions.length === 0 && !stock.trim())}>
+      <FloatingFormButton anchorRef={contentRef} formId="product-form" disabled={busy || !hasAnyTranslatedValue(names) || !basePrice || (!isCreated && stagedOptions.length === 0 && !stock.trim())}>
         {busy ? <span className="loading loading-spinner loading-sm" /> : isCreated ? 'ცვლილებების შენახვა' : 'პროდუქტის შექმნა'}
       </FloatingFormButton>
 

@@ -10,7 +10,7 @@ import { StickyAddToCartBar } from '@/components/storefront/shared/StickyAddToCa
 import { ProductCard } from './ProductCard'
 import type { CategoryResponse, ProductDetailResponse, ThemeConfig } from '@/lib/types/storefront'
 import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
-import { getCategoryName } from '@/lib/store/translations'
+import { getCategoryName, getProductDescription, getProductName } from '@/lib/store/translations'
 import { CImg } from '@/components/ui/CImg'
 
 export function ProductDetail({
@@ -25,6 +25,8 @@ export function ProductDetail({
   tokens: Required<ThemeConfig>
 }) {
   const { t, lang } = useStorefrontLanguage()
+  const productName = getProductName(product, lang)
+  const productDescription = getProductDescription(product, lang)
   const { addItem } = useStorefrontCart()
   const [selected, setSelected] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
@@ -85,7 +87,7 @@ export function ProductDetail({
           items={[
             { label: t.product.breadcrumbHome, href: '/' },
             category ? { label: getCategoryName(category, lang), href: `/products/category/${category.slug}` } : { label: t.product.breadcrumbAllProducts, href: '/products' },
-            { label: product.name },
+            { label: productName },
           ]}
           t={t}
           textClassName="text-[#f2f2f0]"
@@ -121,7 +123,7 @@ export function ProductDetail({
                   aria-label={t.product.zoomAriaLabel}
                   className="w-full h-full cursor-zoom-in"
                 >
-                  <CImg src={images[activeImage].url} cldWidth={1000} alt={product.name} className="w-full h-full object-contain" />
+                  <CImg src={images[activeImage].url} cldWidth={1000} alt={productName} className="w-full h-full object-contain" />
                 </button>
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-[#54544e] text-xs">{t.product.noImage}</div>
@@ -131,7 +133,7 @@ export function ProductDetail({
 
           <div className="flex flex-col">
             <h1 className="font-black text-3xl sm:text-4xl text-[#f2f2f0] tracking-tight leading-tight mb-4">
-              {product.name}
+              {productName}
             </h1>
 
             {salePrice !== null ? (
@@ -226,10 +228,10 @@ export function ProductDetail({
               </div>
             )}
 
-            {product.description && (
+            {productDescription && (
               <div className="border border-[#3a3a38] bg-[#242422] p-4">
                 <p className="text-xs font-semibold uppercase tracking-widest text-[#6f6f6b] mb-3">{t.product.description}</p>
-                <p className="text-[#b5b5b0] text-sm leading-relaxed">{product.description}</p>
+                <p className="text-[#b5b5b0] text-sm leading-relaxed">{productDescription}</p>
               </div>
             )}
 
@@ -247,7 +249,7 @@ export function ProductDetail({
             <h2 className="font-black text-2xl text-[#f2f2f0] tracking-tight mb-6">{tokens.relatedProductsHeading || t.product.relatedProducts}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {product.relatedProducts.map(related => (
-                <ProductCard key={related.id} slug={slug} product={related} tokens={tokens} t={t} />
+                <ProductCard key={related.id} slug={slug} product={related} tokens={tokens} t={t} lang={lang} />
               ))}
             </div>
           </div>
@@ -271,7 +273,7 @@ export function ProductDetail({
       {tokens.showStickyMobileCta && (
         <StickyAddToCartBar
           triggerRef={addToCartButtonRef}
-          productName={product.name}
+          productName={productName}
           priceLabel={salePrice !== null ? `₾${salePrice.toFixed(2)}` : `₾${price.toFixed(2)}`}
           disabled={!canAddToCart}
           addedLabel={added ? t.product.addedToCart : null}

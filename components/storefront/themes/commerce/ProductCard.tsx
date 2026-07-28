@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { getProductBadge } from '@/lib/store/theme-config'
 import { QuickAddButton } from '@/components/storefront/shared/QuickAddButton'
 import type { ProductSummaryResponse, ThemeConfig } from '@/lib/types/storefront'
-import type { StorefrontStrings } from '@/lib/storefront-i18n'
+import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
+import { getProductName } from '@/lib/store/translations'
 import { CImg } from '@/components/ui/CImg'
 
 export function ProductCard({
@@ -11,14 +12,17 @@ export function ProductCard({
   categoryName,
   tokens,
   t,
+  lang,
 }: {
   slug: string
   product: ProductSummaryResponse
   categoryName?: string
   tokens: Required<ThemeConfig>
   t: StorefrontStrings
+  lang: StorefrontLanguage
 }) {
   const badge = getProductBadge(tokens, product)
+  const productName = getProductName(product, lang)
   return (
     <Link href={`/products/${product.slug}`} className="group block h-full">
       <div className="rounded-md border border-slate-200 bg-white overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full flex flex-col">
@@ -36,7 +40,7 @@ export function ProductCard({
               <CImg
                 src={product.thumbnailUrl}
                 cldWidth={600}
-                alt={product.name}
+                alt={productName}
                 className={[
                   'absolute inset-0 w-full h-full object-cover transition-all duration-300 ease-out group-hover:scale-[1.03]',
                   product.secondImageUrl ? 'group-hover:opacity-0' : '',
@@ -62,7 +66,7 @@ export function ProductCard({
         </div>
         <div className="p-3.5 flex flex-col flex-1">
           {categoryName && <p className="text-slate-400 text-[11px] uppercase tracking-wide font-semibold mb-1">{categoryName}</p>}
-          <h3 className="text-slate-900 font-semibold text-sm leading-snug mb-2">{product.name}</h3>
+          <h3 className="text-slate-900 font-semibold text-sm leading-snug mb-2">{productName}</h3>
           <div className="mt-auto">
             {product.salePrice !== null ? (
               <div className="flex items-center gap-2">

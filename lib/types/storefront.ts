@@ -480,7 +480,10 @@ export interface ProductSummaryResponse {
   id: string
   slug: string
   categoryId: string | null
-  name: string
+  name: string // resolved ka->en->ru fallback
+  nameKa: string | null
+  nameEn: string | null
+  nameRu: string | null
   basePrice: number
   salePrice: number | null
   isActive: boolean
@@ -495,9 +498,21 @@ export interface ProductPriceRangeResponse {
   max: number
 }
 
+/** One filterable value within a facet group — value is the canonical string used in filter
+ * query params; the 3 translation fields are display-only overlays. */
+export interface ProductFacetValueResponse {
+  value: string
+  valueKa: string | null
+  valueEn: string | null
+  valueRu: string | null
+}
+
 export interface ProductFacetResponse {
-  name: string
-  values: string[]
+  name: string // resolved ka->en->ru fallback
+  nameKa: string | null
+  nameEn: string | null
+  nameRu: string | null
+  values: ProductFacetValueResponse[]
 }
 
 /** One filter group sent to the listing endpoint — values within a group are OR'd, groups are AND'd. */
@@ -522,21 +537,46 @@ export interface ReorderProductImagesRequest {
 
 export interface ProductOptionValueResponse {
   id: string
-  value: string
+  value: string // canonical — used for filter/facet matching, never affected by translation edits
+  valueKa: string | null
+  valueEn: string | null
+  valueRu: string | null
 }
 
 export interface ProductOptionResponse {
   id: string
-  name: string
+  name: string // resolved ka->en->ru fallback
+  nameKa: string | null
+  nameEn: string | null
+  nameRu: string | null
   values: ProductOptionValueResponse[]
 }
 
 export interface CreateProductOptionRequest {
-  name: string
+  nameKa?: string | null
+  nameEn?: string | null
+  nameRu?: string | null
+}
+
+/** Unconditionally overwrites all three name fields, same convention as categories/products. */
+export interface UpdateProductOptionRequest {
+  nameKa?: string | null
+  nameEn?: string | null
+  nameRu?: string | null
 }
 
 export interface CreateProductOptionValueRequest {
   value: string
+  valueKa?: string | null
+  valueEn?: string | null
+  valueRu?: string | null
+}
+
+/** Translation-only update — the canonical value is immutable once created. */
+export interface UpdateProductOptionValueRequest {
+  valueKa?: string | null
+  valueEn?: string | null
+  valueRu?: string | null
 }
 
 export interface ProductVariantResponse {
@@ -572,8 +612,14 @@ export interface ProductDetailResponse {
   id: string
   slug: string
   categoryId: string | null
-  name: string
-  description: string | null
+  name: string // resolved ka->en->ru fallback
+  nameKa: string | null
+  nameEn: string | null
+  nameRu: string | null
+  description: string | null // resolved ka->en->ru fallback
+  descriptionKa: string | null
+  descriptionEn: string | null
+  descriptionRu: string | null
   videoUrl: string | null
   basePrice: number
   salePrice: number | null
@@ -589,9 +635,14 @@ export interface SetRelatedProductsRequest {
   productIds: string[]
 }
 
+/** At least one of nameKa/nameEn/nameRu is required. */
 export interface CreateProductRequest {
-  name: string
-  description?: string | null
+  nameKa?: string | null
+  nameEn?: string | null
+  nameRu?: string | null
+  descriptionKa?: string | null
+  descriptionEn?: string | null
+  descriptionRu?: string | null
   videoUrl?: string | null
   basePrice: number
   salePrice?: number | null
@@ -599,9 +650,15 @@ export interface CreateProductRequest {
   collectionIds?: string[] | null
 }
 
+/** nameKa/nameEn/nameRu and descriptionKa/descriptionEn/descriptionRu are always sent together
+ * and unconditionally overwrite the existing values (same convention as categories). */
 export interface UpdateProductRequest {
-  name?: string | null
-  description?: string | null
+  nameKa?: string | null
+  nameEn?: string | null
+  nameRu?: string | null
+  descriptionKa?: string | null
+  descriptionEn?: string | null
+  descriptionRu?: string | null
   /** Send "" to clear an existing video back to none; omit to leave untouched */
   videoUrl?: string
   basePrice?: number | null

@@ -195,7 +195,7 @@ export default function AdminProspectStudioPage({ params }: { params: Promise<{ 
 
     createProduct(
       {
-        name: productName.trim(),
+        nameKa: productName.trim(),
         basePrice: price,
         salePrice: sale !== null && !isNaN(sale) ? sale : null,
         categoryId: productCategoryId || null,

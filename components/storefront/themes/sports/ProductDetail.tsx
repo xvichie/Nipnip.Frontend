@@ -11,7 +11,7 @@ import { ProductCard } from './ProductCard'
 import { glowShadow } from '@/lib/store/theme-config'
 import type { CategoryResponse, ProductDetailResponse, ThemeConfig } from '@/lib/types/storefront'
 import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
-import { getCategoryName } from '@/lib/store/translations'
+import { getCategoryName, getProductDescription, getProductName } from '@/lib/store/translations'
 import { CImg } from '@/components/ui/CImg'
 
 export function ProductDetail({
@@ -26,6 +26,8 @@ export function ProductDetail({
   tokens: Required<ThemeConfig>
 }) {
   const { t, lang } = useStorefrontLanguage()
+  const productName = getProductName(product, lang)
+  const productDescription = getProductDescription(product, lang)
   const { addItem } = useStorefrontCart()
   const [selected, setSelected] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
@@ -86,7 +88,7 @@ export function ProductDetail({
           items={[
             { label: t.product.breadcrumbHome, href: '/' },
             category ? { label: getCategoryName(category, lang), href: `/products/category/${category.slug}` } : { label: t.product.breadcrumbAllProducts, href: '/products' },
-            { label: product.name },
+            { label: productName },
           ]}
           t={t}
           textClassName="text-white"
@@ -120,7 +122,7 @@ export function ProductDetail({
                   aria-label={t.product.zoomAriaLabel}
                   className="w-full h-full cursor-zoom-in"
                 >
-                  <CImg src={images[activeImage].url} cldWidth={1000} alt={product.name} className="w-full h-full object-contain" />
+                  <CImg src={images[activeImage].url} cldWidth={1000} alt={productName} className="w-full h-full object-contain" />
                 </button>
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-white/20 text-xs font-bold uppercase tracking-wider">
@@ -132,7 +134,7 @@ export function ProductDetail({
 
           <div className="flex flex-col">
             <h1 className="font-black text-4xl sm:text-5xl text-white tracking-tight uppercase leading-tight mb-4">
-              {product.name}
+              {productName}
             </h1>
 
             {salePrice !== null ? (
@@ -223,10 +225,10 @@ export function ProductDetail({
               </div>
             )}
 
-            {product.description && (
+            {productDescription && (
               <div className="pt-8 border-t border-white/10">
                 <p className="text-xs font-black uppercase tracking-widest text-white/40 mb-3">{t.product.description}</p>
-                <p className="text-white/70 text-sm leading-relaxed">{product.description}</p>
+                <p className="text-white/70 text-sm leading-relaxed">{productDescription}</p>
               </div>
             )}
 
@@ -268,7 +270,7 @@ export function ProductDetail({
       {tokens.showStickyMobileCta && (
         <StickyAddToCartBar
           triggerRef={addToCartButtonRef}
-          productName={product.name}
+          productName={productName}
           priceLabel={salePrice !== null ? `₾${salePrice.toFixed(2)}` : `₾${price.toFixed(2)}`}
           disabled={!canAddToCart}
           addedLabel={added ? t.product.addedToCart : null}

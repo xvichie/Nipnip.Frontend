@@ -129,8 +129,8 @@ export function BulkImportFromFacebookSection({ onImportingChange, onDone }: Bul
       const noPriceDetected = extracted.price == null
 
       const body: CreateProductRequest = {
-        name,
-        description: extracted.description ?? null,
+        nameKa: name,
+        descriptionKa: extracted.description ?? null,
         videoUrl: extracted.videoUrl ?? null,
         basePrice: extracted.price ?? 0,
         salePrice: null,

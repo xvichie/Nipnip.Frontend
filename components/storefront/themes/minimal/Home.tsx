@@ -225,6 +225,7 @@ export function Home({
                 categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
                 tokens={tokens}
                 t={t}
+                lang={lang}
               />
             ))}
           </div>
@@ -251,6 +252,7 @@ export function Home({
                     categoryName={product.categoryId ? categoryNames.get(product.categoryId) : undefined}
                     tokens={tokens}
                     t={t}
+                    lang={lang}
                   />
                 </div>
               ),
