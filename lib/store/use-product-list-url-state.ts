@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import type { OptionFilterInput } from '@/lib/types/storefront'
 import { type ProductSortOption } from './product-search'
 
@@ -46,71 +46,84 @@ function parseOptionFilters(raw: string | null): OptionFilterInput[] {
   }
 }
 
-// Keeps the products listing page (search term, sort, price range, option filters, page) fully
-// driven by the URL so the exact filtered view can be bookmarked or shared as a link. `search`
-// is additionally mirrored into local state so typing feels instant while the URL update — and
-// the resulting refetch — stays debounced.
+// Keeps the products listing page (search term, sort, price range, option filters, page) driven
+// by local state instead of reactively recomputing from useSearchParams on every change.
+// next/navigation's router.push/replace always triggers a fresh RSC round-trip for this page's
+// Server Component (re-fetching the store + its categories, neither of which any filter affects)
+// since this app has no custom `staleTimes` config — the App Router defaults dynamic-route client
+// caching to 0. That invisible extra round-trip, stacked in front of the actual (spinner-covered)
+// product refetch, was the real source of filters "feeling unresponsive before the loading
+// animation even plays": every tweak was waiting on it before React Query's own fetch even
+// started. Local state drives the product query immediately; the visible URL is kept in sync
+// separately via history.replaceState (still bookmarkable/shareable) without ever going through
+// the Next.js router.
 export function useProductListUrlState() {
-  const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const urlSearch = searchParams.get('search') ?? ''
-  const [searchInput, setSearchInput] = useState(urlSearch)
+  // Read once, at mount — everything below is the source of truth afterward, not a reactive view
+  // of the URL, since the URL now updates through a side channel (history.replaceState) that the
+  // router doesn't know about.
+  const [searchInput, setSearchInput] = useState(() => searchParams.get('search') ?? '')
+  const [debouncedSearch, setDebouncedSearch] = useState(searchInput)
+  const [page, setPage] = useState(() => parsePage(searchParams.get('page')))
+  const [sortBy, setSortByState] = useState<ProductSortOption>(() => parseSort(searchParams.get('sort')))
+  const [priceRange, setPriceRangeState] = useState<[number, number] | null>(() => parsePriceRange(searchParams))
+  const [priceRangeInput, setPriceRangeInput] = useState(priceRange)
+  const [optionFilters, setOptionFiltersState] = useState<OptionFilterInput[]>(() => parseOptionFilters(searchParams.get('filters')))
 
-  // "Adjust state during render" instead of an effect — keeps the input box in sync when the
-  // URL's search term changes from outside typing (back/forward navigation, opening a shared
-  // link), while leaving it alone in between, once the debounce below has caught up to it.
-  const [prevUrlSearch, setPrevUrlSearch] = useState(urlSearch)
+  // The one filter written from outside this hook — HeaderSearchBox does a real router.push to
+  // `/products?search=...`, which (when already on this page) re-renders this same mounted
+  // instance with a fresh searchParams value instead of remounting it, so the lazy initializer
+  // above won't see it. "Adjust state during render" picks that case up without needing an
+  // effect, while leaving searchInput alone the rest of the time (once the debounce below has
+  // caught up to it).
+  const [prevUrlSearch, setPrevUrlSearch] = useState(searchInput)
+  const urlSearch = searchParams.get('search') ?? ''
   if (urlSearch !== prevUrlSearch) {
     setPrevUrlSearch(urlSearch)
     setSearchInput(urlSearch)
+    setDebouncedSearch(urlSearch)
   }
 
-  const page = parsePage(searchParams.get('page'))
-  const sortBy = parseSort(searchParams.get('sort'))
-  const priceRange = parsePriceRange(searchParams)
-  const optionFilters = parseOptionFilters(searchParams.get('filters'))
-
-  // Same instant-local-state/debounced-URL split as search — a price slider fires onChange on
-  // every tick of the drag, so without this the URL (and the resulting product refetch) would
-  // fire dozens of times per drag instead of once after the shopper settles on a value.
-  const [priceRangeInput, setPriceRangeInput] = useState(priceRange)
-  const [prevUrlPriceRange, setPrevUrlPriceRange] = useState(priceRange)
-  if (!rangesEqual(priceRange, prevUrlPriceRange)) {
-    setPrevUrlPriceRange(priceRange)
-    setPriceRangeInput(priceRange)
-  }
-
-  const updateParams = useCallback(
-    (updates: Record<string, string | null>) => {
-      const next = new URLSearchParams(searchParams.toString())
-      for (const [key, value] of Object.entries(updates)) {
-        if (value === null) next.delete(key)
-        else next.set(key, value)
-      }
-      const qs = next.toString()
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
-    },
-    [router, pathname, searchParams]
-  )
+  // Recomputes the full query string from current state and swaps it into the address bar via
+  // the native History API — never next/navigation's router, so this never triggers a Next.js
+  // navigation or RSC fetch.
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (debouncedSearch) params.set('search', debouncedSearch)
+    if (page > 1) params.set('page', String(page))
+    if (sortBy !== 'featured') params.set('sort', sortBy)
+    if (priceRange) {
+      params.set('minPrice', String(priceRange[0]))
+      params.set('maxPrice', String(priceRange[1]))
+    }
+    if (optionFilters.length > 0) params.set('filters', JSON.stringify(optionFilters))
+    const qs = params.toString()
+    const url = qs ? `${pathname}?${qs}` : pathname
+    if (`${window.location.pathname}${window.location.search}` !== url) {
+      window.history.replaceState(null, '', url)
+    }
+  }, [pathname, debouncedSearch, page, sortBy, priceRange, optionFilters])
 
   useEffect(() => {
     const t = setTimeout(() => {
-      if (searchInput !== urlSearch) {
-        updateParams({ search: searchInput.trim() || null, page: null })
+      if (searchInput !== debouncedSearch) {
+        setDebouncedSearch(searchInput.trim())
+        setPage(1)
       }
     }, DEBOUNCE_MS)
     return () => clearTimeout(t)
-    // Only the input value should re-trigger this debounce — re-running it when urlSearch or
-    // updateParams change would fire it on every navigation, not just on typing.
+    // Only the input value should re-trigger this debounce — re-running it when debouncedSearch
+    // changes too would fire it right back on its own commit.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchInput])
 
   useEffect(() => {
     const t = setTimeout(() => {
       if (!rangesEqual(priceRangeInput, priceRange) && priceRangeInput) {
-        updateParams({ minPrice: String(priceRangeInput[0]), maxPrice: String(priceRangeInput[1]), page: null })
+        setPriceRangeState(priceRangeInput)
+        setPage(1)
       }
     }, DEBOUNCE_MS)
     return () => clearTimeout(t)
@@ -118,30 +131,22 @@ export function useProductListUrlState() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [priceRangeInput])
 
-  const setPage = useCallback(
-    (next: number) => updateParams({ page: next > 1 ? String(next) : null }),
-    [updateParams]
-  )
-
-  const setSortBy = useCallback(
-    (next: ProductSortOption) => updateParams({ sort: next === 'featured' ? null : next, page: null }),
-    [updateParams]
-  )
+  const setSortBy = useCallback((next: ProductSortOption) => {
+    setSortByState(next)
+    setPage(1)
+  }, [])
 
   const setPriceRange = useCallback((next: [number, number]) => setPriceRangeInput(next), [])
 
-  const setOptionFilters = useCallback(
-    (next: OptionFilterInput[]) => {
-      const active = next.filter(f => f.values.length > 0)
-      updateParams({ filters: active.length > 0 ? JSON.stringify(active) : null, page: null })
-    },
-    [updateParams]
-  )
+  const setOptionFilters = useCallback((next: OptionFilterInput[]) => {
+    setOptionFiltersState(next.filter(f => f.values.length > 0))
+    setPage(1)
+  }, [])
 
   return {
     searchInput,
     setSearchInput,
-    debouncedSearch: urlSearch,
+    debouncedSearch,
     page,
     setPage,
     sortBy,
