@@ -1,11 +1,19 @@
 'use client'
 
+import { useState, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { UserButton } from '@clerk/nextjs'
 import { NipNipLogo } from '@/components/NipNipLogo'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { useLanguage } from '@/lib/i18n'
+import {
+  getCollapsedServerSnapshot,
+  getCollapsedSnapshot,
+  subscribeToCollapsed,
+  toggleSidebarCollapsed,
+} from '@/lib/dashboard/sidebar-state'
+import { CollapsedTooltip, SIDEBAR_COLLAPSE_ICON, SIDEBAR_EXPAND_ICON } from '@/components/dashboard/CollapsedTooltip'
 
 const NAV_ICONS: Record<string, React.ReactNode> = {
   '/admin': (
@@ -61,9 +69,47 @@ const NAV_ICONS: Record<string, React.ReactNode> = {
   ),
 }
 
+function AdminNavRow({
+  href, label, icon, active, collapsed,
+}: {
+  href: string
+  label: string
+  icon: React.ReactNode
+  active: boolean
+  collapsed: boolean
+}) {
+  const [tooltipRect, setTooltipRect] = useState<DOMRect | null>(null)
+
+  return (
+    <>
+      <Link
+        href={href}
+        onMouseEnter={e => { if (collapsed) setTooltipRect(e.currentTarget.getBoundingClientRect()) }}
+        onMouseLeave={() => setTooltipRect(null)}
+        className={[
+          'flex items-center rounded-xl text-sm font-medium transition-colors',
+          collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5',
+          active
+            ? 'bg-amber-500/15 text-amber-300'
+            : 'text-white/50 hover:text-white hover:bg-white/5',
+        ].join(' ')}
+      >
+        {icon}
+        {!collapsed && label}
+      </Link>
+      {collapsed && tooltipRect && <CollapsedTooltip label={label} rect={tooltipRect} />}
+    </>
+  )
+}
+
 export function AdminSidebar() {
   const pathname = usePathname()
   const { t } = useLanguage()
+  const collapsed = useSyncExternalStore(subscribeToCollapsed, getCollapsedSnapshot, getCollapsedServerSnapshot)
+
+  function toggleCollapsed() {
+    toggleSidebarCollapsed(collapsed)
+  }
 
   const NAV = [
     { href: '/admin', label: t.admin.overview, exact: true },
@@ -77,44 +123,61 @@ export function AdminSidebar() {
   ]
 
   return (
-    <aside className="w-56 h-full bg-[#08080d] border-r border-white/6 flex flex-col shrink-0">
+    <aside className={[
+      'h-full bg-[#08080d] border-r border-white/6 flex flex-col shrink-0 transition-[width] duration-200',
+      collapsed ? 'w-[68px]' : 'w-56',
+    ].join(' ')}>
 
-      {/* Logo */}
-      <div className="h-16 flex items-center px-5 border-b border-white/6 shrink-0">
-        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity select-none" aria-label="NipNip">
-          <NipNipLogo className="h-7" />
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/25 text-amber-400 uppercase tracking-wider select-none">
-            {t.admin.badge}
-          </span>
-        </Link>
+      {/* Logo + collapse toggle */}
+      <div className={[
+        'h-16 flex items-center border-b border-white/6 shrink-0',
+        collapsed ? 'justify-center px-2' : 'justify-between px-5',
+      ].join(' ')}>
+        {!collapsed && (
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity select-none min-w-0" aria-label="NipNip">
+            <NipNipLogo className="h-7 shrink-0" />
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/25 text-amber-400 uppercase tracking-wider select-none shrink-0">
+              {t.admin.badge}
+            </span>
+          </Link>
+        )}
+        {collapsed && (
+          <Link href="/" className="hover:opacity-80 transition-opacity select-none" aria-label="NipNip">
+            <NipNipLogo className="h-7" />
+          </Link>
+        )}
+        <button
+          type="button"
+          onClick={toggleCollapsed}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className="hidden lg:flex w-7 h-7 items-center justify-center rounded-lg text-white/40 hover:text-white hover:bg-white/8 transition-colors shrink-0"
+        >
+          {collapsed ? SIDEBAR_EXPAND_ICON : SIDEBAR_COLLAPSE_ICON}
+        </button>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 p-3 flex flex-col gap-0.5 overflow-y-auto">
-        {NAV.map(({ href, label, exact }) => {
-          const active = exact ? pathname === href : pathname.startsWith(href)
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={[
-                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
-                active
-                  ? 'bg-amber-500/15 text-amber-300'
-                  : 'text-white/50 hover:text-white hover:bg-white/5',
-              ].join(' ')}
-            >
-              {NAV_ICONS[href]}
-              {label}
-            </Link>
-          )
-        })}
+      <nav className={['flex-1 flex flex-col gap-0.5 overflow-y-auto', collapsed ? 'p-2' : 'p-3'].join(' ')}>
+        {NAV.map(({ href, label, exact }) => (
+          <AdminNavRow
+            key={href}
+            href={href}
+            label={label}
+            icon={NAV_ICONS[href]}
+            active={exact ? pathname === href : pathname.startsWith(href)}
+            collapsed={collapsed}
+          />
+        ))}
       </nav>
 
       {/* User + Language */}
-      <div className="p-4 border-t border-white/6 shrink-0 flex items-center justify-between gap-2">
+      <div className={[
+        'p-4 border-t border-white/6 shrink-0 flex items-center gap-2',
+        collapsed ? 'justify-center' : 'justify-between',
+      ].join(' ')}>
         <UserButton appearance={{ elements: { avatarBox: 'w-8 h-8' } }} />
-        <LanguageSwitcher placement="top-end" />
+        {!collapsed && <LanguageSwitcher placement="top-end" />}
       </div>
 
     </aside>

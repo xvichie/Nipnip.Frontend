@@ -11,7 +11,13 @@ import { NipNipLogo } from '@/components/NipNipLogo'
 import { STORE_NAV_GROUP_LABEL_KEYS, STORE_NAV_GROUP_ORDER, STORE_NAV_ITEMS, type StoreNavGroup } from '@/lib/dashboard/store-nav'
 import { AI_AGENT_NAV_ITEMS } from '@/lib/dashboard/ai-agent-nav'
 import { MEDIA_TOOL_NAV_ITEMS } from '@/lib/dashboard/media-tools-nav'
-import { SIDEBAR_COLLAPSED_EVENT, SIDEBAR_COLLAPSED_KEY } from '@/lib/dashboard/sidebar-state'
+import {
+  getCollapsedServerSnapshot,
+  getCollapsedSnapshot,
+  subscribeToCollapsed,
+  toggleSidebarCollapsed,
+} from '@/lib/dashboard/sidebar-state'
+import { CollapsedTooltip, SIDEBAR_COLLAPSE_ICON, SIDEBAR_EXPAND_ICON } from '@/components/dashboard/CollapsedTooltip'
 
 const GRID_ICON = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -222,53 +228,6 @@ const MEDIA_ICON = (
   </svg>
 )
 
-// Classic "panel" sidebar-toggle glyph (Notion/Linear/VS Code style) — the shaded
-// segment mirrors sides between states, so the icon itself communicates the action.
-const SIDEBAR_COLLAPSE_ICON = (
-  <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden>
-    <rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="currentColor" strokeWidth="1.4"/>
-    <path d="M6.25 3v10" stroke="currentColor" strokeWidth="1.4"/>
-    <path d="M2.5 3.6h3v8.8h-3a1 1 0 0 1-1-1V4.6a1 1 0 0 1 1-1Z" fill="currentColor" fillOpacity="0.35"/>
-    <path d="M9 6.25 7.25 8 9 9.75" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-)
-const SIDEBAR_EXPAND_ICON = (
-  <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden>
-    <rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="currentColor" strokeWidth="1.4"/>
-    <path d="M9.75 3v10" stroke="currentColor" strokeWidth="1.4"/>
-    <path d="M10.5 3.6h3a1 1 0 0 1 1 1v6.8a1 1 0 0 1-1 1h-3V3.6Z" fill="currentColor" fillOpacity="0.35"/>
-    <path d="M6 6.25 7.75 8 6 9.75" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-)
-
-// useSyncExternalStore instead of useState+useEffect — localStorage isn't available
-// during SSR, and this avoids both a hydration mismatch and an extra post-mount render.
-//
-// The collapsed-to-icon-rail state is a desktop-only affordance for reclaiming width
-// from the always-visible rail — it means nothing inside the mobile slide-out drawer,
-// which already overlays the page and closes on outside click. Without this guard, a
-// merchant who ever collapsed the desktop rail would open the mobile menu to a useless
-// icon-only strip with no labels. Below the `lg` breakpoint (matches Tailwind's `lg:`),
-// force it false regardless of what's in localStorage, and re-check on resize so it
-// updates live if the viewport crosses the breakpoint.
-const LG_BREAKPOINT_PX = 1024
-
-function subscribeToCollapsed(callback: () => void) {
-  window.addEventListener(SIDEBAR_COLLAPSED_EVENT, callback)
-  window.addEventListener('resize', callback)
-  return () => {
-    window.removeEventListener(SIDEBAR_COLLAPSED_EVENT, callback)
-    window.removeEventListener('resize', callback)
-  }
-}
-function getCollapsedSnapshot() {
-  if (window.innerWidth < LG_BREAKPOINT_PX) return false
-  return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1'
-}
-function getCollapsedServerSnapshot() {
-  return false
-}
-
 const STORE_NAV_GROUP_ICONS: Record<StoreNavGroup, React.ReactNode> = {
   overview: GRID_ICON,
   design: PALETTE_ICON,
@@ -305,26 +264,6 @@ type NavDivider = { divider: true }
 type NavItem = NavLink | NavDivider
 
 type MerchantSection = 'affiliate' | 'store' | 'ai-agents' | 'media'
-
-// Portal-rendered instead of a plain absolutely-positioned popover — the sidebar's
-// drawer wrapper clips overflow-x unconditionally (see the dropdown-direction attempt
-// earlier), so anything meant to escape the ~68px collapsed rail has to render outside
-// that DOM subtree entirely to avoid getting clipped. The anchor rect is captured in
-// the hover handler (not read from a ref during render) to satisfy react-hooks/refs.
-function CollapsedTooltip({ label, rect }: { label: string; rect: DOMRect }) {
-  if (typeof document === 'undefined') return null
-
-  return createPortal(
-    <div
-      role="tooltip"
-      className="fixed z-[200] px-2.5 py-1.5 rounded-lg bg-[#14141c] border border-white/10 text-white text-xs font-medium shadow-xl shadow-black/50 pointer-events-none whitespace-nowrap"
-      style={{ top: rect.top + rect.height / 2, left: rect.right + 8, transform: 'translateY(-50%)' }}
-    >
-      {label}
-    </div>,
-    document.body
-  )
-}
 
 function NavRow({ item, active, collapsed }: { item: NavLink; active: boolean; collapsed?: boolean }) {
   const [tooltipRect, setTooltipRect] = useState<DOMRect | null>(null)
@@ -456,8 +395,7 @@ export function DashboardSidebar() {
   const collapsed = useSyncExternalStore(subscribeToCollapsed, getCollapsedSnapshot, getCollapsedServerSnapshot)
 
   function toggleCollapsed() {
-    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, collapsed ? '0' : '1')
-    window.dispatchEvent(new Event(SIDEBAR_COLLAPSED_EVENT))
+    toggleSidebarCollapsed(collapsed)
   }
 
   const CREATOR_NAV: NavItem[] = [
