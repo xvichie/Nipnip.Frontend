@@ -70,6 +70,14 @@ export function useHighlightedMerchants() {
   })
 }
 
+export function useFeaturedStores() {
+  return useQuery({
+    queryKey: ['merchants', 'featured-stores'],
+    queryFn: () => apiFetch<MerchantResponse[]>('/api/merchants/featured-stores', null),
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
 export function useMerchantSnippet() {
   const { getToken } = useAuth()
   const { isLoaded, isSignedIn } = useUser()

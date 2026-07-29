@@ -112,10 +112,16 @@ export function SiteFooter() {
             </p>
             <div className="flex items-center gap-6">
               <a
-                href="mailto:andriakhvichia2005@gmail.com"
+                href="mailto:nipnipge@gmail.com"
                 className="text-white/25 hover:text-white/60 text-sm transition-colors"
               >
-                andriakhvichia2005@gmail.com
+                nipnipge@gmail.com
+              </a>
+              <a
+                href="tel:+995555350063"
+                className="text-white/25 hover:text-white/60 text-sm transition-colors"
+              >
+                +995 555 35 00 63
               </a>
               <a
                 href="https://tally.ge"

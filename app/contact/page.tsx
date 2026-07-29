@@ -6,13 +6,24 @@ export const metadata = { title: 'კონტაქტი — NipNip' }
 const CONTACTS = [
   {
     label: 'ელ-ფოსტა',
-    value: 'andriakhvichia2005@gmail.com',
-    href: 'mailto:andriakhvichia2005@gmail.com',
+    value: 'nipnipge@gmail.com',
+    href: 'mailto:nipnipge@gmail.com',
     description: 'ყველაზე სწრაფი გზა ჩვენთან დასაკავშირებლად.',
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
         <rect x="2" y="4" width="16" height="12" rx="2.5" stroke="currentColor" strokeWidth="1.5"/>
         <path d="M2 7l8 5 8-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
+    label: 'ტელეფონი',
+    value: '+995 555 35 00 63',
+    href: 'tel:+995555350063',
+    description: 'დაგვირეკე სამუშაო საათებში.',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
+        <path d="M3 3.5c0-.6.4-1 1-1h2.4c.5 0 .9.3 1 .8l.7 3a1 1 0 0 1-.3 1L6.4 8.6a10.5 10.5 0 0 0 5 5l1.3-1.4a1 1 0 0 1 1-.3l3 .7c.5.1.8.5.8 1V16.5c0 .6-.4 1-1 1h-1.5C7.5 17.5 2.5 12.5 2.5 5.5V3.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
       </svg>
     ),
   },

@@ -350,3 +350,12 @@ export function ExternalLinkIcon({ className }: IconProps) {
     </svg>
   )
 }
+
+export function GlobeIcon({ className }: IconProps) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.2"/>
+      <path d="M1.5 7h11M7 1.5c1.5 1.5 2.3 3.4 2.3 5.5S8.5 11 7 12.5C5.5 11 4.7 9.1 4.7 7S5.5 3 7 1.5Z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round"/>
+    </svg>
+  )
+}

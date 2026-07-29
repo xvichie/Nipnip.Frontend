@@ -33,6 +33,7 @@ export interface MerchantResponse {
   notificationEmail: string | null
   isActive: boolean
   isHighlighted: boolean
+  isFeaturedStore: boolean
   isTest: boolean
   isPublic: boolean
   isProspect: boolean
@@ -40,6 +41,10 @@ export interface MerchantResponse {
   createdAt: string
   /** When their Store was created — null if they haven't set one up yet. Only populated by the admin listing. */
   storeCreatedAt: string | null
+  /** The Store's own slug (independent of merchant.slug) — only populated by the featured-stores query. */
+  storeSlug: string | null
+  /** Only populated (by the featured-stores query) once the domain is verified. */
+  storeCustomDomain: string | null
 }
 
 export type AccessRequestStatus = 'Pending' | 'Approved' | 'Rejected'

@@ -167,6 +167,21 @@ export function useAdminToggleMerchantHighlight() {
   })
 }
 
+export function useAdminToggleMerchantFeatureStore() {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const token = await getToken()
+      return apiFetch<MerchantResponse>(`/api/admin/merchants/${id}/feature-store`, token, { method: 'PUT' })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'merchants'] })
+      queryClient.invalidateQueries({ queryKey: ['merchants', 'featured-stores'] })
+    },
+  })
+}
+
 export function useAdminToggleMerchantTest() {
   const { getToken } = useAuth()
   const queryClient = useQueryClient()

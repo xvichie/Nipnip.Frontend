@@ -5,7 +5,7 @@ import { SignUpButton } from '@clerk/nextjs'
 import Link from 'next/link'
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { SiteFooter } from '@/components/layout/SiteFooter'
-import { FeaturedMerchantsCarousel } from '@/components/FeaturedMerchantsCarousel'
+import { FeaturedStoresGrid } from '@/components/FeaturedStoresGrid'
 import { useLanguage } from '@/lib/i18n'
 import { CImg } from '@/components/ui/CImg'
 
@@ -264,7 +264,7 @@ export default function LandingPage() {
             </Link>
           </div>
         </div>
-        <FeaturedMerchantsCarousel />
+        <FeaturedStoresGrid />
       </section>
 
       {/* ── For Merchants ──────────────────────────────────────────── */}

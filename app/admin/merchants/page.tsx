@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useAdminMerchants, useAdminDeactivateMerchant, useAdminDeleteMerchantPermanently, useAdminToggleMerchantHighlight, useAdminToggleMerchantTest } from '@/lib/queries/admin'
+import { useAdminMerchants, useAdminDeactivateMerchant, useAdminDeleteMerchantPermanently, useAdminToggleMerchantHighlight, useAdminToggleMerchantFeatureStore, useAdminToggleMerchantTest } from '@/lib/queries/admin'
 import { useImpersonate } from '@/hooks/useImpersonate'
-import { EditIcon, FlaskIcon, LoginIcon, PlusIcon, PowerIcon, StarIcon, StoreIcon, TrashIcon } from '@/components/ui/icons'
+import { EditIcon, FlaskIcon, GlobeIcon, LoginIcon, PlusIcon, PowerIcon, StarIcon, StoreIcon, TrashIcon } from '@/components/ui/icons'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', {
@@ -47,6 +47,7 @@ export default function AdminMerchantsPage() {
   const { mutate: deactivate, isPending: isDeactivating } = useAdminDeactivateMerchant()
   const { mutate: deletePermanently, isPending: isDeleting } = useAdminDeleteMerchantPermanently()
   const { mutate: toggleHighlight, isPending: isToggling } = useAdminToggleMerchantHighlight()
+  const { mutate: toggleFeatureStore, isPending: isTogglingFeatureStore } = useAdminToggleMerchantFeatureStore()
   const { mutate: toggleTest, isPending: isTogglingTest } = useAdminToggleMerchantTest()
   const { impersonate, loadingId: impersonatingId, error: impersonateError } = useImpersonate()
 
@@ -104,13 +105,13 @@ export default function AdminMerchantsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/[0.06]">
-                  {['Name', 'Commission', 'Balance', 'Store Created', 'Status', 'Featured', 'Test', 'Created', ''].map((h, i) => (
+                  {['Name', 'Commission', 'Balance', 'Store Created', 'Status', 'Featured', 'Website', 'Test', 'Created', ''].map((h, i) => (
                     <th
                       key={i}
                       className={[
                         'px-5 py-3 text-xs font-medium text-white/30 uppercase tracking-widest whitespace-nowrap',
                         i >= 4 ? 'text-center' : 'text-left',
-                        i === 8 ? 'text-right' : '',
+                        i === 9 ? 'text-right' : '',
                       ].join(' ')}
                     >
                       {h}
@@ -159,7 +160,7 @@ export default function AdminMerchantsPage() {
                     <td className="px-5 py-3.5">
                       <div className="flex justify-center">
                         <RowIconButton
-                          label={m.isHighlighted ? 'Remove from featured' : 'Add to featured'}
+                          label={m.isHighlighted ? 'Remove from affiliate carousel' : 'Add to affiliate carousel'}
                           onClick={() => toggleHighlight(m.id)}
                           disabled={isToggling}
                           className={m.isHighlighted
@@ -167,6 +168,20 @@ export default function AdminMerchantsPage() {
                             : 'bg-white/4 border-white/8 text-white/40 hover:text-amber-300 hover:border-amber-500/25'}
                         >
                           <StarIcon filled={m.isHighlighted} />
+                        </RowIconButton>
+                      </div>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <div className="flex justify-center">
+                        <RowIconButton
+                          label={m.isFeaturedStore ? 'Remove from website showcase' : 'Feature this website on the landing page'}
+                          onClick={() => toggleFeatureStore(m.id)}
+                          disabled={isTogglingFeatureStore}
+                          className={m.isFeaturedStore
+                            ? 'bg-violet-500/15 border-violet-500/25 text-violet-300 hover:bg-violet-500/25'
+                            : 'bg-white/4 border-white/8 text-white/40 hover:text-violet-300 hover:border-violet-500/25'}
+                        >
+                          <GlobeIcon />
                         </RowIconButton>
                       </div>
                     </td>

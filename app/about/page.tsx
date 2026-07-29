@@ -90,10 +90,16 @@ export default function AboutPage() {
                 </p>
                 <div className="flex items-center gap-3 mt-4">
                   <a
-                    href="mailto:andriakhvichia2005@gmail.com"
+                    href="mailto:nipnipge@gmail.com"
                     className="text-white/30 hover:text-violet-400 transition-colors text-sm"
                   >
-                    andriakhvichia2005@gmail.com
+                    nipnipge@gmail.com
+                  </a>
+                  <a
+                    href="tel:+995555350063"
+                    className="text-white/30 hover:text-violet-400 transition-colors text-sm"
+                  >
+                    +995 555 35 00 63
                   </a>
                 </div>
               </div>
