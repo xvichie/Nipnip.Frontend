@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
-import { parseThemeConfig } from '@/lib/store/theme-config'
+import { DEFAULT_THEME_CONFIG, parseThemeConfig } from '@/lib/store/theme-config'
 import { TranslatedField } from '@/components/dashboard/store/TranslatedField'
 import type { ShippingZone } from '@/lib/types/storefront'
 
@@ -12,6 +12,10 @@ export default function MerchantStoreDeliveryPage() {
 
   const [shippingZones, setShippingZones] = useState<ShippingZone[]>([])
   const [freeShippingThreshold, setFreeShippingThreshold] = useState<number | null>(null)
+  const [pickupEnabled, setPickupEnabled] = useState(DEFAULT_THEME_CONFIG.pickupEnabled)
+  const [pickupAddress, setPickupAddress] = useState(DEFAULT_THEME_CONFIG.pickupAddress)
+  const [pickupInstructions, setPickupInstructions] = useState(DEFAULT_THEME_CONFIG.pickupInstructions)
+  const [textTranslations, setTextTranslations] = useState(DEFAULT_THEME_CONFIG.translations)
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
@@ -19,6 +23,10 @@ export default function MerchantStoreDeliveryPage() {
     const parsed = parseThemeConfig(store.themeConfig)
     setShippingZones(parsed.shippingZones)
     setFreeShippingThreshold(parsed.freeShippingThreshold)
+    setPickupEnabled(parsed.pickupEnabled)
+    setPickupAddress(parsed.pickupAddress)
+    setPickupInstructions(parsed.pickupInstructions)
+    setTextTranslations(parsed.translations)
   }, [store])
 
   function addZone() {
@@ -36,14 +44,25 @@ export default function MerchantStoreDeliveryPage() {
   function handleSave() {
     if (!store) return
     const parsed = parseThemeConfig(store.themeConfig)
+    // Merge with the freshest saved translations rather than overwriting wholesale — this page
+    // only edits pickupInstructions; the rest (owned by other settings pages) must survive even
+    // though this save resends the full ThemeConfig object.
+    const mergedTranslations = {
+      en: { ...parsed.translations.en, pickupInstructions: textTranslations.en?.pickupInstructions },
+      ru: { ...parsed.translations.ru, pickupInstructions: textTranslations.ru?.pickupInstructions },
+    }
     updateStore(
       {
         themeConfig: JSON.stringify({
           ...parsed,
+          translations: mergedTranslations,
           shippingZones: shippingZones
             .filter(z => z.name.trim())
             .map(z => ({ ...z, name: z.name.trim(), price: Math.max(0, z.price) })),
           freeShippingThreshold: freeShippingThreshold != null && freeShippingThreshold > 0 ? freeShippingThreshold : null,
+          pickupEnabled,
+          pickupAddress: pickupAddress.trim() || undefined,
+          pickupInstructions: pickupInstructions.trim() || undefined,
         }),
       },
       { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
@@ -143,6 +162,57 @@ export default function MerchantStoreDeliveryPage() {
           </div>
           <p className="text-white/30 text-xs">ამ ან მეტი ჯამის შეკვეთები იღებენ უფასო მიწოდებას, ზონის მიუხედავად. ცარიელი დატოვების შემთხვევაში მიწოდების საფასური ყოველთვის დაერიცხება.</p>
         </div>
+      </div>
+
+      <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+        <label className="flex items-center justify-between gap-3 cursor-pointer">
+          <div>
+            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">თვითგატანა</h2>
+            <p className="text-white/30 text-xs mt-1">აძლევს მყიდველებს საშუალებას, პირადად წაიღონ შეკვეთა მიწოდების ნაცვლად, მიწოდების საფასურის გარეშე.</p>
+          </div>
+          <input
+            type="checkbox"
+            checked={pickupEnabled}
+            onChange={e => setPickupEnabled(e.target.checked)}
+            className={`toggle toggle-sm shrink-0 ${pickupEnabled ? 'toggle-success' : 'toggle-error'}`}
+          />
+        </label>
+
+        {pickupEnabled && (
+          <>
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">გატანის მისამართი</label>
+              <input
+                type="text"
+                value={pickupAddress}
+                onChange={e => setPickupAddress(e.target.value)}
+                placeholder="ვაჟა-ფშაველას გამზ. 71, თბილისი"
+                className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+              />
+            </div>
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">გატანის ინსტრუქციები (სურვილისამებრ)</label>
+              <TranslatedField
+                value={{ ka: pickupInstructions, en: textTranslations.en?.pickupInstructions ?? '', ru: textTranslations.ru?.pickupInstructions ?? '' }}
+                onChange={v => {
+                  setPickupInstructions(v.ka)
+                  setTextTranslations(prev => ({
+                    en: { ...prev.en, pickupInstructions: v.en.trim() || undefined },
+                    ru: { ...prev.ru, pickupInstructions: v.ru.trim() || undefined },
+                  }))
+                }}
+                multiline
+                rows={2}
+                placeholders={{
+                  ka: 'ღიაა 10:00–19:00, დარეკეთ ზარით გვერდით კარზე',
+                  en: 'Open 10am-7pm, ring the side-door bell',
+                  ru: 'Открыто с 10:00 до 19:00, звоните в звонок у боковой двери',
+                }}
+                className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 resize-none"
+              />
+            </div>
+          </>
+        )}
       </div>
     </div>
 

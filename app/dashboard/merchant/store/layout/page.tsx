@@ -480,24 +480,15 @@ export default function StoreLayoutPage() {
   const [checkoutTosPageId, setCheckoutTosPageId] = useState(DEFAULT_THEME_CONFIG.checkoutTosPageId)
   const [checkoutThankYouHeading, setCheckoutThankYouHeading] = useState(DEFAULT_THEME_CONFIG.checkoutThankYouHeading)
   const [checkoutThankYouMessage, setCheckoutThankYouMessage] = useState(DEFAULT_THEME_CONFIG.checkoutThankYouMessage)
-  const [showFaqSection, setShowFaqSection] = useState(DEFAULT_THEME_CONFIG.showFaqSection)
-  const [faqHeading, setFaqHeading] = useState(DEFAULT_THEME_CONFIG.faqHeading)
-  const [faqItems, setFaqItems] = useState(DEFAULT_THEME_CONFIG.faqItems)
   const [showStickyMobileCta, setShowStickyMobileCta] = useState(DEFAULT_THEME_CONFIG.showStickyMobileCta)
   const [storeHoursEnabled, setStoreHoursEnabled] = useState(DEFAULT_THEME_CONFIG.storeHoursEnabled)
   const [storeHours, setStoreHours] = useState(DEFAULT_THEME_CONFIG.storeHours)
   const [saleCountdownEnabled, setSaleCountdownEnabled] = useState(DEFAULT_THEME_CONFIG.saleCountdownEnabled)
   const [saleCountdownEndsAt, setSaleCountdownEndsAt] = useState(DEFAULT_THEME_CONFIG.saleCountdownEndsAt)
   const [saleCountdownText, setSaleCountdownText] = useState(DEFAULT_THEME_CONFIG.saleCountdownText)
-  const [facebookPixelId, setFacebookPixelId] = useState(DEFAULT_THEME_CONFIG.facebookPixelId)
-  const [googleAnalyticsId, setGoogleAnalyticsId] = useState(DEFAULT_THEME_CONFIG.googleAnalyticsId)
-  const [tiktokPixelId, setTiktokPixelId] = useState(DEFAULT_THEME_CONFIG.tiktokPixelId)
   const [minOrderAmount, setMinOrderAmount] = useState(DEFAULT_THEME_CONFIG.minOrderAmount)
   const [whatsappNumber, setWhatsappNumber] = useState(DEFAULT_THEME_CONFIG.whatsappNumber)
   const [viberNumber, setViberNumber] = useState(DEFAULT_THEME_CONFIG.viberNumber)
-  const [pickupEnabled, setPickupEnabled] = useState(DEFAULT_THEME_CONFIG.pickupEnabled)
-  const [pickupAddress, setPickupAddress] = useState(DEFAULT_THEME_CONFIG.pickupAddress)
-  const [pickupInstructions, setPickupInstructions] = useState(DEFAULT_THEME_CONFIG.pickupInstructions)
   const [saved, setSaved] = useState(false)
 
   // "Adjust state during render" instead of an effect — hydrates once from the fetched
@@ -566,24 +557,15 @@ export default function StoreLayoutPage() {
     setCheckoutTosPageId(parsed.checkoutTosPageId)
     setCheckoutThankYouHeading(parsed.checkoutThankYouHeading)
     setCheckoutThankYouMessage(parsed.checkoutThankYouMessage)
-    setShowFaqSection(parsed.showFaqSection)
-    setFaqHeading(parsed.faqHeading)
-    setFaqItems(parsed.faqItems)
     setShowStickyMobileCta(parsed.showStickyMobileCta)
     setStoreHoursEnabled(parsed.storeHoursEnabled)
     setStoreHours(parsed.storeHours)
     setSaleCountdownEnabled(parsed.saleCountdownEnabled)
     setSaleCountdownEndsAt(parsed.saleCountdownEndsAt)
     setSaleCountdownText(parsed.saleCountdownText)
-    setFacebookPixelId(parsed.facebookPixelId)
-    setGoogleAnalyticsId(parsed.googleAnalyticsId)
-    setTiktokPixelId(parsed.tiktokPixelId)
     setMinOrderAmount(parsed.minOrderAmount)
     setWhatsappNumber(parsed.whatsappNumber)
     setViberNumber(parsed.viberNumber)
-    setPickupEnabled(parsed.pickupEnabled)
-    setPickupAddress(parsed.pickupAddress)
-    setPickupInstructions(parsed.pickupInstructions)
   }
 
   useEffect(() => {
@@ -779,29 +761,6 @@ export default function StoreLayoutPage() {
     )))
   }
 
-  function addFaqItem() {
-    setFaqItems(prev => [...prev, { question: '', answer: '' }])
-  }
-
-  function removeFaqItem(index: number) {
-    setFaqItems(prev => prev.filter((_, i) => i !== index))
-  }
-
-  function updateFaqItem(index: number, field: 'question' | 'answer', value: TranslatedFieldValue) {
-    setFaqItems(prev => prev.map((item, i) => (
-      i === index
-        ? {
-            ...item,
-            [field]: value.ka,
-            translations: {
-              en: { ...item.translations?.en, [field]: value.en.trim() || undefined },
-              ru: { ...item.translations?.ru, [field]: value.ru.trim() || undefined },
-            },
-          }
-        : item
-    )))
-  }
-
   function updateStoreHoursDay(day: number, field: 'open' | 'close' | 'closed', value: string | boolean) {
     setStoreHours(prev => prev.map(d => (d.day === day ? { ...d, [field]: value } : d)))
   }
@@ -830,9 +789,7 @@ export default function StoreLayoutPage() {
         sizeGuideContent: textTranslations.en?.sizeGuideContent,
         checkoutThankYouHeading: textTranslations.en?.checkoutThankYouHeading,
         checkoutThankYouMessage: textTranslations.en?.checkoutThankYouMessage,
-        faqHeading: textTranslations.en?.faqHeading,
         saleCountdownText: textTranslations.en?.saleCountdownText,
-        pickupInstructions: textTranslations.en?.pickupInstructions,
       },
       ru: {
         ...parsed.translations.ru,
@@ -847,9 +804,7 @@ export default function StoreLayoutPage() {
         sizeGuideContent: textTranslations.ru?.sizeGuideContent,
         checkoutThankYouHeading: textTranslations.ru?.checkoutThankYouHeading,
         checkoutThankYouMessage: textTranslations.ru?.checkoutThankYouMessage,
-        faqHeading: textTranslations.ru?.faqHeading,
         saleCountdownText: textTranslations.ru?.saleCountdownText,
-        pickupInstructions: textTranslations.ru?.pickupInstructions,
       },
     }
     updateStore(
@@ -912,24 +867,15 @@ export default function StoreLayoutPage() {
           checkoutTosPageId,
           checkoutThankYouHeading: checkoutThankYouHeading.trim() || undefined,
           checkoutThankYouMessage: checkoutThankYouMessage.trim() || undefined,
-          showFaqSection,
-          faqHeading: faqHeading.trim() || undefined,
-          faqItems,
           showStickyMobileCta,
           storeHoursEnabled,
           storeHours,
           saleCountdownEnabled,
           saleCountdownEndsAt,
           saleCountdownText: saleCountdownText.trim() || undefined,
-          facebookPixelId: facebookPixelId.trim() || undefined,
-          googleAnalyticsId: googleAnalyticsId.trim() || undefined,
-          tiktokPixelId: tiktokPixelId.trim() || undefined,
           minOrderAmount,
           whatsappNumber: whatsappNumber.trim() || undefined,
           viberNumber: viberNumber.trim() || undefined,
-          pickupEnabled,
-          pickupAddress: pickupAddress.trim() || undefined,
-          pickupInstructions: pickupInstructions.trim() || undefined,
         }),
       },
       { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
@@ -1007,24 +953,15 @@ export default function StoreLayoutPage() {
     checkoutTosPageId,
     checkoutThankYouHeading,
     checkoutThankYouMessage,
-    showFaqSection,
-    faqHeading,
-    faqItems,
     showStickyMobileCta,
     storeHoursEnabled,
     storeHours,
     saleCountdownEnabled,
     saleCountdownEndsAt,
     saleCountdownText,
-    facebookPixelId,
-    googleAnalyticsId,
-    tiktokPixelId,
     minOrderAmount,
     whatsappNumber,
     viberNumber,
-    pickupEnabled,
-    pickupAddress,
-    pickupInstructions,
   }
 
   const themeId: ThemeId = isThemeId(store.themeId) ? store.themeId : 'minimal'
@@ -2273,81 +2210,6 @@ export default function StoreLayoutPage() {
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <label className="flex items-center justify-between gap-3 cursor-pointer">
               <div>
-                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ხშირად დასმული კითხვების სექცია</h2>
-                <p className="text-white/30 text-xs mt-1">კითხვებისა და პასუხების ჩამოშლადი სია, ჩნდება თქვენს მთავარ გვერდზე.</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={showFaqSection}
-                onChange={e => setShowFaqSection(e.target.checked)}
-                className={`toggle toggle-sm shrink-0 ${showFaqSection ? 'toggle-success' : 'toggle-error'}`}
-              />
-            </label>
-
-            <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ფონის ფერი</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={sectionBackgroundColors.faq || '#000000'}
-                  onChange={e => updateSectionBackgroundColor('faq', e.target.value)}
-                  className="w-9 h-9 rounded-lg border border-white/10 bg-transparent cursor-pointer shrink-0"
-                />
-                <input
-                  type="text"
-                  value={sectionBackgroundColors.faq ?? ''}
-                  onChange={e => updateSectionBackgroundColor('faq', e.target.value)}
-                  placeholder="თემის ნაგულისხმევი"
-                  className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
-                />
-                {sectionBackgroundColors.faq && (
-                  <IconButton icon={<XIcon />} label="ფონის ფერის გასუფთავება" onClick={() => updateSectionBackgroundColor('faq', '')} />
-                )}
-              </div>
-            </div>
-
-            {showFaqSection && (
-              <>
-                <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სათაური</label>
-                  <TranslatedField
-                    {...themeTextBinding('faqHeading', faqHeading, setFaqHeading)}
-                    placeholders={{ ka: 'ხშირად დასმული კითხვები', en: 'Frequently asked questions', ru: 'Часто задаваемые вопросы' }}
-                    className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-3">
-                  {faqItems.map((item, index) => (
-                    <div key={index} className="rounded-xl bg-white/2 border border-white/5 p-3 flex flex-col gap-2">
-                      <div className="flex items-end gap-2">
-                        <TranslatedField
-                          value={{ ka: item.question, en: item.translations?.en?.question ?? '', ru: item.translations?.ru?.question ?? '' }}
-                          onChange={value => updateFaqItem(index, 'question', value)}
-                          placeholders={{ ka: 'კითხვა', en: 'Question', ru: 'Вопрос' }}
-                          className="input input-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
-                        />
-                        <IconButton icon={<XIcon />} label="კითხვის წაშლა" onClick={() => removeFaqItem(index)} className="shrink-0" />
-                      </div>
-                      <TranslatedField
-                        value={{ ka: item.answer, en: item.translations?.en?.answer ?? '', ru: item.translations?.ru?.answer ?? '' }}
-                        onChange={value => updateFaqItem(index, 'answer', value)}
-                        multiline
-                        rows={2}
-                        placeholders={{ ka: 'პასუხი', en: 'Answer', ru: 'Ответ' }}
-                        className="textarea textarea-sm w-full bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 resize-none"
-                      />
-                    </div>
-                  ))}
-                </div>
-                <IconButton icon={<PlusIcon />} label="კითხვის დამატება" onClick={addFaqItem} className="self-start" />
-              </>
-            )}
-          </div>
-
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-            <label className="flex items-center justify-between gap-3 cursor-pointer">
-              <div>
                 <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">სამუშაო საათები</h2>
                 <p className="text-white/30 text-xs mt-1">აჩვენებს ცოცხალ „ღიაა ახლა“ / „იხსნება“ ბეჯს თქვენი მაღაზიის ჰედერში.</p>
               </div>
@@ -2427,90 +2289,6 @@ export default function StoreLayoutPage() {
                     {...themeTextBinding('saleCountdownText', saleCountdownText, setSaleCountdownText)}
                     placeholders={{ ka: '🔥 ფასდაკლება მთავრდება', en: '🔥 Sale ends in', ru: '🔥 Скидка заканчивается через' }}
                     className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
-                  />
-                </div>
-              </>
-            )}
-          </div>
-
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-            <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">მარკეტინგი და თრექინგი</h2>
-              <p className="text-white/30 text-xs mt-1">იძახებს სტანდარტულ გვერდის-ნახვისა და შესყიდვის მოვლენებს თქვენი სარეკლამო კამპანიებისთვის.</p>
-            </div>
-
-            <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Facebook Pixel ID</label>
-              <input
-                type="text"
-                value={facebookPixelId}
-                onChange={e => setFacebookPixelId(e.target.value)}
-                placeholder="1234567890123456"
-                className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
-              />
-            </div>
-
-            <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">Google Analytics Measurement ID</label>
-              <input
-                type="text"
-                value={googleAnalyticsId}
-                onChange={e => setGoogleAnalyticsId(e.target.value)}
-                placeholder="G-XXXXXXXXXX"
-                className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
-              />
-            </div>
-
-            <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">TikTok Pixel ID</label>
-              <input
-                type="text"
-                value={tiktokPixelId}
-                onChange={e => setTiktokPixelId(e.target.value)}
-                placeholder="CXXXXXXXXXXXXXXXXXXX"
-                className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
-              />
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-            <label className="flex items-center justify-between gap-3 cursor-pointer">
-              <div>
-                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">თვითგატანა</h2>
-                <p className="text-white/30 text-xs mt-1">აძლევს მყიდველებს საშუალებას, პირადად წაიღონ შეკვეთა მიწოდების ნაცვლად, მიწოდების საფასურის გარეშე.</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={pickupEnabled}
-                onChange={e => setPickupEnabled(e.target.checked)}
-                className={`toggle toggle-sm shrink-0 ${pickupEnabled ? 'toggle-success' : 'toggle-error'}`}
-              />
-            </label>
-
-            {pickupEnabled && (
-              <>
-                <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">გატანის მისამართი</label>
-                  <input
-                    type="text"
-                    value={pickupAddress}
-                    onChange={e => setPickupAddress(e.target.value)}
-                    placeholder="ვაჟა-ფშაველას გამზ. 71, თბილისი"
-                    className="input w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
-                  />
-                </div>
-                <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">გატანის ინსტრუქციები (სურვილისამებრ)</label>
-                  <TranslatedField
-                    {...themeTextBinding('pickupInstructions', pickupInstructions, setPickupInstructions)}
-                    multiline
-                    rows={2}
-                    placeholders={{
-                      ka: 'ღიაა 10:00–19:00, დარეკეთ ზარით გვერდით კარზე',
-                      en: 'Open 10am-7pm, ring the side-door bell',
-                      ru: 'Открыто с 10:00 до 19:00, звоните в звонок у боковой двери',
-                    }}
-                    className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 resize-none"
                   />
                 </div>
               </>

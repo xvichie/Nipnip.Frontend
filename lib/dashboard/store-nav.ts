@@ -1,6 +1,6 @@
 import type { Strings } from '@/lib/i18n'
 
-export type StoreNavGroup = 'overview' | 'design' | 'products' | 'orders' | 'promotions' | 'settings'
+export type StoreNavGroup = 'overview' | 'design' | 'products' | 'orders' | 'promotions' | 'content' | 'settings'
 
 export interface StoreNavItem {
   href: string
@@ -24,16 +24,17 @@ export const STORE_NAV_ITEMS: StoreNavItem[] = [
   { href: '/dashboard/merchant/store/products', exact: false, labelKey: 'storeProducts', group: 'products' },
   { href: '/dashboard/merchant/store/orders', exact: false, labelKey: 'storeOrders', group: 'orders' },
   { href: '/dashboard/merchant/store/discount-codes', exact: false, labelKey: 'storeDiscountCodes', group: 'promotions' },
+  { href: '/dashboard/merchant/store/faq', exact: false, labelKey: 'storeFaq', group: 'content' },
+  { href: '/dashboard/merchant/store/pages', exact: false, labelKey: 'storePages', group: 'content' },
   { href: '/dashboard/merchant/store/payments', exact: false, labelKey: 'storePayments', group: 'settings' },
   { href: '/dashboard/merchant/store/delivery', exact: false, labelKey: 'storeDelivery', group: 'settings' },
   { href: '/dashboard/merchant/store/domain', exact: false, labelKey: 'storeDomain', group: 'settings' },
-  { href: '/dashboard/merchant/store/pages', exact: false, labelKey: 'storePages', group: 'settings' },
   { href: '/dashboard/merchant/store/contact', exact: false, labelKey: 'storeContact', group: 'settings' },
   { href: '/dashboard/merchant/store/messages', exact: false, labelKey: 'storeMessages', group: 'settings' },
   { href: '/dashboard/merchant/store/integrations', exact: false, labelKey: 'storeIntegrations', group: 'settings' },
 ]
 
-export const STORE_NAV_GROUP_ORDER: StoreNavGroup[] = ['overview', 'design', 'products', 'orders', 'promotions', 'settings']
+export const STORE_NAV_GROUP_ORDER: StoreNavGroup[] = ['overview', 'design', 'products', 'orders', 'promotions', 'content', 'settings']
 
 export const STORE_NAV_GROUP_LABEL_KEYS: Record<StoreNavGroup, keyof Strings['sidebar']> = {
   overview: 'navGroupOverview',
@@ -41,5 +42,6 @@ export const STORE_NAV_GROUP_LABEL_KEYS: Record<StoreNavGroup, keyof Strings['si
   products: 'navGroupProducts',
   orders: 'navGroupOrders',
   promotions: 'navGroupPromotions',
+  content: 'navGroupContent',
   settings: 'navGroupSettings',
 }

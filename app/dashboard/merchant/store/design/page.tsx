@@ -655,24 +655,15 @@ export default function StoreDesignPage() {
   const [checkoutTosPageId, setCheckoutTosPageId] = useState(DEFAULT_THEME_CONFIG.checkoutTosPageId)
   const [checkoutThankYouHeading, setCheckoutThankYouHeading] = useState(DEFAULT_THEME_CONFIG.checkoutThankYouHeading)
   const [checkoutThankYouMessage, setCheckoutThankYouMessage] = useState(DEFAULT_THEME_CONFIG.checkoutThankYouMessage)
-  const [showFaqSection, setShowFaqSection] = useState(DEFAULT_THEME_CONFIG.showFaqSection)
-  const [faqHeading, setFaqHeading] = useState(DEFAULT_THEME_CONFIG.faqHeading)
-  const [faqItems, setFaqItems] = useState(DEFAULT_THEME_CONFIG.faqItems)
   const [showStickyMobileCta, setShowStickyMobileCta] = useState(DEFAULT_THEME_CONFIG.showStickyMobileCta)
   const [storeHoursEnabled, setStoreHoursEnabled] = useState(DEFAULT_THEME_CONFIG.storeHoursEnabled)
   const [storeHours, setStoreHours] = useState(DEFAULT_THEME_CONFIG.storeHours)
   const [saleCountdownEnabled, setSaleCountdownEnabled] = useState(DEFAULT_THEME_CONFIG.saleCountdownEnabled)
   const [saleCountdownEndsAt, setSaleCountdownEndsAt] = useState(DEFAULT_THEME_CONFIG.saleCountdownEndsAt)
   const [saleCountdownText, setSaleCountdownText] = useState(DEFAULT_THEME_CONFIG.saleCountdownText)
-  const [facebookPixelId, setFacebookPixelId] = useState(DEFAULT_THEME_CONFIG.facebookPixelId)
-  const [googleAnalyticsId, setGoogleAnalyticsId] = useState(DEFAULT_THEME_CONFIG.googleAnalyticsId)
-  const [tiktokPixelId, setTiktokPixelId] = useState(DEFAULT_THEME_CONFIG.tiktokPixelId)
   const [minOrderAmount, setMinOrderAmount] = useState(DEFAULT_THEME_CONFIG.minOrderAmount)
   const [whatsappNumber, setWhatsappNumber] = useState(DEFAULT_THEME_CONFIG.whatsappNumber)
   const [viberNumber, setViberNumber] = useState(DEFAULT_THEME_CONFIG.viberNumber)
-  const [pickupEnabled, setPickupEnabled] = useState(DEFAULT_THEME_CONFIG.pickupEnabled)
-  const [pickupAddress, setPickupAddress] = useState(DEFAULT_THEME_CONFIG.pickupAddress)
-  const [pickupInstructions, setPickupInstructions] = useState(DEFAULT_THEME_CONFIG.pickupInstructions)
   // Edited here on this page (Header + Hero Slides sections below).
   const [headerSticky, setHeaderSticky] = useState(DEFAULT_THEME_CONFIG.headerSticky)
   const [headerBackgroundColor, setHeaderBackgroundColor] = useState(DEFAULT_THEME_CONFIG.headerBackgroundColor)
@@ -831,24 +822,15 @@ export default function StoreDesignPage() {
     setCheckoutTosPageId(parsed.checkoutTosPageId)
     setCheckoutThankYouHeading(parsed.checkoutThankYouHeading)
     setCheckoutThankYouMessage(parsed.checkoutThankYouMessage)
-    setShowFaqSection(parsed.showFaqSection)
-    setFaqHeading(parsed.faqHeading)
-    setFaqItems(parsed.faqItems)
     setShowStickyMobileCta(parsed.showStickyMobileCta)
     setStoreHoursEnabled(parsed.storeHoursEnabled)
     setStoreHours(parsed.storeHours)
     setSaleCountdownEnabled(parsed.saleCountdownEnabled)
     setSaleCountdownEndsAt(parsed.saleCountdownEndsAt)
     setSaleCountdownText(parsed.saleCountdownText)
-    setFacebookPixelId(parsed.facebookPixelId)
-    setGoogleAnalyticsId(parsed.googleAnalyticsId)
-    setTiktokPixelId(parsed.tiktokPixelId)
     setMinOrderAmount(parsed.minOrderAmount)
     setWhatsappNumber(parsed.whatsappNumber)
     setViberNumber(parsed.viberNumber)
-    setPickupEnabled(parsed.pickupEnabled)
-    setPickupAddress(parsed.pickupAddress)
-    setPickupInstructions(parsed.pickupInstructions)
     setHeaderSticky(parsed.headerSticky)
     setHeaderBackgroundColor(parsed.headerBackgroundColor)
     setHeroSlides(parsed.heroSlides)
@@ -1028,7 +1010,8 @@ export default function StoreDesignPage() {
     // spreading the whole locally-held snapshot — matters because that snapshot was hydrated
     // once at page load: if another settings tab saved a change to a field owned by IT in the
     // meantime, this page's stale copy of that field would otherwise silently overwrite it.
-    const freshTranslations = store ? parseThemeConfig(store.themeConfig).translations : DEFAULT_THEME_CONFIG.translations
+    const freshParsed = store ? parseThemeConfig(store.themeConfig) : DEFAULT_THEME_CONFIG
+    const freshTranslations = freshParsed.translations
     const mergedTranslations = {
       en: {
         ...freshTranslations.en,
@@ -1186,24 +1169,24 @@ export default function StoreDesignPage() {
           checkoutTosPageId,
           checkoutThankYouHeading: checkoutThankYouHeading.trim() || undefined,
           checkoutThankYouMessage: checkoutThankYouMessage.trim() || undefined,
-          showFaqSection,
-          faqHeading: faqHeading.trim() || undefined,
-          faqItems,
+          showFaqSection: freshParsed.showFaqSection,
+          faqHeading: freshParsed.faqHeading,
+          faqItems: freshParsed.faqItems,
           showStickyMobileCta,
           storeHoursEnabled,
           storeHours,
           saleCountdownEnabled,
           saleCountdownEndsAt,
           saleCountdownText: saleCountdownText.trim() || undefined,
-          facebookPixelId: facebookPixelId.trim() || undefined,
-          googleAnalyticsId: googleAnalyticsId.trim() || undefined,
-          tiktokPixelId: tiktokPixelId.trim() || undefined,
+          facebookPixelId: freshParsed.facebookPixelId,
+          googleAnalyticsId: freshParsed.googleAnalyticsId,
+          tiktokPixelId: freshParsed.tiktokPixelId,
           minOrderAmount,
           whatsappNumber: whatsappNumber.trim() || undefined,
           viberNumber: viberNumber.trim() || undefined,
-          pickupEnabled,
-          pickupAddress: pickupAddress.trim() || undefined,
-          pickupInstructions: pickupInstructions.trim() || undefined,
+          pickupEnabled: freshParsed.pickupEnabled,
+          pickupAddress: freshParsed.pickupAddress,
+          pickupInstructions: freshParsed.pickupInstructions,
           headerSticky,
           headerBackgroundColor,
           heroSlides,
@@ -1224,6 +1207,7 @@ export default function StoreDesignPage() {
     )
   }
 
+  const parsed = parseThemeConfig(store.themeConfig)
   const tokens: Required<ThemeConfig> = {
     defaultLanguage,
     translations: textTranslations,
@@ -1356,24 +1340,24 @@ export default function StoreDesignPage() {
     checkoutTosPageId,
     checkoutThankYouHeading,
     checkoutThankYouMessage,
-    showFaqSection,
-    faqHeading,
-    faqItems,
+    showFaqSection: parsed.showFaqSection,
+    faqHeading: parsed.faqHeading,
+    faqItems: parsed.faqItems,
     showStickyMobileCta,
     storeHoursEnabled,
     storeHours,
     saleCountdownEnabled,
     saleCountdownEndsAt,
     saleCountdownText,
-    facebookPixelId,
-    googleAnalyticsId,
-    tiktokPixelId,
+    facebookPixelId: parsed.facebookPixelId,
+    googleAnalyticsId: parsed.googleAnalyticsId,
+    tiktokPixelId: parsed.tiktokPixelId,
     minOrderAmount,
     whatsappNumber,
     viberNumber,
-    pickupEnabled,
-    pickupAddress,
-    pickupInstructions,
+    pickupEnabled: parsed.pickupEnabled,
+    pickupAddress: parsed.pickupAddress,
+    pickupInstructions: parsed.pickupInstructions,
     headerSticky,
     headerBackgroundColor,
     heroSlides,

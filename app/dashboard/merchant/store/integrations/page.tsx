@@ -2,6 +2,8 @@
 
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
+import { parseThemeConfig } from '@/lib/store/theme-config'
 import { useDisconnectFacebook, useFacebookConnectUrl, useFacebookStatus } from '@/lib/queries/facebook'
 import { useInstagramStatus } from '@/lib/queries/instagram'
 import {
@@ -223,6 +225,9 @@ function IntegrationsPageContent() {
 
       <TikTokCard />
 
+      <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2 mt-2">მარკეტინგი და თრექინგი</p>
+      <MarketingPixelsCard />
+
       <p className="text-xs font-bold text-white/40 uppercase tracking-widest -mb-2 mt-2">მიწოდების სერვისები</p>
       <QuickShipperCard />
 
@@ -305,6 +310,135 @@ function TikTokCard() {
           </button>
         )
       )}
+    </div>
+  )
+}
+
+function MarketingPixelsCard() {
+  const { data: store, isLoading } = useMyStore()
+  const { mutate: updateStore, isPending: saving, error } = useUpdateMyStore()
+
+  const [facebookPixelId, setFacebookPixelId] = useState('')
+  const [googleAnalyticsId, setGoogleAnalyticsId] = useState('')
+  const [tiktokPixelId, setTiktokPixelId] = useState('')
+  const [saved, setSaved] = useState(false)
+
+  const [hydrated, setHydrated] = useState(false)
+  if (store && !hydrated) {
+    setHydrated(true)
+    const parsed = parseThemeConfig(store.themeConfig)
+    setFacebookPixelId(parsed.facebookPixelId)
+    setGoogleAnalyticsId(parsed.googleAnalyticsId)
+    setTiktokPixelId(parsed.tiktokPixelId)
+  }
+
+  function handleSave() {
+    if (!store) return
+    const parsed = parseThemeConfig(store.themeConfig)
+    updateStore(
+      {
+        themeConfig: JSON.stringify({
+          ...parsed,
+          facebookPixelId: facebookPixelId.trim() || undefined,
+          googleAnalyticsId: googleAnalyticsId.trim() || undefined,
+          tiktokPixelId: tiktokPixelId.trim() || undefined,
+        }),
+      },
+      { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
+    )
+  }
+
+  return (
+    <div className="rounded-2xl border border-white/7 bg-white/2 p-5 flex flex-col gap-5">
+      <div className="flex items-center gap-4">
+        <div className="w-11 h-11 rounded-xl bg-[#1877F2]/15 border border-[#1877F2]/30 flex items-center justify-center shrink-0">
+          <svg width="20" height="20" viewBox="0 0 14 14" fill="none" aria-hidden>
+            <path
+              d="M9.5 1.75h-2A2.75 2.75 0 0 0 4.75 4.5v1.75H3v2.25h1.75V12.25h2.25V8.5H8.7l.3-2.25H7V4.5c0-.483.392-.875.875-.875h1.625V1.75Z"
+              fill="#8fb8fa"
+            />
+          </svg>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-white">Facebook Pixel</p>
+          <p className="text-white/30 text-xs mt-0.5">იძახებს გვერდის-ნახვისა და შესყიდვის მოვლენებს Meta-ს სარეკლამო კამპანიებისთვის.</p>
+        </div>
+      </div>
+      {isLoading ? (
+        <div className="skeleton h-9 w-full rounded-lg" />
+      ) : (
+        <input
+          type="text"
+          value={facebookPixelId}
+          onChange={e => setFacebookPixelId(e.target.value)}
+          placeholder="1234567890123456"
+          className="input input-sm w-full bg-white/4 border-white/10 focus:border-[#1877F2]/60"
+        />
+      )}
+
+      <div className="flex items-center gap-4 pt-1 border-t border-white/5">
+        <div className="w-11 h-11 rounded-xl bg-[#F9AB00]/15 border border-[#F9AB00]/30 flex items-center justify-center shrink-0 mt-4">
+          <svg width="20" height="20" viewBox="0 0 16 16" fill="none" aria-hidden>
+            <rect x="1.5" y="9" width="3" height="5" rx="1" fill="#F9AB00"/>
+            <rect x="6.5" y="5.5" width="3" height="8.5" rx="1" fill="#F9AB00"/>
+            <rect x="11.5" y="1.5" width="3" height="12.5" rx="1" fill="#F9AB00"/>
+          </svg>
+        </div>
+        <div className="flex-1 min-w-0 mt-4">
+          <p className="text-sm font-semibold text-white">Google Analytics</p>
+          <p className="text-white/30 text-xs mt-0.5">თვალყურს ადევნებს ვიზიტორებსა და შესყიდვებს GA4-ში.</p>
+        </div>
+      </div>
+      {isLoading ? (
+        <div className="skeleton h-9 w-full rounded-lg" />
+      ) : (
+        <input
+          type="text"
+          value={googleAnalyticsId}
+          onChange={e => setGoogleAnalyticsId(e.target.value)}
+          placeholder="G-XXXXXXXXXX"
+          className="input input-sm w-full bg-white/4 border-white/10 focus:border-[#F9AB00]/60"
+        />
+      )}
+
+      <div className="flex items-center gap-4 pt-1 border-t border-white/5">
+        <div className="w-11 h-11 rounded-xl bg-black/40 border border-white/15 flex items-center justify-center shrink-0 mt-4">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path
+              d="M16.5 3c.4 2.3 2 4 4.5 4.2v3.1c-1.6.1-3.1-.4-4.5-1.3v6.6c0 3.5-2.8 6.4-6.4 6.4S3.7 19.1 3.7 15.6c0-3.4 2.6-6.2 6-6.4v3.2c-1.6.2-2.8 1.5-2.8 3.2 0 1.8 1.4 3.2 3.2 3.2s3.2-1.4 3.2-3.2V3h3.2Z"
+              fill="#fff"
+            />
+          </svg>
+        </div>
+        <div className="flex-1 min-w-0 mt-4">
+          <p className="text-sm font-semibold text-white">TikTok Pixel</p>
+          <p className="text-white/30 text-xs mt-0.5">იძახებს შესყიდვის დასრულების მოვლენას TikTok-ის სარეკლამო კამპანიებისთვის.</p>
+        </div>
+      </div>
+      {isLoading ? (
+        <div className="skeleton h-9 w-full rounded-lg" />
+      ) : (
+        <input
+          type="text"
+          value={tiktokPixelId}
+          onChange={e => setTiktokPixelId(e.target.value)}
+          placeholder="CXXXXXXXXXXXXXXXXXXX"
+          className="input input-sm w-full bg-white/4 border-white/10 focus:border-white/30"
+        />
+      )}
+
+      <div className="flex items-center gap-3 pt-1 border-t border-white/5 mt-1">
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving || isLoading}
+          className="btn btn-sm mt-4 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
+        >
+          {saving ? <span className="loading loading-spinner loading-xs" /> : 'შენახვა'}
+        </button>
+        {saved && <span className="text-emerald-400 text-xs mt-4">შენახულია</span>}
+        {error && <span className="text-error text-xs mt-4">ვერ შეინახა</span>}
+      </div>
     </div>
   )
 }

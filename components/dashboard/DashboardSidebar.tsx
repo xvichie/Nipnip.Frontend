@@ -207,6 +207,13 @@ const CHAT_AGENT_ICON = (
     <circle cx="8" cy="11" r="0.9" fill="currentColor"/>
   </svg>
 )
+const FAQ_ICON = (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+    <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.4"/>
+    <path d="M6 6.2c.3-1 1.1-1.6 2-1.6 1.1 0 2 .7 2 1.7 0 1.2-1.6 1.4-1.9 2.6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="8" cy="11.2" r="0.9" fill="currentColor"/>
+  </svg>
+)
 const MEDIA_ICON = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
     <rect x="1.5" y="3.5" width="13" height="9.5" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
@@ -268,6 +275,7 @@ const STORE_NAV_GROUP_ICONS: Record<StoreNavGroup, React.ReactNode> = {
   products: BOX_ICON,
   orders: BAG_ICON,
   promotions: DISCOUNT_ICON,
+  content: DOC_ICON,
   settings: SETTINGS_ICON,
 }
 
@@ -282,6 +290,7 @@ const STORE_NAV_ICONS: Record<string, React.ReactNode> = {
   '/dashboard/merchant/store/products': BOX_ICON,
   '/dashboard/merchant/store/orders': BAG_ICON,
   '/dashboard/merchant/store/discount-codes': DISCOUNT_ICON,
+  '/dashboard/merchant/store/faq': FAQ_ICON,
   '/dashboard/merchant/store/payments': PAYMENT_ICON,
   '/dashboard/merchant/store/delivery': DELIVERY_ICON,
   '/dashboard/merchant/store/domain': DOMAIN_ICON,

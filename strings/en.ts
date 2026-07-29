@@ -148,6 +148,7 @@ export const en: Strings = {
     storeCollections: 'Collections',
     storeBundles: 'Bundles',
     storeDiscountCodes: 'Discount Codes',
+    storeFaq: 'FAQ',
     storePages: 'Pages',
     storeDesign: 'Design',
     storeLayout: 'Layout',
@@ -163,6 +164,7 @@ export const en: Strings = {
     navGroupProducts: 'Products',
     navGroupOrders: 'Orders',
     navGroupPromotions: 'Promotions',
+    navGroupContent: 'Content',
     navGroupSettings: 'Settings',
   },
   admin: {

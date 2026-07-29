@@ -146,6 +146,7 @@ export const ka = {
     storeCollections: 'კოლექციები',
     storeBundles: 'ბანდლები',
     storeDiscountCodes: 'ფასდაკლების კოდები',
+    storeFaq: 'ხშირი კითხვები',
     storePages: 'გვერდები',
     storeDesign: 'დიზაინი',
     storeLayout: 'განლაგება',
@@ -161,6 +162,7 @@ export const ka = {
     navGroupProducts: 'პროდუქტები',
     navGroupOrders: 'შეკვეთები',
     navGroupPromotions: 'აქციები',
+    navGroupContent: 'კონტენტი',
     navGroupSettings: 'პარამეტრები',
   },
   admin: {

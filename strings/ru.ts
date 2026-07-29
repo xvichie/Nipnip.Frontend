@@ -148,6 +148,7 @@ export const ru: Strings = {
     storeCollections: 'Коллекции',
     storeBundles: 'Наборы',
     storeDiscountCodes: 'Промокоды',
+    storeFaq: 'Вопрос-ответ',
     storePages: 'Страницы',
     storeDesign: 'Дизайн',
     storeLayout: 'Макет',
@@ -163,6 +164,7 @@ export const ru: Strings = {
     navGroupProducts: 'Товары',
     navGroupOrders: 'Заказы',
     navGroupPromotions: 'Акции',
+    navGroupContent: 'Контент',
     navGroupSettings: 'Настройки',
   },
   admin: {
