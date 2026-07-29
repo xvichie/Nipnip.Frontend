@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { useMyCategories, useMyCollections, useMyPages, useMyProducts, useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { uploadImage, uploadVideo } from '@/lib/uploadImage'
-import { BANNER_PATTERNS, DEFAULT_THEME_CONFIG, HERO_TEXT_POSITIONS, parseThemeConfig } from '@/lib/store/theme-config'
+import { BANNER_PATTERNS, DEFAULT_THEME_CONFIG, HERO_TEXT_POSITIONS, parseThemeConfig, shadeColor } from '@/lib/store/theme-config'
 import { ALL_FONT_VARIABLE_CLASSES, FONT_OPTIONS, getFontOption, type FontCategory } from '@/lib/storefront-fonts'
 import { getThemeDefinition, isThemeId, SURFACE_CLASSES, THEME_CATEGORIES, THEMES, type ThemeCategory } from '@/lib/storefront-themes'
 import { StorefrontCartProvider } from '@/lib/store/storefront-cart-context'
@@ -13,7 +13,22 @@ import { StorefrontLanguageProvider } from '@/components/storefront/shared/Store
 import { ka as storefrontT } from '@/strings/storefront-ka'
 import { IconButton } from '@/components/ui/IconButton'
 import { TranslatedField, type TranslatedFieldValue } from '@/components/dashboard/store/TranslatedField'
-import { ChevronDownIcon, ChevronUpIcon, PlusIcon, XIcon } from '@/components/ui/icons'
+import {
+  BannerIcon,
+  ButtonIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  HeaderBarIcon,
+  HeroSectionIcon,
+  ImageIcon,
+  PaletteIcon,
+  PlusIcon,
+  StackIcon,
+  SwatchIcon,
+  TagBadgeIcon,
+  XIcon,
+} from '@/components/ui/icons'
+import { DeviceFieldToggle, type DeviceKind } from '@/components/dashboard/store/DeviceFieldToggle'
 import { Header as MinimalHeader } from '@/components/storefront/themes/minimal/Header'
 import { Footer as MinimalFooter } from '@/components/storefront/themes/minimal/Footer'
 import { Home as MinimalHome } from '@/components/storefront/themes/minimal/Home'
@@ -70,6 +85,7 @@ import type {
   BannerPattern,
   BannerPlacement,
   BannerType,
+  ButtonHoverAnimation,
   CategoryMenuMode,
   CategoryResponse,
   CategoryMenuScope,
@@ -279,6 +295,51 @@ function HeroTextSizePicker({ value, onChange }: { value: HeroTextSize; onChange
           ].join(' ')}
         >
           {opt.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+const BUTTON_HOVER_ANIMATION_OPTIONS: { value: ButtonHoverAnimation; label: string; demoStyle: CSSProperties }[] = [
+  { value: 'scale', label: 'გადიდება', demoStyle: { '--btn-hover-scale': '1.08' } as CSSProperties },
+  { value: 'lift', label: 'აწევა', demoStyle: { '--btn-hover-lift': '-4px' } as CSSProperties },
+  { value: 'brighten', label: 'გაღიავება', demoStyle: { '--btn-hover-brightness': '1.3' } as CSSProperties },
+  { value: 'darken', label: 'დაბნელება', demoStyle: { '--btn-hover-brightness': '0.75' } as CSSProperties },
+  { value: 'none', label: 'არცერთი', demoStyle: {} },
+]
+
+// Each option's demo pill plays its own hover animation live (fixed 200ms, independent of the
+// merchant's actual duration choice below) so picking an animation doesn't require switching to
+// the real storefront preview to see what it looks like — hover any option to try it.
+function ButtonHoverAnimationPicker({
+  value,
+  onChange,
+  accentColor,
+}: {
+  value: ButtonHoverAnimation
+  onChange: (value: ButtonHoverAnimation) => void
+  accentColor: string
+}) {
+  return (
+    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+      {BUTTON_HOVER_ANIMATION_OPTIONS.map(opt => (
+        <button
+          key={opt.value}
+          type="button"
+          onClick={() => onChange(opt.value)}
+          className={[
+            'flex flex-col items-center gap-2 rounded-lg border px-2 py-3 transition-colors',
+            value === opt.value
+              ? 'border-fuchsia-500 bg-fuchsia-500/10'
+              : 'border-white/10 bg-white/4 hover:border-white/25',
+          ].join(' ')}
+        >
+          <span
+            className="theme-cta-btn w-8 h-8 rounded-full"
+            style={{ backgroundColor: accentColor, '--btn-hover-duration': '200ms', ...opt.demoStyle } as CSSProperties}
+          />
+          <span className={`text-[11px] font-medium ${value === opt.value ? 'text-white' : 'text-white/50'}`}>{opt.label}</span>
         </button>
       ))}
     </div>
@@ -514,6 +575,11 @@ export default function StoreDesignPage() {
   const [previewMode, setPreviewMode] = useState<PreviewMode>('desktop')
   const [previewFullscreen, setPreviewFullscreen] = useState(false)
   const [accentColor, setAccentColor] = useState(DEFAULT_THEME_CONFIG.accentColor)
+  const [buttonTextColor, setButtonTextColor] = useState(DEFAULT_THEME_CONFIG.buttonTextColor)
+  const [secondaryColor, setSecondaryColor] = useState(DEFAULT_THEME_CONFIG.secondaryColor)
+  const [buttonHoverAnimation, setButtonHoverAnimation] = useState<Required<ThemeConfig>['buttonHoverAnimation']>(DEFAULT_THEME_CONFIG.buttonHoverAnimation)
+  const [buttonHoverColor, setButtonHoverColor] = useState(DEFAULT_THEME_CONFIG.buttonHoverColor)
+  const [buttonHoverDurationMs, setButtonHoverDurationMs] = useState(DEFAULT_THEME_CONFIG.buttonHoverDurationMs)
   const [font, setFont] = useState<Required<ThemeConfig>['font']>(DEFAULT_THEME_CONFIG.font)
   const [cornerRadius, setCornerRadius] = useState<Required<ThemeConfig>['cornerRadius']>(DEFAULT_THEME_CONFIG.cornerRadius)
   const [sectionBackgroundColors, setSectionBackgroundColors] = useState(DEFAULT_THEME_CONFIG.sectionBackgroundColors)
@@ -540,6 +606,8 @@ export default function StoreDesignPage() {
   const [heroMobileImage, setHeroMobileImage] = useState<HeroMobileImageVisibility>(DEFAULT_THEME_CONFIG.heroMobileImage)
   const [heroMobileImagePosition, setHeroMobileImagePosition] = useState<HeroMobileImagePosition>(DEFAULT_THEME_CONFIG.heroMobileImagePosition)
   const [heroMobileTextAlign, setHeroMobileTextAlign] = useState<HeroMobileTextAlign>(DEFAULT_THEME_CONFIG.heroMobileTextAlign)
+  // Local UI-only state (not persisted) — which side of the Hero mobile-vs-desktop slot is shown.
+  const [heroFieldDevice, setHeroFieldDevice] = useState<DeviceKind>('desktop')
   const [heroEyebrow, setHeroEyebrow] = useState(DEFAULT_THEME_CONFIG.heroEyebrow)
   const [heroEyebrowSize, setHeroEyebrowSize] = useState<HeroTextSize>(DEFAULT_THEME_CONFIG.heroEyebrowSize)
   const [heroHeadline, setHeroHeadline] = useState('')
@@ -690,6 +758,11 @@ export default function StoreDesignPage() {
     const parsed = parseThemeConfig(store.themeConfig)
     setThemeId(isThemeId(store.themeId) ? store.themeId : 'minimal')
     setAccentColor(parsed.accentColor)
+    setButtonTextColor(parsed.buttonTextColor)
+    setSecondaryColor(parsed.secondaryColor)
+    setButtonHoverAnimation(parsed.buttonHoverAnimation)
+    setButtonHoverColor(parsed.buttonHoverColor)
+    setButtonHoverDurationMs(parsed.buttonHoverDurationMs)
     setFont(parsed.font)
     setCornerRadius(parsed.cornerRadius)
     setSectionBackgroundColors(parsed.sectionBackgroundColors)
@@ -1041,6 +1114,11 @@ export default function StoreDesignPage() {
           defaultLanguage,
           translations: mergedTranslations,
           accentColor,
+          buttonTextColor,
+          secondaryColor,
+          buttonHoverAnimation,
+          buttonHoverColor: buttonHoverColor.trim() || undefined,
+          buttonHoverDurationMs,
           font,
           cornerRadius,
           sectionBackgroundColors,
@@ -1212,6 +1290,11 @@ export default function StoreDesignPage() {
     defaultLanguage,
     translations: textTranslations,
     accentColor,
+    buttonTextColor,
+    secondaryColor,
+    buttonHoverAnimation,
+    buttonHoverColor,
+    buttonHoverDurationMs,
     font,
     cornerRadius,
     sectionBackgroundColors,
@@ -1477,7 +1560,10 @@ export default function StoreDesignPage() {
         <div className="flex flex-col gap-6">
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">თემა</h2>
+            <div className="flex items-center gap-2">
+              <SwatchIcon className="text-white/40" />
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">თემა</h2>
+            </div>
 
             <button
               type="button"
@@ -1584,7 +1670,10 @@ export default function StoreDesignPage() {
           )}
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ფერები და ფონტი</h2>
+            <div className="flex items-center gap-2">
+              <PaletteIcon className="text-white/40" />
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ფერები და ფონტი</h2>
+            </div>
 
             <div className="fieldset gap-2">
               <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">აქცენტის ფერი</label>
@@ -1602,6 +1691,46 @@ export default function StoreDesignPage() {
                   className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60 font-mono"
                 />
               </div>
+            </div>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+                მეორადი ფერი <span className="text-white/25 normal-case">(მეორე ბრენდის ფერი)</span>
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={secondaryColor}
+                  onChange={e => setSecondaryColor(e.target.value)}
+                  className="w-10 h-10 rounded-lg border border-white/10 bg-transparent cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={secondaryColor}
+                  onChange={e => setSecondaryColor(e.target.value)}
+                  className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60 font-mono"
+                />
+              </div>
+              <p className="text-white/30 text-xs mt-1">გამოიყენება ჰერო მეორადი ღილაკისთვის — მისცემს მაღაზიას ორი ტონის პალიტრას ერთი აქცენტის ნაცვლად.</p>
+            </div>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ღილაკის ტექსტის ფერი</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={/^#[0-9a-fA-F]{6}$/.test(buttonTextColor) ? buttonTextColor : '#ffffff'}
+                  onChange={e => setButtonTextColor(e.target.value)}
+                  className="w-10 h-10 rounded-lg border border-white/10 bg-transparent cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={buttonTextColor}
+                  onChange={e => setButtonTextColor(e.target.value)}
+                  className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60 font-mono"
+                />
+              </div>
+              <p className="text-white/30 text-xs mt-1">ტექსტისა და აიქონების ფერი შევსებულ, აქცენტის ფერიან ღილაკებზე.</p>
             </div>
 
             <div className="fieldset gap-2">
@@ -1640,7 +1769,60 @@ export default function StoreDesignPage() {
           </div>
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ბრენდინგი</h2>
+            <div className="flex items-center gap-2">
+              <ButtonIcon className="text-white/40" />
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ღილაკები</h2>
+            </div>
+            <p className="text-white/30 text-xs -mt-3">როგორ რეაგირებენ ღილაკები კურსორის დაფარებაზე — მთელ მაღაზიაში.</p>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ჰოვერის ანიმაცია</label>
+              <ButtonHoverAnimationPicker value={buttonHoverAnimation} onChange={setButtonHoverAnimation} accentColor={accentColor} />
+            </div>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ჰოვერის ფერი</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={/^#[0-9a-fA-F]{6}$/.test(buttonHoverColor) ? buttonHoverColor : shadeColor(accentColor, -15)}
+                  onChange={e => setButtonHoverColor(e.target.value)}
+                  className="w-10 h-10 rounded-lg border border-white/10 bg-transparent cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={buttonHoverColor}
+                  onChange={e => setButtonHoverColor(e.target.value)}
+                  placeholder="ავტომატური (აქცენტის მუქი ვერსია)"
+                  className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60 font-mono"
+                />
+                {buttonHoverColor && (
+                  <IconButton icon={<XIcon />} label="ავტომატურზე დაბრუნება" onClick={() => setButtonHoverColor('')} size="sm" className="shrink-0" />
+                )}
+              </div>
+              <p className="text-white/30 text-xs mt-1">ცარიელი დატოვების შემთხვევაში ღილაკები ჰოვერზე გადადიან აქცენტის ფერის ავტომატურად გამოთვლილ მუქ ვერსიაზე.</p>
+            </div>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ჰოვერის ხანგრძლივობა — {buttonHoverDurationMs}მწმ</label>
+              <input
+                type="range"
+                min={50}
+                max={500}
+                step={25}
+                value={buttonHoverDurationMs}
+                onChange={e => setButtonHoverDurationMs(Number(e.target.value))}
+                className="range range-xs accent-fuchsia-500"
+              />
+              <p className="text-white/30 text-xs">რამდენ ხანში სრულდება ანიმაცია. ნაგულისხმევი — 150მწმ.</p>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+            <div className="flex items-center gap-2">
+              <ImageIcon className="text-white/40" />
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ბრენდინგი</h2>
+            </div>
             <ImageField label="ლოგო" value={logoUrl} uploading={logoUploading} onFile={handleLogoFile} onClear={() => setLogoUrl('')} />
             {logoUrl && (
               <label className="flex items-center gap-3 cursor-pointer -mt-2">
@@ -1657,8 +1839,61 @@ export default function StoreDesignPage() {
             <p className="text-white/30 text-xs -mt-3">ბრაუზერის ჩანართის ხატულა. გამოიყენეთ კვადრატული სურათი — ცარიელი დატოვების შემთხვევაში დაბრუნდება თქვენს ლოგოზე.</p>
             <ImageField label="სოც. ქსელის გაზიარების სურათი" value={socialImageUrl} uploading={socialImageUploading} onFile={handleSocialImageFile} onClear={() => setSocialImageUrl('')} />
             <p className="text-white/30 text-xs -mt-3">ჩნდება თქვენი მაღაზიის ბმულის სოციალურ ქსელებში ან მესენჯერებში გაზიარებისას. ცარიელი დატოვების შემთხვევაში დაბრუნდება თქვენს ჰერო სურათზე ან ლოგოზე.</p>
+          </div>
+
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+            <div className="flex items-center gap-2">
+              <HeaderBarIcon className="text-white/40" />
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰედერი</h2>
+            </div>
+
+            <label className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer">
+              <span className="text-sm text-white/70">მიმაგრებული ჰედერი (რჩება ხილვადი სქროლისას)</span>
+              <input
+                type="checkbox"
+                checked={headerSticky}
+                onChange={e => setHeaderSticky(e.target.checked)}
+                className={`toggle toggle-sm ${headerSticky ? 'toggle-success' : ''}`}
+              />
+            </label>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ჰედერის ფონის ფერი</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={/^#[0-9a-fA-F]{6}$/.test(headerBackgroundColor) ? headerBackgroundColor : '#ffffff'}
+                  onChange={e => setHeaderBackgroundColor(e.target.value)}
+                  className="w-9 h-9 rounded-lg border border-white/10 bg-transparent cursor-pointer shrink-0"
+                />
+                <input
+                  type="text"
+                  value={headerBackgroundColor}
+                  onChange={e => setHeaderBackgroundColor(e.target.value)}
+                  placeholder="ცარიელი დატოვება თემის ნაგულისხმევისთვის"
+                  className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+                />
+                {headerBackgroundColor && (
+                  <IconButton
+                    icon={<XIcon />}
+                    label="ფონის ფერის გასუფთავება"
+                    onClick={() => setHeaderBackgroundColor('')}
+                    size="sm"
+                    className="shrink-0"
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+            <div className="flex items-center gap-2">
+              <HeroSectionIcon className="text-white/40" />
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰერო სექცია</h2>
+            </div>
+
             <ImageField label="ჰერო სურათი" value={heroImageUrl} uploading={heroImageUploading} onFile={handleHeroImageFile} onClear={() => setHeroImageUrl('')} />
-            <p className="text-white/30 text-xs -mt-3">ჩნდება თქვენი ჰერო ტექსტის გვერდით, როცა ქვემოთ განლაგება დაყენებულია „სურათი მარცხნივ/მარჯვნივ“-ზე.</p>
+            <p className="text-white/30 text-xs -mt-3">ჩნდება თქვენი ჰერო ტექსტის გვერდით, როცა ქვემოთ განლაგება დაყენებულია „სურათი მარცხნივ/მარჯვნივ“-ზე, ან ივსება მთელ სექციაზე „ფონის ფოტო“-ს არჩევისას.</p>
 
             {heroImageUrl && (
               <>
@@ -1718,179 +1953,8 @@ export default function StoreDesignPage() {
                 )}
               </>
             )}
-          </div>
 
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰედერი</h2>
-
-            <label className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer">
-              <span className="text-sm text-white/70">მიმაგრებული ჰედერი (რჩება ხილვადი სქროლისას)</span>
-              <input
-                type="checkbox"
-                checked={headerSticky}
-                onChange={e => setHeaderSticky(e.target.checked)}
-                className={`toggle toggle-sm ${headerSticky ? 'toggle-success' : ''}`}
-              />
-            </label>
-
-            <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ჰედერის ფონის ფერი</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={/^#[0-9a-fA-F]{6}$/.test(headerBackgroundColor) ? headerBackgroundColor : '#ffffff'}
-                  onChange={e => setHeaderBackgroundColor(e.target.value)}
-                  className="w-9 h-9 rounded-lg border border-white/10 bg-transparent cursor-pointer shrink-0"
-                />
-                <input
-                  type="text"
-                  value={headerBackgroundColor}
-                  onChange={e => setHeaderBackgroundColor(e.target.value)}
-                  placeholder="ცარიელი დატოვება თემის ნაგულისხმევისთვის"
-                  className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
-                />
-                {headerBackgroundColor && (
-                  <IconButton
-                    icon={<XIcon />}
-                    label="ფონის ფერის გასუფთავება"
-                    onClick={() => setHeaderBackgroundColor('')}
-                    size="sm"
-                    className="shrink-0"
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ბანერი</h2>
-            <p className="text-white/30 text-xs -mt-3">ფონი, რომელიც ჩნდება ჰერო სექციის უკან, ან მხოლოდ ჰერო სურათის უკან.</p>
-
-            <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ტიპი</label>
-              <div className="grid grid-cols-3 gap-2">
-                {([
-                  { value: 'image', label: 'სურათი' },
-                  { value: 'color', label: 'ფერი' },
-                  { value: 'pattern', label: 'ნიმუში' },
-                ] as { value: BannerType; label: string }[]).map(opt => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setBannerType(opt.value)}
-                    className={[
-                      'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
-                      bannerType === opt.value
-                        ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
-                        : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
-                    ].join(' ')}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {bannerType === 'image' && (
-              <ImageField label="ბანერის სურათი" value={bannerUrl} uploading={bannerUploading} onFile={handleBannerFile} onClear={() => setBannerUrl('')} />
-            )}
-
-            {bannerType === 'color' && (
-              <div className="fieldset gap-2">
-                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ფერი</label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={bannerColor || '#111111'}
-                    onChange={e => setBannerColor(e.target.value)}
-                    className="w-10 h-10 rounded-lg border border-white/10 bg-transparent cursor-pointer"
-                  />
-                  <input
-                    type="text"
-                    value={bannerColor}
-                    onChange={e => setBannerColor(e.target.value)}
-                    placeholder="#111111"
-                    className="input input-sm flex-1 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 font-mono"
-                  />
-                </div>
-              </div>
-            )}
-
-            {bannerType === 'pattern' && (
-              <>
-                <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ნიმუში</label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {BANNER_PATTERNS.map(opt => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => setBannerPattern(opt.value)}
-                        className={[
-                          'rounded-lg border px-2 py-2 text-xs font-medium text-center transition-colors',
-                          bannerPattern === opt.value
-                            ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
-                            : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
-                        ].join(' ')}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ტონის ფერი</label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="color"
-                      value={bannerColor || accentColor}
-                      onChange={e => setBannerColor(e.target.value)}
-                      className="w-10 h-10 rounded-lg border border-white/10 bg-transparent cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={bannerColor}
-                      onChange={e => setBannerColor(e.target.value)}
-                      placeholder={accentColor}
-                      className="input input-sm flex-1 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 font-mono"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-
-            <div className="fieldset gap-2">
-              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">განთავსება</label>
-              <div className="grid grid-cols-2 gap-2">
-                {([
-                  { value: 'section', label: 'მთელი სექციის უკან' },
-                  { value: 'behindImage', label: 'მხოლოდ ჰერო სურათის უკან' },
-                ] as { value: BannerPlacement; label: string }[]).map(opt => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setBannerPlacement(opt.value)}
-                    className={[
-                      'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
-                      bannerPlacement === opt.value
-                        ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
-                        : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
-                    ].join(' ')}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-              {bannerPlacement === 'behindImage' && heroLayout === 'center' && (
-                <p className="text-amber-400/80 text-xs mt-1">დააყენეთ ქვემოთ განლაგება „სურათი მარცხნივ/მარჯვნივ“-ზე — ცენტრირებულ ჰეროს არ აქვს სურათი, რომლის უკანაც განთავსდება.</p>
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰერო სექცია</h2>
-
-            <div className="fieldset gap-2">
+            <div className="fieldset gap-2 pt-3 border-t border-white/5">
               <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">განლაგება</label>
               <div className="grid grid-cols-2 gap-2">
                 {([
@@ -1921,6 +1985,140 @@ export default function StoreDesignPage() {
                 <p className="text-white/30 text-xs mt-1">თქვენი ჰერო ფოტო ავსებს მთელ სექციას — გამოიყენეთ ტექსტის ფერი ქვემოთ, რომ სათაური იკითხებოდეს.</p>
               )}
             </div>
+
+            {heroLayout === 'background' ? (
+              <p className="text-white/25 text-xs -mt-1">
+                ბანერის ფონის პარამეტრები დამალულია — თქვენი ჰერო ფოტო უკვე ავსებს მთელ სექციას, ასე რომ მათ ვერაფერს დაანახებდით.
+              </p>
+            ) : (
+              <div className="fieldset gap-3 -mt-1">
+                <div className="flex items-center gap-2">
+                  <BannerIcon className="text-white/30" />
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ბანერის ფონი</label>
+                </div>
+                <p className="text-white/30 text-xs -mt-2">ფონი, რომელიც ჩნდება ჰერო სექციის უკან, ან მხოლოდ ჰერო სურათის უკან.</p>
+
+                <div className="fieldset gap-2">
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ტიპი</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([
+                      { value: 'image', label: 'სურათი' },
+                      { value: 'color', label: 'ფერი' },
+                      { value: 'pattern', label: 'ნიმუში' },
+                    ] as { value: BannerType; label: string }[]).map(opt => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setBannerType(opt.value)}
+                        className={[
+                          'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                          bannerType === opt.value
+                            ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                            : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                        ].join(' ')}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {bannerType === 'image' && (
+                  <ImageField label="ბანერის სურათი" value={bannerUrl} uploading={bannerUploading} onFile={handleBannerFile} onClear={() => setBannerUrl('')} />
+                )}
+
+                {bannerType === 'color' && (
+                  <div className="fieldset gap-2">
+                    <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ფერი</label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={bannerColor || '#111111'}
+                        onChange={e => setBannerColor(e.target.value)}
+                        className="w-10 h-10 rounded-lg border border-white/10 bg-transparent cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={bannerColor}
+                        onChange={e => setBannerColor(e.target.value)}
+                        placeholder="#111111"
+                        className="input input-sm flex-1 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 font-mono"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {bannerType === 'pattern' && (
+                  <>
+                    <div className="fieldset gap-2">
+                      <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ნიმუში</label>
+                      <div className="grid grid-cols-4 gap-2">
+                        {BANNER_PATTERNS.map(opt => (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => setBannerPattern(opt.value)}
+                            className={[
+                              'rounded-lg border px-2 py-2 text-xs font-medium text-center transition-colors',
+                              bannerPattern === opt.value
+                                ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                                : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                            ].join(' ')}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="fieldset gap-2">
+                      <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ტონის ფერი</label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="color"
+                          value={bannerColor || accentColor}
+                          onChange={e => setBannerColor(e.target.value)}
+                          className="w-10 h-10 rounded-lg border border-white/10 bg-transparent cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={bannerColor}
+                          onChange={e => setBannerColor(e.target.value)}
+                          placeholder={accentColor}
+                          className="input input-sm flex-1 bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 font-mono"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <div className="fieldset gap-2">
+                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">განთავსება</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {([
+                      { value: 'section', label: 'მთელი სექციის უკან' },
+                      { value: 'behindImage', label: 'მხოლოდ ჰერო სურათის უკან' },
+                    ] as { value: BannerPlacement; label: string }[]).map(opt => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setBannerPlacement(opt.value)}
+                        className={[
+                          'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                          bannerPlacement === opt.value
+                            ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                            : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                        ].join(' ')}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                  {bannerPlacement === 'behindImage' && heroLayout === 'center' && (
+                    <p className="text-amber-400/80 text-xs mt-1">დააყენეთ ზემოთ განლაგება „სურათი მარცხნივ/მარჯვნივ“-ზე — ცენტრირებულ ჰეროს არ აქვს სურათი, რომლის უკანაც განთავსდება.</p>
+                  )}
+                </div>
+              </div>
+            )}
 
             {heroLayout === 'background' && heroImageUrl && (
               <div className="fieldset gap-2">
@@ -2068,85 +2266,106 @@ export default function StoreDesignPage() {
             </div>
 
             <div className="fieldset gap-3 pt-3 border-t border-white/5">
-              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">მობილურის გადაფარვები</p>
-
-              <div className="fieldset gap-2">
-                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ჰერო სურათი მობილურზე</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {([
-                    { value: 'show', label: 'ჩვენება' },
-                    { value: 'hide', label: 'დამალვა' },
-                  ] as { value: HeroMobileImageVisibility; label: string }[]).map(opt => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setHeroMobileImage(opt.value)}
-                      className={[
-                        'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
-                        heroMobileImage === opt.value
-                          ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
-                          : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
-                      ].join(' ')}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
+              <div className="flex items-center justify-between">
+                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">როგორ გამოჩნდება</label>
+                <DeviceFieldToggle value={heroFieldDevice} onChange={setHeroFieldDevice} />
               </div>
 
-              {heroLayout !== 'center' && heroMobileImage === 'show' && (
-                <div className="fieldset gap-2">
-                  <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სურათის პოზიცია მობილურზე</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {([
-                      { value: 'inherit', label: 'ავტომატური' },
-                      { value: 'top', label: 'ზემოთ' },
-                      { value: 'bottom', label: 'ქვემოთ' },
-                    ] as { value: HeroMobileImagePosition; label: string }[]).map(opt => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => setHeroMobileImagePosition(opt.value)}
-                        className={[
-                          'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
-                          heroMobileImagePosition === opt.value
-                            ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
-                            : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
-                        ].join(' ')}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
+              {heroFieldDevice === 'desktop' ? (
+                <div className="rounded-xl bg-white/2 border border-white/5 px-4 py-3 flex flex-col gap-1.5">
+                  <p className="text-xs text-white/50">
+                    სურათი: <span className="text-white/80 font-medium">
+                      {heroLayout === 'background' ? 'ფონი მთელ სექციაზე' : heroLayout === 'center' ? 'არ არის' : heroLayout === 'imageLeft' ? 'მარცხნივ' : 'მარჯვნივ'}
+                    </span>
+                  </p>
+                  <p className="text-xs text-white/50">
+                    ტექსტის სწორება: <span className="text-white/80 font-medium">
+                      {heroTextPosition.endsWith('left') ? 'მარცხნივ' : heroTextPosition.endsWith('right') ? 'მარჯვნივ' : 'ცენტრში'}
+                    </span>
+                  </p>
+                  <p className="text-white/30 text-[11px] mt-0.5">იცვლება ზემოთ „განლაგება“ და „ტექსტის პოზიცია“-დან — გადადით „მობილურზე“, რომ ეს გადაფაროთ ვიწრო ეკრანებისთვის.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="fieldset gap-2">
+                    <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ჰერო სურათი მობილურზე</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {([
+                        { value: 'show', label: 'ჩვენება' },
+                        { value: 'hide', label: 'დამალვა' },
+                      ] as { value: HeroMobileImageVisibility; label: string }[]).map(opt => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setHeroMobileImage(opt.value)}
+                          className={[
+                            'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                            heroMobileImage === opt.value
+                              ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                              : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                          ].join(' ')}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <p className="text-white/30 text-xs mt-1">დალაგების თანმიმდევრობა ვიწრო ეკრანებზე — დამოუკიდებელია ზემოთ მოცემული მარცხნივ/მარჯვნივ განლაგებისგან.</p>
-                </div>
-              )}
 
-              <div className="fieldset gap-2">
-                <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ტექსტის სწორება მობილურზე</label>
-                <div className="grid grid-cols-4 gap-2">
-                  {([
-                    { value: 'inherit', label: 'ავტომატური' },
-                    { value: 'left', label: 'მარცხნივ' },
-                    { value: 'center', label: 'ცენტრში' },
-                    { value: 'right', label: 'მარჯვნივ' },
-                  ] as { value: HeroMobileTextAlign; label: string }[]).map(opt => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setHeroMobileTextAlign(opt.value)}
-                      className={[
-                        'rounded-lg border px-2 py-2 text-xs font-medium text-center transition-colors',
-                        heroMobileTextAlign === opt.value
-                          ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
-                          : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
-                      ].join(' ')}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+                  {heroLayout !== 'center' && heroMobileImage === 'show' && (
+                    <div className="fieldset gap-2">
+                      <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სურათის პოზიცია მობილურზე</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {([
+                          { value: 'inherit', label: 'ავტომატური' },
+                          { value: 'top', label: 'ზემოთ' },
+                          { value: 'bottom', label: 'ქვემოთ' },
+                        ] as { value: HeroMobileImagePosition; label: string }[]).map(opt => (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => setHeroMobileImagePosition(opt.value)}
+                            className={[
+                              'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                              heroMobileImagePosition === opt.value
+                                ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                                : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                            ].join(' ')}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-white/30 text-xs mt-1">დალაგების თანმიმდევრობა ვიწრო ეკრანებზე — დამოუკიდებელია ზემოთ მოცემული მარცხნივ/მარჯვნივ განლაგებისგან.</p>
+                    </div>
+                  )}
+
+                  <div className="fieldset gap-2">
+                    <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ტექსტის სწორება მობილურზე</label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {([
+                        { value: 'inherit', label: 'ავტომატური' },
+                        { value: 'left', label: 'მარცხნივ' },
+                        { value: 'center', label: 'ცენტრში' },
+                        { value: 'right', label: 'მარჯვნივ' },
+                      ] as { value: HeroMobileTextAlign; label: string }[]).map(opt => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setHeroMobileTextAlign(opt.value)}
+                          className={[
+                            'rounded-lg border px-2 py-2 text-xs font-medium text-center transition-colors',
+                            heroMobileTextAlign === opt.value
+                              ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                              : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                          ].join(' ')}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="fieldset gap-2">
@@ -2184,7 +2403,10 @@ export default function StoreDesignPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰერო ღილაკი</h2>
+              <div className="flex items-center gap-2">
+                <ButtonIcon className="text-white/40" />
+                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰერო ღილაკი</h2>
+              </div>
               <input
                 type="checkbox"
                 checked={heroCtaEnabled}
@@ -2258,7 +2480,10 @@ export default function StoreDesignPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰერო მეორადი ღილაკი</h2>
+              <div className="flex items-center gap-2">
+                <ButtonIcon className="text-white/40" />
+                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰერო მეორადი ღილაკი</h2>
+              </div>
               <input
                 type="checkbox"
                 checked={heroSecondaryCtaEnabled}
@@ -2332,7 +2557,10 @@ export default function StoreDesignPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰერო სლაიდები</h2>
+              <div className="flex items-center gap-2">
+                <StackIcon className="text-white/40" />
+                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰერო სლაიდები</h2>
+              </div>
               <p className="text-white/30 text-xs mt-1">
                 სურვილისამებრ — დაამატეთ 2 ან მეტი სლაიდი, რომ ზემოთ მოცემული ჰერო ავტომატურად მოძრავ კარუსელად აქციოთ. განლაგება, სიმაღლე და
                 ტექსტის პოზიცია რჩება ისეთი, როგორც ზემოთ დააყენეთ; თითოეულ სლაიდს აქვს საკუთარი სურათი, ტექსტი და ღილაკი.
@@ -2365,7 +2593,10 @@ export default function StoreDesignPage() {
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
             <div>
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">პროდუქტის ბეჯები</h2>
+              <div className="flex items-center gap-2">
+                <TagBadgeIcon className="text-white/40" />
+                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">პროდუქტის ბეჯები</h2>
+              </div>
               <p className="text-white/30 text-xs mt-1">პატარა ლეიბლები, რომლებიც ჩნდება თქვენი ბადის პროდუქტის ფოტოებზე.</p>
             </div>
 

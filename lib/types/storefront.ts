@@ -60,10 +60,21 @@ export type FeaturedProductsMode = 'latest' | 'curated'
 
 export type ContentImagePosition = 'left' | 'right'
 
+/** 'none' keeps a plain color/opacity transition only (no transform/filter). */
+export type ButtonHoverAnimation = 'scale' | 'lift' | 'brighten' | 'darken' | 'none'
+
 export interface ThemeConfig {
   /** What a first-time shopper (no nn_store_lang cookie yet) sees the storefront in. */
   defaultLanguage?: StorefrontLanguage
   accentColor?: string
+  /** Text/icon color on filled accent-colored buttons. */
+  buttonTextColor?: string
+  /** A second brand color, independent of accentColor — used for the hero secondary button and other "secondary" accents. */
+  secondaryColor?: string
+  buttonHoverAnimation?: ButtonHoverAnimation
+  /** Empty means "auto" — a darkened/lightened shade of accentColor, computed by autoShade. */
+  buttonHoverColor?: string
+  buttonHoverDurationMs?: number
   /** Key into FONT_OPTIONS (lib/storefront-fonts.ts) — 'sans'/'serif'/'mono' are generic-stack defaults, everything else is a real webfont. */
   font?: string
   /**

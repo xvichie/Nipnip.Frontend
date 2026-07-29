@@ -61,6 +61,7 @@ export function ProductCard({
           <QuickAddButton
             slug={slug}
             productSlug={product.slug}
+            tokens={tokens}
             className="absolute inset-x-0 bottom-0 z-10 w-full py-2.5 flex items-center justify-center gap-1.5 bg-[#0f0f0f] text-white text-xs font-bold uppercase tracking-wide opacity-100 translate-y-0 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:translate-y-full [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 transition-all duration-200 hover:bg-[#1a1a1a] disabled:opacity-60"
           />
         </div>

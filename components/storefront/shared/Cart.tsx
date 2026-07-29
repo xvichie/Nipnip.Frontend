@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { SURFACE_CLASSES } from '@/lib/storefront-themes'
-import { getRadiusClass } from '@/lib/store/theme-config'
+import { getButtonHoverColor, getRadiusClass } from '@/lib/store/theme-config'
 import { resolveThemeText } from '@/lib/store/translations'
 import type { ThemeConfig, ThemeId } from '@/lib/types/storefront'
 import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
@@ -42,8 +42,8 @@ export function Cart({
         <p className={`text-sm mb-8 ${surface.muted}`}>{t.cart.emptySubtext}</p>
         <Link
           href={`/products`}
-          className={`text-white text-sm font-semibold px-8 py-3.5 ${radius}`}
-          style={{ backgroundColor: tokens.accentColor }}
+          className={`text-white text-sm font-semibold px-8 py-3.5 ${radius} theme-cta-btn`}
+          style={{ backgroundColor: tokens.accentColor, '--btn-hover-bg': getButtonHoverColor(tokens) } as React.CSSProperties}
         >
           {t.cart.continueShopping}
         </Link>
@@ -241,8 +241,8 @@ export function Cart({
               ) : (
                 <Link
                   href={`/checkout`}
-                  className={`block w-full text-center py-4 text-white text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-90 ${radius}`}
-                  style={{ backgroundColor: tokens.accentColor }}
+                  className={`block w-full text-center py-4 text-white text-sm font-semibold uppercase tracking-wide ${radius} theme-cta-btn`}
+                  style={{ backgroundColor: tokens.accentColor, '--btn-hover-bg': getButtonHoverColor(tokens) } as React.CSSProperties}
                 >
                   {t.cart.checkoutCta}
                 </Link>

@@ -81,8 +81,8 @@ export function Home({
             {cfg.heroCtaEnabled && (
               <Link
                 href={getHeroCtaHref(cfg, categories)}
-                className="inline-flex items-center gap-2 rounded-full text-white text-sm font-bold px-9 py-4 transition-transform hover:scale-105"
-                style={{ background: gradient, boxShadow: glowShadow(cfg.accentColor, '88') }}
+                className="inline-flex items-center gap-2 rounded-full text-sm font-bold px-9 py-4 theme-cta-btn"
+                style={{ background: gradient, color: cfg.buttonTextColor, boxShadow: glowShadow(cfg.accentColor, '88') } as React.CSSProperties}
               >
                 {getHeroCtaLabel(cfg, t.home.heroPrimaryCta, lang)}
               </Link>

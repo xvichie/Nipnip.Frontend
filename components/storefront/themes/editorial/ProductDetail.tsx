@@ -279,7 +279,7 @@ export function ProductDetail({
           addedLabel={added ? t.product.addedToCart : null}
           label={!selectionComplete ? t.product.chooseVariant : stock !== null && stock < 1 ? t.product.outOfStock : t.product.addToCart}
           onAdd={handleAddToCart}
-          accentColor={tokens.accentColor}
+          tokens={tokens}
         />
       )}
     </div>

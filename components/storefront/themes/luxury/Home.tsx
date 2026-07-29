@@ -4,7 +4,7 @@ import { CategoryIcon } from '@/components/storefront/shared/CategoryIcon'
 import { ProductScrollRow } from '@/components/storefront/shared/ProductScrollRow'
 import { HeroCarousel } from '@/components/storefront/shared/HeroCarousel'
 import { ScrollIndicator } from '@/components/storefront/shared/ScrollIndicator'
-import { getBannerBackgroundStyle, getCustomSectionId, getHeroBackgroundImageClass, getHeroButtonRowClass, getHeroCtaHref, getHeroCtaLabel, getHeroImageClass, getHeroOverlayStyle, getHeroSecondaryCtaHref, getHeroSecondaryCtaLabel, getHeroSlideTranslations, getHeroTextAlignClass, getHeroTextColorClass, getHomeSectionOrder, getSectionBackgroundStyle, hasBanner, hasContentBlock, hasHeroVideo, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
+import { getBannerBackgroundStyle, getButtonHoverColor, getCustomSectionId, getHeroBackgroundImageClass, getHeroButtonRowClass, getHeroCtaHref, getHeroCtaLabel, getHeroImageClass, getHeroOverlayStyle, getHeroSecondaryCtaHref, getHeroSecondaryCtaLabel, getHeroSlideTranslations, getHeroTextAlignClass, getHeroTextColorClass, getHomeSectionOrder, getSectionBackgroundStyle, hasBanner, hasContentBlock, hasHeroVideo, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
 import { getLandingCategories } from '@/lib/store/landing-categories'
 import { getLandingCollections } from '@/lib/store/landing-collections'
 import { ContentBlock } from '@/components/storefront/shared/ContentBlock'
@@ -86,8 +86,8 @@ export function Home({
             {cfg.heroCtaEnabled && (
               <Link
                 href={getHeroCtaHref(cfg, categories)}
-                className="inline-flex items-center gap-2 border text-xs uppercase tracking-widest px-8 py-3.5 transition-colors"
-                style={{ borderColor: cfg.accentColor, color: cfg.accentColor }}
+                className="inline-flex items-center gap-2 border text-xs uppercase tracking-widest px-8 py-3.5 theme-cta-btn"
+                style={{ borderColor: cfg.accentColor, color: cfg.accentColor, '--btn-hover-bg': getButtonHoverColor(cfg), '--btn-hover-fg': cfg.buttonTextColor } as React.CSSProperties}
               >
                 {getHeroCtaLabel(cfg, t.home.heroPrimaryCta, lang)}
               </Link>

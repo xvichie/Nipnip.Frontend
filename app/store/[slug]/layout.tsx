@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { apiFetch, ApiError } from '@/lib/api'
 import { StorefrontCartProvider } from '@/lib/store/storefront-cart-context'
 import { StorefrontToastProvider } from '@/lib/store/storefront-toast-context'
-import { parseThemeConfig, parseThemeOverride } from '@/lib/store/theme-config'
+import { getButtonHoverCssVars, parseThemeConfig, parseThemeOverride } from '@/lib/store/theme-config'
 import { isThemeId, SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { buildStoreJsonLd, getStoreDescription, getStoreOgImage, getStoreOrigin, getStoreTitle } from '@/lib/store/seo'
 import { STOREFRONT_STRINGS } from '@/lib/storefront-i18n'
@@ -154,7 +154,7 @@ export default async function StoreLayout({
   const content = (
     <div
       className={`min-h-screen flex flex-col ${SURFACE_CLASSES[themeId].page} ${SURFACE_CLASSES[themeId].text} ${ALL_FONT_VARIABLE_CLASSES}`}
-      style={{ fontFamily: getFontFamily(tokens.font) }}
+      style={{ fontFamily: getFontFamily(tokens.font), ...getButtonHoverCssVars(tokens) }}
     >
       <JsonLd data={buildStoreJsonLd(slug, store, tokens)} />
       <PageViewTracker slug={slug} />

@@ -5,18 +5,21 @@ import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { useStorefrontLanguage } from './StorefrontLanguageProvider'
-import type { ProductDetailResponse } from '@/lib/types/storefront'
+import { getButtonHoverColor } from '@/lib/store/theme-config'
+import type { ProductDetailResponse, ThemeConfig } from '@/lib/types/storefront'
 
 type Status = 'idle' | 'pending' | 'added'
 
 export function QuickAddButton({
   slug,
   productSlug,
+  tokens,
   className,
   style,
 }: {
   slug: string
   productSlug: string
+  tokens: Required<ThemeConfig>
   className: string
   style?: React.CSSProperties
 }) {
@@ -60,8 +63,8 @@ export function QuickAddButton({
       disabled={status === 'pending'}
       aria-label={t.quickAdd.ariaLabel}
       title={t.quickAdd.title}
-      className={className}
-      style={style}
+      className={`${className} theme-cta-btn`}
+      style={{ ...style, '--btn-hover-bg': getButtonHoverColor(tokens) } as React.CSSProperties}
     >
       {status === 'pending' ? (
         <>

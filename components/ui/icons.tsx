@@ -255,6 +255,93 @@ export function ClearFormatIcon({ className }: IconProps) {
   )
 }
 
+export function SwatchIcon({ className }: IconProps) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <circle cx="4.5" cy="4.5" r="2.5" stroke="currentColor" strokeWidth="1.3"/>
+      <circle cx="9.5" cy="4.5" r="2.5" stroke="currentColor" strokeWidth="1.3"/>
+      <circle cx="7" cy="9" r="2.5" stroke="currentColor" strokeWidth="1.3"/>
+    </svg>
+  )
+}
+
+export function PaletteIcon({ className }: IconProps) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <path d="M7 1.3a5.7 5.7 0 1 0 0 11.4c.7 0 1.1-.6.8-1.2-.2-.3-.1-.8.3-1 .3-.1.6-.1.9 0 .5.3 1.2.1 1.4-.5.5-1.7.2-3.7-1.1-5.2C8.2 3.6 7 3.3 7 1.3Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
+      <circle cx="4.5" cy="6" r="0.8" fill="currentColor"/>
+      <circle cx="6" cy="3.8" r="0.8" fill="currentColor"/>
+      <circle cx="4.3" cy="8.7" r="0.8" fill="currentColor"/>
+    </svg>
+  )
+}
+
+export function ImageIcon({ className }: IconProps) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <rect x="1.5" y="2.5" width="11" height="9" rx="1.3" stroke="currentColor" strokeWidth="1.3"/>
+      <circle cx="5" cy="5.5" r="1.1" stroke="currentColor" strokeWidth="1.1"/>
+      <path d="M1.8 9.5l3-2.7 2.3 2 2.7-2.3 2.2 1.9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function HeaderBarIcon({ className }: IconProps) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <rect x="1.5" y="1.5" width="11" height="11" rx="1.3" stroke="currentColor" strokeWidth="1.3"/>
+      <path d="M1.5 5h11" stroke="currentColor" strokeWidth="1.3"/>
+      <circle cx="3.3" cy="3.3" r="0.5" fill="currentColor"/>
+    </svg>
+  )
+}
+
+export function HeroSectionIcon({ className }: IconProps) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <rect x="1.5" y="1.5" width="11" height="11" rx="1.3" stroke="currentColor" strokeWidth="1.3"/>
+      <circle cx="4.5" cy="4.8" r="1" stroke="currentColor" strokeWidth="1.1"/>
+      <path d="M1.8 9.8l2.7-2.5 2 1.7 2.8-2.8 2.4 2.1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function BannerIcon({ className }: IconProps) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <path d="M2.5 1.5v11" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+      <path d="M2.5 2h8.2l-1.6 2.3L10.7 6.6H2.5" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function ButtonIcon({ className }: IconProps) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <rect x="1.5" y="4.5" width="11" height="5" rx="2.5" stroke="currentColor" strokeWidth="1.3"/>
+      <circle cx="7" cy="7" r="1" fill="currentColor"/>
+    </svg>
+  )
+}
+
+export function StackIcon({ className }: IconProps) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <rect x="2.5" y="1.5" width="9" height="6" rx="1" stroke="currentColor" strokeWidth="1.2"/>
+      <path d="M1.5 6.3v4.2a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V8.6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function TagBadgeIcon({ className }: IconProps) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <path d="M7.7 1.5H2.5a1 1 0 0 0-1 1v5.2a1 1 0 0 0 .3.7l5.8 5.8a1 1 0 0 0 1.4 0l4.2-4.2a1 1 0 0 0 0-1.4l-5.8-5.8a1 1 0 0 0-.7-.3Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
+      <circle cx="4.5" cy="4.5" r="0.9" fill="currentColor"/>
+    </svg>
+  )
+}
+
 export function ExternalLinkIcon({ className }: IconProps) {
   return (
     <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>

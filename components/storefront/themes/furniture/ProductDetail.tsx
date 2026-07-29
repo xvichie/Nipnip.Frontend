@@ -8,6 +8,7 @@ import { Breadcrumbs } from '@/components/storefront/shared/Breadcrumbs'
 import { SizeGuideModal } from '@/components/storefront/shared/SizeGuideModal'
 import { StickyAddToCartBar } from '@/components/storefront/shared/StickyAddToCartBar'
 import { ProductCard } from './ProductCard'
+import { getButtonHoverColor, shadeColor } from '@/lib/store/theme-config'
 import type { CategoryResponse, ProductDetailResponse, ThemeConfig } from '@/lib/types/storefront'
 import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
 import { getCategoryName, getProductDescription, getProductName, getThemeText, getTrustBadgeText } from '@/lib/store/translations'
@@ -194,8 +195,8 @@ export function ProductDetail({
             type="button"
             disabled={!canAddToCart}
             onClick={handleAddToCart}
-            className="w-full py-4 text-sm font-semibold uppercase tracking-wide transition-opacity mb-8 disabled:opacity-40 disabled:cursor-not-allowed text-white hover:opacity-90"
-            style={{ backgroundColor: added ? '#2d6a2d' : tokens.accentColor }}
+            className="w-full py-4 text-sm font-semibold uppercase tracking-wide mb-8 disabled:opacity-40 disabled:cursor-not-allowed theme-cta-btn"
+            style={{ backgroundColor: added ? '#2d6a2d' : tokens.accentColor, color: tokens.buttonTextColor, '--btn-hover-bg': added ? shadeColor('#2d6a2d', -15) : getButtonHoverColor(tokens) } as React.CSSProperties}
           >
             {added
               ? t.product.addedToCart
@@ -271,7 +272,7 @@ export function ProductDetail({
           addedLabel={added ? t.product.addedToCart : null}
           label={!selectionComplete ? t.product.chooseVariant : stock !== null && stock < 1 ? t.product.outOfStock : t.product.addToCart}
           onAdd={handleAddToCart}
-          accentColor={tokens.accentColor}
+          tokens={tokens}
         />
       )}
     </div>

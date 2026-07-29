@@ -7,7 +7,7 @@ import { getStoreRef } from '@/lib/store/referral'
 import { trackPurchase } from '@/lib/store/tracking-pixels'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { SURFACE_CLASSES } from '@/lib/storefront-themes'
-import { getRadiusClass } from '@/lib/store/theme-config'
+import { getButtonHoverColor, getRadiusClass } from '@/lib/store/theme-config'
 import { getPageTitle, getThemeText, resolveThemeText } from '@/lib/store/translations'
 import { LocationPicker } from './LocationPicker'
 import type { PaymentMethod, StorePageResponse, ThemeConfig, ThemeId } from '@/lib/types/storefront'
@@ -530,8 +530,8 @@ export function Checkout({
             <button
               type="submit"
               disabled={checkout.isPending || (tosRequired && !tosAccepted) || !meetsMinOrder || enabledPaymentOptions.length === 0}
-              className={`py-4 text-white text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-90 disabled:opacity-40 ${radius}`}
-              style={{ backgroundColor: tokens.accentColor }}
+              className={`py-4 text-white text-sm font-semibold uppercase tracking-wide disabled:opacity-40 ${radius} theme-cta-btn`}
+              style={{ backgroundColor: tokens.accentColor, '--btn-hover-bg': getButtonHoverColor(tokens) } as React.CSSProperties}
             >
               {checkout.isPending ? t.checkout.submitPending : t.checkout.submitIdle}
             </button>

@@ -8,7 +8,7 @@ import { Breadcrumbs } from '@/components/storefront/shared/Breadcrumbs'
 import { SizeGuideModal } from '@/components/storefront/shared/SizeGuideModal'
 import { StickyAddToCartBar } from '@/components/storefront/shared/StickyAddToCartBar'
 import { ProductCard } from './ProductCard'
-import { glowShadow } from '@/lib/store/theme-config'
+import { getButtonHoverColor, glowShadow, shadeColor } from '@/lib/store/theme-config'
 import type { CategoryResponse, ProductDetailResponse, ThemeConfig } from '@/lib/types/storefront'
 import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
 import { getCategoryName, getProductDescription, getProductName, getThemeText, getTrustBadgeText } from '@/lib/store/translations'
@@ -201,8 +201,13 @@ export function ProductDetail({
               type="button"
               disabled={!canAddToCart}
               onClick={handleAddToCart}
-              className="w-full py-4 text-sm font-black uppercase tracking-wide transition-transform hover:scale-[1.02] mb-8 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 text-[#0d0f0d]"
-              style={{ backgroundColor: added ? '#2d6a2d' : tokens.accentColor, boxShadow: added ? 'none' : glowShadow(tokens.accentColor, '88'), color: added ? '#fff' : '#0d0f0d' }}
+              className="w-full py-4 text-sm font-black uppercase tracking-wide mb-8 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 theme-cta-btn"
+              style={{
+                backgroundColor: added ? '#2d6a2d' : tokens.accentColor,
+                boxShadow: added ? 'none' : glowShadow(tokens.accentColor, '88'),
+                color: added ? '#fff' : '#0d0f0d',
+                '--btn-hover-bg': added ? shadeColor('#2d6a2d', -15) : getButtonHoverColor(tokens),
+              } as React.CSSProperties}
             >
               {added
                 ? t.product.addedToCart
@@ -280,7 +285,7 @@ export function ProductDetail({
           addedLabel={added ? t.product.addedToCart : null}
           label={!selectionComplete ? t.product.chooseVariant : stock !== null && stock < 1 ? t.product.outOfStock : t.product.addToCart}
           onAdd={handleAddToCart}
-          accentColor={tokens.accentColor}
+          tokens={tokens}
         />
       )}
     </div>

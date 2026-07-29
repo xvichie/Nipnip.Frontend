@@ -32,6 +32,29 @@
 .animate-modal-panel-in  { animation: modal-panel-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .animate-modal-panel-out { animation: modal-panel-out 0.15s ease-in both; }
 
+/* Site-wide storefront button hover system — the --btn-hover-* custom properties are set once on
+   the storefront's root wrapper (app/store/[slug]/layout.tsx, via getButtonHoverCssVars) from the
+   merchant's chosen animation/duration, and inherit down to every .theme-cta-btn through normal
+   CSS cascade. Only one of scale/lift/brightness ever deviates from identity at a time — see
+   getButtonHoverCssVars — so this single rule covers every animation choice, including "none". */
+.theme-cta-btn {
+  transition-property: transform, filter, background-color, color, border-color;
+  transition-duration: var(--btn-hover-duration, 150ms);
+  transition-timing-function: ease-out;
+}
+.theme-cta-btn:hover {
+  transform: scale(var(--btn-hover-scale, 1)) translateY(var(--btn-hover-lift, 0px));
+  filter: brightness(var(--btn-hover-brightness, 1));
+  /* --btn-hover-bg is set inline per-button (getButtonHoverColor(tokens)) since the "resting"
+     color it hovers FROM differs per button; `revert` is a true no-op when a button carries this
+     class without setting the var, rather than falling back to a fixed color. */
+  background-color: var(--btn-hover-bg, revert);
+  /* --btn-hover-fg: only needed by outline/border buttons that fill in with --btn-hover-bg on
+     hover (e.g. the hero secondary button) so their text stays readable against the new
+     background; `revert` is a no-op for every button that doesn't set it. */
+  color: var(--btn-hover-fg, revert);
+}
+
 @theme inline {
   --font-sans:    var(--font-bpg), sans-serif;
   --font-display: var(--font-bpg), sans-serif;

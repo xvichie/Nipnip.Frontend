@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState, type RefObject } from 'react'
+import { getButtonHoverColor } from '@/lib/store/theme-config'
+import type { ThemeConfig } from '@/lib/types/storefront'
 
 // Shown only on small screens, once the real add-to-cart button (passed in via `triggerRef`)
 // has scrolled out of view — driven by IntersectionObserver rather than a scroll-position
@@ -13,7 +15,7 @@ export function StickyAddToCartBar({
   addedLabel,
   label,
   onAdd,
-  accentColor,
+  tokens,
 }: {
   triggerRef: RefObject<HTMLElement | null>
   productName: string
@@ -22,7 +24,7 @@ export function StickyAddToCartBar({
   addedLabel: string | null
   label: string
   onAdd: () => void
-  accentColor: string
+  tokens: Required<ThemeConfig>
 }) {
   const [visible, setVisible] = useState(false)
 
@@ -46,8 +48,8 @@ export function StickyAddToCartBar({
         type="button"
         disabled={disabled}
         onClick={onAdd}
-        className="shrink-0 px-5 py-2.5 rounded-full text-white text-xs font-semibold uppercase tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
-        style={{ backgroundColor: accentColor }}
+        className="shrink-0 px-5 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wide disabled:opacity-40 disabled:cursor-not-allowed theme-cta-btn"
+        style={{ backgroundColor: tokens.accentColor, color: tokens.buttonTextColor, '--btn-hover-bg': getButtonHoverColor(tokens) } as React.CSSProperties}
       >
         {addedLabel ?? label}
       </button>

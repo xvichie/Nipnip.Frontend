@@ -8,6 +8,11 @@ export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   translations: {},
   defaultLanguage: 'ka',
   accentColor: '#111111',
+  buttonTextColor: '#ffffff',
+  secondaryColor: '#111111',
+  buttonHoverAnimation: 'scale',
+  buttonHoverColor: '',
+  buttonHoverDurationMs: 150,
   font: 'sans',
   cornerRadius: 'theme',
   sectionBackgroundColors: {},
@@ -585,4 +590,38 @@ export function getContrastTextColor(hex: string): string {
 export function glowShadow(hex: string, alphaHex = '55'): string {
   const clean = hex.replace('#', '')
   return /^[0-9a-fA-F]{6}$/.test(clean) ? `0 0 32px 0 #${clean}${alphaHex}` : 'none'
+}
+
+/**
+ * CSS custom properties for the site-wide button hover system — set once on the storefront's
+ * root wrapper (app/store/[slug]/layout.tsx) so every `.theme-cta-btn` descendant picks them up
+ * through normal CSS inheritance, instead of every button needing its own computed style. Only
+ * one of scale/lift/brightness ever deviates from its identity value at a time, matching
+ * `buttonHoverAnimation` being a single choice, not independent toggles.
+ */
+export function getButtonHoverCssVars(tokens: Required<ThemeConfig>): CSSProperties {
+  const vars: Record<string, string> = {
+    '--btn-hover-scale': '1',
+    '--btn-hover-lift': '0px',
+    '--btn-hover-brightness': '1',
+    '--btn-hover-duration': `${tokens.buttonHoverDurationMs}ms`,
+  }
+  switch (tokens.buttonHoverAnimation) {
+    case 'scale': vars['--btn-hover-scale'] = '1.04'; break
+    case 'lift': vars['--btn-hover-lift'] = '-3px'; break
+    case 'brighten': vars['--btn-hover-brightness'] = '1.12'; break
+    case 'darken': vars['--btn-hover-brightness'] = '0.88'; break
+    case 'none': break
+  }
+  return vars as CSSProperties
+}
+
+/**
+ * The button hover background color — the merchant's explicit choice, applied to every button
+ * regardless of its resting color, or (when left empty) a darkened shade of that specific
+ * button's own resting color — `baseColor` defaults to accentColor (the common case) but the
+ * hero secondary button passes secondaryColor instead, since it isn't accent-colored.
+ */
+export function getButtonHoverColor(tokens: Required<ThemeConfig>, baseColor: string = tokens.accentColor): string {
+  return tokens.buttonHoverColor || shadeColor(baseColor, -15)
 }

@@ -203,8 +203,13 @@ export function ProductDetail({
               type="button"
               disabled={!canAddToCart}
               onClick={handleAddToCart}
-              className="w-full py-4 rounded-full text-sm font-bold uppercase tracking-wide transition-transform hover:scale-[1.02] mb-8 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 text-white"
-              style={{ background: added ? '#2d6a2d' : gradient, boxShadow: added ? 'none' : glowShadow(tokens.accentColor, '88') }}
+              className="w-full py-4 rounded-full text-sm font-bold uppercase tracking-wide mb-8 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 theme-cta-btn"
+              style={{
+                background: added ? '#2d6a2d' : gradient,
+                color: tokens.buttonTextColor,
+                boxShadow: added ? 'none' : glowShadow(tokens.accentColor, '88'),
+                '--btn-hover-bg': added ? shadeColor('#2d6a2d', -15) : undefined,
+              } as React.CSSProperties}
             >
               {added
                 ? t.product.addedToCart
@@ -282,7 +287,7 @@ export function ProductDetail({
           addedLabel={added ? t.product.addedToCart : null}
           label={!selectionComplete ? t.product.chooseVariant : stock !== null && stock < 1 ? t.product.outOfStock : t.product.addToCart}
           onAdd={handleAddToCart}
-          accentColor={tokens.accentColor}
+          tokens={tokens}
         />
       )}
     </div>
