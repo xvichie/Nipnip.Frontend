@@ -7,6 +7,7 @@ import { ProductPickerGrid } from './ProductPickerGrid'
 import { IconButton } from '@/components/ui/IconButton'
 import { EditIcon, PlusIcon, TrashIcon, XIcon } from '@/components/ui/icons'
 import { uploadImage } from '@/lib/uploadImage'
+import { useAnimatedModal } from '@/lib/useAnimatedModal'
 import type { BundleItemInput, ProductBundleResponse, ProductSummaryResponse } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
 
@@ -34,6 +35,7 @@ function BundleModal({
   onClose: () => void
 }) {
   const isEditing = !!bundle
+  const { closing, close } = useAnimatedModal(onClose)
   const { mutate: createBundle, isPending: isCreating, error: createError } = useCreateBundle()
   const { mutate: updateBundle, isPending: isSaving, error: updateError } = useUpdateBundle()
 
@@ -84,21 +86,21 @@ function BundleModal({
       items: items.map(i => ({ productId: i.productId, quantity: i.quantity })) as BundleItemInput[],
     }
     if (isEditing) {
-      updateBundle({ id: bundle.id, body }, { onSuccess: onClose })
+      updateBundle({ id: bundle.id, body }, { onSuccess: close })
     } else {
-      createBundle(body, { onSuccess: onClose })
+      createBundle(body, { onSuccess: close })
     }
   }
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative w-full max-w-2xl rounded-2xl border border-white/10 bg-[#14141c] flex flex-col overflow-hidden max-h-[90vh]">
+      <div className={`absolute inset-0 bg-black/60 ${closing ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop-in'}`} onClick={close} />
+      <div className={`relative w-full max-w-2xl rounded-2xl border border-white/10 bg-[#14141c] flex flex-col overflow-hidden max-h-[90vh] ${closing ? 'animate-modal-panel-out' : 'animate-modal-panel-in'}`}>
         <div className="flex items-center justify-between px-6 pt-6 pb-2 shrink-0">
           <h3 className="text-lg font-bold text-white">{isEditing ? 'ბანდლის რედაქტირება' : 'ახალი ბანდლი'}</h3>
           <button
             type="button"
-            onClick={onClose}
+            onClick={close}
             aria-label="დახურვა"
             className="w-8 h-8 flex items-center justify-center rounded-lg text-white/40 hover:text-white hover:bg-white/8 transition-colors"
           >
@@ -232,7 +234,7 @@ function BundleModal({
           >
             {isPending ? <span className="loading loading-spinner loading-sm" /> : isEditing ? 'შენახვა' : 'ბანდლის შექმნა'}
           </button>
-          <button type="button" onClick={onClose} className="btn bg-white/4 border-white/8 text-white/60 hover:text-white">
+          <button type="button" onClick={close} className="btn bg-white/4 border-white/8 text-white/60 hover:text-white">
             გაუქმება
           </button>
         </div>

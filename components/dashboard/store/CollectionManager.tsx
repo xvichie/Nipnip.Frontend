@@ -14,6 +14,7 @@ import { TranslatedNameInput, hasAnyTranslatedName, type TranslatedNameValue } f
 import { IconButton } from '@/components/ui/IconButton'
 import { ReorderButtons } from '@/components/ui/ReorderButtons'
 import { EditIcon, PlusIcon, TrashIcon, XIcon } from '@/components/ui/icons'
+import { useAnimatedModal } from '@/lib/useAnimatedModal'
 import type { CollectionResponse, ProductSummaryResponse } from '@/lib/types/storefront'
 import { CImg } from '@/components/ui/CImg'
 
@@ -37,6 +38,7 @@ function CollectionModal({
   collection?: CollectionResponse
   onClose: () => void
 }) {
+  const { closing, close } = useAnimatedModal(onClose)
   const { mutate: createCollection, isPending: isCreating, error: createError } = useCreateCollection()
   const { mutate: updateCollection, isPending: isSaving, error: updateError } = useUpdateCollection()
 
@@ -101,13 +103,13 @@ function CollectionModal({
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative w-full max-w-2xl rounded-2xl border border-white/10 bg-[#14141c] flex flex-col overflow-hidden max-h-[90vh]">
+      <div className={`absolute inset-0 bg-black/60 ${closing ? 'animate-modal-backdrop-out' : 'animate-modal-backdrop-in'}`} onClick={close} />
+      <div className={`relative w-full max-w-2xl rounded-2xl border border-white/10 bg-[#14141c] flex flex-col overflow-hidden max-h-[90vh] ${closing ? 'animate-modal-panel-out' : 'animate-modal-panel-in'}`}>
         <div className="flex items-center justify-between px-6 pt-6 pb-2 shrink-0">
           <h3 className="text-lg font-bold text-white">{collection ? 'კოლექციის რედაქტირება' : 'ახალი კოლექცია'}</h3>
           <button
             type="button"
-            onClick={onClose}
+            onClick={close}
             aria-label="დახურვა"
             className="w-8 h-8 flex items-center justify-center rounded-lg text-white/40 hover:text-white hover:bg-white/8 transition-colors"
           >
