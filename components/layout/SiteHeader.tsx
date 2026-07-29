@@ -63,6 +63,67 @@ function CreateStoreDropdown() {
             </p>
           </div>
 
+          {/* Divider + Coming soon */}
+          <div className="border-t border-white/6 px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white/50 text-xs font-medium">მეტი ინდუსტრია მალე</p>
+                <p className="text-white/25 text-[10px] mt-0.5">ტანსაცმელი, ელექტრონიკა, საკვები…</p>
+              </div>
+              <span className="text-[9px] font-bold px-2 py-1 rounded-full border border-white/10 text-white/30 uppercase tracking-wide">
+                მალე
+              </span>
+            </div>
+          </div>
+
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ExamplesDropdown() {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const pathname = usePathname()
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className={[
+          'flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors',
+          open ? 'text-white bg-white/8' : 'text-white/50 hover:text-white hover:bg-white/5',
+        ].join(' ')}
+      >
+        მაგალითები
+        <svg
+          width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden
+          className={['transition-transform duration-200', open ? 'rotate-180' : ''].join(' ')}
+        >
+          <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+
+      {open && (
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[310px] bg-[#0f0f18] border border-white/8 rounded-2xl shadow-2xl shadow-black/60 overflow-hidden z-50">
+
+          {/* Header */}
+          <div className="px-4 pt-4 pb-3 border-b border-white/6">
+            <p className="text-white font-semibold text-sm">რეალური მაღაზიები</p>
+            <p className="text-white/40 text-xs mt-0.5 leading-relaxed">
+              ნახე როგორ გამოიყურება მაღაზია NipNip-ზე.
+            </p>
+          </div>
+
           {/* Example store card */}
           <div className="p-3">
             <p className="text-white/30 text-[10px] uppercase tracking-widest font-semibold mb-2 px-1">
@@ -100,17 +161,26 @@ function CreateStoreDropdown() {
             </Link>
           </div>
 
-          {/* Divider + Coming soon */}
-          <div className="border-t border-white/6 px-4 py-3">
-            <div className="flex items-center justify-between">
+          {/* Divider + browse all partner stores */}
+          <div className="border-t border-white/6 p-1.5">
+            <Link
+              href="/merchants"
+              onClick={() => setOpen(false)}
+              className={[
+                'flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 transition-colors',
+                pathname === '/merchants' ? 'bg-white/8' : 'hover:bg-white/5',
+              ].join(' ')}
+            >
               <div>
-                <p className="text-white/50 text-xs font-medium">მეტი ინდუსტრია მალე</p>
-                <p className="text-white/25 text-[10px] mt-0.5">ტანსაცმელი, ელექტრონიკა, საკვები…</p>
+                <p className={['text-sm font-medium', pathname === '/merchants' ? 'text-white' : 'text-white/70'].join(' ')}>
+                  ყველა პარტნიორი მაღაზია
+                </p>
+                <p className="text-white/35 text-xs mt-0.5">დაათვალიერე ცოცხალი მაღაზიები NipNip-ზე</p>
               </div>
-              <span className="text-[9px] font-bold px-2 py-1 rounded-full border border-white/10 text-white/30 uppercase tracking-wide">
-                მალე
-              </span>
-            </div>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className="text-white/25 shrink-0">
+                <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Link>
           </div>
 
         </div>
@@ -133,7 +203,7 @@ function HelpDropdown() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  const isActive = pathname === '/how-it-works' || pathname === '/faq'
+  const isActive = ['/how-it-works', '/faq', '/pricing', '/contact'].includes(pathname)
 
   const ITEMS = [
     {
@@ -149,12 +219,34 @@ function HelpDropdown() {
       ),
     },
     {
+      href: '/pricing',
+      label: 'ფასები',
+      sub: 'პაკეტები და საკომისიო განაკვეთები',
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+          <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.3"/>
+          <path d="M8 4.5v7M10 6.2c0-.9-.9-1.7-2-1.7s-2 .6-2 1.4c0 1.9 4 .9 4 2.8 0 .8-.9 1.4-2 1.4s-2-.8-2-1.7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
+    {
       href: '/faq',
       label: t.nav.faq,
       sub: 'ხშირად დასმული კითხვები',
       icon: (
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
           <path d="M2 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H6l-4 3V4z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+        </svg>
+      ),
+    },
+    {
+      href: '/contact',
+      label: 'კონტაქტი',
+      sub: 'დაგვიკავშირდი კითხვების შემთხვევაში',
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+          <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+          <path d="M2 4l6 5 6-5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       ),
     },
@@ -212,11 +304,16 @@ export function SiteHeader() {
   const { t } = useLanguage()
   const [mobileOpen, setMobileOpen] = useState(false)
 
+  // Mobile has no dropdowns, so this flat list is the single source of truth there — desktop
+  // builds its nav directly from the dropdown components below instead of filtering this array.
   const NAV_LINKS = [
+    { href: '/example-store', label: 'სადემო მაღაზია' },
+    { href: '/merchants', label: 'ყველა პარტნიორი მაღაზია' },
+    { href: '/why-us', label: 'რატომ ჩვენ' },
     { href: '/how-it-works', label: t.nav.howItWorks },
     { href: '/pricing', label: 'ფასები' },
     { href: '/faq', label: t.nav.faq },
-    { href: '/example-store', label: 'სადემო მაღაზია' },
+    { href: '/contact', label: 'კონტაქტი' },
   ]
 
   useEffect(() => setMobileOpen(false), [pathname])
@@ -230,22 +327,20 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1">
-          {NAV_LINKS.filter(({ href }) => ['/pricing'].includes(href)).map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className={[
-                'px-3 py-1.5 text-sm font-medium rounded-lg transition-colors',
-                pathname === href
-                  ? 'text-white bg-white/6'
-                  : 'text-white/50 hover:text-white hover:bg-white/5',
-              ].join(' ')}
-            >
-              {label}
-            </Link>
-          ))}
-          <HelpDropdown />
           <CreateStoreDropdown />
+          <ExamplesDropdown />
+          <Link
+            href="/why-us"
+            className={[
+              'px-3 py-1.5 text-sm font-medium rounded-lg transition-colors',
+              pathname === '/why-us'
+                ? 'text-white bg-white/6'
+                : 'text-white/50 hover:text-white hover:bg-white/5',
+            ].join(' ')}
+          >
+            რატომ ჩვენ
+          </Link>
+          <HelpDropdown />
         </nav>
 
         <div className="hidden lg:flex items-center gap-3">
