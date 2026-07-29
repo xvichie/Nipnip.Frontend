@@ -3,9 +3,17 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useMyPages, useUpdatePage } from '@/lib/queries/storefront-admin'
-import { TranslatedField, hasAnyTranslatedValue, type TranslatedFieldValue } from '@/components/dashboard/store/TranslatedField'
+import { hasAnyTranslatedValue, type TranslatedFieldValue } from '@/components/dashboard/store/TranslatedField'
+import { RichTranslatedField } from '@/components/dashboard/store/RichTranslatedField'
+import { stripHtml } from '@/lib/html'
 
 const EMPTY_TRANSLATED: TranslatedFieldValue = { ka: '', en: '', ru: '' }
+
+// Title/content are HTML now — an "empty" Tiptap doc is still "<p></p>", not "", so validity
+// needs the stripped plain-text length rather than a raw string check.
+function stripTranslated(value: TranslatedFieldValue): TranslatedFieldValue {
+  return { ka: stripHtml(value.ka), en: stripHtml(value.en), ru: stripHtml(value.ru) }
+}
 
 export default function MerchantStorePageEditPage() {
   const { pageId } = useParams<{ pageId: string }>()
@@ -25,7 +33,7 @@ export default function MerchantStorePageEditPage() {
     setContent({ ka: page.contentKa ?? '', en: page.contentEn ?? '', ru: page.contentRu ?? '' })
   }, [page])
 
-  const canSubmit = hasAnyTranslatedValue(title) && hasAnyTranslatedValue(content)
+  const canSubmit = hasAnyTranslatedValue(stripTranslated(title)) && hasAnyTranslatedValue(stripTranslated(content))
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -33,12 +41,12 @@ export default function MerchantStorePageEditPage() {
       {
         id: pageId,
         body: {
-          titleKa: title.ka.trim() || null,
-          titleEn: title.en.trim() || null,
-          titleRu: title.ru.trim() || null,
-          contentKa: content.ka.trim() || null,
-          contentEn: content.en.trim() || null,
-          contentRu: content.ru.trim() || null,
+          titleKa: stripHtml(title.ka) ? title.ka : null,
+          titleEn: stripHtml(title.en) ? title.en : null,
+          titleRu: stripHtml(title.ru) ? title.ru : null,
+          contentKa: stripHtml(content.ka) ? content.ka : null,
+          contentEn: stripHtml(content.en) ? content.en : null,
+          contentRu: stripHtml(content.ru) ? content.ru : null,
         },
       },
       { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
@@ -80,12 +88,12 @@ export default function MerchantStorePageEditPage() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="fieldset gap-2">
             <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სათაური</label>
-            <TranslatedField value={title} onChange={setTitle} />
+            <RichTranslatedField value={title} onChange={setTitle} variant="inline" />
           </div>
 
           <div className="fieldset gap-2">
             <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">შინაარსი</label>
-            <TranslatedField value={content} onChange={setContent} multiline rows={14} />
+            <RichTranslatedField value={content} onChange={setContent} variant="block" />
           </div>
 
           {error && (

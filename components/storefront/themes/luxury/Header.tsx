@@ -10,7 +10,7 @@ import { StorefrontLanguageSwitcher } from '@/components/storefront/shared/Store
 import { HeaderSearchBox } from '@/components/storefront/shared/HeaderSearchBox'
 import type { CategoryResponse, StorePageResponse, ThemeConfig } from '@/lib/types/storefront'
 import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
-import { getCategoryName, getThemeText } from '@/lib/store/translations'
+import { getCategoryName, getPageTitle, getThemeText } from '@/lib/store/translations'
 import { CImg } from '@/components/ui/CImg'
 
 export function Header({
@@ -125,7 +125,7 @@ export function Header({
                 href={`/pages/${page.slug}`}
                 className="text-xs uppercase tracking-widest text-[#1c1a17]/50 hover:text-[#1c1a17] transition-colors whitespace-nowrap"
               >
-                {page.title}
+                {getPageTitle(page, lang)}
               </Link>
             ))}
 
@@ -219,7 +219,7 @@ export function Header({
                 onClick={() => setMobileOpen(false)}
                 className="text-xs uppercase tracking-widest text-[#1c1a17]/60 py-3 border-b border-[#1c1a17]/10"
               >
-                {page.title}
+                {getPageTitle(page, lang)}
               </Link>
             ))}
             {tokens.showContactInNav && (

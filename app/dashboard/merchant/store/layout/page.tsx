@@ -6,6 +6,7 @@ import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, v
 import { CSS } from '@dnd-kit/utilities'
 import { useMyCategories, useMyCollections, useMyPages, useMyProducts, useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { DEFAULT_THEME_CONFIG, getCustomSectionId, getHomeSectionOrder, HOME_SECTION_KEYS, parseThemeConfig } from '@/lib/store/theme-config'
+import { stripHtml } from '@/lib/html'
 import { ALL_FONT_VARIABLE_CLASSES, getFontFamily } from '@/lib/storefront-fonts'
 import { getLandingCollections } from '@/lib/store/landing-collections'
 import { withSaleCategory } from '@/lib/store/sale-category'
@@ -1581,7 +1582,7 @@ export default function StoreLayoutPage() {
                       key={page.id}
                       className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5 cursor-pointer"
                     >
-                      <span className="text-sm text-white/70">{page.title}</span>
+                      <span className="text-sm text-white/70">{stripHtml(page.title)}</span>
                       <input
                         type="checkbox"
                         checked={navPageIds.includes(page.id)}
@@ -2175,7 +2176,7 @@ export default function StoreLayoutPage() {
                   >
                     <option value="">აირჩიეთ გვერდი…</option>
                     {pages.map(page => (
-                      <option key={page.id} value={page.id}>{page.title}</option>
+                      <option key={page.id} value={page.id}>{stripHtml(page.title)}</option>
                     ))}
                   </select>
                 )}

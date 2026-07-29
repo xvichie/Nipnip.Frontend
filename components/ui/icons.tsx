@@ -180,6 +180,81 @@ export function FlaskIcon({ className }: IconProps) {
   )
 }
 
+export function BoldIcon({ className }: IconProps) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <path d="M3.5 1.5h4a2.5 2.5 0 0 1 0 5h-4v-5Zm0 5h4.5a2.5 2.5 0 0 1 0 5h-4.5v-5Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function ItalicIcon({ className }: IconProps) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <path d="M8.5 1.5h-3M8.5 1.5 5.5 12.5M5.5 12.5h-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+export function UnderlineIcon({ className }: IconProps) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <path d="M3.5 1.5v5a3.5 3.5 0 0 0 7 0v-5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+      <path d="M2.5 12.5h9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+export function LinkIcon({ className }: IconProps) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <path d="M6 8a3 3 0 0 0 4.2 0l1.3-1.3a3 3 0 0 0-4.2-4.2L6.4 3.3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M8 6a3 3 0 0 0-4.2 0L2.5 7.3a3 3 0 0 0 4.2 4.2l.9-.9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function BulletListIcon({ className }: IconProps) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <circle cx="2" cy="3" r="1" fill="currentColor"/>
+      <circle cx="2" cy="7" r="1" fill="currentColor"/>
+      <circle cx="2" cy="11" r="1" fill="currentColor"/>
+      <path d="M5.5 3h7M5.5 7h7M5.5 11h7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+export function OrderedListIcon({ className }: IconProps) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <text x="0.5" y="4.3" fontSize="3.6" fill="currentColor">1</text>
+      <text x="0.5" y="8.3" fontSize="3.6" fill="currentColor">2</text>
+      <text x="0.5" y="12.3" fontSize="3.6" fill="currentColor">3</text>
+      <path d="M5.5 3h7M5.5 7h7M5.5 11h7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+export function QuoteIcon({ className }: IconProps) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <path d="M4.5 3.5c-1.4 0-2.5 1.1-2.5 2.5S3.1 8.5 4.5 8.5c0-2.5-.8-4-2-5Z" fill="currentColor"/>
+      <path d="M10 3.5c-1.4 0-2.5 1.1-2.5 2.5S8.6 8.5 10 8.5c0-2.5-.8-4-2-5Z" fill="currentColor"/>
+    </svg>
+  )
+}
+
+export function ClearFormatIcon({ className }: IconProps) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>
+      <path d="M3 1.5h8L8.5 12.5h-3L3 1.5Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
+      <path d="M1.5 1.5h11" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+      <path d="M2 12l10-10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
 export function ExternalLinkIcon({ className }: IconProps) {
   return (
     <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden className={className}>

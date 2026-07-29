@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useCreatePage, useDeletePage, useMyPages } from '@/lib/queries/storefront-admin'
-import { TranslatedField, hasAnyTranslatedValue, type TranslatedFieldValue } from '@/components/dashboard/store/TranslatedField'
+import { hasAnyTranslatedValue, type TranslatedFieldValue } from '@/components/dashboard/store/TranslatedField'
+import { RichTranslatedField } from '@/components/dashboard/store/RichTranslatedField'
+import { stripHtml } from '@/lib/html'
 
 const PRESETS = [
   'დაბრუნების პოლიტიკა',
@@ -16,6 +18,12 @@ const PRESETS = [
 
 const EMPTY_TRANSLATED: TranslatedFieldValue = { ka: '', en: '', ru: '' }
 
+// Title/content are HTML now — an "empty" Tiptap doc is still "<p></p>", not "", so validity
+// needs the stripped plain-text length rather than a raw string check.
+function stripTranslated(value: TranslatedFieldValue): TranslatedFieldValue {
+  return { ka: stripHtml(value.ka), en: stripHtml(value.en), ru: stripHtml(value.ru) }
+}
+
 export default function MerchantStorePagesPage() {
   const { data: pages, isLoading } = useMyPages()
   const { mutate: createPage, isPending: isCreating, error: createError } = useCreatePage()
@@ -24,18 +32,18 @@ export default function MerchantStorePagesPage() {
   const [title, setTitle] = useState<TranslatedFieldValue>(EMPTY_TRANSLATED)
   const [content, setContent] = useState<TranslatedFieldValue>(EMPTY_TRANSLATED)
 
-  const canSubmit = hasAnyTranslatedValue(title) && hasAnyTranslatedValue(content)
+  const canSubmit = hasAnyTranslatedValue(stripTranslated(title)) && hasAnyTranslatedValue(stripTranslated(content))
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     createPage(
       {
-        titleKa: title.ka.trim() || null,
-        titleEn: title.en.trim() || null,
-        titleRu: title.ru.trim() || null,
-        contentKa: content.ka.trim() || null,
-        contentEn: content.en.trim() || null,
-        contentRu: content.ru.trim() || null,
+        titleKa: stripHtml(title.ka) ? title.ka : null,
+        titleEn: stripHtml(title.en) ? title.en : null,
+        titleRu: stripHtml(title.ru) ? title.ru : null,
+        contentKa: stripHtml(content.ka) ? content.ka : null,
+        contentEn: stripHtml(content.en) ? content.en : null,
+        contentRu: stripHtml(content.ru) ? content.ru : null,
       },
       { onSuccess: () => { setTitle(EMPTY_TRANSLATED); setContent(EMPTY_TRANSLATED) } }
     )
@@ -66,7 +74,7 @@ export default function MerchantStorePagesPage() {
                 className="flex items-center justify-between gap-3 rounded-xl bg-white/2 border border-white/5 px-4 py-2.5"
               >
                 <div className="min-w-0 flex-1">
-                  <span className="text-sm font-medium text-white">{page.title}</span>
+                  <span className="text-sm font-medium text-white">{stripHtml(page.title)}</span>
                   <span className="text-white/25 text-xs ml-1.5">/{page.slug}</span>
                 </div>
                 <div className="flex gap-2 shrink-0">
@@ -78,7 +86,7 @@ export default function MerchantStorePagesPage() {
                   </Link>
                   <button
                     type="button"
-                    onClick={() => handleDelete(page.id, page.title)}
+                    onClick={() => handleDelete(page.id, stripHtml(page.title))}
                     disabled={isDeleting}
                     className="btn btn-xs bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40"
                   >
@@ -106,8 +114,8 @@ export default function MerchantStorePagesPage() {
             ))}
           </div>
 
-          <TranslatedField value={title} onChange={setTitle} placeholders={{ ka: 'გვერდის სათაური' }} />
-          <TranslatedField value={content} onChange={setContent} placeholders={{ ka: 'გვერდის შინაარსი' }} multiline rows={5} />
+          <RichTranslatedField value={title} onChange={setTitle} placeholders={{ ka: 'გვერდის სათაური' }} variant="inline" />
+          <RichTranslatedField value={content} onChange={setContent} placeholders={{ ka: 'გვერდის შინაარსი' }} variant="block" />
 
           {createError && <p className="text-error text-xs">გვერდის შექმნა ვერ მოხერხდა.</p>}
           <button

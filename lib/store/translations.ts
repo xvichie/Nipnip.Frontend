@@ -1,5 +1,6 @@
 import type { StorefrontLanguage } from '@/lib/storefront-i18n'
 import type { ThemeConfig, TranslatableThemeText } from '@/lib/types/storefront'
+import { stripHtml } from '@/lib/html'
 
 // Every translatable entity follows the same shape: a resolved `name` (the backend's ka -> en ->
 // ru fallback, always non-empty) plus optional per-language overrides. A resolver like this one
@@ -67,7 +68,26 @@ export function getOptionValueName(
   return value.value
 }
 
+// Page title/content are authored as rich-text HTML (Tiptap, in the merchant dashboard) — these
+// two return plain text, stripped of markup, for every context that reuses them as a label rather
+// than rendering them as markup (nav menu links, the browser <title> tag, JSON-LD breadcrumbs,
+// meta descriptions, the admin pages list). Use getPageTitleHtml/getPageContentHtml instead
+// wherever the actual formatted page is rendered.
 export function getPageTitle(
+  page: { title: string; titleEn?: string | null; titleRu?: string | null },
+  lang: StorefrontLanguage
+): string {
+  return stripHtml(getPageTitleHtml(page, lang))
+}
+
+export function getPageContent(
+  page: { content: string; contentEn?: string | null; contentRu?: string | null },
+  lang: StorefrontLanguage
+): string {
+  return stripHtml(getPageContentHtml(page, lang))
+}
+
+export function getPageTitleHtml(
   page: { title: string; titleEn?: string | null; titleRu?: string | null },
   lang: StorefrontLanguage
 ): string {
@@ -76,7 +96,7 @@ export function getPageTitle(
   return page.title
 }
 
-export function getPageContent(
+export function getPageContentHtml(
   page: { content: string; contentEn?: string | null; contentRu?: string | null },
   lang: StorefrontLanguage
 ): string {

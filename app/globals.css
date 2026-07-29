@@ -1,6 +1,18 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+/* Tiptap's placeholder extension marks the empty node/editor with these classes and reads the
+   label from data-placeholder — there's no utility-class equivalent for a pseudo-element's
+   `content`, so this lives here rather than as an inline Tailwind class. */
+.tiptap.is-editor-empty:first-child::before,
+.tiptap p.is-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: rgba(255, 255, 255, 0.25);
+}
+
 @theme inline {
   --font-sans:    var(--font-bpg), sans-serif;
   --font-display: var(--font-bpg), sans-serif;

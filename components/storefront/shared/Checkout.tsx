@@ -8,7 +8,7 @@ import { trackPurchase } from '@/lib/store/tracking-pixels'
 import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { SURFACE_CLASSES } from '@/lib/storefront-themes'
 import { getRadiusClass } from '@/lib/store/theme-config'
-import { getThemeText, resolveThemeText } from '@/lib/store/translations'
+import { getPageTitle, getThemeText, resolveThemeText } from '@/lib/store/translations'
 import { LocationPicker } from './LocationPicker'
 import type { PaymentMethod, StorePageResponse, ThemeConfig, ThemeId } from '@/lib/types/storefront'
 import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
@@ -513,7 +513,7 @@ export function Checkout({
                 <span>
                   {t.checkout.tosPrefix}{' '}
                   <Link href={`/pages/${tosPage.slug}`} target="_blank" className="underline underline-offset-2">
-                    {tosPage.title}
+                    {getPageTitle(tosPage, lang)}
                   </Link>
                 </span>
               </label>
