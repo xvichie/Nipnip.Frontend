@@ -575,6 +575,30 @@ export function shadeColor(hex: string, percent: number): string {
   return '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1)
 }
 
+// WCAG 2.x relative luminance (sRGB, gamma-corrected) — used for getContrastRatio below.
+// Distinct from getContrastTextColor's cheap perceptual-luminance shortcut, since an actual
+// ratio number needs the real formula to mean anything against the 4.5:1 / 3:1 AA thresholds.
+function relativeLuminance(hex: string): number {
+  const clean = hex.replace('#', '')
+  const channel = (i: number) => {
+    const c = parseInt(clean.slice(i, i + 2), 16) / 255
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  }
+  return 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4)
+}
+
+/** WCAG contrast ratio (1–21) between two hex colors. Returns null for invalid input. */
+export function getContrastRatio(hexA: string, hexB: string): number | null {
+  const cleanA = hexA.replace('#', '')
+  const cleanB = hexB.replace('#', '')
+  if (!/^[0-9a-fA-F]{6}$/.test(cleanA) || !/^[0-9a-fA-F]{6}$/.test(cleanB)) return null
+  const lA = relativeLuminance(hexA)
+  const lB = relativeLuminance(hexB)
+  const lighter = Math.max(lA, lB)
+  const darker = Math.min(lA, lB)
+  return (lighter + 0.05) / (darker + 0.05)
+}
+
 // Picks readable black/white text for an arbitrary merchant-chosen background color
 // (e.g. the announcement bar) so there's no separate text-color decision to make.
 export function getContrastTextColor(hex: string): string {

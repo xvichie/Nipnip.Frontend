@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactElement } from 'react'
 import { useMyCategories, useMyCollections, useMyPages, useMyProducts, useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
 import { uploadImage, uploadVideo } from '@/lib/uploadImage'
-import { BANNER_PATTERNS, DEFAULT_THEME_CONFIG, HERO_TEXT_POSITIONS, parseThemeConfig, shadeColor } from '@/lib/store/theme-config'
+import { BANNER_PATTERNS, DEFAULT_THEME_CONFIG, getContrastRatio, HERO_TEXT_POSITIONS, parseThemeConfig, shadeColor } from '@/lib/store/theme-config'
 import { ALL_FONT_VARIABLE_CLASSES, FONT_OPTIONS, getFontOption, type FontCategory } from '@/lib/storefront-fonts'
 import { getThemeDefinition, isThemeId, SURFACE_CLASSES, THEME_CATEGORIES, THEMES, type ThemeCategory } from '@/lib/storefront-themes'
 import { StorefrontCartProvider } from '@/lib/store/storefront-cart-context'
@@ -121,6 +121,18 @@ const PLACEHOLDER_PRODUCTS: ProductSummaryResponse[] = [
   { id: 'preview-3', slug: 'preview-3', categoryId: null, name: 'ბესთსელერი', nameKa: 'ბესთსელერი', nameEn: null, nameRu: null, basePrice: 129.5, salePrice: 99.5, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
   { id: 'preview-4', slug: 'preview-4', categoryId: null, name: 'ახალი ჩამოსვლა', nameKa: 'ახალი ჩამოსვლა', nameEn: null, nameRu: null, basePrice: 34, salePrice: null, isActive: true, thumbnailUrl: null, createdAt: new Date().toISOString(), collectionIds: [] },
 ]
+
+// Order-independent equality for the unsaved-changes check below — a plain JSON.stringify
+// comparison would false-positive whenever an object's key insertion order merely differs
+// between the hydrated baseline and the freshly-built current snapshot (e.g. sectionBackgroundColors).
+function deepEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true
+  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false
+  const aKeys = Object.keys(a as Record<string, unknown>)
+  const bKeys = Object.keys(b as Record<string, unknown>)
+  if (aKeys.length !== bKeys.length) return false
+  return aKeys.every(key => deepEqual((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key]))
+}
 
 function ImageField({
   label,
@@ -340,6 +352,90 @@ function ButtonHoverAnimationPicker({
             style={{ backgroundColor: accentColor, '--btn-hover-duration': '200ms', ...opt.demoStyle } as CSSProperties}
           />
           <span className={`text-[11px] font-medium ${value === opt.value ? 'text-white' : 'text-white/50'}`}>{opt.label}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// WCAG AA needs 4.5:1 for normal text, 3:1 for large/bold text — button labels are short and
+// bold, so 3:1 gets a "large text" pass instead of being flagged alongside genuinely bad pairs.
+function ContrastBadge({ foreground, background, label }: { foreground: string; background: string; label: string }) {
+  const ratio = getContrastRatio(foreground, background)
+  if (ratio === null) return null
+  const tier = ratio >= 4.5 ? 'pass' : ratio >= 3 ? 'large' : 'fail'
+  return (
+    <div
+      className={[
+        'flex items-center gap-1.5 text-[11px] rounded-md px-2 py-1 w-fit',
+        tier === 'pass' ? 'text-emerald-400 bg-emerald-500/10' : tier === 'large' ? 'text-amber-400 bg-amber-500/10' : 'text-red-400 bg-red-500/10',
+      ].join(' ')}
+    >
+      <span
+        className="w-4 h-4 rounded-full border border-white/10 flex items-center justify-center text-[9px] font-bold shrink-0"
+        style={{ backgroundColor: background, color: foreground }}
+      >
+        A
+      </span>
+      <span>
+        {label} — {ratio.toFixed(1)}:1{' '}
+        {tier === 'pass' ? 'კარგი კონტრასტი' : tier === 'large' ? 'საკმარისია მხოლოდ მსხვილი ტექსტისთვის' : 'დაბალი კონტრასტი, ძნელად საკითხავია'}
+      </span>
+    </div>
+  )
+}
+
+const DESIGN_SECTIONS: { id: string; label: string; Icon: (props: { className?: string }) => ReactElement }[] = [
+  { id: 'section-theme', label: 'თემა', Icon: SwatchIcon },
+  { id: 'section-colors', label: 'ფერები და ფონტი', Icon: PaletteIcon },
+  { id: 'section-buttons', label: 'ღილაკები', Icon: ButtonIcon },
+  { id: 'section-branding', label: 'ბრენდინგი', Icon: ImageIcon },
+  { id: 'section-header', label: 'ჰედერი', Icon: HeaderBarIcon },
+  { id: 'section-hero', label: 'ჰერო სექცია', Icon: HeroSectionIcon },
+  { id: 'section-hero-cta', label: 'ჰერო ღილაკი', Icon: ButtonIcon },
+  { id: 'section-hero-secondary-cta', label: 'ჰერო მეორადი ღილაკი', Icon: ButtonIcon },
+  { id: 'section-hero-slides', label: 'ჰერო სლაიდები', Icon: StackIcon },
+  { id: 'section-badges', label: 'პროდუქტის ბეჯები', Icon: TagBadgeIcon },
+]
+
+// A quick-jump rail so a page with this many cards doesn't feel like an endless scroll —
+// tracks which section is on screen via IntersectionObserver rather than a scroll-position
+// calculation, matching the pattern already used by StickyAddToCartBar on the storefront side.
+function SectionNav() {
+  const [active, setActive] = useState(DESIGN_SECTIONS[0].id)
+
+  useEffect(() => {
+    const elements = DESIGN_SECTIONS
+      .map(s => document.getElementById(s.id))
+      .filter((el): el is HTMLElement => el !== null)
+    const observer = new IntersectionObserver(
+      entries => {
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+        if (visible[0]) setActive(visible[0].target.id)
+      },
+      { rootMargin: '-84px 0px -70% 0px' }
+    )
+    elements.forEach(el => observer.observe(el))
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div className="sticky top-6 z-10 flex items-center gap-1 overflow-x-auto rounded-xl border border-white/7 bg-[#0b0b12]/95 backdrop-blur-md p-1.5">
+      {DESIGN_SECTIONS.map(s => (
+        <button
+          key={s.id}
+          type="button"
+          onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          className={[
+            'tooltip tooltip-bottom shrink-0 flex items-center justify-center w-8 h-8 rounded-lg transition-colors',
+            active === s.id ? 'bg-fuchsia-500/20 text-white' : 'text-white/35 hover:text-white hover:bg-white/5',
+          ].join(' ')}
+          data-tip={s.label}
+          aria-label={s.label}
+        >
+          <s.Icon />
         </button>
       ))}
     </div>
@@ -746,6 +842,50 @@ export default function StoreDesignPage() {
   const [bannerUploading, setBannerUploading] = useState(false)
   const [saved, setSaved] = useState(false)
 
+  // Baseline snapshot of every field this page owns, captured once at hydration and refreshed
+  // on every successful save — comparing the live `tokens` against this (see isDirty below) is
+  // what powers the unsaved-changes warning, instead of tracking a dirty flag per individual field.
+  const [savedSnapshot, setSavedSnapshot] = useState<(Required<ThemeConfig> & { themeId: ThemeId }) | null>(null)
+  // Mirrors `isDirty` (computed below, after the loading early-return) into a ref so the
+  // beforeunload/link-click listeners — registered once, before that early return, per the
+  // Rules of Hooks — always read the current value without re-registering on every change.
+  const isDirtyRef = useRef(false)
+
+  useEffect(() => {
+    function handleBeforeUnload(e: BeforeUnloadEvent) {
+      if (!isDirtyRef.current) return
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    // Next's <Link> does its own client-side transition on the bubble phase, so a capture-phase
+    // listener here runs first and can cancel it with preventDefault+stopPropagation before Next
+    // ever sees the click — no changes needed to the shared sidebar or any individual link.
+    function handleLinkClick(e: MouseEvent) {
+      if (!isDirtyRef.current) return
+      const anchor = (e.target as HTMLElement).closest('a')
+      if (!anchor) return
+      const href = anchor.getAttribute('href')
+      if (!href || anchor.target === '_blank') return
+      let url: URL
+      try {
+        url = new URL(href, window.location.href)
+      } catch {
+        return
+      }
+      if (url.origin !== window.location.origin || url.pathname === window.location.pathname) return
+      if (!window.confirm('გაქვთ შეუნახავი ცვლილებები დიზაინის გვერდზე — მართლა გსურთ დატოვება მათი შენახვის გარეშე?')) {
+        e.preventDefault()
+        e.stopPropagation()
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    document.addEventListener('click', handleLinkClick, true)
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      document.removeEventListener('click', handleLinkClick, true)
+    }
+  }, [])
+
   // "Adjust state during render" instead of an effect — hydrates once from the fetched
   // store, which arrives async, so there's no lazy-initializer moment to hook into. Tracked
   // via a plain "have we hydrated this mount" flag rather than comparing against the previous
@@ -907,6 +1047,7 @@ export default function StoreDesignPage() {
     setHeaderSticky(parsed.headerSticky)
     setHeaderBackgroundColor(parsed.headerBackgroundColor)
     setHeroSlides(parsed.heroSlides)
+    setSavedSnapshot({ themeId: isThemeId(store.themeId) ? store.themeId : 'minimal', ...parsed })
   }
 
   useEffect(() => {
@@ -1272,7 +1413,16 @@ export default function StoreDesignPage() {
           socialImageUrl,
         }),
       },
-      { onSuccess: () => { setSaved(true); setTimeout(() => setSaved(false), 3000) } }
+      {
+        onSuccess: () => {
+          setSaved(true)
+          setTimeout(() => setSaved(false), 3000)
+          // Captured via closure from this same render's `tokens`/`themeId` (computed further
+          // below in the function body) — safe because this callback only ever runs from a
+          // later click, well after that `const` has finished initializing for the render.
+          setSavedSnapshot({ themeId, ...tokens })
+        },
+      }
     )
   }
 
@@ -1447,6 +1597,9 @@ export default function StoreDesignPage() {
     faviconUrl,
     socialImageUrl,
   }
+  const isDirty = savedSnapshot !== null && !deepEqual({ themeId, ...tokens }, savedSnapshot)
+  isDirtyRef.current = isDirty
+
   const previewProducts = productsPage?.items.length
     ? productsPage.items
     : productsLoading ? [] : PLACEHOLDER_PRODUCTS
@@ -1559,7 +1712,9 @@ export default function StoreDesignPage() {
 
         <div className="flex flex-col gap-6">
 
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
+          <SectionNav />
+
+          <div id="section-theme" className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4 scroll-mt-20">
             <div className="flex items-center gap-2">
               <SwatchIcon className="text-white/40" />
               <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">თემა</h2>
@@ -1669,7 +1824,7 @@ export default function StoreDesignPage() {
             </div>
           )}
 
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+          <div id="section-colors" className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5 scroll-mt-20">
             <div className="flex items-center gap-2">
               <PaletteIcon className="text-white/40" />
               <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ფერები და ფონტი</h2>
@@ -1731,6 +1886,10 @@ export default function StoreDesignPage() {
                 />
               </div>
               <p className="text-white/30 text-xs mt-1">ტექსტისა და აიქონების ფერი შევსებულ, აქცენტის ფერიან ღილაკებზე.</p>
+              <div className="flex flex-col gap-1.5 mt-1">
+                <ContrastBadge foreground={buttonTextColor} background={accentColor} label="აქცენტის ღილაკზე" />
+                <ContrastBadge foreground={buttonTextColor} background={secondaryColor} label="მეორადი ღილაკის ჰოვერზე" />
+              </div>
             </div>
 
             <div className="fieldset gap-2">
@@ -1768,7 +1927,7 @@ export default function StoreDesignPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+          <div id="section-buttons" className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5 scroll-mt-20">
             <div className="flex items-center gap-2">
               <ButtonIcon className="text-white/40" />
               <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ღილაკები</h2>
@@ -1818,7 +1977,7 @@ export default function StoreDesignPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+          <div id="section-branding" className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5 scroll-mt-20">
             <div className="flex items-center gap-2">
               <ImageIcon className="text-white/40" />
               <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ბრენდინგი</h2>
@@ -1841,7 +2000,7 @@ export default function StoreDesignPage() {
             <p className="text-white/30 text-xs -mt-3">ჩნდება თქვენი მაღაზიის ბმულის სოციალურ ქსელებში ან მესენჯერებში გაზიარებისას. ცარიელი დატოვების შემთხვევაში დაბრუნდება თქვენს ჰერო სურათზე ან ლოგოზე.</p>
           </div>
 
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+          <div id="section-header" className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5 scroll-mt-20">
             <div className="flex items-center gap-2">
               <HeaderBarIcon className="text-white/40" />
               <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰედერი</h2>
@@ -1886,7 +2045,7 @@ export default function StoreDesignPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+          <div id="section-hero" className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5 scroll-mt-20">
             <div className="flex items-center gap-2">
               <HeroSectionIcon className="text-white/40" />
               <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">ჰერო სექცია</h2>
@@ -2401,7 +2560,7 @@ export default function StoreDesignPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+          <div id="section-hero-cta" className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5 scroll-mt-20">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <ButtonIcon className="text-white/40" />
@@ -2478,7 +2637,7 @@ export default function StoreDesignPage() {
             )}
           </div>
 
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+          <div id="section-hero-secondary-cta" className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5 scroll-mt-20">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <ButtonIcon className="text-white/40" />
@@ -2555,7 +2714,7 @@ export default function StoreDesignPage() {
             )}
           </div>
 
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+          <div id="section-hero-slides" className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5 scroll-mt-20">
             <div>
               <div className="flex items-center gap-2">
                 <StackIcon className="text-white/40" />
@@ -2591,7 +2750,7 @@ export default function StoreDesignPage() {
             <IconButton icon={<PlusIcon />} label="სლაიდის დამატება" onClick={addHeroSlide} size="sm" className="self-start" />
           </div>
 
-          <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
+          <div id="section-badges" className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5 scroll-mt-20">
             <div>
               <div className="flex items-center gap-2">
                 <TagBadgeIcon className="text-white/40" />
@@ -2713,11 +2872,17 @@ export default function StoreDesignPage() {
             წარმატებით შეინახა
           </div>
         )}
+        {!error && !saved && isDirty && (
+          <div className="flex-1 flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-sm text-amber-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+            შეუნახავი ცვლილებები
+          </div>
+        )}
         <button
           type="button"
           onClick={handleSave}
           disabled={isPending}
-          className={`btn gap-2 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40 ${error || saved ? '' : 'w-full'}`}
+          className={`btn gap-2 bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40 ${error || saved || isDirty ? '' : 'w-full'}`}
         >
           {isPending ? <span className="loading loading-spinner loading-sm" /> : 'თემის შენახვა'}
         </button>
