@@ -59,14 +59,6 @@ const SPARKLES = [
 export default function LandingPage() {
   const { t } = useLanguage()
 
-  const HERO_BENEFITS = [
-    { icon: STORE_ICON, label: t.landing.heroBenefitStore },
-    { icon: INVENTORY_ICON, label: t.landing.heroBenefitInventory },
-    { icon: INTEGRATIONS_ICON, label: t.landing.heroBenefitIntegrations },
-    { icon: AI_AGENT_ICON, label: t.landing.heroBenefitAi },
-    { icon: AFFILIATE_ICON, label: t.landing.heroBenefitAffiliate },
-  ]
-
   const STEPS = [
     { n: '01', icon: '✦', title: t.landing.step1Title, body: t.landing.step1Body },
     { n: '02', icon: '⬡', title: t.landing.step2Title, body: t.landing.step2Body },
@@ -115,21 +107,9 @@ export default function LandingPage() {
               </span>
             </h1>
 
-            <p className="text-white/45 text-lg lg:text-xl max-w-lg leading-relaxed font-light">
+            <p className="text-white/45 text-base lg:text-lg max-w-lg leading-relaxed font-light">
               {t.landing.tagline}
             </p>
-
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
-              {HERO_BENEFITS.map(b => (
-                <span
-                  key={b.label}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/4 pl-2 pr-3 py-1.5 text-xs font-medium text-white/60"
-                >
-                  <span className="text-violet-300 shrink-0 [&>svg]:w-3.5 [&>svg]:h-3.5">{b.icon}</span>
-                  {b.label}
-                </span>
-              ))}
-            </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-3 mt-1">
               <SignUpButton>
