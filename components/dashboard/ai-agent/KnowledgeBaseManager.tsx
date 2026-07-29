@@ -38,7 +38,7 @@ function SectionRow({ section }: { section: KnowledgeBaseSectionResponse }) {
   }
 
   function handleDelete() {
-    if (!confirm(`Delete "${section.title}"?`)) return
+    if (!confirm(`წავშალო „${section.title}“?`)) return
     deleteSection(section.id)
   }
 
@@ -50,14 +50,14 @@ function SectionRow({ section }: { section: KnowledgeBaseSectionResponse }) {
           type="text"
           value={title}
           onChange={e => setTitle(e.target.value)}
-          placeholder="Section title"
+          placeholder="სექციის სათაური"
           className="input input-sm bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
         />
         <textarea
           value={content}
           onChange={e => setContent(e.target.value)}
           rows={3}
-          placeholder="Section content"
+          placeholder="სექციის შინაარსი"
           className="textarea textarea-sm bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 resize-none"
         />
         <div className="flex gap-2 pt-1">
@@ -67,14 +67,14 @@ function SectionRow({ section }: { section: KnowledgeBaseSectionResponse }) {
             disabled={isSaving || !title.trim() || !content.trim()}
             className="btn btn-xs bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
           >
-            {isSaving ? <span className="loading loading-spinner loading-xs" /> : 'Save'}
+            {isSaving ? <span className="loading loading-spinner loading-xs" /> : 'შენახვა'}
           </button>
           <button
             type="button"
             onClick={() => setIsEditing(false)}
             className="btn btn-xs bg-white/4 border-white/10 text-white/60 hover:text-white"
           >
-            Cancel
+            გაუქმება
           </button>
         </div>
       </div>
@@ -93,7 +93,7 @@ function SectionRow({ section }: { section: KnowledgeBaseSectionResponse }) {
           onClick={startEditing}
           className="btn btn-xs bg-white/4 border-white/10 text-white/60 hover:text-white"
         >
-          Edit
+          რედაქტირება
         </button>
         <button
           type="button"
@@ -101,7 +101,7 @@ function SectionRow({ section }: { section: KnowledgeBaseSectionResponse }) {
           disabled={isDeleting}
           className="btn btn-xs bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-40"
         >
-          Delete
+          წაშლა
         </button>
       </div>
     </div>
@@ -126,10 +126,10 @@ export function KnowledgeBaseManager() {
   return (
     <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">
       <div>
-        <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Knowledge Base</h2>
-        <p className="text-white/30 text-xs mt-1">
-          Add anything the agent should be able to answer questions about — shipping, returns, warranty, a takeout
-          policy, whatever&apos;s specific to your store. The agent searches these automatically when a customer asks.
+        <p className="text-white/30 text-xs">
+          დაამატეთ ყველაფერი, რაზეც აგენტმა უნდა შეძლოს პასუხის გაცემა — მიწოდება, დაბრუნება, გარანტია,
+          წაღების პოლიტიკა, ან რაც არის სპეციფიკური თქვენი მაღაზიისთვის. აგენტი ავტომატურად ეძებს ამ
+          ინფორმაციას, როცა მომხმარებელი ეკითხება.
         </p>
       </div>
 
@@ -142,7 +142,7 @@ export function KnowledgeBaseManager() {
           ))}
         </div>
       ) : (
-        <p className="text-white/30 text-sm">No sections yet.</p>
+        <p className="text-white/30 text-sm">სექციები ჯერ არ არის.</p>
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3 pt-2 border-t border-white/5">
@@ -150,7 +150,7 @@ export function KnowledgeBaseManager() {
           type="text"
           value={title}
           onChange={e => setTitle(e.target.value)}
-          placeholder="Section title, e.g. Takeout Policy"
+          placeholder="სექციის სათაური, მაგ. წაღების პოლიტიკა"
           className="input input-sm bg-neutral-900 border-white/10 focus:border-fuchsia-500/60"
           required
         />
@@ -158,17 +158,17 @@ export function KnowledgeBaseManager() {
           value={content}
           onChange={e => setContent(e.target.value)}
           rows={3}
-          placeholder="What should the agent know?"
+          placeholder="რა უნდა იცოდეს აგენტმა?"
           className="textarea textarea-sm bg-neutral-900 border-white/10 focus:border-fuchsia-500/60 resize-none"
           required
         />
-        {createError && <p className="text-error text-xs">Failed to create section.</p>}
+        {createError && <p className="text-error text-xs">სექციის შექმნა ვერ მოხერხდა.</p>}
         <button
           type="submit"
           disabled={isCreating || !title.trim() || !content.trim()}
           className="btn btn-sm self-start bg-fuchsia-600 hover:bg-fuchsia-500 border-fuchsia-600 hover:border-fuchsia-500 text-white disabled:opacity-40"
         >
-          {isCreating ? <span className="loading loading-spinner loading-xs" /> : 'Add Section'}
+          {isCreating ? <span className="loading loading-spinner loading-xs" /> : 'სექციის დამატება'}
         </button>
       </form>
     </div>

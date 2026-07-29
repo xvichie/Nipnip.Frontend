@@ -29,7 +29,7 @@ export function ConversationThread({ conversationId }: { conversationId: string 
   return (
     <div className="flex flex-col gap-3 p-4 max-h-[28rem] overflow-y-auto">
       {conversation.messages.length === 0 && (
-        <p className="text-white/30 text-sm text-center py-4">No messages yet.</p>
+        <p className="text-white/30 text-sm text-center py-4">შეტყობინებები ჯერ არ არის.</p>
       )}
       {conversation.messages.map(message => (
         <div
