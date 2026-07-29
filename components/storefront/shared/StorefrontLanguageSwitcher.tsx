@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useStorefrontLanguage } from './StorefrontLanguageProvider'
+import { FlagIcon } from '@/components/ui/FlagIcon'
 import type { StorefrontLanguage } from '@/lib/storefront-i18n'
 
-const LANGS: { code: StorefrontLanguage; flag: string; short: string; label: string }[] = [
-  { code: 'ka', flag: '🇬🇪', short: 'ქარ', label: 'ქართული' },
-  { code: 'en', flag: '🇬🇧', short: 'ENG', label: 'English' },
-  { code: 'ru', flag: '🇷🇺', short: 'РУС', label: 'Русский' },
+const LANGS: { code: StorefrontLanguage; short: string; label: string }[] = [
+  { code: 'ka', short: 'ქარ', label: 'ქართული' },
+  { code: 'en', short: 'ENG', label: 'English' },
+  { code: 'ru', short: 'РУС', label: 'Русский' },
 ]
 
 // Mirrors components/LanguageSwitcher.tsx's dropdown variant (same proven pattern: explicit
@@ -39,9 +40,9 @@ export function StorefrontLanguageSwitcher({ placement = 'bottom-end' }: { place
         type="button"
         onClick={() => setOpen(v => !v)}
         aria-expanded={open}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/5 hover:bg-black/10 text-current text-xs font-semibold cursor-pointer select-none transition-colors"
+        className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-black/5 hover:bg-black/10 text-current text-xs font-semibold cursor-pointer select-none transition-colors"
       >
-        <span className="text-sm leading-none">{current.flag}</span>
+        <FlagIcon code={current.code} className="w-4 h-3" />
         <span>{current.short}</span>
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden className={`opacity-50 transition-transform ${open ? 'rotate-180' : ''}`}>
           <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -50,7 +51,7 @@ export function StorefrontLanguageSwitcher({ placement = 'bottom-end' }: { place
 
       {open && (
         <ul className={`absolute z-50 p-1 rounded-xl border border-black/10 bg-white text-black shadow-xl shadow-black/10 min-w-36 flex flex-col gap-0.5 ${positionClass}`}>
-          {LANGS.map(({ code, flag, label }) => (
+          {LANGS.map(({ code, label }) => (
             <li key={code}>
               <button
                 type="button"
@@ -60,7 +61,7 @@ export function StorefrontLanguageSwitcher({ placement = 'bottom-end' }: { place
                   lang === code ? 'bg-black/8 font-medium' : 'hover:bg-black/5',
                 ].join(' ')}
               >
-                <span className="text-base leading-none">{flag}</span>
+                <FlagIcon code={code} className="w-5 h-3.5" />
                 <span>{label}</span>
                 {lang === code && (
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden className="ml-auto shrink-0">

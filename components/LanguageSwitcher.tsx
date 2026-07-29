@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useLanguage, type Language } from '@/lib/i18n'
+import { FlagIcon } from '@/components/ui/FlagIcon'
 
-const LANGS: { code: Language; flag: string; short: string; label: string }[] = [
-  { code: 'ka', flag: '🇬🇪', short: 'ქარ', label: 'ქართული' },
-  { code: 'en', flag: '🇬🇧', short: 'ENG', label: 'English' },
-  { code: 'ru', flag: '🇷🇺', short: 'РУС', label: 'Русский' },
+const LANGS: { code: Language; short: string; label: string }[] = [
+  { code: 'ka', short: 'ქარ', label: 'ქართული' },
+  { code: 'en', short: 'ENG', label: 'English' },
+  { code: 'ru', short: 'РУС', label: 'Русский' },
 ]
 
 // A dropdown works fine on desktop, but inside a scrollable mobile menu panel an
@@ -18,7 +19,7 @@ export function LanguageButtonGroup() {
 
   return (
     <div className="flex items-center gap-1.5 rounded-lg bg-white/5 border border-white/10 p-1">
-      {LANGS.map(({ code, flag, short }) => (
+      {LANGS.map(({ code, short }) => (
         <button
           key={code}
           type="button"
@@ -30,7 +31,7 @@ export function LanguageButtonGroup() {
               : 'text-white/60 hover:text-white hover:bg-white/6',
           ].join(' ')}
         >
-          <span className="text-sm leading-none">{flag}</span>
+          <FlagIcon code={code} className="w-4 h-3" />
           <span>{short}</span>
         </button>
       ))}
@@ -70,9 +71,9 @@ export function LanguageSwitcher({ placement = 'bottom-end' }: { placement?: 'bo
         type="button"
         onClick={() => setOpen(v => !v)}
         aria-expanded={open}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/8 hover:border-white/15 transition-all text-xs font-semibold cursor-pointer select-none"
+        className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/8 hover:border-white/15 transition-all text-xs font-semibold cursor-pointer select-none"
       >
-        <span className="text-sm leading-none">{current.flag}</span>
+        <FlagIcon code={current.code} className="w-4 h-3" />
         <span>{current.short}</span>
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden className={`opacity-50 transition-transform ${open ? 'rotate-180' : ''}`}>
           <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -81,7 +82,7 @@ export function LanguageSwitcher({ placement = 'bottom-end' }: { placement?: 'bo
 
       {open && (
         <ul className={`absolute z-50 p-1 rounded-xl border border-white/10 bg-[#0f0f18] shadow-xl shadow-black/40 min-w-36 flex flex-col gap-0.5 ${positionClass}`}>
-          {LANGS.map(({ code, flag, label }) => (
+          {LANGS.map(({ code, label }) => (
             <li key={code}>
               <button
                 type="button"
@@ -93,7 +94,7 @@ export function LanguageSwitcher({ placement = 'bottom-end' }: { placement?: 'bo
                     : 'text-white/60 hover:text-white hover:bg-white/6',
                 ].join(' ')}
               >
-                <span className="text-base leading-none">{flag}</span>
+                <FlagIcon code={code} className="w-5 h-3.5" />
                 <span className="font-medium">{label}</span>
                 {lang === code && (
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden className="ml-auto shrink-0">

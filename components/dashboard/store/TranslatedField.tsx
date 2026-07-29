@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { FlagIcon } from '@/components/ui/FlagIcon'
 
 export interface TranslatedFieldValue {
   ka: string
@@ -10,10 +11,10 @@ export interface TranslatedFieldValue {
 
 type LangKey = keyof TranslatedFieldValue
 
-const TABS: { key: LangKey; flag: string; short: string }[] = [
-  { key: 'ka', flag: '🇬🇪', short: 'ქართ' },
-  { key: 'en', flag: '🇬🇧', short: 'ENG' },
-  { key: 'ru', flag: '🇷🇺', short: 'РУС' },
+const TABS: { key: LangKey; short: string }[] = [
+  { key: 'ka', short: 'ქართ' },
+  { key: 'en', short: 'ENG' },
+  { key: 'ru', short: 'РУС' },
 ]
 
 // Generic {ka,en,ru} shape shared by every per-language admin field (product/option names,
@@ -58,7 +59,7 @@ export function TranslatedField({
                 activeTab === tab.key ? 'bg-fuchsia-500/15 text-fuchsia-300' : 'text-white/40 hover:text-white/70 hover:bg-white/6',
               ].join(' ')}
             >
-              <span className="text-sm leading-none">{tab.flag}</span>
+              <FlagIcon code={tab.key} className="w-4 h-3" />
               <span>{tab.short}</span>
               <span className={`w-1.5 h-1.5 rounded-full ${filled ? 'bg-emerald-400' : 'bg-white/15'}`} />
             </button>

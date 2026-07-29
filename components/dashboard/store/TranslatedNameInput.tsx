@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { FlagIcon } from '@/components/ui/FlagIcon'
 
 export interface TranslatedNameValue {
   nameKa: string
@@ -8,10 +9,10 @@ export interface TranslatedNameValue {
   nameRu: string
 }
 
-const TABS: { key: keyof TranslatedNameValue; flag: string; short: string; placeholder: string }[] = [
-  { key: 'nameKa', flag: '🇬🇪', short: 'ქართ', placeholder: 'სახელი ქართულად' },
-  { key: 'nameEn', flag: '🇬🇧', short: 'ENG', placeholder: 'Name in English' },
-  { key: 'nameRu', flag: '🇷🇺', short: 'РУС', placeholder: 'Название на русском' },
+const TABS: { key: keyof TranslatedNameValue; flagCode: 'ka' | 'en' | 'ru'; short: string; placeholder: string }[] = [
+  { key: 'nameKa', flagCode: 'ka', short: 'ქართ', placeholder: 'სახელი ქართულად' },
+  { key: 'nameEn', flagCode: 'en', short: 'ENG', placeholder: 'Name in English' },
+  { key: 'nameRu', flagCode: 'ru', short: 'РУС', placeholder: 'Название на русском' },
 ]
 
 // At least one of the three must be filled — validated by whoever calls this (via
@@ -47,7 +48,7 @@ export function TranslatedNameInput({
                 activeTab === tab.key ? 'bg-fuchsia-500/15 text-fuchsia-300' : 'text-white/40 hover:text-white/70 hover:bg-white/6',
               ].join(' ')}
             >
-              <span className="text-sm leading-none">{tab.flag}</span>
+              <FlagIcon code={tab.flagCode} className="w-4 h-3" />
               <span>{tab.short}</span>
               <span className={`w-1.5 h-1.5 rounded-full ${filled ? 'bg-emerald-400' : 'bg-white/15'}`} />
             </button>
