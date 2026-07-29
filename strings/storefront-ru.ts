@@ -7,6 +7,7 @@ export const ru: StorefrontStrings = {
     cart: 'Корзина',
     menuAriaLabel: 'Меню',
     closeAriaLabel: 'Закрыть',
+    searchAriaLabel: 'Поиск',
   },
   footer: {
     poweredBy: 'Работает на NipNip',

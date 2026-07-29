@@ -80,6 +80,7 @@ import type {
   HomeSectionKey,
   LandingCategoryColumns,
   ProductSummaryResponse,
+  SearchBarLocation,
   SocialsPosition,
   ThemeConfig,
   ThemeId,
@@ -134,6 +135,7 @@ export default function StoreLayoutPage() {
   const [layoutWidth, setLayoutWidth] = useState(DEFAULT_THEME_CONFIG.layoutWidth)
   const [boxedMaxWidth, setBoxedMaxWidth] = useState(DEFAULT_THEME_CONFIG.boxedMaxWidth)
   const [boxedBackgroundColor, setBoxedBackgroundColor] = useState(DEFAULT_THEME_CONFIG.boxedBackgroundColor)
+  const [searchBarLocation, setSearchBarLocation] = useState<SearchBarLocation>(DEFAULT_THEME_CONFIG.searchBarLocation)
   const [categoryMenuMode, setCategoryMenuMode] = useState<CategoryMenuMode>(DEFAULT_THEME_CONFIG.categoryMenuMode)
   const [categoryMenuScope, setCategoryMenuScope] = useState<CategoryMenuScope>(DEFAULT_THEME_CONFIG.categoryMenuScope)
   const [categoryMenuSelectedIds, setCategoryMenuSelectedIds] = useState<string[]>(DEFAULT_THEME_CONFIG.categoryMenuSelectedIds)
@@ -219,6 +221,7 @@ export default function StoreLayoutPage() {
     setLayoutWidth(parsed.layoutWidth)
     setBoxedMaxWidth(parsed.boxedMaxWidth)
     setBoxedBackgroundColor(parsed.boxedBackgroundColor)
+    setSearchBarLocation(parsed.searchBarLocation)
     setCategoryMenuMode(parsed.categoryMenuMode)
     setCategoryMenuScope(parsed.categoryMenuScope)
     setCategoryMenuSelectedIds(parsed.categoryMenuSelectedIds)
@@ -523,6 +526,7 @@ export default function StoreLayoutPage() {
           layoutWidth,
           boxedMaxWidth,
           boxedBackgroundColor,
+          searchBarLocation,
           categoryMenuMode,
           categoryMenuScope,
           categoryMenuSelectedIds,
@@ -616,6 +620,7 @@ export default function StoreLayoutPage() {
     layoutWidth,
     boxedMaxWidth,
     boxedBackgroundColor,
+    searchBarLocation,
     categoryMenuMode,
     categoryMenuScope,
     categoryMenuSelectedIds,
@@ -1117,6 +1122,31 @@ export default function StoreLayoutPage() {
                     className={[
                       'rounded-lg border px-3 py-2 text-xs font-medium text-left transition-colors',
                       categoryMenuMode === opt.value
+                        ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                        : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                    ].join(' ')}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="fieldset gap-2">
+              <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">საძიებო ველის მდებარეობა</label>
+              <div className="grid grid-cols-3 gap-2">
+                {([
+                  { value: 'productsPage', label: 'პროდუქტების გვერდზე' },
+                  { value: 'header', label: 'ჰედერში' },
+                  { value: 'both', label: 'ორივეგან' },
+                ] as { value: SearchBarLocation; label: string }[]).map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setSearchBarLocation(opt.value)}
+                    className={[
+                      'rounded-lg border px-3 py-2 text-xs font-medium text-left transition-colors',
+                      searchBarLocation === opt.value
                         ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
                         : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
                     ].join(' ')}

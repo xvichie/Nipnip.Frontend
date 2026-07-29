@@ -46,6 +46,7 @@ export function ProductGrid({
     sortBy,
     setSortBy,
     priceRange,
+    priceRangeInput,
     setPriceRange,
     optionFilters,
     setOptionFilters,
@@ -56,7 +57,7 @@ export function ProductGrid({
   const effectiveRange = priceRange ?? bounds
   const { data: facets } = useProductFacets(slug, activeCategorySlug)
 
-  const { data, isLoading } = useProducts(slug, {
+  const { data, isLoading, isFetching } = useProducts(slug, {
     categorySlug: activeCategorySlug,
     collectionSlug: activeCollectionSlug,
     page,
@@ -67,6 +68,10 @@ export function ProductGrid({
     optionFilters,
     ...sortOptionToQuery(sortBy),
   })
+  // isLoading only covers the very first fetch (placeholderData keeps the previous page's
+  // results on screen during a refetch) — isRefetching is what tells us a filter change is
+  // in flight so the grid can show that without swapping back to the skeleton.
+  const isRefetching = isFetching && !isLoading
 
   const products = data?.items ?? []
   const totalPages = data?.totalPages ?? 1
@@ -116,7 +121,7 @@ export function ProductGrid({
                 <PriceRangeFilter
                   min={bounds[0]}
                   max={bounds[1]}
-                  value={effectiveRange ?? bounds}
+                  value={priceRangeInput ?? bounds}
                   onChange={setPriceRange}
                   accentColor={tokens.accentColor}
                   t={t}
@@ -143,17 +148,22 @@ export function ProductGrid({
 
           <div className="flex-1">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-              <p className="text-xs uppercase tracking-widest text-[#9c8f7e]">
+              <p className="text-xs uppercase tracking-widest text-[#9c8f7e] flex items-center gap-2">
                 <span className="text-[#1c1a17] font-medium">{totalCount}</span> {t.grid.unitProduct}
+                {isRefetching && (
+                  <span className="w-3.5 h-3.5 rounded-full border-2 border-current/20 border-t-current animate-spin opacity-50" aria-hidden />
+                )}
               </p>
               <div className="flex items-center gap-3">
-                <input
-                  type="text"
-                  value={searchInput}
-                  onChange={e => setSearchInput(e.target.value)}
-                  placeholder={t.grid.searchPlaceholder}
-                  className="w-full sm:w-56 bg-white border border-[#1c1a17]/15 text-sm px-3 py-2 text-[#1c1a17] placeholder:text-[#9c8f7e] focus:outline-none focus:border-[#1c1a17] transition-colors"
-                />
+                {tokens.searchBarLocation !== 'header' && (
+                  <input
+                    type="text"
+                    value={searchInput}
+                    onChange={e => setSearchInput(e.target.value)}
+                    placeholder={t.grid.searchPlaceholder}
+                    className="w-full sm:w-56 bg-white border border-[#1c1a17]/15 text-sm px-3 py-2 text-[#1c1a17] placeholder:text-[#9c8f7e] focus:outline-none focus:border-[#1c1a17] transition-colors"
+                  />
+                )}
                 <select
                   value={sortBy}
                   onChange={e => setSortBy(e.target.value as ProductSortOption)}
@@ -178,7 +188,7 @@ export function ProductGrid({
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className={`grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-6 transition-opacity ${isRefetching ? 'opacity-50' : ''}`}>
                   {products.map(product => (
                     <ProductCard
                       key={product.id}

@@ -26,6 +26,12 @@ function parsePriceRange(searchParams: URLSearchParams): [number, number] | null
   return Number.isFinite(minN) && Number.isFinite(maxN) ? [minN, maxN] : null
 }
 
+function rangesEqual(a: [number, number] | null, b: [number, number] | null): boolean {
+  if (a === b) return true
+  if (!a || !b) return false
+  return a[0] === b[0] && a[1] === b[1]
+}
+
 function parseOptionFilters(raw: string | null): OptionFilterInput[] {
   if (!raw) return []
   try {
@@ -66,6 +72,16 @@ export function useProductListUrlState() {
   const priceRange = parsePriceRange(searchParams)
   const optionFilters = parseOptionFilters(searchParams.get('filters'))
 
+  // Same instant-local-state/debounced-URL split as search — a price slider fires onChange on
+  // every tick of the drag, so without this the URL (and the resulting product refetch) would
+  // fire dozens of times per drag instead of once after the shopper settles on a value.
+  const [priceRangeInput, setPriceRangeInput] = useState(priceRange)
+  const [prevUrlPriceRange, setPrevUrlPriceRange] = useState(priceRange)
+  if (!rangesEqual(priceRange, prevUrlPriceRange)) {
+    setPrevUrlPriceRange(priceRange)
+    setPriceRangeInput(priceRange)
+  }
+
   const updateParams = useCallback(
     (updates: Record<string, string | null>) => {
       const next = new URLSearchParams(searchParams.toString())
@@ -91,6 +107,17 @@ export function useProductListUrlState() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchInput])
 
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (!rangesEqual(priceRangeInput, priceRange) && priceRangeInput) {
+        updateParams({ minPrice: String(priceRangeInput[0]), maxPrice: String(priceRangeInput[1]), page: null })
+      }
+    }, DEBOUNCE_MS)
+    return () => clearTimeout(t)
+    // Only the input value should re-trigger this debounce — same reasoning as the search effect above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [priceRangeInput])
+
   const setPage = useCallback(
     (next: number) => updateParams({ page: next > 1 ? String(next) : null }),
     [updateParams]
@@ -101,10 +128,7 @@ export function useProductListUrlState() {
     [updateParams]
   )
 
-  const setPriceRange = useCallback(
-    (next: [number, number]) => updateParams({ minPrice: String(next[0]), maxPrice: String(next[1]), page: null }),
-    [updateParams]
-  )
+  const setPriceRange = useCallback((next: [number, number]) => setPriceRangeInput(next), [])
 
   const setOptionFilters = useCallback(
     (next: OptionFilterInput[]) => {
@@ -123,6 +147,7 @@ export function useProductListUrlState() {
     sortBy,
     setSortBy,
     priceRange,
+    priceRangeInput,
     setPriceRange,
     optionFilters,
     setOptionFilters,

@@ -67,6 +67,7 @@ export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   showSaleCategory: false,
   showSaleCategoryIcon: true,
   navPageIds: [],
+  searchBarLocation: 'productsPage',
   categoryMenuMode: 'flat',
   categoryMenuScope: 'all',
   categoryMenuSelectedIds: [],

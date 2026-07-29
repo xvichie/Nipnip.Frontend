@@ -10,6 +10,7 @@ export const ka = {
     cart: 'კალათა',
     menuAriaLabel: 'მენიუ',
     closeAriaLabel: 'დახურვა',
+    searchAriaLabel: 'ძიება',
   },
   footer: {
     poweredBy: 'შექმნილია NipNip-ის მიერ',

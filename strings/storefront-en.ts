@@ -7,6 +7,7 @@ export const en: StorefrontStrings = {
     cart: 'Cart',
     menuAriaLabel: 'Menu',
     closeAriaLabel: 'Close',
+    searchAriaLabel: 'Search',
   },
   footer: {
     poweredBy: 'Powered by NipNip',

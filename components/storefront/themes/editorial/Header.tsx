@@ -7,6 +7,7 @@ import { useStorefrontCart } from '@/lib/store/storefront-cart-context'
 import { getNavCategories, getNavPages } from '@/lib/store/nav-menu'
 import { StoreHoursBadge } from '@/components/storefront/shared/StoreHoursBadge'
 import { StorefrontLanguageSwitcher } from '@/components/storefront/shared/StorefrontLanguageSwitcher'
+import { HeaderSearchBox } from '@/components/storefront/shared/HeaderSearchBox'
 import type { CategoryResponse, StorePageResponse, ThemeConfig } from '@/lib/types/storefront'
 import { useStorefrontLanguage } from '@/components/storefront/shared/StorefrontLanguageProvider'
 import { getCategoryName, getThemeText } from '@/lib/store/translations'
@@ -52,6 +53,7 @@ export function Header({
   const navPages = getNavPages(pages, tokens)
   const isDropdown = tokens.categoryMenuMode === 'dropdown'
   const hasNav = navCategories.length > 0 || navPages.length > 0 || tokens.showContactInNav
+  const showHeaderSearch = tokens.searchBarLocation === 'header' || tokens.searchBarLocation === 'both'
 
   return (
     <header
@@ -85,6 +87,7 @@ export function Header({
         </Link>
 
         <div className="flex items-center justify-end gap-2 sm:gap-3">
+          {showHeaderSearch && <HeaderSearchBox />}
           <StorefrontLanguageSwitcher />
 
           {!isCheckout && (

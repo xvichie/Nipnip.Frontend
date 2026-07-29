@@ -41,7 +41,7 @@ export function Cart({
         <h1 className={`font-black text-2xl mb-3 ${surface.text}`}>{t.cart.emptyHeading}</h1>
         <p className={`text-sm mb-8 ${surface.muted}`}>{t.cart.emptySubtext}</p>
         <Link
-          href={`/`}
+          href={`/products`}
           className={`text-white text-sm font-semibold px-8 py-3.5 ${radius}`}
           style={{ backgroundColor: tokens.accentColor }}
         >
@@ -195,7 +195,7 @@ export function Cart({
             })}
 
             <div className="pt-6">
-              <Link href={`/`} className={`text-sm underline underline-offset-2 ${surface.muted} hover:opacity-80`}>
+              <Link href={`/products`} className={`text-sm underline underline-offset-2 ${surface.muted} hover:opacity-80`}>
                 {t.cart.continueShoppingBack}
               </Link>
             </div>

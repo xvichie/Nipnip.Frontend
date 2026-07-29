@@ -8,6 +8,8 @@ export type ThemeId = 'minimal' | 'bold' | 'classic' | 'luxury' | 'vibrant' | 'c
 
 export type SocialsPosition = 'top' | 'bottom' | 'both' | 'footer'
 
+export type SearchBarLocation = 'productsPage' | 'header' | 'both'
+
 export type HeroLayout = 'center' | 'imageLeft' | 'imageRight' | 'background'
 
 export type HeroHeight = 'small' | 'medium' | 'large'
@@ -128,6 +130,7 @@ export interface ThemeConfig {
   showSaleCategory?: boolean
   showSaleCategoryIcon?: boolean
   navPageIds?: string[]
+  searchBarLocation?: SearchBarLocation
   categoryMenuMode?: CategoryMenuMode
   categoryMenuScope?: CategoryMenuScope
   categoryMenuSelectedIds?: string[]

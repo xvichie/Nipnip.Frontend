@@ -278,8 +278,8 @@ export function Checkout({
             <div className={`w-full text-left border ${surface.border} ${surface.card} ${radius} p-5`}>
               <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${surface.muted}`}>{t.checkout.pickupAddressLabel}</p>
               <p className={`text-sm ${surface.text}`}>{tokens.pickupAddress}</p>
-              {tokens.pickupInstructions && (
-                <p className={`text-xs whitespace-pre-line mt-1 ${surface.muted}`}>{tokens.pickupInstructions}</p>
+              {getThemeText(tokens, 'pickupInstructions', lang) && (
+                <p className={`text-xs whitespace-pre-line mt-1 ${surface.muted}`}>{getThemeText(tokens, 'pickupInstructions', lang)}</p>
               )}
             </div>
           )}
@@ -292,7 +292,7 @@ export function Checkout({
             </div>
           )}
           <Link
-            href={`/`}
+            href={`/products`}
             className={`text-white text-sm font-semibold px-8 py-3.5 ${radius}`}
             style={{ backgroundColor: tokens.accentColor }}
           >
@@ -397,8 +397,8 @@ export function Checkout({
             {isPickup ? (
               <Section title={t.checkout.pickupAddressSection} surface={surface} radius={radius}>
                 <p className={`text-sm font-medium ${surface.text}`}>{tokens.pickupAddress}</p>
-                {tokens.pickupInstructions && (
-                  <p className={`text-xs whitespace-pre-line ${surface.muted}`}>{tokens.pickupInstructions}</p>
+                {getThemeText(tokens, 'pickupInstructions', lang) && (
+                  <p className={`text-xs whitespace-pre-line ${surface.muted}`}>{getThemeText(tokens, 'pickupInstructions', lang)}</p>
                 )}
               </Section>
             ) : (
