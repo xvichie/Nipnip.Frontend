@@ -5,7 +5,7 @@ import { getStoreOrigin, getStoreUrl } from '@/lib/store/seo'
 import type { MerchantResponse } from '@/lib/types'
 import { CImg } from '@/components/ui/CImg'
 
-function StoreLogo({ m }: { m: MerchantResponse }) {
+export function StoreLogo({ m }: { m: MerchantResponse }) {
   const initials = m.name.slice(0, 2).toUpperCase()
   if (m.logoUrl) {
     return (

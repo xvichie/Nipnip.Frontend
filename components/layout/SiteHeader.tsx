@@ -161,19 +161,19 @@ function ExamplesDropdown() {
             </Link>
           </div>
 
-          {/* Divider + browse all partner stores */}
+          {/* Divider + browse all featured websites */}
           <div className="border-t border-white/6 p-1.5">
             <Link
-              href="/merchants"
+              href="/websites"
               onClick={() => setOpen(false)}
               className={[
                 'flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 transition-colors',
-                pathname === '/merchants' ? 'bg-white/8' : 'hover:bg-white/5',
+                pathname === '/websites' ? 'bg-white/8' : 'hover:bg-white/5',
               ].join(' ')}
             >
               <div>
-                <p className={['text-sm font-medium', pathname === '/merchants' ? 'text-white' : 'text-white/70'].join(' ')}>
-                  ყველა პარტნიორი მაღაზია
+                <p className={['text-sm font-medium', pathname === '/websites' ? 'text-white' : 'text-white/70'].join(' ')}>
+                  ყველა მაღაზია, შექმნილი NipNip-ზე
                 </p>
                 <p className="text-white/35 text-xs mt-0.5">დაათვალიერე ცოცხალი მაღაზიები NipNip-ზე</p>
               </div>
@@ -308,7 +308,7 @@ export function SiteHeader() {
   // builds its nav directly from the dropdown components below instead of filtering this array.
   const NAV_LINKS = [
     { href: '/example-store', label: 'სადემო მაღაზია' },
-    { href: '/merchants', label: 'ყველა პარტნიორი მაღაზია' },
+    { href: '/websites', label: 'ყველა მაღაზია, შექმნილი NipNip-ზე' },
     { href: '/why-us', label: 'რატომ ჩვენ' },
     { href: '/how-it-works', label: t.nav.howItWorks },
     { href: '/pricing', label: 'ფასები' },

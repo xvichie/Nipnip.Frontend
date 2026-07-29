@@ -254,7 +254,7 @@ export default function LandingPage() {
               {t.landing.partnerShops}
             </h2>
             <Link
-              href="/merchants"
+              href="/websites"
               className="text-white/40 hover:text-white text-sm font-medium transition-colors flex items-center gap-1"
             >
               {t.landing.viewAll}

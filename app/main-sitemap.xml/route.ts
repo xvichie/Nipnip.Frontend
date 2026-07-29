@@ -10,6 +10,7 @@ export async function GET() {
   const entries = [
     urlEntry('/', '1.0'),
     urlEntry('/merchants', '0.9'),
+    urlEntry('/websites', '0.8'),
     urlEntry('/why-us', '0.8'),
     urlEntry('/how-it-works', '0.7'),
     urlEntry('/about', '0.6'),
