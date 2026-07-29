@@ -100,11 +100,11 @@ export function ContactPage({
           </div>
         )}
 
-        <SocialLinks tokens={tokens} className="mt-6" />
+        <SocialLinks tokens={tokens} className="mt-6" size="lg" />
 
         {tokens.footerContactForm === 'off' && (
           <div className={`mt-10 pt-10 border-t ${surface.border}`}>
-            <ContactForm slug={slug} tokens={tokens} variant={themeDef.dark ? 'dark' : 'light'} radiusClass={radius} />
+            <ContactForm slug={slug} tokens={tokens} variant={themeDef.dark ? 'dark' : 'light'} radiusClass={radius} heading={t.contactPage.formHeading} />
           </div>
         )}
 

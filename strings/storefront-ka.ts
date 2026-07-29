@@ -198,6 +198,7 @@ export const ka = {
     address: 'მისამართი',
     emptyState: 'საკონტაქტო ინფორმაცია მალე დაემატება.',
     backToStore: '← მაღაზიაში დაბრუნება',
+    formHeading: 'დაგვიტოვე წერილი',
   },
   breadcrumbs: {
     backAriaLabel: 'უკან დაბრუნება',

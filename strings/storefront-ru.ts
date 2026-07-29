@@ -195,6 +195,7 @@ export const ru: StorefrontStrings = {
     address: 'Адрес',
     emptyState: 'Контактная информация скоро появится.',
     backToStore: '← Вернуться в магазин',
+    formHeading: 'Оставьте нам сообщение',
   },
   breadcrumbs: {
     backAriaLabel: 'Назад',

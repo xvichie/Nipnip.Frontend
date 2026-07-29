@@ -195,6 +195,7 @@ export const en: StorefrontStrings = {
     address: 'Address',
     emptyState: 'Contact information will be added soon.',
     backToStore: '← Back to store',
+    formHeading: 'Leave us a message',
   },
   breadcrumbs: {
     backAriaLabel: 'Go back',

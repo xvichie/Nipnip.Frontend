@@ -27,7 +27,16 @@ const ICONS: Record<'instagram' | 'facebook' | 'tiktok' | 'youtube', React.React
   ),
 }
 
-export function SocialLinks({ tokens, className = '' }: { tokens: Required<ThemeConfig>; className?: string }) {
+export function SocialLinks({
+  tokens,
+  className = '',
+  size = 'sm',
+}: {
+  tokens: Required<ThemeConfig>
+  className?: string
+  /** 'lg' renders bigger, outlined circular buttons (contact page) instead of the plain bare icons used elsewhere (footer, etc). */
+  size?: 'sm' | 'lg'
+}) {
   const links: { key: keyof typeof ICONS; url: string }[] = [
     { key: 'instagram', url: tokens.socialInstagram },
     { key: 'facebook', url: tokens.socialFacebook },
@@ -36,6 +45,25 @@ export function SocialLinks({ tokens, className = '' }: { tokens: Required<Theme
   ].filter(l => l.url) as { key: keyof typeof ICONS; url: string }[]
 
   if (links.length === 0) return null
+
+  if (size === 'lg') {
+    return (
+      <div className={`flex items-center gap-3 ${className}`}>
+        {links.map(link => (
+          <a
+            key={link.key}
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={link.key}
+            className="flex items-center justify-center w-11 h-11 rounded-full border border-current/20 opacity-80 hover:opacity-100 hover:border-current/40 hover:bg-current/5 transition-colors [&_svg]:w-5 [&_svg]:h-5"
+          >
+            {ICONS[link.key]}
+          </a>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className={`flex items-center gap-3 ${className}`}>
