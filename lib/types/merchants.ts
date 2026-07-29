@@ -17,6 +17,10 @@ export interface UpdateMerchantRequest {
   commissionPercent?: number | null
   notificationEmail?: string | null
   isPublic?: boolean | null
+  /** Admin-only. Pass an empty string to clear it — leaving it undefined/null means "don't change". */
+  logoBackgroundColor?: string | null
+  /** Admin-only. Pass an empty string to clear it — leaving it undefined/null means "don't change". */
+  logoBackgroundImageUrl?: string | null
 }
 
 export interface MerchantResponse {
@@ -24,6 +28,10 @@ export interface MerchantResponse {
   name: string
   slug: string
   logoUrl: string | null
+  /** Backdrop shown behind logoUrl in public listings (e.g. /websites) — admin-only, set via UpdateMerchantRequest. */
+  logoBackgroundColor: string | null
+  /** Backdrop shown behind logoUrl in public listings (e.g. /websites) — admin-only, set via UpdateMerchantRequest. */
+  logoBackgroundImageUrl: string | null
   websiteUrl: string | null
   instagramHandle: string | null
   description: string | null

@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAdminMerchant, useAdminMerchantOwner, useAdminMerchantStore, useAdminUpdateMerchant } from '@/lib/queries/admin'
+import { DragDropImageField } from '@/components/admin/DragDropImageField'
+
+type LogoBackgroundMode = 'none' | 'color' | 'image'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -23,6 +26,9 @@ export default function AdminEditMerchantPage() {
   const [instagram, setInstagram] = useState('')
   const [description, setDescription] = useState('')
   const [logoUrl, setLogoUrl] = useState('')
+  const [logoBackgroundMode, setLogoBackgroundMode] = useState<LogoBackgroundMode>('none')
+  const [logoBackgroundColor, setLogoBackgroundColor] = useState('#ffffff')
+  const [logoBackgroundImageUrl, setLogoBackgroundImageUrl] = useState('')
   const [saved, setSaved] = useState(false)
 
   // "Adjust state during render" instead of an effect — hydrates the form once the merchant
@@ -36,6 +42,9 @@ export default function AdminEditMerchantPage() {
     setInstagram(merchant.instagramHandle ?? '')
     setDescription(merchant.description ?? '')
     setLogoUrl(merchant.logoUrl ?? '')
+    setLogoBackgroundMode(merchant.logoBackgroundImageUrl ? 'image' : merchant.logoBackgroundColor ? 'color' : 'none')
+    setLogoBackgroundColor(merchant.logoBackgroundColor ?? '#ffffff')
+    setLogoBackgroundImageUrl(merchant.logoBackgroundImageUrl ?? '')
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -50,7 +59,10 @@ export default function AdminEditMerchantPage() {
         websiteUrl: websiteUrl.trim() || null,
         instagramHandle: instagram.trim() || null,
         description: description.trim() || null,
-        logoUrl: logoUrl.trim() || null,
+        // Empty string (not null) actually clears it server-side — null means "don't change".
+        logoUrl,
+        logoBackgroundColor: logoBackgroundMode === 'color' ? logoBackgroundColor : '',
+        logoBackgroundImageUrl: logoBackgroundMode === 'image' ? logoBackgroundImageUrl : '',
       },
       {
         onSuccess: () => {
@@ -182,17 +194,59 @@ export default function AdminEditMerchantPage() {
             />
           </div>
 
+          <DragDropImageField label="Logo" value={logoUrl} onChange={setLogoUrl} />
+
           <div className="fieldset gap-2">
-            <label htmlFor="e-logo" className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
-              Logo URL
+            <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">
+              Logo Background
             </label>
-            <input
-              id="e-logo"
-              type="url"
-              value={logoUrl}
-              onChange={e => setLogoUrl(e.target.value)}
-              className="input w-full bg-white/[0.04] border-white/[0.1] focus:border-amber-500/60"
-            />
+            <p className="text-white/30 text-xs -mt-1 mb-1">
+              Shown behind the logo on the public /websites showcase — useful for transparent logos.
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              {([
+                { value: 'none', label: 'None' },
+                { value: 'color', label: 'Color' },
+                { value: 'image', label: 'Image' },
+              ] as { value: LogoBackgroundMode; label: string }[]).map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setLogoBackgroundMode(opt.value)}
+                  className={[
+                    'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                    logoBackgroundMode === opt.value
+                      ? 'border-amber-500 bg-amber-500/10 text-white'
+                      : 'border-white/10 bg-white/[0.04] text-white/50 hover:text-white',
+                  ].join(' ')}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {logoBackgroundMode === 'color' && (
+              <div className="flex items-center gap-3 mt-2">
+                <input
+                  type="color"
+                  value={/^#[0-9a-fA-F]{6}$/.test(logoBackgroundColor) ? logoBackgroundColor : '#ffffff'}
+                  onChange={e => setLogoBackgroundColor(e.target.value)}
+                  className="w-10 h-10 rounded-lg border border-white/10 bg-transparent cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={logoBackgroundColor}
+                  onChange={e => setLogoBackgroundColor(e.target.value)}
+                  className="input input-sm flex-1 bg-white/[0.04] border-white/[0.1] focus:border-amber-500/60 font-mono"
+                />
+              </div>
+            )}
+
+            {logoBackgroundMode === 'image' && (
+              <div className="mt-2">
+                <DragDropImageField value={logoBackgroundImageUrl} onChange={setLogoBackgroundImageUrl} />
+              </div>
+            )}
           </div>
 
           {/* Read-only info */}

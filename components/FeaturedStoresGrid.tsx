@@ -1,5 +1,6 @@
 'use client'
 
+import type { CSSProperties } from 'react'
 import { useFeaturedStores } from '@/lib/queries/merchants'
 import { getStoreOrigin, getStoreUrl } from '@/lib/store/seo'
 import type { MerchantResponse } from '@/lib/types'
@@ -7,9 +8,22 @@ import { CImg } from '@/components/ui/CImg'
 
 export function StoreLogo({ m }: { m: MerchantResponse }) {
   const initials = m.name.slice(0, 2).toUpperCase()
+
   if (m.logoUrl) {
+    // Admin-set backdrop (color or image) behind the logo — most useful for transparent-PNG
+    // logos that would otherwise be invisible against the card's own dark background.
+    const hasCustomBackground = !!(m.logoBackgroundImageUrl || m.logoBackgroundColor)
+    const backgroundStyle: CSSProperties = m.logoBackgroundImageUrl
+      ? { backgroundImage: `url(${m.logoBackgroundImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+      : m.logoBackgroundColor
+        ? { backgroundColor: m.logoBackgroundColor }
+        : {}
+
     return (
-      <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 shrink-0 flex items-center justify-center overflow-hidden">
+      <div
+        className={`w-14 h-14 rounded-2xl border border-white/10 shrink-0 flex items-center justify-center overflow-hidden ${hasCustomBackground ? '' : 'bg-white/5'}`}
+        style={backgroundStyle}
+      >
         <CImg
           src={m.logoUrl}
           cldWidth={112}
