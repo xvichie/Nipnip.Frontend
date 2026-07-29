@@ -51,6 +51,11 @@ export type LandingCategoryColumns = 2 | 3 | 4 | 6
 
 export type HomeSectionKey = 'hero' | 'categories' | 'products' | 'collections' | 'faq' | 'content'
 
+/** A homepage section slot — either one of the fixed built-in sections, or a merchant-created custom section referenced by id. */
+export type HomeSectionOrderEntry = HomeSectionKey | `custom:${string}`
+
+export type CustomSectionImageLayout = 'left' | 'right' | 'background'
+
 export type FeaturedProductsMode = 'latest' | 'curated'
 
 export type ContentImagePosition = 'left' | 'right'
@@ -150,7 +155,9 @@ export interface ThemeConfig {
   showContactInNav?: boolean
   contactLabel?: string
   /** Which home-page sections show and in what order — sections not listed are hidden. */
-  homeSectionOrder?: HomeSectionKey[]
+  homeSectionOrder?: HomeSectionOrderEntry[]
+  /** Merchant-created homepage sections, referenced from homeSectionOrder as `custom:${id}`. */
+  customSections?: CustomSection[]
   featuredProductsMode?: FeaturedProductsMode
   featuredProductIds?: string[]
   contentHeading?: string
@@ -279,6 +286,28 @@ export interface FaqItem {
   question: string
   answer: string
   translations?: { en?: { question?: string; answer?: string }; ru?: { question?: string; answer?: string } }
+}
+
+/** A merchant-created homepage section — like the built-in "content" block, but there can be any number of these, each independently placeable via homeSectionOrder. */
+export interface CustomSection {
+  /** Stable client-generated id (crypto.randomUUID()) — referenced from homeSectionOrder as `custom:${id}`, so it must survive reordering/renaming untouched. */
+  id: string
+  heading?: string
+  body?: string
+  buttonText?: string
+  buttonLink?: string
+  imageUrl?: string
+  /** Only matters once imageUrl is set. */
+  imageLayout?: CustomSectionImageLayout
+  /** Same reused hero mobile-override shape — image shown/hidden, image position (left/right layouts only), and text alignment can each differ from desktop. */
+  mobileImage?: HeroMobileImageVisibility
+  mobileImagePosition?: HeroMobileImagePosition
+  mobileTextAlign?: HeroMobileTextAlign
+  backgroundColor?: string
+  translations?: {
+    en?: { heading?: string; body?: string; buttonText?: string }
+    ru?: { heading?: string; body?: string; buttonText?: string }
+  }
 }
 
 export interface StoreHoursDay {

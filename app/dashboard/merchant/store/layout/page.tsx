@@ -1,8 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
+import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { useMyCategories, useMyCollections, useMyPages, useMyProducts, useMyStore, useUpdateMyStore } from '@/lib/queries/storefront-admin'
-import { DEFAULT_THEME_CONFIG, getHomeSectionOrder, HOME_SECTION_KEYS, parseThemeConfig } from '@/lib/store/theme-config'
+import { DEFAULT_THEME_CONFIG, getCustomSectionId, getHomeSectionOrder, HOME_SECTION_KEYS, parseThemeConfig } from '@/lib/store/theme-config'
 import { ALL_FONT_VARIABLE_CLASSES, getFontFamily } from '@/lib/storefront-fonts'
 import { getLandingCollections } from '@/lib/store/landing-collections'
 import { withSaleCategory } from '@/lib/store/sale-category'
@@ -18,7 +21,7 @@ import { CImg } from '@/components/ui/CImg'
 import { IconButton } from '@/components/ui/IconButton'
 import { TranslatedField, type TranslatedFieldValue } from '@/components/dashboard/store/TranslatedField'
 import { ReorderButtons } from '@/components/ui/ReorderButtons'
-import { PlusIcon, XIcon } from '@/components/ui/icons'
+import { EditIcon, GripIcon, PlusIcon, TrashIcon, XIcon } from '@/components/ui/icons'
 import { Header as MinimalHeader } from '@/components/storefront/themes/minimal/Header'
 import { Footer as MinimalFooter } from '@/components/storefront/themes/minimal/Footer'
 import { Home as MinimalHome } from '@/components/storefront/themes/minimal/Home'
@@ -74,10 +77,16 @@ import type {
   CategoryMenuMode,
   CategoryMenuScope,
   ContentImagePosition,
+  CustomSection,
+  CustomSectionImageLayout,
   FeaturedProductsMode,
   FooterContactFormPosition,
   FooterLinkColumn,
+  HeroMobileImagePosition,
+  HeroMobileImageVisibility,
+  HeroMobileTextAlign,
   HomeSectionKey,
+  HomeSectionOrderEntry,
   LandingCategoryColumns,
   ProductSummaryResponse,
   SearchBarLocation,
@@ -118,6 +127,284 @@ const SOCIALS_POSITION_OPTIONS: { value: SocialsPosition; label: string }[] = [
   { value: 'footer', label: 'ქვედა კოლონტიტულში' },
 ]
 
+// Wraps one row of the home-section list with dnd-kit's drag state — only the grip icon
+// (passed the returned attributes/listeners) is a drag handle, so clicking a toggle, edit, or
+// delete button inside the row never gets mistaken for the start of a drag.
+function SortableSectionRow({
+  id,
+  children,
+}: {
+  id: string
+  children: (drag: { attributes: React.HTMLAttributes<HTMLButtonElement>; listeners: Record<string, unknown> | undefined; isDragging: boolean }) => React.ReactNode
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+  return (
+    <div ref={setNodeRef} style={style}>
+      {children({ attributes, listeners, isDragging })}
+    </div>
+  )
+}
+
+const CUSTOM_SECTION_IMAGE_LAYOUT_OPTIONS: { value: CustomSectionImageLayout; label: string }[] = [
+  { value: 'left', label: 'მარცხნივ' },
+  { value: 'right', label: 'მარჯვნივ' },
+  { value: 'background', label: 'ფონად' },
+]
+
+// One custom section's full inline editor — deliberately mirrors the hero section's own
+// "Mobile overrides" panel (design/page.tsx) field-for-field, since that's the exact same
+// desktop-layout-plus-per-device-override shape this needs, just for a freeform content
+// section instead of the hero banner.
+function CustomSectionFields({
+  section,
+  onChange,
+  onTranslatedChange,
+  onRemove,
+  uploading,
+  onUploadStart,
+  onUploadEnd,
+}: {
+  section: CustomSection
+  onChange: (patch: Partial<CustomSection>) => void
+  onTranslatedChange: (field: 'heading' | 'body' | 'buttonText', value: TranslatedFieldValue) => void
+  onRemove: () => void
+  uploading: boolean
+  onUploadStart: () => void
+  onUploadEnd: () => void
+}) {
+  const headingValue: TranslatedFieldValue = { ka: section.heading ?? '', en: section.translations?.en?.heading ?? '', ru: section.translations?.ru?.heading ?? '' }
+  const bodyValue: TranslatedFieldValue = { ka: section.body ?? '', en: section.translations?.en?.body ?? '', ru: section.translations?.ru?.body ?? '' }
+  const buttonTextValue: TranslatedFieldValue = { ka: section.buttonText ?? '', en: section.translations?.en?.buttonText ?? '', ru: section.translations?.ru?.buttonText ?? '' }
+
+  async function handleFile(file: File) {
+    onUploadStart()
+    try {
+      onChange({ imageUrl: await uploadImage(file) })
+    } finally {
+      onUploadEnd()
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-4 px-4 pb-4 pt-1">
+      <div className="fieldset gap-2">
+        <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სათაური</label>
+        <TranslatedField
+          value={headingValue}
+          onChange={v => onTranslatedChange('heading', v)}
+          placeholders={{ ka: 'სექციის სათაური' }}
+          className="input input-sm w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+        />
+      </div>
+
+      <div className="fieldset gap-2">
+        <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ტექსტი</label>
+        <TranslatedField
+          value={bodyValue}
+          onChange={v => onTranslatedChange('body', v)}
+          multiline
+          rows={3}
+          className="textarea w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60 resize-none"
+        />
+      </div>
+
+      <div className="fieldset gap-2">
+        <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სურათი (სურვილისამებრ)</label>
+        <div className="flex items-center gap-4">
+          <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 bg-white/4 shrink-0 flex items-center justify-center">
+            {uploading ? (
+              <span className="loading loading-spinner loading-sm text-fuchsia-400" />
+            ) : section.imageUrl ? (
+              <CImg src={section.imageUrl} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-white/20 text-[10px]">არცერთი</span>
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="btn btn-xs bg-white/4 border-white/8 text-white/60 hover:text-white cursor-pointer w-fit">
+              ატვირთვა
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={async e => {
+                  const f = e.target.files?.[0]
+                  if (f) await handleFile(f)
+                }}
+              />
+            </label>
+            {section.imageUrl && (
+              <button type="button" onClick={() => onChange({ imageUrl: '' })} className="text-xs text-white/30 hover:text-red-400 text-left">
+                წაშლა
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {section.imageUrl && (
+        <div className="fieldset gap-2">
+          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სურათის განლაგება</label>
+          <div className="grid grid-cols-3 gap-2">
+            {CUSTOM_SECTION_IMAGE_LAYOUT_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => onChange({ imageLayout: opt.value })}
+                className={[
+                  'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                  (section.imageLayout ?? 'left') === opt.value
+                    ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                    : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                ].join(' ')}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="fieldset gap-2">
+        <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ღილაკის ტექსტი (სურვილისამებრ)</label>
+        <TranslatedField
+          value={buttonTextValue}
+          onChange={v => onTranslatedChange('buttonText', v)}
+          placeholders={{ ka: 'გაიგეთ მეტი' }}
+          className="input input-sm w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+        />
+      </div>
+
+      <div className="fieldset gap-2">
+        <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ღილაკის ბმული</label>
+        <input
+          type="text"
+          value={section.buttonLink ?? ''}
+          onChange={e => onChange({ buttonLink: e.target.value })}
+          placeholder="/products"
+          className="input input-sm w-full bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+        />
+      </div>
+
+      <div className="fieldset gap-2">
+        <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ფონის ფერი (სურვილისამებრ)</label>
+        <div className="flex items-center gap-2">
+          <input
+            type="color"
+            value={section.backgroundColor || '#000000'}
+            onChange={e => onChange({ backgroundColor: e.target.value })}
+            className="w-9 h-9 rounded-lg border border-white/10 bg-transparent cursor-pointer shrink-0"
+          />
+          <input
+            type="text"
+            value={section.backgroundColor ?? ''}
+            onChange={e => onChange({ backgroundColor: e.target.value })}
+            placeholder="თემის ნაგულისხმევი"
+            className="input input-sm flex-1 bg-white/4 border-white/10 focus:border-fuchsia-500/60"
+          />
+          {section.backgroundColor && (
+            <IconButton icon={<XIcon />} label="ფონის ფერის გასუფთავება" onClick={() => onChange({ backgroundColor: '' })} />
+          )}
+        </div>
+      </div>
+
+      <div className="fieldset gap-3 pt-3 border-t border-white/5">
+        <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">მობილურის გადაფარვები</p>
+
+        <div className="fieldset gap-2">
+          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სურათი მობილურზე</label>
+          <div className="grid grid-cols-2 gap-2">
+            {([
+              { value: 'show', label: 'ჩვენება' },
+              { value: 'hide', label: 'დამალვა' },
+            ] as { value: HeroMobileImageVisibility; label: string }[]).map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => onChange({ mobileImage: opt.value })}
+                className={[
+                  'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                  (section.mobileImage ?? 'show') === opt.value
+                    ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                    : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                ].join(' ')}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {section.imageUrl && (section.imageLayout ?? 'left') !== 'background' && (section.mobileImage ?? 'show') === 'show' && (
+          <div className="fieldset gap-2">
+            <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">სურათის პოზიცია მობილურზე</label>
+            <div className="grid grid-cols-3 gap-2">
+              {([
+                { value: 'inherit', label: 'ავტომატური' },
+                { value: 'top', label: 'ზემოთ' },
+                { value: 'bottom', label: 'ქვემოთ' },
+              ] as { value: HeroMobileImagePosition; label: string }[]).map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => onChange({ mobileImagePosition: opt.value })}
+                  className={[
+                    'rounded-lg border px-3 py-2 text-xs font-medium text-center transition-colors',
+                    (section.mobileImagePosition ?? 'inherit') === opt.value
+                      ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                      : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                  ].join(' ')}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="fieldset gap-2">
+          <label className="fieldset-legend text-white/60 text-xs uppercase tracking-wider">ტექსტის სწორება მობილურზე</label>
+          <div className="grid grid-cols-4 gap-2">
+            {([
+              { value: 'inherit', label: 'ავტომატური' },
+              { value: 'left', label: 'მარცხნივ' },
+              { value: 'center', label: 'ცენტრში' },
+              { value: 'right', label: 'მარჯვნივ' },
+            ] as { value: HeroMobileTextAlign; label: string }[]).map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => onChange({ mobileTextAlign: opt.value })}
+                className={[
+                  'rounded-lg border px-2 py-2 text-xs font-medium text-center transition-colors',
+                  (section.mobileTextAlign ?? 'inherit') === opt.value
+                    ? 'border-fuchsia-500 bg-fuchsia-500/10 text-white'
+                    : 'border-white/10 bg-white/4 text-white/50 hover:text-white',
+                ].join(' ')}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={onRemove}
+        className="btn btn-xs self-start bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20"
+      >
+        სექციის წაშლა
+      </button>
+    </div>
+  )
+}
+
 export default function StoreLayoutPage() {
   const { data: store, isLoading } = useMyStore()
   const { data: categories } = useMyCategories()
@@ -130,7 +417,14 @@ export default function StoreLayoutPage() {
   const [previewMode, setPreviewMode] = useState<PreviewMode>('desktop')
   const [previewFullscreen, setPreviewFullscreen] = useState(false)
 
-  const [homeSectionOrder, setHomeSectionOrder] = useState<HomeSectionKey[]>(DEFAULT_THEME_CONFIG.homeSectionOrder)
+  const [homeSectionOrder, setHomeSectionOrder] = useState<HomeSectionOrderEntry[]>(DEFAULT_THEME_CONFIG.homeSectionOrder)
+  const [customSections, setCustomSections] = useState<CustomSection[]>(DEFAULT_THEME_CONFIG.customSections)
+  const [expandedCustomSectionId, setExpandedCustomSectionId] = useState<string | null>(null)
+  const [uploadingSectionId, setUploadingSectionId] = useState<string | null>(null)
+  const sectionSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
   const [sectionBackgroundColors, setSectionBackgroundColors] = useState(DEFAULT_THEME_CONFIG.sectionBackgroundColors)
   const [layoutWidth, setLayoutWidth] = useState(DEFAULT_THEME_CONFIG.layoutWidth)
   const [boxedMaxWidth, setBoxedMaxWidth] = useState(DEFAULT_THEME_CONFIG.boxedMaxWidth)
@@ -216,6 +510,7 @@ export default function StoreLayoutPage() {
   if (store && !hydrated) {
     setHydrated(true)
     const parsed = parseThemeConfig(store.themeConfig)
+    setCustomSections(parsed.customSections)
     setHomeSectionOrder(getHomeSectionOrder(parsed))
     setSectionBackgroundColors(parsed.sectionBackgroundColors)
     setLayoutWidth(parsed.layoutWidth)
@@ -300,8 +595,61 @@ export default function StoreLayoutPage() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [previewFullscreen])
 
-  function toggleSection(key: HomeSectionKey) {
+  function toggleSection(key: HomeSectionOrderEntry) {
     setHomeSectionOrder(prev => (prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]))
+  }
+
+  function handleSectionDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    setHomeSectionOrder(prev => {
+      const oldIndex = prev.indexOf(active.id as HomeSectionOrderEntry)
+      const newIndex = prev.indexOf(over.id as HomeSectionOrderEntry)
+      if (oldIndex === -1 || newIndex === -1) return prev
+      return arrayMove(prev, oldIndex, newIndex)
+    })
+  }
+
+  function newCustomSectionId(): string {
+    return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)
+  }
+
+  function addCustomSection() {
+    const id = newCustomSectionId()
+    setCustomSections(prev => [...prev, {
+      id,
+      imageLayout: 'left',
+      mobileImage: 'show',
+      mobileImagePosition: 'inherit',
+      mobileTextAlign: 'inherit',
+    }])
+    setHomeSectionOrder(prev => [...prev, `custom:${id}`])
+    setExpandedCustomSectionId(id)
+  }
+
+  function removeCustomSection(id: string) {
+    setCustomSections(prev => prev.filter(s => s.id !== id))
+    setHomeSectionOrder(prev => prev.filter(k => k !== `custom:${id}`))
+    setExpandedCustomSectionId(prev => (prev === id ? null : prev))
+  }
+
+  function updateCustomSection(id: string, patch: Partial<CustomSection>) {
+    setCustomSections(prev => prev.map(s => (s.id === id ? { ...s, ...patch } : s)))
+  }
+
+  function updateCustomSectionTranslated(id: string, field: 'heading' | 'body' | 'buttonText', value: TranslatedFieldValue) {
+    setCustomSections(prev => prev.map(s => (
+      s.id === id
+        ? {
+            ...s,
+            [field]: value.ka,
+            translations: {
+              en: { ...s.translations?.en, [field]: value.en.trim() || undefined },
+              ru: { ...s.translations?.ru, [field]: value.ru.trim() || undefined },
+            },
+          }
+        : s
+    )))
   }
 
   function updateSectionBackgroundColor(key: Exclude<HomeSectionKey, 'hero'>, color: string) {
@@ -309,18 +657,6 @@ export default function StoreLayoutPage() {
       const next = { ...prev }
       if (color) next[key] = color
       else delete next[key]
-      return next
-    })
-  }
-
-  function moveSection(key: HomeSectionKey, direction: -1 | 1) {
-    setHomeSectionOrder(prev => {
-      const index = prev.indexOf(key)
-      if (index === -1) return prev
-      const nextIndex = index + direction
-      if (nextIndex < 0 || nextIndex >= prev.length) return prev
-      const next = [...prev]
-      ;[next[index], next[nextIndex]] = [next[nextIndex], next[index]]
       return next
     })
   }
@@ -522,6 +858,7 @@ export default function StoreLayoutPage() {
           ...parsed,
           translations: mergedTranslations,
           homeSectionOrder,
+          customSections,
           sectionBackgroundColors,
           layoutWidth,
           boxedMaxWidth,
@@ -616,6 +953,7 @@ export default function StoreLayoutPage() {
       ru: { ...parsed.translations.ru, ...textTranslations.ru },
     },
     homeSectionOrder,
+    customSections,
     sectionBackgroundColors,
     layoutWidth,
     boxedMaxWidth,
@@ -782,8 +1120,9 @@ export default function StoreLayoutPage() {
     </div>
   )
 
-  const disabledSections = HOME_SECTION_KEYS.filter(key => !homeSectionOrder.includes(key))
-  const sectionDisplayOrder = [...homeSectionOrder, ...disabledSections]
+  const customSectionsById = new Map(customSections.map(s => [s.id, s]))
+  const disabledFixed = HOME_SECTION_KEYS.filter(key => !homeSectionOrder.includes(key))
+  const disabledCustom = customSections.filter(s => !homeSectionOrder.includes(`custom:${s.id}`))
 
   return (
     <>
@@ -800,41 +1139,130 @@ export default function StoreLayoutPage() {
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-4">
             <div>
               <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">მთავარი გვერდის სექციები</h2>
-              <p className="text-white/30 text-xs mt-1">აჩვენეთ, დამალეთ და გადაალაგეთ სექციები თქვენი მაღაზიის მთავარ გვერდზე.</p>
+              <p className="text-white/30 text-xs mt-1">გადაათრიეთ სექციები მათი გადასალაგებლად, დამალეთ ისინი გადამრთველით, ან დაამატეთ საკუთარი სექცია.</p>
             </div>
-            <div className="flex flex-col gap-2">
-              {sectionDisplayOrder.map(key => {
-                const enabled = homeSectionOrder.includes(key)
-                const posInEnabled = homeSectionOrder.indexOf(key)
-                const meta = SECTION_META[key]
-                return (
-                  <div
-                    key={key}
-                    className={[
-                      'flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors',
-                      enabled ? 'border-white/10 bg-white/2' : 'border-white/5 bg-white/[0.01] opacity-60',
-                    ].join(' ')}
-                  >
-                    <ReorderButtons
-                      disabledUp={!enabled || posInEnabled === 0}
-                      disabledDown={!enabled || posInEnabled === homeSectionOrder.length - 1}
-                      onUp={() => moveSection(key, -1)}
-                      onDown={() => moveSection(key, 1)}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-white">{meta.label}</p>
-                      <p className="text-white/30 text-xs mt-0.5">{meta.description}</p>
+
+            <DndContext sensors={sectionSensors} collisionDetection={closestCenter} onDragEnd={handleSectionDragEnd}>
+              <SortableContext items={homeSectionOrder} strategy={verticalListSortingStrategy}>
+                <div className="flex flex-col gap-2">
+                  {homeSectionOrder.map(key => {
+                    const customId = getCustomSectionId(key)
+                    const customSection = customId ? customSectionsById.get(customId) : undefined
+                    const meta = customId ? null : SECTION_META[key as HomeSectionKey]
+                    const expanded = customId !== null && expandedCustomSectionId === customId
+                    return (
+                      <SortableSectionRow key={key} id={key}>
+                        {({ attributes, listeners }) => (
+                          <div className={`rounded-xl border border-white/10 bg-white/2 transition-colors ${expanded ? 'border-fuchsia-500/30' : ''}`}>
+                            <div className="flex items-center gap-3 px-4 py-3">
+                              <button
+                                type="button"
+                                {...attributes}
+                                {...listeners}
+                                aria-label="გადაადგილება"
+                                className="flex items-center justify-center w-6 h-6 shrink-0 text-white/25 hover:text-white/60 cursor-grab active:cursor-grabbing touch-none"
+                              >
+                                <GripIcon />
+                              </button>
+                              <div className="min-w-0 flex-1">
+                                {meta ? (
+                                  <>
+                                    <p className="text-sm font-medium text-white">{meta.label}</p>
+                                    <p className="text-white/30 text-xs mt-0.5">{meta.description}</p>
+                                  </>
+                                ) : (
+                                  <p className="text-sm font-medium text-white truncate">{customSection?.heading?.trim() || 'უსახელო სექცია'}</p>
+                                )}
+                              </div>
+                              {customId && customSection && (
+                                <>
+                                  <IconButton
+                                    icon={<EditIcon />}
+                                    label="რედაქტირება"
+                                    active={expanded}
+                                    onClick={() => setExpandedCustomSectionId(prev => (prev === customId ? null : customId))}
+                                  />
+                                  <IconButton icon={<TrashIcon />} label="სექციის წაშლა" variant="danger" onClick={() => removeCustomSection(customId)} />
+                                </>
+                              )}
+                              <input
+                                type="checkbox"
+                                checked
+                                onChange={() => toggleSection(key)}
+                                className="toggle toggle-sm toggle-success shrink-0"
+                              />
+                            </div>
+                            {expanded && customSection && (
+                              <CustomSectionFields
+                                section={customSection}
+                                onChange={patch => updateCustomSection(customSection.id, patch)}
+                                onTranslatedChange={(field, value) => updateCustomSectionTranslated(customSection.id, field, value)}
+                                onRemove={() => removeCustomSection(customSection.id)}
+                                uploading={uploadingSectionId === customSection.id}
+                                onUploadStart={() => setUploadingSectionId(customSection.id)}
+                                onUploadEnd={() => setUploadingSectionId(null)}
+                              />
+                            )}
+                          </div>
+                        )}
+                      </SortableSectionRow>
+                    )
+                  })}
+                </div>
+              </SortableContext>
+            </DndContext>
+
+            {(disabledFixed.length > 0 || disabledCustom.length > 0) && (
+              <div className="flex flex-col gap-2 pt-2 border-t border-white/5">
+                <p className="text-white/25 text-xs uppercase tracking-wider">დამალული სექციები</p>
+                {disabledFixed.map(key => {
+                  const meta = SECTION_META[key]
+                  return (
+                    <div key={key} className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.01] opacity-60 px-4 py-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-white">{meta.label}</p>
+                        <p className="text-white/30 text-xs mt-0.5">{meta.description}</p>
+                      </div>
+                      <input type="checkbox" checked={false} onChange={() => toggleSection(key)} className="toggle toggle-sm shrink-0" />
                     </div>
-                    <input
-                      type="checkbox"
-                      checked={enabled}
-                      onChange={() => toggleSection(key)}
-                      className={`toggle toggle-sm shrink-0 ${enabled ? 'toggle-success' : ''}`}
-                    />
-                  </div>
-                )
-              })}
-            </div>
+                  )
+                })}
+                {disabledCustom.map(section => {
+                  const key: HomeSectionOrderEntry = `custom:${section.id}`
+                  const expanded = expandedCustomSectionId === section.id
+                  return (
+                    <div key={section.id} className={`rounded-xl border border-white/5 bg-white/[0.01] opacity-60 ${expanded ? 'opacity-100 border-fuchsia-500/30' : ''}`}>
+                      <div className="flex items-center gap-3 px-4 py-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-white truncate">{section.heading?.trim() || 'უსახელო სექცია'}</p>
+                        </div>
+                        <IconButton
+                          icon={<EditIcon />}
+                          label="რედაქტირება"
+                          active={expanded}
+                          onClick={() => setExpandedCustomSectionId(prev => (prev === section.id ? null : section.id))}
+                        />
+                        <IconButton icon={<TrashIcon />} label="სექციის წაშლა" variant="danger" onClick={() => removeCustomSection(section.id)} />
+                        <input type="checkbox" checked={false} onChange={() => toggleSection(key)} className="toggle toggle-sm shrink-0" />
+                      </div>
+                      {expanded && (
+                        <CustomSectionFields
+                          section={section}
+                          onChange={patch => updateCustomSection(section.id, patch)}
+                          onTranslatedChange={(field, value) => updateCustomSectionTranslated(section.id, field, value)}
+                          onRemove={() => removeCustomSection(section.id)}
+                          uploading={uploadingSectionId === section.id}
+                          onUploadStart={() => setUploadingSectionId(section.id)}
+                          onUploadEnd={() => setUploadingSectionId(null)}
+                        />
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            <IconButton icon={<PlusIcon />} label="საკუთარი სექციის დამატება" onClick={addCustomSection} size="sm" className="self-start" />
           </div>
 
           <div className="rounded-2xl border border-white/7 bg-white/2 p-6 flex flex-col gap-5">

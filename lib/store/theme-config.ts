@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react'
 import { getThemeDefinition, RADIUS_CLASS } from '@/lib/storefront-themes'
 import { getThemeText } from '@/lib/store/translations'
 import type { StorefrontLanguage } from '@/lib/storefront-i18n'
-import type { AdminThemeOverride, CategoryResponse, HeroSlide, HomeSectionKey, ProductSummaryResponse, ThemeConfig, ThemeConfigTranslations } from '@/lib/types/storefront'
+import type { AdminThemeOverride, CategoryResponse, CustomSection, HeroSlide, HomeSectionKey, HomeSectionOrderEntry, ProductSummaryResponse, ThemeConfig, ThemeConfigTranslations } from '@/lib/types/storefront'
 
 export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   translations: {},
@@ -85,6 +85,7 @@ export const DEFAULT_THEME_CONFIG: Required<ThemeConfig> = {
   showContactInNav: false,
   contactLabel: 'კონტაქტი',
   homeSectionOrder: ['hero', 'categories', 'products'],
+  customSections: [],
   featuredProductsMode: 'latest',
   featuredProductIds: [],
   contentHeading: '',
@@ -201,15 +202,25 @@ export function parseThemeConfig(raw: string): Required<ThemeConfig> {
   }
 }
 
-export const HOME_SECTION_KEYS: Required<ThemeConfig>['homeSectionOrder'] = ['hero', 'categories', 'products', 'collections', 'faq', 'content']
+export const HOME_SECTION_KEYS: HomeSectionKey[] = ['hero', 'categories', 'products', 'collections', 'faq', 'content']
 
-// Sanitizes tokens.homeSectionOrder against unknown/duplicate entries (e.g. hand-edited JSON).
-// Deliberately does NOT re-add sections missing from the array — a section absent from the
-// saved order means the merchant turned it off, which must stick.
-export function getHomeSectionOrder(tokens: Required<ThemeConfig>): Required<ThemeConfig>['homeSectionOrder'] {
+/** Extracts the id out of a `custom:${id}` homeSectionOrder entry, or null if it isn't one. */
+export function getCustomSectionId(key: HomeSectionOrderEntry): string | null {
+  return key.startsWith('custom:') ? key.slice(7) : null
+}
+
+// Sanitizes tokens.homeSectionOrder against unknown/duplicate/stale entries (e.g. hand-edited
+// JSON, or a custom section that's since been deleted). Deliberately does NOT re-add sections
+// missing from the array — a section absent from the saved order means the merchant turned it
+// off, which must stick.
+export function getHomeSectionOrder(tokens: Required<ThemeConfig>): HomeSectionOrderEntry[] {
   const seen = new Set<string>()
+  const customIds = new Set(tokens.customSections.map(s => s.id))
   return tokens.homeSectionOrder.filter(key => {
-    if (!HOME_SECTION_KEYS.includes(key) || seen.has(key)) return false
+    if (seen.has(key)) return false
+    const customId = getCustomSectionId(key)
+    const valid = customId !== null ? customIds.has(customId) : (HOME_SECTION_KEYS as string[]).includes(key)
+    if (!valid) return false
     seen.add(key)
     return true
   })

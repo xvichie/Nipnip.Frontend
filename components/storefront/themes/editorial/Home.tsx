@@ -4,11 +4,12 @@ import { CategoryIcon } from '@/components/storefront/shared/CategoryIcon'
 import { ProductScrollRow } from '@/components/storefront/shared/ProductScrollRow'
 import { HeroCarousel } from '@/components/storefront/shared/HeroCarousel'
 import { ScrollIndicator } from '@/components/storefront/shared/ScrollIndicator'
-import { getBannerBackgroundStyle, getHeroBackgroundImageClass, getHeroButtonRowClass, getHeroCtaHref, getHeroCtaLabel, getHeroImageClass, getHeroOverlayStyle, getHeroSecondaryCtaHref, getHeroSecondaryCtaLabel, getHeroSlideTranslations, getHeroTextAlignClass, getHeroTextColorClass, getHomeSectionOrder, getSectionBackgroundStyle, hasBanner, hasContentBlock, hasHeroVideo, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
+import { getBannerBackgroundStyle, getCustomSectionId, getHeroBackgroundImageClass, getHeroButtonRowClass, getHeroCtaHref, getHeroCtaLabel, getHeroImageClass, getHeroOverlayStyle, getHeroSecondaryCtaHref, getHeroSecondaryCtaLabel, getHeroSlideTranslations, getHeroTextAlignClass, getHeroTextColorClass, getHomeSectionOrder, getSectionBackgroundStyle, hasBanner, hasContentBlock, hasHeroVideo, HERO_EYEBROW_SIZE_CLASS, HERO_HEADLINE_SIZE_CLASS, HERO_HEIGHT_CLASS, HERO_SUBHEADLINE_SIZE_CLASS, HERO_TEXT_POSITION_CLASS, LANDING_CATEGORY_GRID_CLASS } from '@/lib/store/theme-config'
 import { getLandingCategories } from '@/lib/store/landing-categories'
 import { getLandingCollections } from '@/lib/store/landing-collections'
 import { ContentBlock } from '@/components/storefront/shared/ContentBlock'
 import { FaqAccordion } from '@/components/storefront/shared/FaqAccordion'
+import { CustomSectionBlock } from '@/components/storefront/shared/CustomSectionBlock'
 import { getCategoryName, getCollectionName, getCollectionTitleOverride, getThemeText } from '@/lib/store/translations'
 import type { CategoryResponse, CollectionResponse, HomeSectionKey, ProductSummaryResponse, StoreResponse, ThemeConfig } from '@/lib/types/storefront'
 import type { StorefrontLanguage, StorefrontStrings } from '@/lib/storefront-i18n'
@@ -324,7 +325,25 @@ export function Home({
 
   return (
     <div className="bg-white min-h-screen">
-      {getHomeSectionOrder(tokens).map(key => sections[key])}
+      {getHomeSectionOrder(tokens).map(key => {
+        const customId = getCustomSectionId(key)
+        if (!customId) return sections[key as HomeSectionKey]
+        const section = tokens.customSections.find(s => s.id === customId)
+        if (!section) return null
+        return (
+          <section key={key} className="border-t border-black/10" style={{ backgroundColor: section.backgroundColor || undefined }}>
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+              <CustomSectionBlock
+                section={section}
+                lang={lang}
+                headingClassName="font-serif italic text-2xl sm:text-3xl text-[#111111] mb-5"
+                bodyClassName="text-[#767676] text-sm sm:text-base leading-relaxed mb-8"
+                buttonClassName="inline-flex items-center gap-2 border-2 border-black text-[#111111] text-xs uppercase tracking-widest font-medium px-8 py-3.5 hover:bg-black hover:text-white transition-colors"
+              />
+            </div>
+          </section>
+        )
+      })}
     </div>
   )
 }

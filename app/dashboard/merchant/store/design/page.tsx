@@ -578,6 +578,7 @@ export default function StoreDesignPage() {
   const [showSaleCategoryIcon, setShowSaleCategoryIcon] = useState(DEFAULT_THEME_CONFIG.showSaleCategoryIcon)
   const [navPageIds, setNavPageIds] = useState<string[]>(DEFAULT_THEME_CONFIG.navPageIds)
   const [searchBarLocation, setSearchBarLocation] = useState<SearchBarLocation>(DEFAULT_THEME_CONFIG.searchBarLocation)
+  const [customSections, setCustomSections] = useState(DEFAULT_THEME_CONFIG.customSections)
   const [categoryMenuMode, setCategoryMenuMode] = useState<CategoryMenuMode>(DEFAULT_THEME_CONFIG.categoryMenuMode)
   const [categoryMenuScope, setCategoryMenuScope] = useState<CategoryMenuScope>(DEFAULT_THEME_CONFIG.categoryMenuScope)
   const [categoryMenuSelectedIds, setCategoryMenuSelectedIds] = useState<string[]>(DEFAULT_THEME_CONFIG.categoryMenuSelectedIds)
@@ -762,6 +763,7 @@ export default function StoreDesignPage() {
     setShowSaleCategoryIcon(parsed.showSaleCategoryIcon)
     setNavPageIds(parsed.navPageIds)
     setSearchBarLocation(parsed.searchBarLocation)
+    setCustomSections(parsed.customSections)
     setCategoryMenuMode(parsed.categoryMenuMode)
     setCategoryMenuScope(parsed.categoryMenuScope)
     setCategoryMenuSelectedIds(parsed.categoryMenuSelectedIds)
@@ -1116,6 +1118,7 @@ export default function StoreDesignPage() {
           showSaleCategoryIcon,
           navPageIds,
           searchBarLocation,
+          customSections,
           categoryMenuMode,
           categoryMenuScope,
           categoryMenuSelectedIds,
@@ -1285,6 +1288,7 @@ export default function StoreDesignPage() {
     showSaleCategoryIcon,
     navPageIds,
     searchBarLocation,
+    customSections,
     categoryMenuMode,
     categoryMenuScope,
     categoryMenuSelectedIds,
