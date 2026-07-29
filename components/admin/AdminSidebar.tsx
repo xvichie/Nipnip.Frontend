@@ -141,11 +141,6 @@ export function AdminSidebar() {
             </span>
           </Link>
         )}
-        {collapsed && (
-          <Link href="/" className="hover:opacity-80 transition-opacity select-none" aria-label="NipNip">
-            <NipNipLogo className="h-7" />
-          </Link>
-        )}
         <button
           type="button"
           onClick={toggleCollapsed}
