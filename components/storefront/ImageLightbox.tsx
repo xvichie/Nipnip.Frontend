@@ -39,12 +39,20 @@ export function ImageLightbox({
   // exactly what made the old hover-only implementation feel broken there.
   const [scale, setScale] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
-  const isTouchZoomed = scale > 1.01
+  // Covers both touch pinch/double-tap and desktop hover zoom now that both drive the same
+  // scale/pan state — hides the nav arrows and dots while either is actively zoomed in, since
+  // they'd otherwise sit awkwardly on top of the magnified image.
+  const isZoomedIn = scale > 1.01
 
-  // Desktop hover-lens zoom state — only ever engaged when supportsHover is true.
+  // Desktop hover zoom — only ever engaged when supportsHover is true. Drives the exact same
+  // translate+scale+clampPan transform as touch (via zoomToPoint below) instead of a separate
+  // transform-origin-based approach: transform-origin pivots around whatever point the cursor is
+  // over with no clamping, so hovering anywhere near an edge or corner zoomed into a heavily
+  // cropped, mostly-empty sliver of the image cut off by the container's overflow-hidden — that
+  // was the "weird" part. Sharing zoomToPoint's clamping means the zoomed viewport always stays
+  // fully covered by image content, all the way into the corners, exactly like the touch version.
   const [supportsHover, setSupportsHover] = useState(false)
   const [hoverZoomed, setHoverZoomed] = useState(false)
-  const [origin, setOrigin] = useState({ x: 50, y: 50 })
 
   const containerRef = useRef<HTMLDivElement>(null)
   const pinchRef = useRef<{ startDistance: number; startScale: number } | null>(null)
@@ -147,12 +155,23 @@ export function ImageLightbox({
   }, [scale, pan])
 
   function handleMouseMove(e: React.MouseEvent<HTMLImageElement>) {
-    if (!supportsHover) return
+    if (!supportsHover || !hoverZoomed) return
     const rect = e.currentTarget.getBoundingClientRect()
-    setOrigin({
-      x: ((e.clientX - rect.left) / rect.width) * 100,
-      y: ((e.clientY - rect.top) / rect.height) * 100,
-    })
+    zoomToPoint(e.clientX - rect.left, e.clientY - rect.top, rect, DOUBLE_TAP_SCALE)
+  }
+
+  function handleMouseEnter(e: React.MouseEvent<HTMLImageElement>) {
+    if (!supportsHover) return
+    setHoverZoomed(true)
+    const rect = e.currentTarget.getBoundingClientRect()
+    zoomToPoint(e.clientX - rect.left, e.clientY - rect.top, rect, DOUBLE_TAP_SCALE)
+  }
+
+  function handleMouseLeave() {
+    if (!supportsHover) return
+    setHoverZoomed(false)
+    setScale(1)
+    setPan({ x: 0, y: 0 })
   }
 
   const active = images[activeIndex]
@@ -174,7 +193,7 @@ export function ImageLightbox({
         </svg>
       </button>
 
-      {images.length > 1 && !isTouchZoomed && (
+      {images.length > 1 && !isZoomedIn && (
         <>
           <button
             type="button"
@@ -209,18 +228,17 @@ export function ImageLightbox({
           draggable={false}
           onClick={e => e.stopPropagation()}
           onMouseMove={handleMouseMove}
-          onMouseEnter={() => supportsHover && setHoverZoomed(true)}
-          onMouseLeave={() => supportsHover && setHoverZoomed(false)}
-          className={`max-w-full max-h-full object-contain select-none ${supportsHover ? 'cursor-zoom-in transition-transform duration-200 ease-out' : ''}`}
-          style={
-            supportsHover
-              ? { transform: hoverZoomed ? 'scale(2)' : 'scale(1)', transformOrigin: `${origin.x}% ${origin.y}%` }
-              : { transform: `translate(${pan.x}px, ${pan.y}px) scale(${scale})`, transformOrigin: 'center center' }
-          }
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          className={`max-w-full max-h-full object-contain select-none ${supportsHover ? 'cursor-zoom-in' : ''}`}
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${scale})`,
+            transformOrigin: 'center center',
+          }}
         />
       </div>
 
-      {images.length > 1 && !isTouchZoomed && (
+      {images.length > 1 && !isZoomedIn && (
         <div className="absolute z-10 bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
           {images.map((image, i) => (
             <button
